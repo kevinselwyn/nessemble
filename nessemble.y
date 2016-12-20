@@ -1388,12 +1388,12 @@ void assemble_indirect_xy(char *mnemonic, int address, char reg) {
  */
 void assemble_relative(char *mnemonic, int address) {
     unsigned int opcode_id = get_opcode(mnemonic, MODE_RELATIVE);
-    int offset = get_address_offset();
+    int offset = get_address_offset() + 1;
 
     if (offset > address) {
-        address = 0xFE - (offset - address);
+        address = 0xFF - (offset - address);
     } else {
-        address = offset - address;
+        address = address - offset - 1;
     }
 
     // TODO: throw error if jump is too large
