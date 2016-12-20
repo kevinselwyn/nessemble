@@ -54,7 +54,6 @@ void add_constant(char *name, int value);
 void add_label(char *name);
 
 void pseudo_ascii(char *string, int offset);
-void pseudo_bank(int value);
 void pseudo_chr(int index);
 void pseudo_db();
 void pseudo_defchr();

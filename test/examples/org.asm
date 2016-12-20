@@ -1,9 +1,9 @@
-.org $0010
+.org $C010
 
     LDA #$01
     STA <$02
 
-CONSTANT = $0000
+CONSTANT = $C000
 
 .org CONSTANT
 

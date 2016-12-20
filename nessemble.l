@@ -56,7 +56,6 @@ int dec2int(char *dec);
 "LOW"                  { return LOW; }
 
 ".ascii"               { return PSEUDO_ASCII; }
-".bank"                { return PSEUDO_BANK; }
 ".byte"                { return PSEUDO_BYTE; }
 \.chr[0-9]+            { yylval.ival = parse2int(yytext); return PSEUDO_CHR; }
 ".db"                  { return PSEUDO_DB; }
