@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "nessemble.h"
 
 int disassemble(char *input, char *output) {
@@ -53,7 +54,40 @@ int disassemble(char *input, char *output) {
         goto cleanup;
     }
 
-    for (i = 0, l = (int)insize; i < l; i++) {
+    if (strncmp(indata, "NES", 3) == 0) {
+        i = 0x10;
+
+        fprintf(outfile, "0000 | 4E 45 53 | .ascii \"NES\"\n");
+        fprintf(outfile, "0003 | 1A       | .db $1A\n");
+
+        arg0 = (int)indata[4] & 0xFF;
+        fprintf(outfile, "0004 | %02X       | .db $%02X ; .inesprg %d\n", arg0, arg0, arg0);
+
+        arg0 = (int)indata[5] & 0xFF;
+        fprintf(outfile, "0005 | %02X       | .db $%02X ; .ineschr %d\n", arg0, arg0, arg0);
+
+        arg0 = (int)indata[6] & 0xFF;
+        arg1 = (int)indata[7] & 0xFF;
+        fprintf(outfile, "0006 | %02X       | .db $%02X ; .inesmir %d\n", arg0, arg0, arg0 & 0x01);
+        fprintf(outfile, "0007 | %02X       | .db $%02X ; .inesmap %d\n", arg1, arg1, (arg0 >> 4) | (arg1 & 0xF0));
+
+        arg0 = (int)indata[8] & 0xFF;
+        fprintf(outfile, "0008 | %02X       | .db $%02X\n", arg0, arg0);
+
+        arg0 = (int)indata[9] & 0xFF;
+        fprintf(outfile, "0009 | %02X       | .db $%02X\n", arg0, arg0);
+
+        arg0 = (int)indata[10] & 0xFF;
+        fprintf(outfile, "000A | %02X       | .db $%02X\n", arg0, arg0);
+
+        for (i = 11, l = 16; i < l; i++) {
+            fprintf(outfile, "%04X | %02X       | .db $%02X\n", i, 0, 0);
+        }
+
+        i = 16;
+    }
+
+    for (l = (int)insize; i < l; i++) {
         opcode_id = (int)indata[i] & 0xFF;
 
         if ((opcodes[opcode_id].meta & 0x02) == 0) {
