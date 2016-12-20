@@ -27,8 +27,6 @@ int include_stack_ptr;
 unsigned int *rom = NULL;
 int pass = 1;
 int offset_max = 0;
-int bank_index = 0;
-int bank_offsets[MAX_BANKS];
 
 // banks
 int prg_offsets[MAX_BANKS];
@@ -86,7 +84,6 @@ struct ines_header ines = { 1, 0, 0, 1, 0 };
 %token LOW
 
 %token PSEUDO_ASCII
-%token PSEUDO_BANK
 %token PSEUDO_BYTE
 %token PSEUDO_DB
 %token PSEUDO_DEFCHR
@@ -137,7 +134,6 @@ struct ines_header ines = { 1, 0, 0, 1, 0 };
 %type <ival> number_base
 %type <ival> number_highlow
 %type <ival> label
-%type <ival> pseudo_bank
 %type <ival> pseudo_chr
 %type <ival> pseudo_ineschr
 %type <ival> pseudo_inesmap
@@ -217,7 +213,6 @@ line
 
 pseudo
     : pseudo_ascii   { /* NOTHING */ }
-    | pseudo_bank    { pseudo_bank($1); }
     | pseudo_chr     { pseudo_chr($1); }
     | pseudo_db      { pseudo_db(); }
     | pseudo_defchr  { pseudo_defchr(); }
@@ -244,11 +239,6 @@ pseudo_ascii
     : PSEUDO_ASCII QUOT_STRING                   { pseudo_ascii($2, 0); }
     | PSEUDO_ASCII QUOT_STRING PLUS number_base  { pseudo_ascii($2, $4); }
     | PSEUDO_ASCII QUOT_STRING MINUS number_base { pseudo_ascii($2, $4 * -1); }
-    ;
-
-pseudo_bank
-    : PSEUDO_BANK number { $$ = $2; }
-    | PSEUDO_BANK label  { $$ = $2; }
     ;
 
 pseudo_chr
@@ -507,6 +497,14 @@ int main(int argc, char *argv[]) {
 
     // segment
     segment = (char *)malloc(sizeof(char) * 8);
+    strcpy(segment, "PRG0");
+    segment_type = SEGMENT_PRG;
+
+    // offsets
+    for (i = 0, l = MAX_BANKS; i < l; i++) {
+        prg_offsets[i] = 0x00;
+        chr_offsets[i] = 0x00;
+    }
 
     /* PASS 1 */
 
@@ -548,10 +546,24 @@ int main(int argc, char *argv[]) {
 
     // clear offsets
     offset_trainer = 0;
-    bank_index = 0;
+
+    // segments
+    strcpy(segment, "PRG0");
+    segment_type = SEGMENT_PRG;
+
+    // offsets
+    for (i = 0, l = MAX_BANKS; i < l; i++) {
+        prg_offsets[i] = 0x00;
+        chr_offsets[i] = 0x00;
+    }
+
+    // offsets
+    prg_index = 0;
+    chr_index = 0;
 
     for (i = 0, l = MAX_BANKS; i < l; i++) {
-        bank_offsets[i] = 0x00;
+        prg_offsets[i] = 0x00;
+        chr_offsets[i] = 0x00;
     }
 
     // reset lineno
@@ -699,13 +711,13 @@ void end_pass() {
 int get_rom_index() {
     int index = 0;
 
-    if (bank_index < ines.prg) {
-        index = bank_index * BANK_PRG;
-    } else {
-        index = (ines.prg * BANK_PRG) + ((bank_index - ines.prg) * BANK_CHR);
+    if (is_segment_prg()) {
+        index = prg_offsets[prg_index] + (prg_index * BANK_PRG);
     }
 
-    index += bank_offsets[bank_index];
+    if (is_segment_chr()) {
+        index = chr_offsets[chr_index] + (ines.prg * BANK_PRG);
+    }
 
     return index;
 }
@@ -715,15 +727,26 @@ int get_rom_index() {
  * @return {int} PC offset
  */
 int get_address_offset() {
-    if (is_segment_prg()) {
+    int offset = 0;
 
+    if (is_flag_nes()) {
+        if (is_segment_prg()) {
+            if (ines.prg < 2) {
+                offset = prg_offsets[prg_index] + 0xC000;
+            } else {
+                offset = prg_offsets[prg_index] + (0x8000 + ((ines.prg % 2) * 0x4000));
+            }
+        }
+    } else {
+        offset = prg_offsets[prg_index];
     }
 
+    // TODO: may need to fix this
     if (is_segment_chr()) {
-
+        offset = chr_offsets[chr_index] + (ines.prg * BANK_PRG);
     }
 
-    return bank_offsets[bank_index];
+    return offset;
 }
 
 /**
@@ -747,7 +770,13 @@ void write_byte(unsigned int byte) {
         rom[offset] = byte;
     }
 
-    bank_offsets[bank_index]++;
+    if (is_segment_prg()) {
+        prg_offsets[prg_index]++;
+    }
+
+    if (is_segment_chr()) {
+        chr_offsets[chr_index]++;
+    }
 
     if (offset + 1 > offset_max) {
         offset_max = offset + 1;
@@ -822,18 +851,6 @@ void pseudo_ascii(char *string, int offset) {
     for (i = 1, l = (int)length - 1; i < l; i++) {
         write_byte((unsigned int)string[i] + offset);
     }
-}
-
-/**
- * .bank pseudo instruction
- * @param {int} value - Bank value
- */
-void pseudo_bank(int value) {
-    flags |= FLAG_NES;
-
-    // TODO: add check for too high bank
-
-    bank_index = value;
 }
 
 /**
@@ -1100,7 +1117,13 @@ void pseudo_lobytes() {
 void pseudo_org(int address) {
     // TODO: add check for too high an address
 
-    bank_offsets[bank_index] = address;
+    if (is_segment_prg()) {
+        prg_offsets[prg_index] = address - 0xC000;
+    }
+
+    if (is_segment_chr()) {
+        chr_offsets[chr_index] = address;
+    }
 }
 
 /**
@@ -1214,8 +1237,6 @@ void assemble_absolute(char *mnemonic, int address) {
         yyerror("Unknown opcode `%s`", mnemonic);
     }
 
-    address -= bank_index * BANK_SIZE;
-
     write_byte(opcode_index);
     write_byte(address & 0xFF);
     write_byte((address >> 8) & 0xFF);
@@ -1241,8 +1262,6 @@ void assemble_absolute_xy(char *mnemonic, int address, char reg) {
     if (opcode_index == -1) {
         yyerror("Unknown opcode `%s`", mnemonic);
     }
-
-    address -= bank_index * BANK_SIZE;
 
     write_byte(opcode_index);
     write_byte(address & 0xFF);
@@ -1305,8 +1324,6 @@ void assemble_indirect(char *mnemonic, int address) {
         yyerror("Unknown opcode `%s`", mnemonic);
     }
 
-    address -= bank_index * BANK_SIZE;
-
     write_byte(opcode_index);
     write_byte(address & 0xFF);
     write_byte((address >> 8) & 0xFF);
@@ -1333,8 +1350,6 @@ void assemble_indirect_xy(char *mnemonic, int address, char reg) {
         yyerror("Unknown opcode `%s`", mnemonic);
     }
 
-    address -= bank_index * BANK_SIZE;
-
     write_byte(opcode_index);
     write_byte(address & 0xFF);
 }
@@ -1347,8 +1362,6 @@ void assemble_indirect_xy(char *mnemonic, int address, char reg) {
 void assemble_relative(char *mnemonic, int address) {
     unsigned int opcode_id = get_opcode(mnemonic, MODE_RELATIVE);
     int offset = get_address_offset();
-
-    address -= bank_index * BANK_PRG;
 
     if (offset > address) {
         address = 0xFE - (offset - address);
@@ -1370,8 +1383,6 @@ void assemble_relative(char *mnemonic, int address) {
  */
 void assemble_zeropage(char *mnemonic, int address) {
     unsigned int opcode_id = get_opcode(mnemonic, MODE_ZEROPAGE);
-
-    address -= bank_index * BANK_SIZE;
 
     write_byte(opcode_id);
     write_byte(address & 0XFF);
@@ -1397,8 +1408,6 @@ void assemble_zeropage_xy(char *mnemonic, int address, char reg) {
     if (opcode_index == -1) {
         yyerror("Unknown opcode `%s`", mnemonic);
     }
-
-    address -= bank_index * BANK_SIZE;
 
     write_byte(opcode_index);
     write_byte(address & 0xFF);
