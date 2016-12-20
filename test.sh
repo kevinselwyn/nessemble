@@ -36,11 +36,13 @@ done
 # timer start
 start=$(python -c 'import time; print time.time()')
 
+# loop through .asm files
 for asm in `find ./test -name '*.asm' | sort`
 do
     rom="${asm%.*}"
     dir=$(dirname $rom)
 
+    # display directory
     if [ "$flag_silent" != "1" ]
     then
         if [[ "$dir" != "$old_dir" ]]
@@ -50,6 +52,7 @@ do
         fi
     fi
 
+    # if no rom
     if [ ! -e "$rom.rom" ]
     then
         if [ "$flag_silent" != "1" ]
@@ -66,6 +69,7 @@ do
 
     IFS=$'\n'
 
+    # get comment flags
     flags=$(cat $asm | head -1 | sed 's/; Flags: //g')
 
     if [[ $flags != --* ]]
@@ -73,30 +77,57 @@ do
         flags=""
     fi
 
-    for testcase in $(cat $asm | grep "; Test: " | cut -b9-)
-    do
-        printf "     $testcase\n"
-    done
+    # disassembly
+    disassembly_fail=0
+    ls $rom.txt &>/dev/null
+    disassembly_nonexist=$?
+
+    if [ $disassembly_nonexist -eq 0 ]
+    then
+        diff "$rom.txt" <(./nessemble $rom.rom --disassemble) &>/dev/null
+        disassembly_fail=$?
+    fi
 
     IFS=$OLDIFS
 
+    # assembly
     diff "$rom.rom" <(./nessemble $asm --output - $flags) &>/dev/null
+    diff_rc=$?
 
-    if [ $? -eq 0 ]
+    # if no assembly diff and no disassembly diff
+    if [ $diff_rc -eq 0 ] && [ $disassembly_fail -eq 0 ]
     then
         if [ "$flag_silent" != "1" ]
         then
-            printf "  \033[0;32m✔\033[0m %s\n" $(basename $asm)
+            printf "  \033[0;32m✔\033[0m %s" $(basename $asm)
+
+            if [ $disassembly_nonexist -eq 0 ]
+            then
+                printf " *"
+            fi
+
+            printf "\n"
 
             pass=$(echo "$pass + 1" | bc)
         fi
     else
-        printf "\033[0;31m✗\033[0m %s\n" $asm
-        printf "\n  Actual:\n    "
-        ./nessemble $asm --output - $flags | hexdump -e '1/1 "%.2X "'
-        printf "\n\n  Expected:\n    "
-        cat "$rom.rom" | hexdump -e '1/1 "%.2X "'
-        printf "\n\n"
+        printf "\033[0;31m✗\033[0m %s" $asm
+
+        # if disassembly diff
+        if [ $disassembly_fail -ne 0 ]
+        then
+            printf " [disassembly fail]\n"
+        fi
+
+        # if assembly fail
+        if [ $diff_rc -ne 0 ]
+        then
+            printf "\n\n  Actual:\n    "
+            ./nessemble $asm --output - $flags | hexdump -e '1/1 "%.2X "'
+            printf "\n\n  Expected:\n    "
+            cat "$rom.rom" | hexdump -e '1/1 "%.2X "'
+            printf "\n\n"
+        fi
 
         fail=$(echo "$fail + 1" | bc)
     fi

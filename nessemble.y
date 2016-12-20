@@ -469,11 +469,22 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
+        if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--disassemble") == 0) {
+            flags |= FLAG_DISASSEMBLE;
+            continue;
+        }
+
         filename = argv[i];
     }
 
     // get cwd
-    realpath(filename, cwd);
+    if (!realpath(filename, cwd)) {
+        fprintf(stderr, "Could not find real path of %s\n", filename);
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     cwd_path = strdup(cwd);
 
     for (i = (int)strlen(cwd_path), l = 0; i >= l; i--) {
@@ -481,6 +492,16 @@ int main(int argc, char *argv[]) {
             cwd_path[i] = '\0';
             break;
         }
+    }
+
+    // output
+    if (!outfilename || strcmp(outfilename, "-") == 0) {
+        outfilename = "/dev/stdout";
+    }
+
+    if (is_flag_disassemble()) {
+        rc = disassemble(cwd, outfilename);
+        goto cleanup;
     }
 
     // open file
@@ -575,11 +596,6 @@ int main(int argc, char *argv[]) {
 
     /* DONE */
 
-    // output
-    if (!outfilename || strcmp(outfilename, "-") == 0) {
-        outfilename = "/dev/stdout";
-    }
-
     // write output
     outfile = fopen(outfilename, "w");
 
@@ -650,6 +666,14 @@ int is_flag_undocumented() {
  */
 int is_flag_nes() {
     return (flags & FLAG_NES) != 0;
+}
+
+/**
+ * Test if disassemble flag is active
+ * @return {int} Return code
+ */
+int is_flag_disassemble() {
+    return (flags & FLAG_DISASSEMBLE) != 0;
 }
 
 /**
@@ -1052,7 +1076,10 @@ void pseudo_incbin(char *string, int offset, int limit) {
         goto cleanup;
     }
 
-    fread(bin_data, bin_length, 1, incbin);
+    if (fread(bin_data, 1, bin_length, incbin) != bin_length) {
+        yyerror("Could not read %s", string);
+        goto cleanup;
+    }
 
     if (limit == -1) {
         limit = (int)bin_length;
