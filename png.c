@@ -62,7 +62,7 @@ struct png_data read_png(char *filename) {
         goto cleanup;
 	}
 
-	if (png_sig_cmp(p.header, 0, 8)) {
+	if (png_sig_cmp((png_bytep)p.header, 0, 8)) {
 		yyerror("%s is not a PNG\n", filename);
         goto cleanup;
 	}

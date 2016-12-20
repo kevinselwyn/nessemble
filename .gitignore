@@ -3,3 +3,4 @@ lex.yy.c
 nessemble
 opcodes.h
 y.tab.*
+*.o

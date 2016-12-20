@@ -64,15 +64,7 @@ do
     i=$(printf "%d+1\n" $i | bc)
 done
 
-# generate struct
-printf "\nstruct opcode {\n" >> $output
-printf "    char mnemonic[4];\n" >> $output
-printf "    int mode;\n" >> $output
-printf "    int opcode;\n" >> $output
-printf "    int length;\n" >> $output
-printf "    int timing;\n" >> $output
-printf "    int meta;\n" >> $output
-printf "};\n\n" >> $output
+printf "\n" >> $output
 
 # meta info
 METAS=("META_NONE" "META_BOUNDARY" "META_UNDOCUMENTED")
@@ -122,25 +114,6 @@ do
 done
 
 printf "};\n\n" >> $output
-
-# labels
-LABELS=("SYMBOL_LABEL" "SYMBOL_CONSTANT" "SYMBOL_RS")
-
-i=0
-
-for label in "${LABELS[@]}"
-do
-    printf "#define %-15s 0x%02X\n" $label $i >> $output
-    i=$(printf "%d+1\n" $i | bc)
-done
-
-printf "\nstruct symbol {\n" >> $output
-printf "    char *name;\n" >> $output
-printf "    int value;\n" >> $output
-printf "    int type;\n" >> $output
-printf "};\n\n" >> $output
-
-printf "struct symbol symbols[1024];\n\n" >> $output
 
 # finish
 printf "#endif /* %s */\n" $header >> $output
