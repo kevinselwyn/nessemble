@@ -31,6 +31,9 @@ int include_stack_ptr = 0;
 "-"                    { return MINUS; }
 "*"                    { return MULT; }
 "/"                    { return DIV; }
+"&"                    { return AND; }
+"|"                    { return OR; }
+"^"                    { return XOR; }
 
 "#"                    { return HASH; }
 ","                    { return COMMA; }

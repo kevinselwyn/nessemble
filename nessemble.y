@@ -1,9 +1,5 @@
 %{
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
 #include "nessemble.h"
 
 %}
@@ -21,6 +17,9 @@
 %token MINUS
 %token MULT
 %token DIV
+%token AND
+%token OR
+%token XOR
 
 %token HASH
 %token COMMA
@@ -121,6 +120,11 @@ number
     | label                    { $$ = $1; }
     | number PLUS number_base  { $$ = $1 + $3; }
     | number MINUS number_base { $$ = $1 - $3; }
+    | number MULT number_base  { $$ = $1 * $3; }
+    | number DIV number_base   { $$ = (int)($1 / $3); }
+    | number AND number_base   { $$ = $1 & $3; }
+    | number OR number_base    { $$ = $1 | $3; }
+    | number XOR number_base    { $$ = $1 ^ $3; }
     ;
 
 number_base
@@ -137,9 +141,7 @@ number_highlow
     ;
 
 label
-    : TEXT                    { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { $$ = 0; } }
-    | label PLUS number_base  { if (pass == 2) { $$ = $1 + $3; } else { $$ = 0; } }
-    | label MINUS number_base { if (pass == 2) { $$ = $1 - $3; } else { $$ = 0; } }
+    : TEXT { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { $$ = 0; } }
     ;
 
 comma
