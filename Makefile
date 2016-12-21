@@ -14,12 +14,14 @@ YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 OPCODES      := opcodes
 ASSEMBLE     := assemble
+PSEUDO       := pseudo
+INSTRUCTIONS := instructions
 DISASSEMBLE  := disassemble
 PNG          := png
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(ASSEMBLE).c $(DISASSEMBLE).c $(PNG).c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(ASSEMBLE).c $(PSEUDO).c $(INSTRUCTIONS).c $(DISASSEMBLE).c $(PNG).c
 OBJS         := ${SRCS:c=o}
 
 ifeq ($(UNAME), Darwin)

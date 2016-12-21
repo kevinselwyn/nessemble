@@ -6,7 +6,6 @@
 #include <math.h>
 #include <stdarg.h>
 #include "nessemble.h"
-#include "opcodes.h"
 
 // bison
 int yylineno;
@@ -45,7 +44,6 @@ int offset_trainer = 0;
 // symbols
 int symbol_index = 0;
 int rsset = 0;
-int get_symbol(char *name);
 
 // input
 unsigned int length_ints = 0;
@@ -166,6 +164,7 @@ close_char
 
 number
     : number_base              { $$ = $1; }
+    | label                    { $$ = $1; }
     | number PLUS number_base  { $$ = $1 + $3; }
     | number MINUS number_base { $$ = $1 - $3; }
     ;
@@ -179,10 +178,8 @@ number_base
     ;
 
 number_highlow
-    : LOW open_char number_base close_char  { $$ = $3 & 255; }
-    | LOW open_char label close_char        { $$ = $3 & 255; }
-    | HIGH open_char number_base close_char { $$ = ($3 >> 8) & 255; }
-    | HIGH open_char label close_char       { $$ = ($3 >> 8) & 255; }
+    : LOW open_char number close_char  { $$ = $3 & 255; }
+    | HIGH open_char number close_char { $$ = ($3 >> 8) & 255; }
     ;
 
 label
@@ -252,9 +249,7 @@ pseudo_db_alias
 
 pseudo_db
     : pseudo_db_alias number { ints[length_ints++] = $2; }
-    | pseudo_db_alias label  { ints[length_ints++] = $2; }
     | pseudo_db COMMA number { ints[length_ints++] = $3; }
-    | pseudo_db COMMA label  { ints[length_ints++] = $3; }
     ;
 
 pseudo_defchr
@@ -269,16 +264,12 @@ pseudo_dw_alias
 
 pseudo_dw
     : pseudo_dw_alias number { ints[length_ints++] = $2; }
-    | pseudo_dw_alias label  { ints[length_ints++] = $2; }
     | pseudo_dw COMMA number { ints[length_ints++] = $3; }
-    | pseudo_dw COMMA label  { ints[length_ints++] = $3; }
     ;
 
 pseudo_hibytes
     : PSEUDO_HIBYTES number       { ints[length_ints++] = $2; }
-    | PSEUDO_HIBYTES label        { ints[length_ints++] = $2; }
     | pseudo_hibytes COMMA number { ints[length_ints++] = $3; }
-    | pseudo_hibytes COMMA label  { ints[length_ints++] = $3; }
     ;
 
 pseudo_incbin
@@ -299,22 +290,18 @@ pseudo_incpng
 
 pseudo_ineschr
     : PSEUDO_INESCHR number { $$ = $2; }
-    | PSEUDO_INESCHR label  { $$ = $2; }
     ;
 
 pseudo_inesmap
     : PSEUDO_INESMAP number { $$ = $2; }
-    | PSEUDO_INESMAP label  { $$ = $2; }
     ;
 
 pseudo_inesmir
     : PSEUDO_INESMIR number { $$ = $2; }
-    | PSEUDO_INESMIR label  { $$ = $2; }
     ;
 
 pseudo_inesprg
     : PSEUDO_INESPRG number { $$ = $2; }
-    | PSEUDO_INESPRG label  { $$ = $2; }
     ;
 
 pseudo_inestrn
@@ -323,14 +310,11 @@ pseudo_inestrn
 
 pseudo_lobytes
     : PSEUDO_LOBYTES number       { ints[length_ints++] = $2; }
-    | PSEUDO_LOBYTES label        { ints[length_ints++] = $2; }
     | pseudo_lobytes COMMA number { ints[length_ints++] = $3; }
-    | pseudo_lobytes COMMA label  { ints[length_ints++] = $3; }
     ;
 
 pseudo_org
     : PSEUDO_ORG number { $$ = $2; }
-    | PSEUDO_ORG label  { $$ = $2; }
     ;
 
 pseudo_out
@@ -343,12 +327,10 @@ pseudo_prg
 
 pseudo_rsset
     : PSEUDO_RSSET number { $$ = $2; }
-    | PSEUDO_RSSET label  { $$ = $2; }
     ;
 
 pseudo_rs
     : TEXT PSEUDO_RS number { pseudo_rs($1, $3); }
-    | TEXT PSEUDO_RS label  { pseudo_rs($1, $3); }
     ;
 
 pseudo_segment
@@ -372,25 +354,15 @@ label_decl
 instruction
     : TEXT CHAR_A                                   { assemble_accumulator($1); }
     | TEXT HASH number                              { assemble_immediate($1, $3); }
-    | TEXT HASH label                               { assemble_immediate($1, $3); }
     | TEXT open_char number close_char              { assemble_indirect($1, $3); }
-    | TEXT open_char label close_char               { assemble_indirect($1, $3); }
     | TEXT open_char number COMMA CHAR_X close_char { assemble_indirect_xy($1, $3, $5); }
-    | TEXT open_char label COMMA CHAR_X close_char  { assemble_indirect_xy($1, $3, $5); }
     | TEXT open_char number close_char COMMA CHAR_Y { assemble_indirect_xy($1, $3, $6); }
-    | TEXT open_char label close_char COMMA CHAR_Y  { assemble_indirect_xy($1, $3, $6); }
     | TEXT CARET number COMMA CHAR_X                { assemble_zeropage_xy($1, $3, $5); }
-    | TEXT CARET label COMMA CHAR_X                 { assemble_zeropage_xy($1, $3, $5); }
     | TEXT CARET number COMMA CHAR_Y                { assemble_zeropage_xy($1, $3, $5); }
-    | TEXT CARET label COMMA CHAR_Y                 { assemble_zeropage_xy($1, $3, $5); }
     | TEXT number COMMA CHAR_X                      { assemble_absolute_xy($1, $2, $4); }
-    | TEXT label COMMA CHAR_X                       { assemble_absolute_xy($1, $2, $4); }
     | TEXT number COMMA CHAR_Y                      { assemble_absolute_xy($1, $2, $4); }
-    | TEXT label COMMA CHAR_Y                       { assemble_absolute_xy($1, $2, $4); }
     | TEXT CARET number ENDL                        { assemble_zeropage($1, $3); }
-    | TEXT CARET label ENDL                         { assemble_zeropage($1, $3); }
     | TEXT number ENDL                              { assemble_absolute($1, $2); }
-    | TEXT label ENDL                               { assemble_absolute($1, $2); }
     | TEXT ENDL                                     { assemble_implied($1); }
     ;
 
@@ -710,698 +682,4 @@ void yyerror(const char *fmt, ...) {
     va_end(argptr);
 
     exit(rc);
-}
-
-/**
- * Get address offset
- * @return {int} PC offset
- */
-int get_address_offset() {
-    int offset = 0;
-
-    if (is_flag_nes()) {
-        if (is_segment_prg()) {
-            if (ines.prg < 2) {
-                offset = prg_offsets[prg_index] + 0xC000;
-            } else {
-                offset = prg_offsets[prg_index] + (0x8000 + ((ines.prg % 2) * 0x4000));
-            }
-        }
-    } else {
-        offset = prg_offsets[prg_index];
-    }
-
-    // TODO: may need to fix this
-    if (is_segment_chr()) {
-        offset = chr_offsets[chr_index] + (ines.prg * BANK_PRG);
-    }
-
-    return offset;
-}
-
-/**
- * Write byte
- * @param {unsigned int} byte - Byte to write
- */
-void write_byte(unsigned int byte) {
-    int offset = get_rom_index();
-
-    if (ines.trn == 1) {
-        if (pass == 2) {
-            trainer[offset_trainer] = byte;
-        }
-
-        offset_trainer++;
-
-        return;
-    }
-
-    if (pass == 2) {
-        rom[offset] = byte;
-    }
-
-    if (is_segment_prg()) {
-        prg_offsets[prg_index]++;
-    }
-
-    if (is_segment_chr()) {
-        chr_offsets[chr_index]++;
-    }
-
-    if (offset + 1 > offset_max) {
-        offset_max = offset + 1;
-    }
-}
-
-/**
- * Add symbol
- * @param {char *} name - Symbol name
- * @param {int} value - Symbol value
- * @param {int} type - Symbol type
- */
-void add_symbol(char *name, int value, int type) {
-    if (pass == 1) {
-        symbols[symbol_index].name = name;
-        symbols[symbol_index].value = value;
-        symbols[symbol_index++].type = type;
-    }
-}
-
-/**
- * Get symbol
- * @param {char *} name - Symbol name
- * @return {int} Symbol ID
- */
-int get_symbol(char *name) {
-    int i = 0, l = 0, symbol_id = -1;
-
-    for (i = 0, l = symbol_index; i < l; i++) {
-        if (symbol_id == -1 && strcmp(symbols[i].name, name) == 0) {
-            symbol_id = i;
-        }
-    }
-
-    if (symbol_id == -1) {
-        yyerror("Invalid symbol `%s`", name);
-    }
-
-    return symbol_id;
-}
-
-/**
- * Add constant
- * @param {char *} name - Constant name
- * @param {int} value - Constant value
- */
-void add_constant(char *name, int value) {
-    add_symbol(name, value, SYMBOL_CONSTANT);
-}
-
-/**
- * Add label
- * @param {char *} name - Label name
- */
-void add_label(char *name) {
-    int offset = get_address_offset();
-
-    add_symbol(name, offset, SYMBOL_LABEL);
-}
-
-/**
- * .ascii pseudo instruction
- * @param {char *} string - ASCII string
- * @param {int} offset - Offset
- */
-void pseudo_ascii(char *string, int offset) {
-    int i = 0, l = 0;
-    size_t length = 0;
-
-    length = strlen(string);
-
-    for (i = 1, l = (int)length - 1; i < l; i++) {
-        write_byte((unsigned int)string[i] + offset);
-    }
-}
-
-/**
- * .chr[0-9]+ pseudo instruction
- * @param {int} index - CHR bank index
- */
-void pseudo_chr(int index) {
-    segment_type = SEGMENT_CHR;
-
-    chr_index = index;
-}
-
-/**
- * .db pseudo instruction
- */
-void pseudo_db() {
-    int i = 0, l = 0;
-
-    for (i = 0, l = length_ints; i < l; i++) {
-        write_byte(ints[i] & 0xFF);
-    }
-
-    length_ints = 0;
-}
-
-/**
- * .defchr pseudo instruction
- */
-void pseudo_defchr() {
-    int i = 0, j = 0, k = 0, l = 0, loops = 2, digit = 0;
-    unsigned int byte = 0;
-
-    if (length_ints != 8) {
-        yyerror("Too few arguments. %d provided, need 8", length_ints);
-    }
-
-    while (loops != 0) {
-        for (i = 0, j = 8; i < j; i++) {
-            byte = 0;
-
-            for (k = 0, l = 8; k < l; k++) {
-                digit = (ints[i] / (int)pow(10, l - k - 1)) % 10;
-                digit = (digit >> (loops - 1)) & 0x01;
-
-                byte |= (digit << (l - k - 1));
-            }
-
-            write_byte(byte);
-        }
-
-        loops -= 1;
-    }
-
-    length_ints = 0;
-}
-
-/**
- * .dw pseudo instruction
- */
-void pseudo_dw() {
-    int i = 0, l = 0;
-
-    for (i = 0, l = length_ints; i < l; i++) {
-        write_byte(ints[i] & 0xFF);
-        write_byte((ints[i] >> 8) & 0xFF);
-    }
-
-    length_ints = 0;
-}
-
-/**
- * .hibytes pseudo instruction
- */
-void pseudo_hibytes() {
-    int i = 0, l = 0;
-
-    for (i = 0, l = length_ints; i < l; i++) {
-        write_byte((ints[i] >> 8) & 0xFF);
-    }
-
-    length_ints = 0;
-}
-
-/**
- * .ineschr pseudo instruction
- * @param {int} value - Number of 8KB CHR banks
- */
-void pseudo_ineschr(int value) {
-    flags |= FLAG_NES;
-
-    ines.chr = value;
-}
-
-/**
- * .inesmap pseudo instruction
- * @param {int} value - Mapper ID
- */
-void pseudo_inesmap(int value) {
-    flags |= FLAG_NES;
-
-    ines.map = value;
-}
-
-/**
- * .inesmir pseudo instruction
- * @param {int} value - Mirroring value
- */
-void pseudo_inesmir(int value) {
-    flags |= FLAG_NES;
-
-    ines.mir = value;
-}
-
-/**
- * .inesprg pseudo instruction
- * @param {int} value - Number of 16KB PRG banks
- */
-void pseudo_inesprg(int value) {
-    flags |= FLAG_NES;
-
-    ines.prg = value;
-}
-
-/**
- * .inestrn pseudo instruction
- * @param {char *} string - Filename of trainer
- */
-void pseudo_inestrn(char *string) {
-    size_t path_length = 0, string_length = 0;
-    char *path = NULL;
-
-    string_length = strlen(string);
-    path_length = strlen(cwd_path) + string_length - 1;
-    path = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!path) {
-        yyerror("Memory error");
-        goto cleanup;
-    }
-
-    strcpy(path, cwd_path);
-    strcat(path, "/");
-    strncat(path, string + 1, string_length - 2);
-
-    flags |= FLAG_NES;
-
-    ines.trn = 1;
-
-    include_file_push(path);
-
-cleanup:
-    if (path) {
-        free(path);
-    }
-}
-
-/**
- * .incbin pseudo instruction
- * @param {char *} string - Filename of binary
- */
-void pseudo_incbin(char *string, int offset, int limit) {
-    int i = 0, l = 0;
-    size_t path_length = 0, string_length = 0, bin_length = 0;
-    char *path = NULL, *bin_data = NULL;
-    FILE *incbin = NULL;
-
-    string_length = strlen(string);
-    path_length = strlen(cwd_path) + string_length - 1;
-    path = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!path) {
-        yyerror("Memory error");
-        goto cleanup;
-    }
-
-    strcpy(path, cwd_path);
-    strcat(path, "/");
-    strncat(path, string + 1, string_length - 2);
-
-    incbin = fopen(path, "r");
-
-    if (!incbin) {
-        yyerror("Could not include %s", string);
-        goto cleanup;
-    }
-
-    (void)fseek(incbin, 0, SEEK_END);
-    bin_length = ftell(incbin);
-    (void)fseek(incbin, 0, SEEK_SET);
-
-    if (!bin_length) {
-        goto cleanup;
-    }
-
-    bin_data = (char *)malloc(sizeof(char) * (bin_length + 1));
-
-    if (!bin_data) {
-        yyerror("Memory error");
-        goto cleanup;
-    }
-
-    if (fread(bin_data, 1, bin_length, incbin) != bin_length) {
-        yyerror("Could not read %s", string);
-        goto cleanup;
-    }
-
-    if (limit == -1) {
-        limit = (int)bin_length;
-    }
-
-    for (i = offset, l = limit; i < l; i++) {
-        write_byte((unsigned int)bin_data[i]);
-    }
-
-cleanup:
-    if (path) {
-        free(path);
-    }
-}
-
-/**
- * .include pseudo instruction
- * @param {char *} string - Filename to include
- */
-void pseudo_include(char *string) {
-    size_t path_length = 0, string_length = 0;
-    char *path = NULL;
-
-    string_length = strlen(string);
-    path_length = strlen(cwd_path) + string_length - 1;
-    path = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!path) {
-        yyerror("Memory error");
-        goto cleanup;
-    }
-
-    strcpy(path, cwd_path);
-    strcat(path, "/");
-    strncat(path, string + 1, string_length - 2);
-
-    include_file_push(path);
-
-cleanup:
-    if (path) {
-        free(path);
-    }
-}
-
-/**
- * .lobytes pseudo instruction
- */
-void pseudo_lobytes() {
-    int i = 0, l = 0;
-
-    for (i = 0, l = length_ints; i < l; i++) {
-        write_byte(ints[i] & 0xFF);
-    }
-
-    length_ints = 0;
-}
-
-/**
- * .org pseudo instruction
- * @param {int} address - Organization address
- */
-void pseudo_org(int address) {
-    // TODO: add check for too high an address
-
-    if (is_segment_prg()) {
-        prg_offsets[prg_index] = address - 0xC000;
-    }
-
-    if (is_segment_chr()) {
-        chr_offsets[chr_index] = address;
-    }
-}
-
-/**
- * .out pseudo instruction
- * @param {char *} string - Text to output
- */
-void pseudo_out(char *string) {
-    size_t length = 0;
-
-    if (pass == 2) {
-        length = strlen(string);
-        string[length - 1] = '\0';
-
-        fprintf(stderr, "%s\n", string+1);
-    }
-}
-
-/**
- * .prg[0-9]+ pseudo instruction
- * @param {int} index - PRG bank index
- */
-void pseudo_prg(int index) {
-    segment_type = SEGMENT_PRG;
-
-    prg_index = index;
-}
-
-/**
- * .rsset pseudo instruction
- * @param {int} address - Variable start address
- */
-void pseudo_rsset(int address) {
-    rsset = address;
-}
-
-/**
- * .rs pseudo instruction
- * @param {char *} label - Variable label
- * @param {int} size - Variable size
- */
-void pseudo_rs(char *label, int size) {
-    add_symbol(label, rsset, SYMBOL_RS);
-
-    rsset += size;
-}
-
-/**
- * .segment pseudo instruction
- * @param {char *} string - Segment name
- */
-void pseudo_segment(char *string) {
-    size_t length = 0;
-
-    length = strlen(string);
-
-    strcpy(segment, string+1);
-    segment[length-2] = '\0';
-
-    if (length-2 > 3 && strncmp(segment, "PRG", 3) == 0) {
-        pseudo_prg((int)strtol(segment+3, NULL, 10));
-    }
-
-    if (length-2 > 3 && strncmp(segment, "CHR", 3) == 0) {
-        pseudo_chr((int)strtol(segment+3, NULL, 10));
-    }
-}
-
-/**
- * Get opcode
- * @param {char *} mnemonic - Mnemonic
- * @param {int} mode - Addressing mode
- */
-int get_opcode(char *mnemonic, int mode) {
-    int i = 0, l = 0, opcode_index = -1;
-
-    for (i = 0, l = OPCODE_COUNT; i < l; i++) {
-        if (opcode_index == -1 && opcodes[i].mode == mode && strcmp(opcodes[i].mnemonic, mnemonic) == 0) {
-            if (is_flag_undocumented()) {
-                if ((opcodes[i].meta & META_UNDOCUMENTED) != 0) {
-                    opcode_index = i;
-                }
-            } else {
-                if ((opcodes[i].meta & META_UNDOCUMENTED) == 0) {
-                    opcode_index = i;
-                }
-            }
-        }
-    }
-
-    return opcode_index;
-}
-
-/**
- * Assemble absolute addressing mode
- * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
- */
-void assemble_absolute(char *mnemonic, int address) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_ABSOLUTE);
-
-    if (opcode_index == -1) {
-        opcode_index = get_opcode(mnemonic, MODE_RELATIVE);
-
-        if (opcode_index != -1) {
-            assemble_relative(mnemonic, address);
-            return;
-        }
-    }
-
-    if (opcode_index == -1) {
-        yyerror("Unknown opcode `%s`", mnemonic);
-    }
-
-    write_byte(opcode_index);
-    write_byte(address & 0xFF);
-    write_byte((address >> 8) & 0xFF);
-}
-
-/**
- * Assemble absolute_x/absolute_y addressing mode
- * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
- * @param {char} reg - Register
- */
-void assemble_absolute_xy(char *mnemonic, int address, char reg) {
-    unsigned int opcode_index = -1;
-
-    if (reg == 'X') {
-        opcode_index = get_opcode(mnemonic, MODE_ABSOLUTE_X);
-    } else if (reg == 'Y') {
-        opcode_index = get_opcode(mnemonic, MODE_ABSOLUTE_Y);
-    } else {
-        yyerror("Unknown register `%c`", reg);
-    }
-
-    if (opcode_index == -1) {
-        yyerror("Unknown opcode `%s`", mnemonic);
-    }
-
-    write_byte(opcode_index);
-    write_byte(address & 0xFF);
-    write_byte((address >> 8) & 0xFF);
-}
-
-/**
- * Assemble accumulator addressing mode
- * @param {char *} mnemonic - Mnemonic
- */
-void assemble_accumulator(char *mnemonic) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_ACCUMULATOR);
-
-    if (opcode_index == -1) {
-        yyerror("Unknown opcode `%s`", mnemonic);
-    }
-
-    write_byte(opcode_index);
-}
-
-/**
- * Assemble implied addressing mode
- * @param {char *} mnemonic - Mnemonic
- */
-void assemble_implied(char *mnemonic) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_IMPLIED);
-
-    if (opcode_index == -1) {
-        yyerror("Unknown opcode `%s`", mnemonic);
-    }
-
-    write_byte(opcode_index);
-}
-
-/**
- * Assemble immediate addressing mode
- * @param {char *} mnemonic - Mnemonic
- * @param {int} value - Value
- */
-void assemble_immediate(char *mnemonic, int value) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_IMMEDIATE);
-
-    if (opcode_index == -1) {
-        yyerror("Unknown opcode `%s`", mnemonic);
-    }
-
-    write_byte(opcode_index);
-    write_byte(value & 0xFF);
-}
-
-/**
- * Assemble indirect addressing mode
- * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
- */
-void assemble_indirect(char *mnemonic, int address) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_INDIRECT);
-
-    if (opcode_index == -1) {
-        yyerror("Unknown opcode `%s`", mnemonic);
-    }
-
-    write_byte(opcode_index);
-    write_byte(address & 0xFF);
-    write_byte((address >> 8) & 0xFF);
-}
-
-/**
- * Assemble indirect_x/indirect_y addressing mode
- * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
- * @param {char} reg - Register
- */
-void assemble_indirect_xy(char *mnemonic, int address, char reg) {
-    unsigned int opcode_index = -1;
-
-    if (reg == 'X') {
-        opcode_index = get_opcode(mnemonic, MODE_INDIRECT_X);
-    } else if (reg == 'Y') {
-        opcode_index = get_opcode(mnemonic, MODE_INDIRECT_Y);
-    } else {
-        yyerror("Unknown register `%c`", reg);
-    }
-
-    if (opcode_index == -1) {
-        yyerror("Unknown opcode `%s`", mnemonic);
-    }
-
-    write_byte(opcode_index);
-    write_byte(address & 0xFF);
-}
-
-/**
- * Assemble relative addressing mode
- * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
- */
-void assemble_relative(char *mnemonic, int address) {
-    unsigned int opcode_id = get_opcode(mnemonic, MODE_RELATIVE);
-    int offset = get_address_offset() + 1;
-
-    if (offset > address) {
-        address = 0xFF - (offset - address);
-    } else {
-        address = address - offset - 1;
-    }
-
-    // TODO: throw error if jump is too large
-    address &= 0xFF;
-
-    write_byte(opcode_id);
-    write_byte(address);
-}
-
-/**
- * Assemble zeropage addressing mode
- * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
- */
-void assemble_zeropage(char *mnemonic, int address) {
-    unsigned int opcode_id = get_opcode(mnemonic, MODE_ZEROPAGE);
-
-    write_byte(opcode_id);
-    write_byte(address & 0XFF);
-}
-
-/**
- * Assemble zeropage_x/zeropage_y addressing mode
- * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
- * @param {char} reg - Register
- */
-void assemble_zeropage_xy(char *mnemonic, int address, char reg) {
-    unsigned int opcode_index = -1;
-
-    if (reg == 'X') {
-        opcode_index = get_opcode(mnemonic, MODE_ZEROPAGE_X);
-    } else if (reg == 'Y') {
-        opcode_index = get_opcode(mnemonic, MODE_ZEROPAGE_Y);
-    } else {
-        yyerror("Unknown register `%c`", reg);
-    }
-
-    if (opcode_index == -1) {
-        yyerror("Unknown opcode `%s`", mnemonic);
-    }
-
-    write_byte(opcode_index);
-    write_byte(address & 0xFF);
 }
