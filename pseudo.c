@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include "nessemble.h"
 
 /**
@@ -59,7 +58,7 @@ void pseudo_defchr() {
             byte = 0;
 
             for (k = 0, l = 8; k < l; k++) {
-                digit = (ints[i] / (int)pow(10, l - k - 1)) % 10;
+                digit = (ints[i] / power(10, l - k - 1)) % 10;
                 digit = (digit >> (loops - 1)) & 0x01;
 
                 byte |= (digit << (l - k - 1));

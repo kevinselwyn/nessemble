@@ -174,4 +174,7 @@ void assemble_zeropage_xy(char *mnemonic, int address, char reg);
 /* DISASSEMBLY UTILS */
 int disassemble(char *input, char *output);
 
+/* UTILS */
+int power(int x, int y);
+
 #endif /* _NESSEMBLE_H */

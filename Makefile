@@ -3,7 +3,7 @@ RM           := rm
 RM_FLAGS     := -f
 CC           := gcc
 CC_FLAGS     := -Wall
-CC_LIB_FLAGS := -ll -lm -lpng
+CC_LIB_FLAGS := -ll -lpng
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
 LEX          := flex
@@ -13,15 +13,10 @@ YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 OPCODES      := opcodes
-ASSEMBLE     := assemble
-PSEUDO       := pseudo
-INSTRUCTIONS := instructions
-DISASSEMBLE  := disassemble
-PNG          := png
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(ASSEMBLE).c $(PSEUDO).c $(INSTRUCTIONS).c $(DISASSEMBLE).c $(PNG).c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c assemble.c pseudo.c instructions.c disassemble.c png.c utils.c
 OBJS         := ${SRCS:c=o}
 
 ifeq ($(UNAME), Darwin)
