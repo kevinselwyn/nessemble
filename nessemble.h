@@ -64,6 +64,21 @@ struct ines_header {
     int chr, map, mir, prg, trn;
 };
 
+/* INES */
+struct ines_header ines;
+
+/* OFFSETS */
+int prg_offsets[MAX_BANKS];
+int chr_offsets[MAX_BANKS];
+int prg_index;
+int chr_index;
+
+/* INCLUDE VARS */
+int include_stack_ptr;
+
+/* EOF VARS */
+int pass;
+
 /* USAGE */
 int usage(char *exec);
 
