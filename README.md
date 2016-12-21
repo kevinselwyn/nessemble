@@ -1,3 +1,16 @@
+# Nessemble Usage
+
+```
+Usage: nessemble [options] <infile.asm>
+
+Options:
+  -o, --output <outfile.rom>   output file
+  -d, --disassemble            disassemble infile
+  -f, --format (NES|RAW)       output format
+  -u, --undocumented           use undocumented opcodes
+  -h, --help                   print this message
+```
+
 ## Pseudo Instructions
 
 Pseudo instructions are helpers that invoke certain functionality in the
