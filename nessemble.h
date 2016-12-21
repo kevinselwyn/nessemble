@@ -1,6 +1,7 @@
 #ifndef _NESSEMBLE_H
 #define _NESSEMBLE_H
 
+#include <stdio.h>
 #include <limits.h>
 
 /* RETURN CODES */
@@ -39,6 +40,12 @@ struct opcode {
 };
 
 extern struct opcode opcodes[256];
+
+/* BISON */
+int yylineno;
+int yylex();
+int yyparse();
+FILE *yyin;
 
 /* SYMBOLS */
 #define SYMBOL_LABEL    0x00
@@ -98,6 +105,9 @@ int include_stack_ptr;
 
 /* EOF VARS */
 int pass;
+
+/* MAIN */
+int main(int argc, char *argv[]);
 
 /* USAGE */
 int usage(char *exec);
@@ -176,5 +186,10 @@ int disassemble(char *input, char *output);
 
 /* UTILS */
 int power(int x, int y);
+int parse2int(char *text);
+int hex2int(char *hex);
+int bin2int(char *bin);
+int oct2int(char *oct);
+int dec2int(char *dec);
 
 #endif /* _NESSEMBLE_H */
