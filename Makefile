@@ -16,7 +16,7 @@ OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c assemble.c pseudo.c instructions.c disassemble.c png.c utils.c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c assemble.c pseudo.c instructions.c disassemble.c png.c utils.c usage.c
 OBJS         := ${SRCS:c=o}
 
 ifeq ($(UNAME), Darwin)
