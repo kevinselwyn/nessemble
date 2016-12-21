@@ -13,12 +13,13 @@ YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 OPCODES      := opcodes
-PNG          := png
+ASSEMBLE     := assemble
 DISASSEMBLE  := disassemble
+PNG          := png
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(PNG).c $(DISASSEMBLE).c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(ASSEMBLE).c $(DISASSEMBLE).c $(PNG).c
 OBJS         := ${SRCS:c=o}
 
 ifeq ($(UNAME), Darwin)
