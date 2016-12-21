@@ -22,6 +22,8 @@
 #define FLAG_NES          0x02
 #define FLAG_DISASSEMBLE  0x04
 
+int flags;
+
 /* SEGMENTS */
 #define SEGMENT_CHR 1
 #define SEGMENT_PRG 2
@@ -50,10 +52,20 @@ struct symbol {
 };
 
 struct symbol symbols[1024];
+int symbol_index;
+int rsset;
+
+/* SEGMENTS */
+char *segment;
+int segment_type;
 
 /* CWD */
 char cwd[PATH_MAX + 1];
 char *cwd_path;
+
+/* INPUT */
+unsigned int length_ints;
+unsigned int ints[MAX_INTS];
 
 /* ERROR REPORTING */
 char linebuf[512];
@@ -67,11 +79,19 @@ struct ines_header {
 /* INES */
 struct ines_header ines;
 
+/* IO */
+unsigned int *rom;
+
 /* OFFSETS */
 int prg_offsets[MAX_BANKS];
 int chr_offsets[MAX_BANKS];
 int prg_index;
 int chr_index;
+int offset_max;
+
+/* TRAINER */
+unsigned int trainer[TRAINER_MAX];
+int offset_trainer;
 
 /* INCLUDE VARS */
 int include_stack_ptr;
@@ -103,7 +123,8 @@ void assemble_feof();
 void end_pass();
 
 /* FILE LOCATION UTILS */
-int get_offset();
+int get_rom_index();
+int get_address_offset();
 void write_byte(unsigned int byte);
 
 /* SYMBOL UTILS */
