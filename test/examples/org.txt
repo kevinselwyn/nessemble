@@ -1,0 +1,16 @@
+0000 | A9 02    | LDA #$02
+0002 | 85 04    | STA <$04
+0004 | FF       | .db $FF
+0005 | FF       | .db $FF
+0006 | FF       | .db $FF
+0007 | FF       | .db $FF
+0008 | FF       | .db $FF
+0009 | FF       | .db $FF
+000A | FF       | .db $FF
+000B | FF       | .db $FF
+000C | FF       | .db $FF
+000D | FF       | .db $FF
+000E | FF       | .db $FF
+000F | FF       | .db $FF
+0010 | A9 01    | LDA #$01
+0012 | 85 02    | STA <$02
