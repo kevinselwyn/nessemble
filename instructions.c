@@ -1,6 +1,5 @@
 #include <string.h>
 #include "nessemble.h"
-#include "opcodes.h"
 
 #define ERROR_OPCODE   "Unknown opcode `%s`"
 #define ERROR_REGISTER "Unknown register `%c`"

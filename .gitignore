@@ -1,6 +1,6 @@
 .DS_Store
 lex.yy.c
 nessemble
-opcodes.h
+opcodes.c
 y.tab.*
 *.o
