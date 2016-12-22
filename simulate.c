@@ -22,6 +22,17 @@ char *rom_data = NULL;
 
 char buffer[BUF_SIZE];
 
+// utils
+void print_registers();
+void print_instruction();
+int step();
+void print_memory(char *input);
+void print_goto(char *input);
+
+/**
+ * Simulate 6502
+ * @param {char *} input - Input filename
+ */
 int simulate(char *input) {
     int rc = RETURN_OK, i = 0, l = 0, header = 0;
     int inesprg = 1, ineschr = 1;
@@ -247,7 +258,7 @@ cleanup:
 }
 
 void print_memory(char *input) {
-    int a = 0, b = 0, i = 0, l = 0;
+    int a = 0, b = 0, i = 0, l = 0, counter = 0;
     size_t length = 0;
 
     length = strlen(input);
@@ -263,8 +274,28 @@ void print_memory(char *input) {
         b++;
     }
 
-    for (i = a, l = b; i < l; i++) {
-        printf("%02X ", (int)rom_data[i] & 0xFF);
+    printf("       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
+
+    for (i = a - (a % 0x10), l = b + (0x10 - (b % 0x10)); i < l; i++) {
+        if ((counter % 16) == 0) {
+            if (counter != 0) {
+                printf("\n");
+            }
+
+            printf("%04X | ", i);
+        } else {
+            if ((counter % 8) == 0) {
+                printf(" ");
+            }
+        }
+
+        if (a <= i && i <= b) {
+            printf("%02X ", (int)rom_data[i] & 0xFF);
+        } else {
+            printf("-- ");
+        }
+
+        counter++;
     }
 
     printf("\n");
@@ -285,7 +316,24 @@ int do_aax(int opcode_index, int value) {
 }
 
 int do_adc(int opcode_index, int value) {
+    int length = 0, mode = 0, data = 0, tmp = 0;
 
+    length = opcodes[opcode_index].length;
+    mode = opcodes[opcode_index].mode;
+
+    if ((mode & MODE_IMMEDIATE) != 0) {
+        data = value;
+    } else {
+        data = (int)rom_data[value];
+    }
+
+    tmp = registers.a + data + registers.flags.carry;
+    registers.flags.overflow = ((!(((registers.a ^ data) & 0x80) != 0) && (((registers.a ^ tmp) & 0x80)) != 0) ? 1 : 0);
+    registers.flags.carry = tmp > 255 ? 1 : 0;
+    registers.flags.negative = (tmp >> 7) & 1;
+    registers.flags.zero = (tmp & 0xFF) == 0 ? 1 : 0;
+    registers.a = tmp & 255;
+    registers.pc += length;
 }
 
 int do_and(int opcode_index, int value) {
