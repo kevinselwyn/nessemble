@@ -38,20 +38,7 @@ done < $input
 # start file
 printf "#include \"nessemble.h\"\n\n" > $output
 
-# meta info
-METAS=("META_NONE" "META_BOUNDARY" "META_UNDOCUMENTED")
-
-i=0
-
-for meta in "${METAS[@]}"
-do
-    printf "#define %-17s 0x%02X\n" $meta $(printf "2 ^ (%d - 1)\n" $i | bc) >> $output
-    i=$(printf "%d+1\n" $i | bc)
-done
-
 # generate opcodes
-printf "\n#define OPCODE_COUNT %s\n\n" $count >> $output
-
 printf "struct opcode opcodes[OPCODE_COUNT] = {\n" $count >> $output
 
 for line in "${CSV[@]}"
