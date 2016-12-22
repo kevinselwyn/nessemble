@@ -102,6 +102,11 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
+        if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--simulate") == 0) {
+            flags |= FLAG_SIMULATE;
+            continue;
+        }
+
         filename = argv[i];
     }
 
@@ -122,11 +127,18 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // simulate
+    if (is_flag_simulate()) {
+        rc = simulate(cwd);
+        goto cleanup;
+    }
+
     // output
     if (!outfilename || strcmp(outfilename, "-") == 0) {
         outfilename = "/dev/stdout";
     }
 
+    // disassemble
     if (is_flag_disassemble()) {
         rc = disassemble(cwd, outfilename);
         goto cleanup;
@@ -302,6 +314,14 @@ int is_flag_nes() {
  */
 int is_flag_disassemble() {
     return (flags & FLAG_DISASSEMBLE) != 0;
+}
+
+/**
+ * Test if sumlate flag is active
+ * @return {int} Return code
+ */
+int is_flag_simulate() {
+    return (flags & FLAG_SIMULATE) != 0;
 }
 
 /**

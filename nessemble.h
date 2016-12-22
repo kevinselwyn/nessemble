@@ -22,6 +22,7 @@
 #define FLAG_UNDOCUMENTED 0x01
 #define FLAG_NES          0x02
 #define FLAG_DISASSEMBLE  0x04
+#define FLAG_SIMULATE     0x08
 
 int flags;
 
@@ -57,6 +58,7 @@ struct opcode {
     int length;
     int timing;
     int meta;
+    int (*func)(int, int);
 };
 
 struct opcode opcodes[OPCODE_COUNT];
@@ -140,6 +142,7 @@ void include_file_push(char *filename);
 int is_flag_undocumented();
 int is_flag_nes();
 int is_flag_disassemble();
+int is_flag_simulate();
 
 /* SEGMENT TESTS */
 int is_segment_chr();
@@ -204,6 +207,88 @@ void assemble_zeropage_xy(char *mnemonic, int address, char reg);
 /* DISASSEMBLY UTILS */
 int disassemble(char *input, char *output);
 
+/* SIMULATE UTILS */
+int simulate(char *input);
+
+int do_aac(int opcode_index, int value);
+int do_aax(int opcode_index, int value);
+int do_adc(int opcode_index, int value);
+int do_and(int opcode_index, int value);
+int do_arr(int opcode_index, int value);
+int do_asl(int opcode_index, int value);
+int do_asr(int opcode_index, int value);
+int do_atx(int opcode_index, int value);
+int do_axa(int opcode_index, int value);
+int do_axs(int opcode_index, int value);
+int do_bcc(int opcode_index, int value);
+int do_bcs(int opcode_index, int value);
+int do_beq(int opcode_index, int value);
+int do_bit(int opcode_index, int value);
+int do_bmi(int opcode_index, int value);
+int do_bne(int opcode_index, int value);
+int do_bpl(int opcode_index, int value);
+int do_brk(int opcode_index, int value);
+int do_bvc(int opcode_index, int value);
+int do_bvs(int opcode_index, int value);
+int do_clc(int opcode_index, int value);
+int do_cld(int opcode_index, int value);
+int do_cli(int opcode_index, int value);
+int do_clv(int opcode_index, int value);
+int do_cmp(int opcode_index, int value);
+int do_cpx(int opcode_index, int value);
+int do_cpy(int opcode_index, int value);
+int do_dcp(int opcode_index, int value);
+int do_dec(int opcode_index, int value);
+int do_dex(int opcode_index, int value);
+int do_dey(int opcode_index, int value);
+int do_dop(int opcode_index, int value);
+int do_eor(int opcode_index, int value);
+int do_inc(int opcode_index, int value);
+int do_inx(int opcode_index, int value);
+int do_iny(int opcode_index, int value);
+int do_isc(int opcode_index, int value);
+int do_jmp(int opcode_index, int value);
+int do_jsr(int opcode_index, int value);
+int do_kil(int opcode_index, int value);
+int do_lar(int opcode_index, int value);
+int do_lax(int opcode_index, int value);
+int do_lda(int opcode_index, int value);
+int do_ldx(int opcode_index, int value);
+int do_ldy(int opcode_index, int value);
+int do_lsr(int opcode_index, int value);
+int do_nop(int opcode_index, int value);
+int do_ora(int opcode_index, int value);
+int do_pha(int opcode_index, int value);
+int do_php(int opcode_index, int value);
+int do_pla(int opcode_index, int value);
+int do_plp(int opcode_index, int value);
+int do_rla(int opcode_index, int value);
+int do_rol(int opcode_index, int value);
+int do_ror(int opcode_index, int value);
+int do_rra(int opcode_index, int value);
+int do_rti(int opcode_index, int value);
+int do_rts(int opcode_index, int value);
+int do_sbc(int opcode_index, int value);
+int do_sec(int opcode_index, int value);
+int do_sed(int opcode_index, int value);
+int do_sei(int opcode_index, int value);
+int do_slo(int opcode_index, int value);
+int do_sre(int opcode_index, int value);
+int do_sta(int opcode_index, int value);
+int do_stx(int opcode_index, int value);
+int do_sty(int opcode_index, int value);
+int do_sxa(int opcode_index, int value);
+int do_sya(int opcode_index, int value);
+int do_tax(int opcode_index, int value);
+int do_tay(int opcode_index, int value);
+int do_top(int opcode_index, int value);
+int do_tsx(int opcode_index, int value);
+int do_txa(int opcode_index, int value);
+int do_txs(int opcode_index, int value);
+int do_tya(int opcode_index, int value);
+int do_xaa(int opcode_index, int value);
+int do_xas(int opcode_index, int value);
+
 /* UTILS */
 int power(int x, int y);
 int parse2int(char *text);
@@ -211,5 +296,6 @@ int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);
 int dec2int(char *dec);
+size_t load_file(char **data, char *filename);
 
 #endif /* _NESSEMBLE_H */

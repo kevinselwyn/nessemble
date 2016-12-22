@@ -70,3 +70,49 @@ int oct2int(char *oct) {
 int dec2int(char *dec) {
     return atoi(dec);
 }
+
+/**
+ * Load file
+ */
+size_t load_file(char **data, char *filename) {
+    size_t insize = 0;
+    char *indata = NULL;
+    FILE *infile = NULL;
+
+    infile = fopen(filename, "r");
+
+    if (!infile) {
+        fprintf(stderr, "Could not open %s\n", filename);
+        goto cleanup;
+    }
+
+    (void)fseek(infile, 0, SEEK_END);
+    insize = ftell(infile);
+    (void)fseek(infile, 0, SEEK_SET);
+
+    if (!insize) {
+        fprintf(stderr, "%s is empty\n", filename);
+        goto cleanup;
+    }
+
+    indata = malloc(sizeof(char) * (insize + 1));
+
+    if (!indata) {
+        fprintf(stderr, "Memory error\n");
+        goto cleanup;
+    }
+
+    if (fread(indata, 1, insize, infile) != insize) {
+        fprintf(stderr, "Could not read %s\n", filename);
+        goto cleanup;
+    }
+
+    *data = indata;
+
+cleanup:
+    if (infile) {
+        (void)fclose(infile);
+    }
+
+    return insize;
+}
