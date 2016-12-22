@@ -47,6 +47,7 @@ do
     do
         meta_arr=()
         meta_str=$meta
+        func=$(echo "$mnemonic" | awk '{print tolower($0)}' | tr -d '"')
 
         if [[ "$meta" == "0" ]]
         then
@@ -68,7 +69,7 @@ do
             meta_str=$(printf "%s" $(join_by " | " "${meta_arr[@]}"))
         fi
 
-        printf "    { %-07s %-17s %s, %s, %s, %s },\n" "$mnemonic," "$mode," $opcode $length $timing $meta_str >> $output
+        printf "    { %-07s %-17s %s, %s, %s, %s, &do_$func },\n" "$mnemonic," "$mode," $opcode $length $timing $meta_str >> $output
     done <<< "$line"
 done
 

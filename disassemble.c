@@ -7,40 +7,11 @@ int disassemble(char *input, char *output) {
     int rc = RETURN_OK, i = 0, l = 0, opcode_id = -1, arg0 = 0, arg1 = 0;
     size_t insize = 0;
     char *indata = NULL;
-    FILE *infile = NULL, *outfile = NULL;
+    FILE *outfile = NULL;
 
-    infile = fopen(input, "r");
-
-    if (!infile) {
-        fprintf(stderr, "Could not open %s\n", input);
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    (void)fseek(infile, 0, SEEK_END);
-    insize = ftell(infile);
-    (void)fseek(infile, 0, SEEK_SET);
+    insize = load_file(&indata, input);
 
     if (!insize) {
-        fprintf(stderr, "%s is empty\n", input);
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    indata = malloc(sizeof(char) * (insize + 1));
-
-    if (!indata) {
-        fprintf(stderr, "Memory error\n");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    if (fread(indata, 1, insize, infile) != insize) {
-        fprintf(stderr, "Could not read %s\n", input);
-
         rc = RETURN_EPERM;
         goto cleanup;
     }
@@ -171,10 +142,6 @@ int disassemble(char *input, char *output) {
     }
 
 cleanup:
-    if (infile) {
-        (void)fclose(infile);
-    }
-
     if (indata) {
         free(indata);
     }
