@@ -24,7 +24,7 @@ function join_by {
 # usage
 if [ -z "$input" ] || [ -z "$output" ]
 then
-    printf "Usage: ./opcodes.sh <input.csv> <output.h>\n"
+    printf "Usage: ./opcodes.sh <input.csv> <output.c>\n"
     IFS=$OLDIFS
     exit 1
 fi
@@ -36,35 +36,7 @@ do
 done < $input
 
 # start file
-header+=$(echo $output | awk '{print toupper($0)}')
-header=${header/./_}
-
-printf "#ifndef %s\n" $header > $output
-printf "#define %s\n\n" $header >> $output
-
-# generate mode #defines
-for line in "${CSV[@]}"
-do
-    while read mnemonic mode opcode length timing meta
-    do
-        count=$(printf "%d+1\n" $count | bc)
-
-        if [[ ! " ${MODES[@]} " =~ " ${mode} " ]]
-        then
-            MODES+=($mode)
-        fi
-    done <<< "$line"
-done
-
-i=0
-
-for mode in "${MODES[@]}"
-do
-    printf "#define %-16s 0x%02X\n" $mode $i >> $output
-    i=$(printf "%d+1\n" $i | bc)
-done
-
-printf "\n" >> $output
+printf "#include \"nessemble.h\"\n\n" > $output
 
 # meta info
 METAS=("META_NONE" "META_BOUNDARY" "META_UNDOCUMENTED")
@@ -113,9 +85,6 @@ do
     done <<< "$line"
 done
 
-printf "};\n\n" >> $output
-
-# finish
-printf "#endif /* %s */\n" $header >> $output
+printf "};\n" >> $output
 
 IFS=$OLDIFS

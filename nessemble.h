@@ -29,7 +29,27 @@ int flags;
 #define SEGMENT_CHR 1
 #define SEGMENT_PRG 2
 
+/* MODES */
+#define MODE_IMPLIED     0x00
+#define MODE_ACCUMULATOR 0x01
+#define MODE_RELATIVE    0x02
+#define MODE_IMMEDIATE   0x03
+#define MODE_ZEROPAGE    0x04
+#define MODE_ZEROPAGE_X  0x05
+#define MODE_ZEROPAGE_Y  0x06
+#define MODE_ABSOLUTE    0x07
+#define MODE_ABSOLUTE_Y  0x08
+#define MODE_ABSOLUTE_X  0x09
+#define MODE_INDIRECT    0x0A
+#define MODE_INDIRECT_X  0x0B
+#define MODE_INDIRECT_Y  0x0C
+
 /* OPCODES */
+#define OPCODE_COUNT      256
+#define META_NONE         0x00
+#define META_BOUNDARY     0x01
+#define META_UNDOCUMENTED 0x02
+
 struct opcode {
     char mnemonic[4];
     int mode;
@@ -39,7 +59,7 @@ struct opcode {
     int meta;
 };
 
-extern struct opcode opcodes[256];
+struct opcode opcodes[OPCODE_COUNT];
 
 /* BISON */
 int yylineno;

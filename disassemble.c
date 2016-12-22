@@ -90,36 +90,15 @@ int disassemble(char *input, char *output) {
     for (l = (int)insize; i < l; i++) {
         opcode_id = (int)indata[i] & 0xFF;
 
-        if ((opcodes[opcode_id].meta & 0x02) == 0) {
+        if ((opcodes[opcode_id].meta & META_UNDOCUMENTED) == 0) {
             switch (opcodes[opcode_id].mode) {
-            case 0x00: // MODE_IMPLIED
+            case MODE_IMPLIED:
                 fprintf(outfile, "%04X | %02X       | %s\n", i, opcode_id, opcodes[opcode_id].mnemonic);
                 break;
-            case 0x01: // MODE_INDIRECT_X
-                arg0 = (int)indata[i+1] & 0xFF;
-                fprintf(outfile, "%04X | %02X %02X    | %s ($%02X, X)\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
-                i++;
-                break;
-            case 0x02: // MODE_ZEROPAGE
-                arg0 = (int)indata[i+1] & 0xFF;
-                fprintf(outfile, "%04X | %02X %02X    | %s <$%02X\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
-                i++;
-                break;
-            case 0x03: // MODE_IMMEDIATE
-                arg0 = (int)indata[i+1] & 0xFF;
-                fprintf(outfile, "%04X | %02X %02X    | %s #$%02X\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
-                i++;
-                break;
-            case 0x04: // MODE_ACCUMULATOR
+            case MODE_ACCUMULATOR:
                 fprintf(outfile, "%04X | %02X       | %s A\n", i, opcode_id, opcodes[opcode_id].mnemonic);
                 break;
-            case 0x05: // MODE_ABSOLUTE
-                arg0 = (int)indata[i+1] & 0xFF;
-                arg1 = (int)indata[i+2] & 0xFF;
-                fprintf(outfile, "%04X | %02X %02X %02X | %s $%04X\n", i, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
-                i += 2;
-                break;
-            case 0x06: // MODE_RELATIVE
+            case MODE_RELATIVE:
                 arg0 = (int)indata[i+1] & 0xFF;
                 if (arg0 >= 0x80) {
                     fprintf(outfile, "%04X | %02X %02X    | %s $%04X\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, i - (0xFF - arg0 - 1));
@@ -128,37 +107,58 @@ int disassemble(char *input, char *output) {
                 }
                 i++;
                 break;
-            case 0x07: // MODE_INDIRECT_Y
+            case MODE_IMMEDIATE:
                 arg0 = (int)indata[i+1] & 0xFF;
-                fprintf(outfile, "%04X | %02X %02X    | %s ($%02X), Y\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+                fprintf(outfile, "%04X | %02X %02X    | %s #$%02X\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
                 i++;
                 break;
-            case 0x08: // MODE_ZEROPAGE_X
+            case MODE_ZEROPAGE:
+                arg0 = (int)indata[i+1] & 0xFF;
+                fprintf(outfile, "%04X | %02X %02X    | %s <$%02X\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+                i++;
+                break;
+            case MODE_ZEROPAGE_X:
                 arg0 = (int)indata[i+1] & 0xFF;
                 fprintf(outfile, "%04X | %02X %02X    | %s <$%02X, X\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
                 i++;
                 break;
-            case 0x09: // MODE_ABSOLUTE_Y
+            case MODE_ZEROPAGE_Y:
+                arg0 = (int)indata[i+1] & 0xFF;
+                fprintf(outfile, "%04X | %02X %02X    | %s <$%02X, Y\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+                i++;
+                break;
+            case MODE_ABSOLUTE:
                 arg0 = (int)indata[i+1] & 0xFF;
                 arg1 = (int)indata[i+2] & 0xFF;
-                fprintf(outfile, "%04X | %02X %02X %02X | %s $%04X, Y\n", i, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+                fprintf(outfile, "%04X | %02X %02X %02X | %s $%04X\n", i, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
                 i += 2;
                 break;
-            case 0x0A: // MODE_ABSOLUTE_X
+            case MODE_ABSOLUTE_X:
                 arg0 = (int)indata[i+1] & 0xFF;
                 arg1 = (int)indata[i+2] & 0xFF;
                 fprintf(outfile, "%04X | %02X %02X %02X | %s $%04X, X\n", i, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
                 i += 2;
                 break;
-            case 0x0B: // MODE_INDIRECT
+            case MODE_ABSOLUTE_Y:
+                arg0 = (int)indata[i+1] & 0xFF;
+                arg1 = (int)indata[i+2] & 0xFF;
+                fprintf(outfile, "%04X | %02X %02X %02X | %s $%04X, Y\n", i, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+                i += 2;
+                break;
+            case MODE_INDIRECT:
                 arg0 = (int)indata[i+1] & 0xFF;
                 arg1 = (int)indata[i+2] & 0xFF;
                 fprintf(outfile, "%04X | %02X %02X %02X | %s ($%04X)\n", i, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
                 i += 2;
                 break;
-            case 0x0C: // MODE_ZEROPAGE_Y
+            case MODE_INDIRECT_X:
                 arg0 = (int)indata[i+1] & 0xFF;
-                fprintf(outfile, "%04X | %02X %02X    | %s <$%02X, Y\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+                fprintf(outfile, "%04X | %02X %02X    | %s ($%02X, X)\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+                i++;
+                break;
+            case MODE_INDIRECT_Y:
+                arg0 = (int)indata[i+1] & 0xFF;
+                fprintf(outfile, "%04X | %02X %02X    | %s ($%02X), Y\n", i, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
                 i++;
                 break;
             default:
