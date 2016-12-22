@@ -30,6 +30,10 @@ int get_rom_index() {
 
     if (is_segment_chr()) {
         index = chr_offsets[chr_index] + (ines.prg * BANK_PRG);
+
+        if (chr_index > 0) {
+            index += chr_index * BANK_CHR;
+        }
     }
 
     return index;
@@ -54,9 +58,12 @@ int get_address_offset() {
         offset = prg_offsets[prg_index];
     }
 
-    // TODO: may need to fix this
     if (is_segment_chr()) {
         offset = chr_offsets[chr_index] + (ines.prg * BANK_PRG);
+
+        if (chr_index > 0) {
+            offset += chr_index * BANK_CHR;
+        }
     }
 
     return offset;
