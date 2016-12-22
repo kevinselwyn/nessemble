@@ -36,7 +36,7 @@ int get_opcode(char *mnemonic, int mode) {
  * @param {int} address - Address
  */
 void assemble_absolute(char *mnemonic, int address) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_ABSOLUTE);
+    int opcode_index = get_opcode(mnemonic, MODE_ABSOLUTE);
 
     if (opcode_index == -1) {
         opcode_index = get_opcode(mnemonic, MODE_RELATIVE);
@@ -51,7 +51,7 @@ void assemble_absolute(char *mnemonic, int address) {
         yyerror(ERROR_OPCODE, mnemonic);
     }
 
-    write_byte(opcode_index);
+    write_byte((unsigned int)opcode_index);
     write_byte(address & 0xFF);
     write_byte((address >> 8) & 0xFF);
 }
@@ -63,7 +63,7 @@ void assemble_absolute(char *mnemonic, int address) {
  * @param {char} reg - Register
  */
 void assemble_absolute_xy(char *mnemonic, int address, char reg) {
-    unsigned int opcode_index = -1;
+    int opcode_index = -1;
 
     if (reg == 'X') {
         opcode_index = get_opcode(mnemonic, MODE_ABSOLUTE_X);
@@ -77,7 +77,7 @@ void assemble_absolute_xy(char *mnemonic, int address, char reg) {
         yyerror(ERROR_OPCODE, mnemonic);
     }
 
-    write_byte(opcode_index);
+    write_byte((unsigned int)opcode_index);
     write_byte(address & 0xFF);
     write_byte((address >> 8) & 0xFF);
 }
@@ -87,13 +87,13 @@ void assemble_absolute_xy(char *mnemonic, int address, char reg) {
  * @param {char *} mnemonic - Mnemonic
  */
 void assemble_accumulator(char *mnemonic) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_ACCUMULATOR);
+    int opcode_index = get_opcode(mnemonic, MODE_ACCUMULATOR);
 
     if (opcode_index == -1) {
         yyerror(ERROR_OPCODE, mnemonic);
     }
 
-    write_byte(opcode_index);
+    write_byte((unsigned int)opcode_index);
 }
 
 /**
@@ -101,13 +101,13 @@ void assemble_accumulator(char *mnemonic) {
  * @param {char *} mnemonic - Mnemonic
  */
 void assemble_implied(char *mnemonic) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_IMPLIED);
+    int opcode_index = get_opcode(mnemonic, MODE_IMPLIED);
 
     if (opcode_index == -1) {
         yyerror(ERROR_OPCODE, mnemonic);
     }
 
-    write_byte(opcode_index);
+    write_byte((unsigned int)opcode_index);
 }
 
 /**
@@ -116,13 +116,13 @@ void assemble_implied(char *mnemonic) {
  * @param {int} value - Value
  */
 void assemble_immediate(char *mnemonic, int value) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_IMMEDIATE);
+    int opcode_index = get_opcode(mnemonic, MODE_IMMEDIATE);
 
     if (opcode_index == -1) {
         yyerror(ERROR_OPCODE, mnemonic);
     }
 
-    write_byte(opcode_index);
+    write_byte((unsigned int)opcode_index);
     write_byte(value & 0xFF);
 }
 
@@ -132,13 +132,13 @@ void assemble_immediate(char *mnemonic, int value) {
  * @param {int} address - Address
  */
 void assemble_indirect(char *mnemonic, int address) {
-    unsigned int opcode_index = get_opcode(mnemonic, MODE_INDIRECT);
+    int opcode_index = get_opcode(mnemonic, MODE_INDIRECT);
 
     if (opcode_index == -1) {
         yyerror(ERROR_OPCODE, mnemonic);
     }
 
-    write_byte(opcode_index);
+    write_byte((unsigned int)opcode_index);
     write_byte(address & 0xFF);
     write_byte((address >> 8) & 0xFF);
 }
@@ -150,7 +150,7 @@ void assemble_indirect(char *mnemonic, int address) {
  * @param {char} reg - Register
  */
 void assemble_indirect_xy(char *mnemonic, int address, char reg) {
-    unsigned int opcode_index = -1;
+    int opcode_index = -1;
 
     if (reg == 'X') {
         opcode_index = get_opcode(mnemonic, MODE_INDIRECT_X);
@@ -164,7 +164,7 @@ void assemble_indirect_xy(char *mnemonic, int address, char reg) {
         yyerror(ERROR_OPCODE, mnemonic);
     }
 
-    write_byte(opcode_index);
+    write_byte((unsigned int)opcode_index);
     write_byte(address & 0xFF);
 }
 
@@ -174,7 +174,7 @@ void assemble_indirect_xy(char *mnemonic, int address, char reg) {
  * @param {int} address - Address
  */
 void assemble_relative(char *mnemonic, int address) {
-    unsigned int opcode_id = get_opcode(mnemonic, MODE_RELATIVE);
+    int opcode_id = get_opcode(mnemonic, MODE_RELATIVE);
     int offset = get_address_offset() + 1;
 
     if (offset > address) {
@@ -186,7 +186,7 @@ void assemble_relative(char *mnemonic, int address) {
     // TODO: throw error if jump is too large
     address &= 0xFF;
 
-    write_byte(opcode_id);
+    write_byte((unsigned int)opcode_id);
     write_byte(address);
 }
 
@@ -196,9 +196,9 @@ void assemble_relative(char *mnemonic, int address) {
  * @param {int} address - Address
  */
 void assemble_zeropage(char *mnemonic, int address) {
-    unsigned int opcode_id = get_opcode(mnemonic, MODE_ZEROPAGE);
+    int opcode_id = get_opcode(mnemonic, MODE_ZEROPAGE);
 
-    write_byte(opcode_id);
+    write_byte((unsigned int)opcode_id);
     write_byte(address & 0XFF);
 }
 
@@ -209,7 +209,7 @@ void assemble_zeropage(char *mnemonic, int address) {
  * @param {char} reg - Register
  */
 void assemble_zeropage_xy(char *mnemonic, int address, char reg) {
-    unsigned int opcode_index = -1;
+    int opcode_index = -1;
 
     if (reg == 'X') {
         opcode_index = get_opcode(mnemonic, MODE_ZEROPAGE_X);
@@ -223,6 +223,6 @@ void assemble_zeropage_xy(char *mnemonic, int address, char reg) {
         yyerror(ERROR_OPCODE, mnemonic);
     }
 
-    write_byte(opcode_index);
+    write_byte((unsigned int)opcode_index);
     write_byte(address & 0xFF);
 }

@@ -16,17 +16,17 @@ struct png_data {
 	png_bytep *row_pointers;
 };
 
-void free_png(struct png_data p) {
+void free_png(struct png_data png) {
 	int y = 0;
 
-	for (y = 0; y < p.height; y++) {
-        if (p.row_pointers[y]) {
-            free(p.row_pointers[y]);
+	for (y = 0; y < png.height; y++) {
+        if (png.row_pointers[y]) {
+            free(png.row_pointers[y]);
         }
 	}
 
-    if (p.row_pointers) {
-        free(p.row_pointers);
+    if (png.row_pointers) {
+        free(png.row_pointers);
     }
 }
 
@@ -47,7 +47,7 @@ int png_color_mode(int color_type) {
 struct png_data read_png(char *filename) {
     int y = 0;
 	FILE *file = NULL;
-	struct png_data p;
+	struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
 
 	file = fopen(filename, "rb");
 
@@ -56,63 +56,63 @@ struct png_data read_png(char *filename) {
         goto cleanup;
 	}
 
-	if (fread(p.header, 1, 8, file) != 8) {
+	if (fread(png.header, 1, 8, file) != 8) {
 		yyerror("Could not read %s\n", filename);
         goto cleanup;
 	}
 
-	if (png_sig_cmp((png_bytep)p.header, 0, 8)) {
+	if (png_sig_cmp((png_bytep)png.header, 0, 8)) {
 		yyerror("%s is not a PNG\n", filename);
         goto cleanup;
 	}
 
-	p.png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png.png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
-	if (!p.png_ptr) {
+	if (!png.png_ptr) {
 		yyerror("png_create_read_struct failed\n");
         goto cleanup;
 	}
 
-	p.info_ptr = png_create_info_struct(p.png_ptr);
+	png.info_ptr = png_create_info_struct(png.png_ptr);
 
-	if (!p.info_ptr) {
+	if (!png.info_ptr) {
 		yyerror("png_create_info_struct failed\n");
         goto cleanup;
 	}
 
-	if (setjmp(png_jmpbuf(p.png_ptr))) {
+	if (setjmp(png_jmpbuf(png.png_ptr))) {
 		yyerror("Error initializing read\n");
         goto cleanup;
 	}
 
-	png_init_io(p.png_ptr, file);
-	png_set_sig_bytes(p.png_ptr, 8);
-	png_read_info(p.png_ptr, p.info_ptr);
+	png_init_io(png.png_ptr, file);
+	png_set_sig_bytes(png.png_ptr, 8);
+	png_read_info(png.png_ptr, png.info_ptr);
 
-	p.width = png_get_image_width(p.png_ptr, p.info_ptr);
-	p.height = png_get_image_height(p.png_ptr, p.info_ptr);
-	p.color_type = png_get_color_type(p.png_ptr, p.info_ptr);
-	p.bit_depth = png_get_bit_depth(p.png_ptr, p.info_ptr);
+	png.width = png_get_image_width(png.png_ptr, png.info_ptr);
+	png.height = png_get_image_height(png.png_ptr, png.info_ptr);
+	png.color_type = png_get_color_type(png.png_ptr, png.info_ptr);
+	png.bit_depth = png_get_bit_depth(png.png_ptr, png.info_ptr);
 
-	png_read_update_info(p.png_ptr, p.info_ptr);
+	png_read_update_info(png.png_ptr, png.info_ptr);
 
-	if (setjmp(png_jmpbuf(p.png_ptr))) {
+	if (setjmp(png_jmpbuf(png.png_ptr))) {
 		yyerror("Could not read PNG\n");
         goto cleanup;
 	}
 
-	p.row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * p.height);
+	png.row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * png.height);
 
-	for (y = 0; y < p.height; y++) {
-		p.row_pointers[y] = (png_byte*) malloc(png_get_rowbytes(p.png_ptr, p.info_ptr));
+	for (y = 0; y < png.height; y++) {
+		png.row_pointers[y] = (png_byte*) malloc(png_get_rowbytes(png.png_ptr, png.info_ptr));
 	}
 
-	png_read_image(p.png_ptr, p.row_pointers);
+	png_read_image(png.png_ptr, png.row_pointers);
 
 cleanup:
 	fclose(file);
 
-	return p;
+	return png;
 }
 
 int get_color(png_byte *rgb, int color_mode) {
@@ -139,7 +139,7 @@ void pseudo_incpng(char *string, int offset, int limit) {
     int h = 0, w = 0, x = 0, y = 0;
     size_t path_length = 0, string_length = 0;
     char *path = NULL;
-    struct png_data png;
+    struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
 
     string_length = strlen(string);
     path_length = strlen(cwd_path) + string_length - 1;
