@@ -3,7 +3,7 @@
 .inesmap 0
 .inesmir 1
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .prg0
 
@@ -19,9 +19,13 @@ RESET:
     STX $2001
     STX $4010
 
+;;;;;;;;
+
 vblankwait1:
     BIT $2002
     BPL vblankwait1
+
+;;;;;;;;
 
 clrmem:
     LDA #$00
@@ -37,9 +41,13 @@ clrmem:
     INX
     BNE clrmem
 
+;;;;;;;;
+
 vblankwait2:
     BIT $2002
     BPL vblankwait2
+
+;;;;;;;;
 
 LoadPalettes:
     LDA $2002
@@ -50,11 +58,12 @@ LoadPalettes:
     LDX #$00
 LoadPalettesLoop:
     LDA palette, X
-
     STA $2007
     INX
     CPX #$20
     BNE LoadPalettesLoop
+
+;;;;;;;;
 
 LoadSprites:
     LDX #$00
@@ -64,6 +73,8 @@ LoadSpritesLoop:
     INX
     CPX #$10
     BNE LoadSpritesLoop
+
+;;;;;;;;
 
 LoadBackground:
     LDA $2002
@@ -79,6 +90,8 @@ LoadBackgroundLoop:
     CPX #$80
     BNE LoadBackgroundLoop
 
+;;;;;;;;
+
 LoadAttribute:
     LDA $2002
     LDA #$23
@@ -93,14 +106,20 @@ LoadAttributeLoop:
     CPX #$08
     BNE LoadAttributeLoop
 
+;;;;;;;;
+
     LDA #%10010000
     STA $2000
 
     LDA #%00011110
     STA $2001
 
+;;;;;;;;
+
 Forever:
     JMP Forever
+
+;;;;;;;;
 
 NMI:
     LDA #$00
@@ -108,11 +127,15 @@ NMI:
     LDA #$02
     STA $4014
 
+;;;;;;;;
+
 LatchController:
     LDA #$01
     STA $4016
     LDA #$00
     STA $4016
+
+;;;;;;;;
 
 ReadA:
     LDA $4016
@@ -124,6 +147,8 @@ ReadA:
     STA $0203
 ReadADone:
 
+;;;;;;;;
+
 ReadB:
     LDA $4016
     AND #%00000001
@@ -133,6 +158,8 @@ ReadB:
     SBC #$01
     STA $0203
 ReadBDone:
+
+;;;;;;;;
 
     LDA #%10010000
     STA $2000
@@ -144,7 +171,7 @@ ReadBDone:
 
     RTI
 
-;;;;;;;;;;;;;;
+;;;;;;;;
 
 .org $E000
 
@@ -176,7 +203,7 @@ attribute:
     .db %00000000, %00010000, %01010000, %00010000, %00000000, %00000000, %00000000, %00110000
     .db $24,$24,$24,$24, $47,$47,$24,$24, $47,$47,$47,$47, $47,$47,$24,$24, $24,$24,$24,$24, $24,$24,$24,$24, $24,$24,$24,$24, $55,$56,$24,$24
 
-;;;;;;;;;;;;;;;
+;;;;;;;;
 
 .org $FFFA
 
@@ -184,7 +211,7 @@ attribute:
     .dw RESET
     .dw 0
 
-;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .chr0
 

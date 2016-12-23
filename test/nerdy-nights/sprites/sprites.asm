@@ -1,9 +1,9 @@
-    .inesprg 1
-    .ineschr 1
-    .inesmap 0
-    .inesmir 1
+.inesprg 1
+.ineschr 1
+.inesmap 0
+.inesmir 1
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .prg0
 
@@ -19,9 +19,13 @@ RESET:
     STX $2001
     STX $4010
 
+;;;;;;;;
+
 vblankwait1:
     BIT $2002
     BPL vblankwait1
+
+;;;;;;;;
 
 clrmem:
     LDA #$00
@@ -37,9 +41,13 @@ clrmem:
     INX
     BNE clrmem
 
+;;;;;;;;
+
 vblankwait2:
     BIT $2002
     BPL vblankwait2
+
+;;;;;;;;
 
 LoadPalettes:
     LDA $2002
@@ -55,6 +63,8 @@ LoadPalettesLoop:
     CPX #$20
     BNE LoadPalettesLoop
 
+;;;;;;;;
+
     LDA #$80
     STA $0200
     STA $0203
@@ -62,14 +72,20 @@ LoadPalettesLoop:
     STA $0201
     STA $0202
 
+;;;;;;;;
+
     LDA #%10000000
     STA $2000
 
     LDA #%00010000
     STA $2001
 
+;;;;;;;;
+
 Forever:
     JMP Forever
+
+;;;;;;;;
 
 NMI:
     LDA #$00
@@ -79,7 +95,7 @@ NMI:
 
     RTI
 
-;;;;;;;;;;;;;;;
+;;;;;;;;
 
 .org $E000
 
@@ -87,13 +103,15 @@ palette:
     .db $0F,$31,$32,$33, $0F,$35,$36,$37, $0F,$39,$3A,$3B, $0F,$3D,$3E,$0F
     .db $0F,$1C,$15,$14, $0F,$02,$38,$3C, $0F,$1C,$15,$14, $0F,$02,$38,$3C
 
+;;;;;;;;
+
 .org $FFFA
 
     .dw NMI
     .dw RESET
     .dw 0
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .chr0
 

@@ -1,9 +1,9 @@
-    .inesprg 1
-    .ineschr 1
-    .inesmap 0
-    .inesmir 1
+.inesprg 1
+.ineschr 1
+.inesmap 0
+.inesmir 1
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .rsset $0000
 
@@ -23,6 +23,8 @@ buttons2    .rs 1
 score1      .rs 1
 score2      .rs 1
 
+;;;;;;;;
+
 STATETITLE     = $00
 STATEPLAYING   = $01
 STATEGAMEOVER  = $02
@@ -35,9 +37,10 @@ LEFTWALL       = $04
 PADDLE1X       = $08
 PADDLE2X       = $F0
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .prg0
+
 RESET:
     SEI
     CLD
@@ -50,9 +53,13 @@ RESET:
     STX $2001
     STX $4010
 
+;;;;;;;;
+
 vblankwait1:
     BIT $2002
     BPL vblankwait1
+
+;;;;;;;;
 
 clrmem:
     LDA #$00
@@ -68,9 +75,13 @@ clrmem:
     INX
     BNE clrmem
 
+;;;;;;;;
+
 vblankwait2:
     BIT $2002
     BPL vblankwait2
+
+;;;;;;;;
 
 LoadPalettes:
     LDA $2002
@@ -85,6 +96,9 @@ LoadPalettesLoop:
     INX
     CPX #$20
     BNE LoadPalettesLoop
+
+;;;;;;;;
+
     LDA #$01
     STA balldown
     STA ballright
@@ -104,20 +118,28 @@ LoadPalettesLoop:
     LDA #STATEPLAYING
     STA gamestate
 
+;;;;;;;;
+
     LDA #%10010000
     STA $2000
 
     LDA #%00011110
     STA $2001
 
+;;;;;;;;
+
 Forever:
     JMP Forever
+
+;;;;;;;;
 
 NMI:
     LDA #$00
     STA $2003
     LDA #$02
     STA $4014
+
+;;;;;;;;
 
     JSR DrawScore
     LDA #%10010000
@@ -128,8 +150,12 @@ NMI:
     STA $2005
     STA $2005
 
+;;;;;;;;
+
     JSR ReadController1
     JSR ReadController2
+
+;;;;;;;;
 
 GameEngine:
     LDA gamestate
@@ -145,15 +171,21 @@ GameEngine:
     BEQ EnginePlaying
 GameEngineDone:
 
+;;;;;;;;
+
     JSR UpdateSprites
 
     RTI
+
+;;;;;;;;
 
 EngineTitle:
     JMP GameEngineDone
 
 EngineGameOver:
     JMP GameEngineDone
+
+;;;;;;;;
 
 EnginePlaying:
 
@@ -175,6 +207,8 @@ MoveBallRight:
     STA ballleft
 MoveBallRightDone:
 
+;;;;;;;;
+
 MoveBallLeft:
     LDA ballleft
     BEQ MoveBallLeftDone
@@ -192,6 +226,8 @@ MoveBallLeft:
     LDA #$00
     STA ballleft
 MoveBallLeftDone:
+
+;;;;;;;;
 
 MoveBallUp:
     LDA ballup
@@ -211,6 +247,8 @@ MoveBallUp:
     STA ballup
 MoveBallUpDone:
 
+;;;;;;;;
+
 MoveBallDown:
     LDA balldown
     BEQ MoveBallDownDone
@@ -229,6 +267,8 @@ MoveBallDown:
     STA ballup
 MoveBallDownDone:
 
+;;;;;;;;
+
 MovePaddleUp:
 MovePaddleUpDone:
 
@@ -239,6 +279,8 @@ CheckPaddleCollision:
 CheckPaddleCollisionDone:
 
   JMP GameEngineDone
+
+;;;;;;;;
 
 UpdateSprites:
     LDA bally
@@ -255,8 +297,12 @@ UpdateSprites:
 
     RTS
 
+;;;;;;;;
+
 DrawScore:
     RTS
+
+;;;;;;;;
 
 ReadController1:
     LDA #$01
@@ -272,6 +318,8 @@ ReadController1Loop:
     BNE ReadController1Loop
     RTS
 
+;;;;;;;;
+
 ReadController2:
     LDA #$01
     STA $4016
@@ -286,6 +334,8 @@ ReadController2Loop:
     BNE ReadController2Loop
     RTS
 
+;;;;;;;;
+
 .org $E000
 
 palette:
@@ -298,13 +348,15 @@ sprites:
     .db $88, $34, $00, $80
     .db $88, $35, $00, $88
 
+;;;;;;;;
+
 .org $FFFA
 
     .dw NMI
     .dw RESET
     .dw 0
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .chr0
 

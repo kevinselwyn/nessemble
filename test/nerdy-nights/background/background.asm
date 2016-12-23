@@ -3,7 +3,7 @@
 .inesmap 0
 .inesmir 1
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .prg0
 
@@ -19,9 +19,13 @@ RESET:
     STX $2001
     STX $4010
 
+;;;;;;;;
+
 vblankwait1:
     BIT $2002
     BPL vblankwait1
+
+;;;;;;;;
 
 clrmem:
     LDA #$00
@@ -37,20 +41,28 @@ clrmem:
     INX
     BNE clrmem
 
+;;;;;;;;
+
 vblankwait2:
     BIT $2002
     BPL vblankwait2
 
+;;;;;;;;
+
     LDA #%10000000
     STA $2001
+
+;;;;;;;;
 
 Forever:
     JMP Forever
 
+;;;;;;;;
+
 NMI:
     RTI
 
-;;;;;;;;;;;;;;;
+;;;;;;;;
 
 .org $FFFA
 
@@ -58,7 +70,7 @@ NMI:
     .dw RESET
     .dw 0
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .chr0
 
