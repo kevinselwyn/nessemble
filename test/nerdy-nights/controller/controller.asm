@@ -3,7 +3,7 @@
 .inesmap 0
 .inesmir 1
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .prg0
 
@@ -19,9 +19,13 @@ RESET:
     STX $2001
     STX $4010
 
+;;;;;;;;
+
 vblankwait1:
     BIT $2002
     BPL vblankwait1
+
+;;;;;;;;
 
 clrmem:
     LDA #$00
@@ -37,9 +41,13 @@ clrmem:
     INX
     BNE clrmem
 
+;;;;;;;;
+
 vblankwait2:
     BIT $2002
     BPL vblankwait2
+
+;;;;;;;;
 
 LoadPalettes:
     LDA $2002
@@ -55,6 +63,8 @@ LoadPalettesLoop:
     CPX #$20
     BNE LoadPalettesLoop
 
+;;;;;;;;
+
 LoadSprites:
     LDX #$00
 LoadSpritesLoop:
@@ -64,14 +74,20 @@ LoadSpritesLoop:
     CPX #$20
     BNE LoadSpritesLoop
 
+;;;;;;;;
+
     LDA #%10000000
     STA $2000
 
     LDA #%00010000
     STA $2001
 
+;;;;;;;;
+
 Forever:
   JMP Forever
+
+;;;;;;;;
 
 NMI:
     LDA #$00
@@ -79,11 +95,15 @@ NMI:
     LDA #$02
     STA $4014
 
+;;;;;;;;
+
 LatchController:
     LDA #$01
     STA $4016
     LDA #$00
     STA $4016
+
+;;;;;;;;
 
 ReadA:
     LDA $4016
@@ -94,6 +114,8 @@ ReadA:
     ADC #$01
     STA $0203
 ReadADone:
+
+;;;;;;;;
 
 ReadB:
     LDA $4016
@@ -107,7 +129,7 @@ ReadBDone:
 
   RTI
 
-;;;;;;;;;;;;;;;
+;;;;;;;;
 
 .org $E000
 
@@ -121,7 +143,7 @@ sprites:
     .db $88, $34, $00, $80
     .db $88, $35, $00, $88
 
-;;;;;;;;;;;;;;;
+;;;;;;;;
 
 .org $FFFA
 
@@ -129,7 +151,7 @@ sprites:
     .dw RESET
     .dw 0
 
-;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 .chr0
 
