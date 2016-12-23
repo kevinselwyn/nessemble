@@ -79,12 +79,12 @@ do
 
     # disassembly
     disassembly_fail=0
-    ls $rom.txt &>/dev/null
+    ls $rom-disassembled.txt &>/dev/null
     disassembly_nonexist=$?
 
     if [ $disassembly_nonexist -eq 0 ]
     then
-        diff "$rom.txt" <(./nessemble $rom.rom --disassemble) &>/dev/null
+        diff "$rom-disassembled.txt" <(./nessemble $rom.rom --disassemble) &>/dev/null
         disassembly_fail=$?
     fi
 

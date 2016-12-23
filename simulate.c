@@ -33,12 +33,13 @@ void print_goto(char *input);
  * Simulate 6502
  * @param {char *} input - Input filename
  */
-int simulate(char *input) {
+int simulate(char *input, char *recipe) {
     int rc = RETURN_OK, i = 0, l = 0, header = 0;
     int inesprg = 1, ineschr = 1;
     int opcode_index = -1, arg0 = 0, arg1 = 0, length = 0;
     size_t insize = 0;
     char *indata = NULL;
+    FILE *recipe_file = NULL;
 
     insize = load_file(&indata, input);
 
@@ -84,48 +85,37 @@ int simulate(char *input) {
     }
 
     // simulate
-    while (1) {
-        if (registers.pc == -1) {
-            break;
+    if (recipe) {
+        recipe_file = fopen(recipe, "r");
+
+        if (!recipe_file) {
+            fprintf(stderr, "Could not open %s\n", recipe);
+
+            rc = RETURN_EPERM;
+            goto cleanup;
         }
 
-        printf("nessemble> ");
-
-        fgets(buffer, BUF_SIZE, stdin);
-
-        if (strncmp(buffer, ".registers", 10) == 0) {
-            print_registers();
-        }
-
-        if (strncmp(buffer, ".instruction", 12) == 0) {
-            print_instruction();
-        }
-
-        if (strncmp(buffer, ".memory", 7) == 0) {
-            print_memory(buffer+8);
-        }
-
-        if (strncmp(buffer, ".goto", 5) == 0) {
-            print_goto(buffer+6);
-        }
-
-        if (strncmp(buffer, ".step", 5) == 0) {
-            print_instruction();
-
-            if (step()) {
-                print_registers();
+        while (fgets(buffer, BUF_SIZE, recipe_file) != NULL) {
+            if (registers.pc == -1) {
                 break;
             }
 
-            print_registers();
+            if (repl(buffer)) {
+                break;
+            }
         }
+    } else {
+        while (1) {
+            if (registers.pc == -1) {
+                break;
+            }
 
-        if (strncmp(buffer, ".run", 4) == 0) {
-            while (1) {
-                if (step()) {
-                    print_registers();
-                    break;
-                }
+            printf("nessemble> ");
+
+            fgets(buffer, BUF_SIZE, stdin);
+
+            if (repl(buffer)) {
+                break;
             }
         }
     }
@@ -135,6 +125,57 @@ cleanup:
         free(rom_data);
     }
 
+    if (recipe_file) {
+        fclose(recipe_file);
+    }
+
+    return rc;
+}
+
+int repl(char *input) {
+    int rc = RETURN_OK;
+
+    if (strncmp(buffer, ".registers", 10) == 0) {
+        print_registers();
+    }
+
+    if (strncmp(buffer, ".instruction", 12) == 0) {
+        print_instruction();
+    }
+
+    if (strncmp(buffer, ".memory", 7) == 0) {
+        print_memory(buffer+8);
+    }
+
+    if (strncmp(buffer, ".goto", 5) == 0) {
+        print_goto(buffer+6);
+    }
+
+    if (strncmp(buffer, ".step", 5) == 0) {
+        print_instruction();
+
+        if (step()) {
+            print_registers();
+
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        print_registers();
+    }
+
+    if (strncmp(buffer, ".run", 4) == 0) {
+        while (1) {
+            if (step()) {
+                print_registers();
+
+                rc = RETURN_EPERM;
+                goto cleanup;
+            }
+        }
+    }
+
+cleanup:
     return rc;
 }
 
@@ -170,7 +211,7 @@ void print_instruction() {
         printf("%s\n\n", mnemonic);
         break;
     case MODE_ACCUMULATOR:
-        fprintf("%s A\n\n", mnemonic);
+        printf("%s A\n\n", mnemonic);
         break;
     case MODE_RELATIVE:
         arg0 = (int)rom_data[registers.pc+1] & 0xFF;

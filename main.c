@@ -47,7 +47,7 @@ struct ines_header ines = { 1, 0, 0, 1, 0 };
  */
 int main(int argc, char *argv[]) {
     int rc = RETURN_OK, i = 0, l = 0, byte = 0;
-    char *exec = NULL, *filename = NULL, *outfilename = NULL;
+    char *exec = NULL, *filename = NULL, *outfilename = NULL, *recipe = NULL;
     FILE *file = NULL, *outfile = NULL;
 
     // exec
@@ -107,6 +107,18 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
+        if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--recipe") == 0) {
+            if (i + 1 < l) {
+                recipe = argv[i+1];
+            } else {
+                rc = usage(exec);
+                goto cleanup;
+            }
+
+            i += 1;
+            continue;
+        }
+
         filename = argv[i];
     }
 
@@ -129,7 +141,7 @@ int main(int argc, char *argv[]) {
 
     // simulate
     if (is_flag_simulate()) {
-        rc = simulate(cwd);
+        rc = simulate(cwd, recipe);
         goto cleanup;
     }
 
