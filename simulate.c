@@ -363,22 +363,36 @@ int do_adc(int opcode_index, int value) {
     mode = opcodes[opcode_index].mode;
 
     if ((mode & MODE_IMMEDIATE) != 0) {
-        data = value;
+        data = value & 0xFF;
     } else {
-        data = (int)rom_data[value];
+        data = (int)rom_data[value] & 0xFF;
     }
 
     tmp = registers.a + data + registers.flags.carry;
     registers.flags.overflow = ((!(((registers.a ^ data) & 0x80) != 0) && (((registers.a ^ tmp) & 0x80)) != 0) ? 1 : 0);
-    registers.flags.carry = tmp > 255 ? 1 : 0;
-    registers.flags.negative = (tmp >> 7) & 1;
+    registers.flags.carry = tmp > 0xFF ? 1 : 0;
+    registers.flags.negative = (tmp >> 0x07) & 1;
     registers.flags.zero = (tmp & 0xFF) == 0 ? 1 : 0;
-    registers.a = tmp & 255;
+    registers.a = tmp & 0xFF;
     registers.pc += length;
 }
 
 int do_and(int opcode_index, int value) {
+    int length = 0, mode = 0, data = 0;
 
+    length = opcodes[opcode_index].length;
+    mode = opcodes[opcode_index].mode;
+
+    if ((mode & MODE_IMMEDIATE) != 0) {
+        data = value & 0xFF;
+    } else {
+        data = (int)rom_data[value] & 0xFF;
+    }
+
+    registers.a = registers.a & value;
+    registers.flags.negative = (registers.a >> 0x07) & 1;
+    registers.flags.zero = registers.a == 0 ? 1 : 0;
+    registers.pc += length;
 }
 
 int do_arr(int opcode_index, int value) {
@@ -540,9 +554,9 @@ int do_lda(int opcode_index, int value) {
     mode = opcodes[opcode_index].mode;
 
     if ((mode & MODE_IMMEDIATE) != 0) {
-        registers.a = value;
+        registers.a = value & 0xFF;
     } else {
-        registers.a = (int)rom_data[value];
+        registers.a = (int)rom_data[value] & 0xFF;
     }
 
     registers.flags.negative = (registers.a >> 7) & 1;

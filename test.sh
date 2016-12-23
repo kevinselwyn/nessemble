@@ -88,6 +88,17 @@ do
         disassembly_fail=$?
     fi
 
+    # simulate
+    simulation_fail=0
+    ls $rom-simulated.txt &>/dev/null
+    simulation_nonexist=$?
+
+    if [ $simulation_nonexist -eq 0 ]
+    then
+        diff "$rom-simulated.txt" <(./nessemble --simulate $rom.rom --recipe $rom-recipe.txt) &>/dev/null
+        simulation_fail=$?
+    fi
+
     IFS=$OLDIFS
 
     # assembly
@@ -95,13 +106,18 @@ do
     diff_rc=$?
 
     # if no assembly diff and no disassembly diff
-    if [ $diff_rc -eq 0 ] && [ $disassembly_fail -eq 0 ]
+    if [ $diff_rc -eq 0 ] && [ $disassembly_fail -eq 0 ] && [ $simulation_fail -eq 0 ]
     then
         if [ "$flag_silent" != "1" ]
         then
             printf "  \033[0;32m✔\033[0m %s" $(basename $asm)
 
             if [ $disassembly_nonexist -eq 0 ]
+            then
+                printf " *"
+            fi
+
+            if [ $simulation_nonexist -eq 0 ]
             then
                 printf " *"
             fi
@@ -116,7 +132,18 @@ do
         # if disassembly diff
         if [ $disassembly_fail -ne 0 ]
         then
-            printf " [disassembly fail]\n"
+            printf " [disassembly fail]"
+        fi
+
+        # if simulation diff
+        if [ $simulation_fail -ne 0 ]
+        then
+            printf " [simulation fail]"
+        fi
+
+        if [ $disassembly_fail -ne 0 ] || [ $simulation_fail -ne 0 ]
+        then
+            printf "\n"
         fi
 
         # if assembly fail
