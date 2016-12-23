@@ -208,7 +208,7 @@ void assemble_zeropage_xy(char *mnemonic, int address, char reg);
 int disassemble(char *input, char *output);
 
 /* SIMULATE UTILS */
-int simulate(char *input);
+int simulate(char *input, char *recipe);
 
 int do_aac(int opcode_index, int value);
 int do_aax(int opcode_index, int value);
