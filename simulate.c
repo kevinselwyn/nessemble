@@ -23,11 +23,14 @@ char *rom_data = NULL;
 char buffer[BUF_SIZE];
 
 // utils
+int repl(char *input);
 void print_registers();
+void load_registers(char *input);
 void print_instruction();
 int step();
 void print_memory(char *input);
-void print_goto(char *input);
+void load_goto(char *input);
+int get_data(int mode, int value);
 
 /**
  * Simulate 6502
@@ -134,9 +137,17 @@ cleanup:
 
 int repl(char *input) {
     int rc = RETURN_OK;
+    size_t length = 0;
+
+    length = strlen(buffer);
 
     if (strncmp(buffer, ".registers", 10) == 0) {
-        print_registers();
+        if (length > 11) {
+            load_registers(buffer+11);
+            print_registers();
+        } else {
+            print_registers();
+        }
     }
 
     if (strncmp(buffer, ".instruction", 12) == 0) {
@@ -148,7 +159,7 @@ int repl(char *input) {
     }
 
     if (strncmp(buffer, ".goto", 5) == 0) {
-        print_goto(buffer+6);
+        load_goto(buffer+6);
     }
 
     if (strncmp(buffer, ".step", 5) == 0) {
@@ -196,6 +207,54 @@ void print_registers() {
     printf("%d", registers.flags.carry & 1);
 
     printf("\n\n");
+}
+
+void load_registers(char *input) {
+    int i = 0, l = 0, index = 0;
+    int starts[10], ends[10];
+    size_t length = 0;
+    char text[8];
+
+    length = strlen(input);
+
+    starts[index] = 0;
+
+    for (i = 0, l = (int)length + 1; i < l; i++) {
+        if (input[i] == ',') {
+            ends[index++] = i;
+            starts[index] = i + 1;
+        }
+
+        if (input[i] == '\0') {
+            ends[index++] = i - 1;
+        }
+    }
+
+    for (i = 0, l = index; i < l; i++) {
+        if (strncmp(input+starts[i], "A=", 2) == 0) {
+            strncpy(text, input+starts[i]+2, ends[i] - starts[i] - 2);
+            text[2] = '\0';
+            registers.a = (int)strtol(text, NULL, 16) & 0xFF;
+        } else if (strncmp(input+starts[i], "X=", 2) == 0) {
+            strncpy(text, input+starts[i]+2, ends[i] - starts[i] - 2);
+            text[2] = '\0';
+            registers.x = (int)strtol(text, NULL, 16) & 0xFF;
+        } else if (strncmp(input+starts[i], "Y=", 2) == 0) {
+            strncpy(text, input+starts[i]+2, ends[i] - starts[i] - 2);
+            text[2] = '\0';
+            registers.y = (int)strtol(text, NULL, 16) & 0xFF;
+        } else if (strncmp(input+starts[i], "PC=", 3) == 0) {
+            strncpy(text, input+starts[i]+3, ends[i] - starts[i] - 3);
+            text[4] = '\0';
+            registers.pc = (int)strtol(text, NULL, 16) & 0xFFFF;
+        } else if (strncmp(input+starts[i], "SP=", 3) == 0) {
+            strncpy(text, input+starts[i]+3, ends[i] - starts[i] - 3);
+            text[4] = '\0';
+            registers.sp = (int)strtol(text, NULL, 16) & 0xFFFF;
+        } else {
+            continue;
+        }
+    }
 }
 
 void print_instruction() {
@@ -306,7 +365,7 @@ void print_memory(char *input) {
 
     if (length <= 5) {
         a = (int)strtol(input, NULL, 16);
-        b = a + 1;
+        b = a;
     } else if (length <= 10) {
         b = (int)strtol(input+5, NULL, 16);
         input[5] = '\0';
@@ -315,7 +374,7 @@ void print_memory(char *input) {
         b++;
     }
 
-    printf("       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\n");
+    printf("       00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F\n");
 
     for (i = a - (a % 0x10), l = b + (0x10 - (b % 0x10)); i < l; i++) {
         if ((counter % 16) == 0) {
@@ -339,13 +398,29 @@ void print_memory(char *input) {
         counter++;
     }
 
-    printf("\n");
+    printf("\n\n");
 }
 
-void print_goto(char *input) {
+void load_goto(char *input) {
     input[4] = '\0';
 
     registers.pc = (int)strtol(input, NULL, 16);
+}
+
+int get_data(int mode, int value) {
+    int data = 0;
+
+    if ((mode & MODE_IMMEDIATE) != 0) {
+        data = value & 0xFF;
+    } else if ((mode & MODE_ZEROPAGE_X) != 0 || (mode & MODE_ABSOLUTE_X) != 0) {
+        data = (int)rom_data[value + registers.x] & 0xFF;
+    } else if ((mode & MODE_ZEROPAGE_Y) != 0 || (mode & MODE_ABSOLUTE_Y) != 0) {
+        data = (int)rom_data[value + registers.y] & 0xFF;
+    } else {
+        data = (int)rom_data[value] & 0xFF;
+    }
+
+    return data;
 }
 
 int do_aac(int opcode_index, int value) {
@@ -362,16 +437,12 @@ int do_adc(int opcode_index, int value) {
     length = opcodes[opcode_index].length;
     mode = opcodes[opcode_index].mode;
 
-    if ((mode & MODE_IMMEDIATE) != 0) {
-        data = value & 0xFF;
-    } else {
-        data = (int)rom_data[value] & 0xFF;
-    }
+    data = get_data(mode, value);
 
     tmp = registers.a + data + registers.flags.carry;
     registers.flags.overflow = ((!(((registers.a ^ data) & 0x80) != 0) && (((registers.a ^ tmp) & 0x80)) != 0) ? 1 : 0);
     registers.flags.carry = tmp > 0xFF ? 1 : 0;
-    registers.flags.negative = (tmp >> 0x07) & 1;
+    registers.flags.negative = (tmp >> 0x07) & 0x01;
     registers.flags.zero = (tmp & 0xFF) == 0 ? 1 : 0;
     registers.a = tmp & 0xFF;
     registers.pc += length;
@@ -383,11 +454,7 @@ int do_and(int opcode_index, int value) {
     length = opcodes[opcode_index].length;
     mode = opcodes[opcode_index].mode;
 
-    if ((mode & MODE_IMMEDIATE) != 0) {
-        data = value & 0xFF;
-    } else {
-        data = (int)rom_data[value] & 0xFF;
-    }
+    data = get_data(mode, value);
 
     registers.a = registers.a & value;
     registers.flags.negative = (registers.a >> 0x07) & 1;
@@ -400,7 +467,26 @@ int do_arr(int opcode_index, int value) {
 }
 
 int do_asl(int opcode_index, int value) {
+    int length = 0, mode = 0, tmp = 0;
 
+    length = opcodes[opcode_index].length;
+    mode = opcodes[opcode_index].mode;
+
+    if ((mode & MODE_ACCUMULATOR) != 0) {
+        registers.flags.carry = (registers.a >> 0x07) & 0x01;
+        registers.a = (registers.a << 0x01) & 0xFF;
+        registers.flags.negative = (registers.a >> 0x07) & 0x01;
+        registers.flags.zero = (registers.a & 0xFF) == 0 ? 1 : 0;
+    } else {
+        tmp = (int)rom_data[value] & 0xFF;
+        registers.flags.carry = (tmp >> 0x07) & 0x01;
+        tmp = (tmp << 0x01) & 0xFF;
+        registers.flags.negative = (tmp >> 0x07) & 0x01;
+        registers.flags.zero = (tmp & 0xFF) == 0 ? 1 : 0;
+        rom_data[value] = (char)tmp;
+    }
+
+    registers.pc += length;
 }
 
 int do_asr(int opcode_index, int value) {

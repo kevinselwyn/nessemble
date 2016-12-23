@@ -1,14 +1,4 @@
 .step
-.memory 44
-.step
-.step
-.step
-.step
-.step
-.step
-.step
-.step
-.step
 .step
 .step
 .step
