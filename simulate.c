@@ -29,7 +29,6 @@ char buffer[BUF_SIZE];
 int simulate(char *input, char *recipe) {
     int rc = RETURN_OK, i = 0, l = 0, header = 0;
     int inesprg = 1, ineschr = 1;
-    int opcode_index = -1, length = 0;
     size_t insize = 0;
     char *indata = NULL;
     FILE *recipe_file = NULL;
@@ -129,9 +128,9 @@ int repl(char *input) {
     int rc = RETURN_OK;
     size_t length = 0;
 
-    length = strlen(buffer);
+    length = strlen(input);
 
-    if (strncmp(buffer, ".registers", 10) == 0) {
+    if (strncmp(input, ".registers", 10) == 0) {
         if (length > 11) {
             load_registers(buffer+11);
             print_registers();
@@ -140,19 +139,19 @@ int repl(char *input) {
         }
     }
 
-    if (strncmp(buffer, ".instruction", 12) == 0) {
+    if (strncmp(input, ".instruction", 12) == 0) {
         print_instruction();
     }
 
-    if (strncmp(buffer, ".memory", 7) == 0) {
-        print_memory(buffer+8);
+    if (strncmp(input, ".memory", 7) == 0) {
+        print_memory(input+8);
     }
 
-    if (strncmp(buffer, ".goto", 5) == 0) {
-        load_goto(buffer+6);
+    if (strncmp(input, ".goto", 5) == 0) {
+        load_goto(input+6);
     }
 
-    if (strncmp(buffer, ".step", 5) == 0) {
+    if (strncmp(input, ".step", 5) == 0) {
         print_instruction();
 
         if (step()) {
@@ -165,7 +164,7 @@ int repl(char *input) {
         print_registers();
     }
 
-    if (strncmp(buffer, ".run", 4) == 0) {
+    if (strncmp(input, ".run", 4) == 0) {
         while (1) {
             if (step()) {
                 print_registers();
