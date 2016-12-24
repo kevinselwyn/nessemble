@@ -133,7 +133,7 @@ int offset_trainer;
 int include_stack_ptr;
 
 /* EOF VARS */
-int pass;
+unsigned int pass;
 
 /* MAIN */
 int main(int argc, char *argv[]);
