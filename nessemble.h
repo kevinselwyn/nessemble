@@ -65,7 +65,7 @@ struct opcode {
     int length;
     int timing;
     int meta;
-    int (*func)(int, int);
+    void (*func)(int, int);
 };
 
 struct opcode opcodes[OPCODE_COUNT];
