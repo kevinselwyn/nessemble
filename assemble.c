@@ -21,8 +21,8 @@ void end_pass() {
  * Get ROM index
  * @return {int} ROM index
  */
-int get_rom_index() {
-    int index = 0;
+unsigned int get_rom_index() {
+    unsigned int index = 0;
 
     if (is_segment_prg() == TRUE) {
         index = prg_offsets[prg_index] + (prg_index * BANK_PRG);
