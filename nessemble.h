@@ -20,7 +20,10 @@
 #define MAX_BANKS         256
 #define MAX_INTS          256
 #define TRAINER_MAX       512
-#define PATH_MAX          1024
+
+#ifndef PATH_MAX
+#define PATH_MAX          4096
+#endif
 
 /* CLI FLAGS */
 #define FLAG_UNDOCUMENTED 0x01
@@ -160,7 +163,7 @@ void assemble_feof();
 void end_pass();
 
 /* FILE LOCATION UTILS */
-int get_rom_index();
+unsigned int get_rom_index();
 int get_address_offset();
 void write_byte(unsigned int byte);
 
