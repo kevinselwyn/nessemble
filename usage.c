@@ -1,5 +1,16 @@
 #include <stdio.h>
+#include <string.h>
 #include "nessemble.h"
+
+struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
+    { "-o, --output <outfile.rom>", "output file" },
+    { "-f, --format {NES,RAW}", "output format" },
+    { "-u, --undocumented", "use undocumented opcodes" },
+    { "-d, --disassemble", "disassemble infile" },
+    { "-s, --simulate <infile.rom>", "start the simulator" },
+    { "-r, --recipe <recipe.txt>", "recipe file for the simulator" },
+    { "-h, --help", "print this message" }
+};
 
 /**
  * Program usage
@@ -7,13 +18,25 @@
  * @param {int} Return code
  */
 int usage(char *exec) {
+    unsigned int i = 0, l = 0;
+    size_t length = 0, max_length = 0;
+
     printf("Usage: %s [options] <infile.asm>\n\n", exec);
     printf("Options:\n");
-    printf("  -o, --output <outfile.rom>   output file\n");
-    printf("  -d, --disassemble            disassemble infile\n");
-    printf("  -f, --format (NES|RAW)       output format\n");
-    printf("  -u, --undocumented           use undocumented opcodes\n");
-    printf("  -h, --help                   print this message\n");
+
+    for (i = 0, l = USAGE_FLAG_COUNT; i < l; i++) {
+        length = strlen(usage_flags[i].invocation);
+
+        if (length > max_length) {
+            max_length = length;
+        }
+    }
+
+    for (i = 0, l = USAGE_FLAG_COUNT; i < l; i++) {
+        length = strlen(usage_flags[i].invocation);
+
+        printf("  %s%*s%s\n", usage_flags[i].invocation, (int)(max_length - length + 2), " ", usage_flags[i].description);
+    }
 
     return RETURN_USAGE;
 }
