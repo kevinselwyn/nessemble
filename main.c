@@ -12,7 +12,7 @@ int flags = 0;
 
 // io
 unsigned int *rom = NULL;
-int pass = 1;
+unsigned int pass = 1;
 int offset_max = 0;
 
 // banks
