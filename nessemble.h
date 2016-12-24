@@ -139,6 +139,14 @@ unsigned int pass;
 int main(int argc, char *argv[]);
 
 /* USAGE */
+#define USAGE_FLAG_COUNT 7
+
+struct usage_flag {
+    char *invocation, *description;
+};
+
+struct usage_flag usage_flags[USAGE_FLAG_COUNT];
+
 int usage(char *exec);
 
 /* INCLUDE UTILS */
