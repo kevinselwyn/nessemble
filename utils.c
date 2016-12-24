@@ -97,23 +97,31 @@ size_t load_file(char **data, char *filename) {
 
     if (fseek(infile, 0, SEEK_SET) != 0) {
         fprintf(stderr, "Seek error\n");
+
+        insize = 0;
         goto cleanup;
     }
 
     if (insize == 0) {
         fprintf(stderr, "%s is empty\n", filename);
+
+        insize = 0;
         goto cleanup;
     }
 
-    indata = malloc(sizeof(char) * (insize + 1));
+    indata = (char *)malloc(sizeof(char) * (insize + 1));
 
     if (!indata) {
         fprintf(stderr, "Memory error\n");
+
+        insize = 0;
         goto cleanup;
     }
 
     if (fread(indata, 1, insize, infile) != insize) {
         fprintf(stderr, "Could not read %s\n", filename);
+
+        insize = 0;
         goto cleanup;
     }
 
