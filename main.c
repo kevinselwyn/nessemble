@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
     }
 
     // simulate
-    if (is_flag_simulate()) {
+    if (is_flag_simulate() == TRUE) {
         rc = simulate(cwd, recipe);
         goto cleanup;
     }
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
     }
 
     // disassemble
-    if (is_flag_disassemble()) {
+    if (is_flag_disassemble() == TRUE) {
         rc = disassemble(cwd, outfilename);
         goto cleanup;
     }
@@ -184,16 +184,21 @@ int main(int argc, char *argv[]) {
     pass = 1;
 
     do {
-        yyparse();
-    } while (!feof(yyin) && pass == 1);
+        (void)yyparse();
+    } while (feof(yyin) == 0 && pass == 1);
 
     /* PASS 2 */
 
     // restart
-    fseek(yyin, 0, 0);
+    if (fseek(yyin, 0, SEEK_SET) != 0) {
+        fprintf(stderr, "Seek error\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
 
     // get offset max
-    if (is_flag_nes()) {
+    if (is_flag_nes() == TRUE) {
         offset_max = (ines.prg * BANK_PRG) + (ines.chr * BANK_CHR);
     }
 
@@ -243,8 +248,8 @@ int main(int argc, char *argv[]) {
     yylineno = 1;
 
     do {
-        yyparse();
-    } while (!feof(yyin) && pass == 2);
+        (void)yyparse();
+    } while (feof(yyin) == 0 && pass == 2);
 
     /* DONE */
 
@@ -252,48 +257,48 @@ int main(int argc, char *argv[]) {
     outfile = fopen(outfilename, "w");
 
     // write nes header
-    if (is_flag_nes()) {
-        fwrite("NES", 3, 1, outfile); // 0-2
+    if (is_flag_nes() == TRUE) {
+        (void)fwrite("NES", 3, 1, outfile); // 0-2
 
         byte = 0x1A;
-        fwrite(&byte, 1, 1, outfile); // 3
+        (void)fwrite(&byte, 1, 1, outfile); // 3
 
-        fwrite(&ines.prg, 1, 1, outfile); // 4
-        fwrite(&ines.chr, 1, 1, outfile); // 5
+        (void)fwrite(&ines.prg, 1, 1, outfile); // 4
+        (void)fwrite(&ines.chr, 1, 1, outfile); // 5
 
         byte = 0;
         byte |= ines.mir & 0x01;
         byte |= (ines.trn & 0x01) << 0x02;
         byte |= (ines.map & 0x0F) << 0x04;
 
-        fwrite(&byte, 1, 1, outfile); // 6
+        (void)fwrite(&byte, 1, 1, outfile); // 6
 
         byte = 0;
         byte |= (ines.map & 0xF0);
 
-        fwrite(&byte, 1, 1, outfile); // 7
+        (void)fwrite(&byte, 1, 1, outfile); // 7
 
         byte = 0;
 
-        fwrite(&byte, 1, 1, outfile); // 8
-        fwrite(&byte, 1, 1, outfile); // 9
-        fwrite(&byte, 1, 1, outfile); // 10
+        (void)fwrite(&byte, 1, 1, outfile); // 8
+        (void)fwrite(&byte, 1, 1, outfile); // 9
+        (void)fwrite(&byte, 1, 1, outfile); // 10
 
         for (i = 11, l = 16; i < l; i++) {
-            fwrite(&byte, 1, 1, outfile); // 11-15
+            (void)fwrite(&byte, 1, 1, outfile); // 11-15
         }
     }
 
     // write trainer
     if (ines.trn == 1) {
         for (i = 0, l = TRAINER_MAX; i < l; i++) {
-            fwrite(trainer+i, 1, 1, outfile);
+            (void)fwrite(trainer+i, 1, 1, outfile);
         }
     }
 
     // write rom data
     for (i = 0, l = offset_max; i < l; i++) {
-        fwrite(rom+i, 1, 1, outfile);
+        (void)fwrite(rom+i, 1, 1, outfile);
     }
 
 cleanup:
@@ -309,7 +314,7 @@ cleanup:
  * @return {int} True if flag active, false if not
  */
 int is_flag_undocumented() {
-    return (flags & FLAG_UNDOCUMENTED) != 0;
+    return (flags & FLAG_UNDOCUMENTED) != 0 ? TRUE : FALSE;
 }
 
 /**
@@ -317,7 +322,7 @@ int is_flag_undocumented() {
  * @return {int} True if flag active, false if not
  */
 int is_flag_nes() {
-    return (flags & FLAG_NES) != 0;
+    return (flags & FLAG_NES) != 0 ? TRUE : FALSE;
 }
 
 /**
@@ -325,7 +330,7 @@ int is_flag_nes() {
  * @return {int} Return code
  */
 int is_flag_disassemble() {
-    return (flags & FLAG_DISASSEMBLE) != 0;
+    return (flags & FLAG_DISASSEMBLE) != 0 ? TRUE : FALSE;
 }
 
 /**
@@ -333,7 +338,7 @@ int is_flag_disassemble() {
  * @return {int} Return code
  */
 int is_flag_simulate() {
-    return (flags & FLAG_SIMULATE) != 0;
+    return (flags & FLAG_SIMULATE) != 0 ? TRUE : FALSE;
 }
 
 /**
@@ -341,7 +346,7 @@ int is_flag_simulate() {
  * @return {int} True if is segment, false if not
  */
 int is_segment_chr() {
-    return segment_type == SEGMENT_CHR;
+    return segment_type == SEGMENT_CHR ? TRUE : FALSE;
 }
 
 /**
@@ -349,7 +354,7 @@ int is_segment_chr() {
  * @return {int} True if is segment, false if not
  */
 int is_segment_prg() {
-    return segment_type == SEGMENT_PRG;
+    return segment_type == SEGMENT_PRG ? TRUE : FALSE;
 }
 
 /**
@@ -364,7 +369,7 @@ void yyerror(const char *fmt, ...) {
     va_start(argptr, fmt);
 
     fprintf(stderr, "Error on line %d: ", yylineno);
-    vfprintf(stderr, fmt, argptr);
+    (void)vfprintf(stderr, fmt, argptr);
     fprintf(stderr, "\n");
 
     va_end(argptr);

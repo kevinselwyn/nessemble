@@ -9,12 +9,12 @@
  * @param {int} offset - Offset
  */
 void pseudo_ascii(char *string, int offset) {
-    int i = 0, l = 0;
+    unsigned int i = 0, l = 0;
     size_t length = 0;
 
     length = strlen(string);
 
-    for (i = 1, l = (int)length - 1; i < l; i++) {
+    for (i = 1, l = (unsigned int)length - 1; i < l; i++) {
         write_byte((unsigned int)string[i] + offset);
     }
 }
@@ -33,9 +33,9 @@ void pseudo_chr(int index) {
  * .db pseudo instruction
  */
 void pseudo_db() {
-    int i = 0, l = 0;
+    unsigned int i = 0, l = 0;
 
-    for (i = 0, l = length_ints; i < l; i++) {
+    for (i = 0, l = (unsigned int)length_ints; i < l; i++) {
         write_byte(ints[i] & 0xFF);
     }
 
@@ -46,7 +46,7 @@ void pseudo_db() {
  * .defchr pseudo instruction
  */
 void pseudo_defchr() {
-    int i = 0, j = 0, k = 0, l = 0, loops = 2, digit = 0;
+    unsigned int i = 0, j = 0, k = 0, l = 0, loops = 2, digit = 0;
     unsigned int byte = 0;
 
     if (length_ints != 8) {
@@ -58,7 +58,7 @@ void pseudo_defchr() {
             byte = 0;
 
             for (k = 0, l = 8; k < l; k++) {
-                digit = (ints[i] / power(10, l - k - 1)) % 10;
+                digit = (ints[i] / power(10, (int)(l - k - 1))) % 10;
                 digit = (digit >> (loops - 1)) & 0x01;
 
                 byte |= (digit << (l - k - 1));
@@ -77,7 +77,7 @@ void pseudo_defchr() {
  * .dw pseudo instruction
  */
 void pseudo_dw() {
-    int i = 0, l = 0;
+    unsigned int i = 0, l = 0;
 
     for (i = 0, l = length_ints; i < l; i++) {
         write_byte(ints[i] & 0xFF);
@@ -91,7 +91,7 @@ void pseudo_dw() {
  * .hibytes pseudo instruction
  */
 void pseudo_hibytes() {
-    int i = 0, l = 0;
+    unsigned int i = 0, l = 0;
 
     for (i = 0, l = length_ints; i < l; i++) {
         write_byte((ints[i] >> 8) & 0xFF);
@@ -178,7 +178,7 @@ cleanup:
  * @param {char *} string - Filename of binary
  */
 void pseudo_incbin(char *string, int offset, int limit) {
-    int i = 0, l = 0;
+    unsigned int i = 0, l = 0;
     size_t path_length = 0, string_length = 0, bin_length = 0;
     char *path = NULL, *bin_data = NULL;
     FILE *incbin = NULL;
@@ -203,11 +203,19 @@ void pseudo_incbin(char *string, int offset, int limit) {
         goto cleanup;
     }
 
-    (void)fseek(incbin, 0, SEEK_END);
-    bin_length = ftell(incbin);
-    (void)fseek(incbin, 0, SEEK_SET);
+    if (fseek(incbin, 0, SEEK_END) != 0) {
+        yyerror("Seek error");
+        goto cleanup;
+    }
 
-    if (!bin_length) {
+    bin_length = (size_t)ftell(incbin);
+
+    if (fseek(incbin, 0, SEEK_SET) != 0) {
+        yyerror("Seek error");
+        goto cleanup;
+    }
+
+    if (bin_length == 0) {
         goto cleanup;
     }
 
@@ -227,13 +235,21 @@ void pseudo_incbin(char *string, int offset, int limit) {
         limit = (int)bin_length;
     }
 
-    for (i = offset, l = limit; i < l; i++) {
+    for (i = (unsigned int)offset, l = (unsigned int)limit; i < l; i++) {
         write_byte((unsigned int)bin_data[i]);
     }
 
 cleanup:
+    if (incbin) {
+        (void)fclose(incbin);
+    }
+
     if (path) {
         free(path);
+    }
+
+    if (bin_data) {
+        free(bin_data);
     }
 }
 
@@ -270,7 +286,7 @@ cleanup:
  * .lobytes pseudo instruction
  */
 void pseudo_lobytes() {
-    int i = 0, l = 0;
+    unsigned int i = 0, l = 0;
 
     for (i = 0, l = length_ints; i < l; i++) {
         write_byte(ints[i] & 0xFF);
@@ -286,11 +302,11 @@ void pseudo_lobytes() {
 void pseudo_org(int address) {
     // TODO: add check for too high an address
 
-    if (is_segment_prg()) {
+    if (is_segment_prg() == TRUE) {
         prg_offsets[prg_index] = address - 0xC000;
     }
 
-    if (is_segment_chr()) {
+    if (is_segment_chr() == TRUE) {
         chr_offsets[chr_index] = address;
     }
 }

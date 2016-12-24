@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "nessemble.h"
 
 /**
  * Exponent math function
  * @param {float} x - Base
  * @param {int} y - Power
+ * @return {int} Result
  */
 int power(int x, int y) {
     int temp = 0;
@@ -86,11 +88,19 @@ size_t load_file(char **data, char *filename) {
         goto cleanup;
     }
 
-    (void)fseek(infile, 0, SEEK_END);
-    insize = ftell(infile);
-    (void)fseek(infile, 0, SEEK_SET);
+    if (fseek(infile, 0, SEEK_END) != 0) {
+        fprintf(stderr, "Seek error\n");
+        goto cleanup;
+    }
 
-    if (!insize) {
+    insize = (size_t)ftell(infile);
+
+    if (fseek(infile, 0, SEEK_SET) != 0) {
+        fprintf(stderr, "Seek error\n");
+        goto cleanup;
+    }
+
+    if (insize == 0) {
         fprintf(stderr, "%s is empty\n", filename);
         goto cleanup;
     }

@@ -14,7 +14,7 @@ int get_opcode(char *mnemonic, int mode) {
 
     for (i = 0, l = OPCODE_COUNT; i < l; i++) {
         if (opcode_index == -1 && opcodes[i].mode == mode && strcmp(opcodes[i].mnemonic, mnemonic) == 0) {
-            if (is_flag_undocumented()) {
+            if (is_flag_undocumented() == TRUE) {
                 if ((opcodes[i].meta & META_UNDOCUMENTED) != 0) {
                     opcode_index = i;
                 }
@@ -51,8 +51,8 @@ void assemble_absolute(char *mnemonic, int address) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte(address & 0xFF);
-    write_byte((address >> 8) & 0xFF);
+    write_byte((unsigned int)address & 0xFF);
+    write_byte(((unsigned int)address >> 8) & 0xFF);
 }
 
 /**
@@ -77,8 +77,8 @@ void assemble_absolute_xy(char *mnemonic, int address, char reg) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte(address & 0xFF);
-    write_byte((address >> 8) & 0xFF);
+    write_byte((unsigned int)address & 0xFF);
+    write_byte(((unsigned int)address >> 8) & 0xFF);
 }
 
 /**
@@ -122,7 +122,7 @@ void assemble_immediate(char *mnemonic, int value) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte(value & 0xFF);
+    write_byte((unsigned int)value & 0xFF);
 }
 
 /**
@@ -138,8 +138,8 @@ void assemble_indirect(char *mnemonic, int address) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte(address & 0xFF);
-    write_byte((address >> 8) & 0xFF);
+    write_byte((unsigned int)address & 0xFF);
+    write_byte(((unsigned int)address >> 8) & 0xFF);
 }
 
 /**
@@ -164,7 +164,7 @@ void assemble_indirect_xy(char *mnemonic, int address, char reg) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte(address & 0xFF);
+    write_byte((unsigned int)address & 0xFF);
 }
 
 /**
@@ -186,7 +186,7 @@ void assemble_relative(char *mnemonic, int address) {
     address &= 0xFF;
 
     write_byte((unsigned int)opcode_id);
-    write_byte(address);
+    write_byte((unsigned int)address);
 }
 
 /**
@@ -198,7 +198,7 @@ void assemble_zeropage(char *mnemonic, int address) {
     int opcode_id = get_opcode(mnemonic, MODE_ZEROPAGE);
 
     write_byte((unsigned int)opcode_id);
-    write_byte(address & 0XFF);
+    write_byte((unsigned int)address & 0XFF);
 }
 
 /**
@@ -223,5 +223,5 @@ void assemble_zeropage_xy(char *mnemonic, int address, char reg) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte(address & 0xFF);
+    write_byte((unsigned int)address & 0xFF);
 }
