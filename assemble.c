@@ -24,11 +24,11 @@ void end_pass() {
 int get_rom_index() {
     int index = 0;
 
-    if (is_segment_prg()) {
+    if (is_segment_prg() == TRUE) {
         index = prg_offsets[prg_index] + (prg_index * BANK_PRG);
     }
 
-    if (is_segment_chr()) {
+    if (is_segment_chr() == TRUE) {
         index = chr_offsets[chr_index] + (ines.prg * BANK_PRG);
 
         if (chr_index > 0) {
@@ -46,8 +46,8 @@ int get_rom_index() {
 int get_address_offset() {
     int offset = 0;
 
-    if (is_flag_nes()) {
-        if (is_segment_prg()) {
+    if (is_flag_nes() == TRUE) {
+        if (is_segment_prg() == TRUE) {
             if (ines.prg < 2) {
                 offset = prg_offsets[prg_index] + 0xC000;
             } else {
@@ -58,7 +58,7 @@ int get_address_offset() {
         offset = prg_offsets[prg_index];
     }
 
-    if (is_segment_chr()) {
+    if (is_segment_chr() == TRUE) {
         offset = chr_offsets[chr_index] + (ines.prg * BANK_PRG);
 
         if (chr_index > 0) {
@@ -90,11 +90,11 @@ void write_byte(unsigned int byte) {
         rom[offset] = byte;
     }
 
-    if (is_segment_prg()) {
+    if (is_segment_prg() == TRUE) {
         prg_offsets[prg_index]++;
     }
 
-    if (is_segment_chr()) {
+    if (is_segment_chr() == TRUE) {
         chr_offsets[chr_index]++;
     }
 

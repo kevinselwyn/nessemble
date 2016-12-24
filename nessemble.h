@@ -2,7 +2,10 @@
 #define _NESSEMBLE_H
 
 #include <stdio.h>
-#include <limits.h>
+
+/* BOOLEAN */
+#define TRUE  1
+#define FALSE 0
 
 /* RETURN CODES */
 #define RETURN_OK    0
@@ -17,6 +20,7 @@
 #define MAX_BANKS         256
 #define MAX_INTS          256
 #define TRAINER_MAX       512
+#define PATH_MAX          1024
 
 /* CLI FLAGS */
 #define FLAG_UNDOCUMENTED 0x01
@@ -209,85 +213,93 @@ int disassemble(char *input, char *output);
 
 /* SIMULATE UTILS */
 int simulate(char *input, char *recipe);
+int repl(char *input);
+void print_registers();
+void load_registers(char *input);
+void print_instruction();
+int step();
+void print_memory(char *input);
+void load_goto(char *input);
+unsigned int get_data(int mode, int value);
 
-int do_aac(int opcode_index, int value);
-int do_aax(int opcode_index, int value);
-int do_adc(int opcode_index, int value);
-int do_and(int opcode_index, int value);
-int do_arr(int opcode_index, int value);
-int do_asl(int opcode_index, int value);
-int do_asr(int opcode_index, int value);
-int do_atx(int opcode_index, int value);
-int do_axa(int opcode_index, int value);
-int do_axs(int opcode_index, int value);
-int do_bcc(int opcode_index, int value);
-int do_bcs(int opcode_index, int value);
-int do_beq(int opcode_index, int value);
-int do_bit(int opcode_index, int value);
-int do_bmi(int opcode_index, int value);
-int do_bne(int opcode_index, int value);
-int do_bpl(int opcode_index, int value);
-int do_brk(int opcode_index, int value);
-int do_bvc(int opcode_index, int value);
-int do_bvs(int opcode_index, int value);
-int do_clc(int opcode_index, int value);
-int do_cld(int opcode_index, int value);
-int do_cli(int opcode_index, int value);
-int do_clv(int opcode_index, int value);
-int do_cmp(int opcode_index, int value);
-int do_cpx(int opcode_index, int value);
-int do_cpy(int opcode_index, int value);
-int do_dcp(int opcode_index, int value);
-int do_dec(int opcode_index, int value);
-int do_dex(int opcode_index, int value);
-int do_dey(int opcode_index, int value);
-int do_dop(int opcode_index, int value);
-int do_eor(int opcode_index, int value);
-int do_inc(int opcode_index, int value);
-int do_inx(int opcode_index, int value);
-int do_iny(int opcode_index, int value);
-int do_isc(int opcode_index, int value);
-int do_jmp(int opcode_index, int value);
-int do_jsr(int opcode_index, int value);
-int do_kil(int opcode_index, int value);
-int do_lar(int opcode_index, int value);
-int do_lax(int opcode_index, int value);
-int do_lda(int opcode_index, int value);
-int do_ldx(int opcode_index, int value);
-int do_ldy(int opcode_index, int value);
-int do_lsr(int opcode_index, int value);
-int do_nop(int opcode_index, int value);
-int do_ora(int opcode_index, int value);
-int do_pha(int opcode_index, int value);
-int do_php(int opcode_index, int value);
-int do_pla(int opcode_index, int value);
-int do_plp(int opcode_index, int value);
-int do_rla(int opcode_index, int value);
-int do_rol(int opcode_index, int value);
-int do_ror(int opcode_index, int value);
-int do_rra(int opcode_index, int value);
-int do_rti(int opcode_index, int value);
-int do_rts(int opcode_index, int value);
-int do_sbc(int opcode_index, int value);
-int do_sec(int opcode_index, int value);
-int do_sed(int opcode_index, int value);
-int do_sei(int opcode_index, int value);
-int do_slo(int opcode_index, int value);
-int do_sre(int opcode_index, int value);
-int do_sta(int opcode_index, int value);
-int do_stx(int opcode_index, int value);
-int do_sty(int opcode_index, int value);
-int do_sxa(int opcode_index, int value);
-int do_sya(int opcode_index, int value);
-int do_tax(int opcode_index, int value);
-int do_tay(int opcode_index, int value);
-int do_top(int opcode_index, int value);
-int do_tsx(int opcode_index, int value);
-int do_txa(int opcode_index, int value);
-int do_txs(int opcode_index, int value);
-int do_tya(int opcode_index, int value);
-int do_xaa(int opcode_index, int value);
-int do_xas(int opcode_index, int value);
+void do_aac(int opcode_index, int value);
+void do_aax(int opcode_index, int value);
+void do_adc(int opcode_index, int value);
+void do_and(int opcode_index, int value);
+void do_arr(int opcode_index, int value);
+void do_asl(int opcode_index, int value);
+void do_asr(int opcode_index, int value);
+void do_atx(int opcode_index, int value);
+void do_axa(int opcode_index, int value);
+void do_axs(int opcode_index, int value);
+void do_bcc(int opcode_index, int value);
+void do_bcs(int opcode_index, int value);
+void do_beq(int opcode_index, int value);
+void do_bit(int opcode_index, int value);
+void do_bmi(int opcode_index, int value);
+void do_bne(int opcode_index, int value);
+void do_bpl(int opcode_index, int value);
+void do_brk(int opcode_index, int value);
+void do_bvc(int opcode_index, int value);
+void do_bvs(int opcode_index, int value);
+void do_clc(int opcode_index, int value);
+void do_cld(int opcode_index, int value);
+void do_cli(int opcode_index, int value);
+void do_clv(int opcode_index, int value);
+void do_cmp(int opcode_index, int value);
+void do_cpx(int opcode_index, int value);
+void do_cpy(int opcode_index, int value);
+void do_dcp(int opcode_index, int value);
+void do_dec(int opcode_index, int value);
+void do_dex(int opcode_index, int value);
+void do_dey(int opcode_index, int value);
+void do_dop(int opcode_index, int value);
+void do_eor(int opcode_index, int value);
+void do_inc(int opcode_index, int value);
+void do_inx(int opcode_index, int value);
+void do_iny(int opcode_index, int value);
+void do_isc(int opcode_index, int value);
+void do_jmp(int opcode_index, int value);
+void do_jsr(int opcode_index, int value);
+void do_kil(int opcode_index, int value);
+void do_lar(int opcode_index, int value);
+void do_lax(int opcode_index, int value);
+void do_lda(int opcode_index, int value);
+void do_ldx(int opcode_index, int value);
+void do_ldy(int opcode_index, int value);
+void do_lsr(int opcode_index, int value);
+void do_nop(int opcode_index, int value);
+void do_ora(int opcode_index, int value);
+void do_pha(int opcode_index, int value);
+void do_php(int opcode_index, int value);
+void do_pla(int opcode_index, int value);
+void do_plp(int opcode_index, int value);
+void do_rla(int opcode_index, int value);
+void do_rol(int opcode_index, int value);
+void do_ror(int opcode_index, int value);
+void do_rra(int opcode_index, int value);
+void do_rti(int opcode_index, int value);
+void do_rts(int opcode_index, int value);
+void do_sbc(int opcode_index, int value);
+void do_sec(int opcode_index, int value);
+void do_sed(int opcode_index, int value);
+void do_sei(int opcode_index, int value);
+void do_slo(int opcode_index, int value);
+void do_sre(int opcode_index, int value);
+void do_sta(int opcode_index, int value);
+void do_stx(int opcode_index, int value);
+void do_sty(int opcode_index, int value);
+void do_sxa(int opcode_index, int value);
+void do_sya(int opcode_index, int value);
+void do_tax(int opcode_index, int value);
+void do_tay(int opcode_index, int value);
+void do_top(int opcode_index, int value);
+void do_tsx(int opcode_index, int value);
+void do_txa(int opcode_index, int value);
+void do_txs(int opcode_index, int value);
+void do_tya(int opcode_index, int value);
+void do_xaa(int opcode_index, int value);
+void do_xas(int opcode_index, int value);
 
 /* UTILS */
 int power(int x, int y);
