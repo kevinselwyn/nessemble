@@ -8,7 +8,7 @@
 char *cwd_path = NULL;
 
 // cli
-int flags = 0;
+unsigned int flags = 0;
 
 // io
 unsigned int *rom = NULL;
@@ -18,20 +18,20 @@ int offset_max = 0;
 // banks
 unsigned int prg_offsets[MAX_BANKS];
 unsigned int chr_offsets[MAX_BANKS];
-int prg_index = 0;
-int chr_index = 0;
+unsigned int prg_index = 0;
+unsigned int chr_index = 0;
 
 // segment
 char *segment = NULL;
-int segment_type = 0;
+unsigned int segment_type = 0;
 
 // trainer
 unsigned int trainer[TRAINER_MAX];
-int offset_trainer = 0;
+unsigned int offset_trainer = 0;
 
 // symbols
-int symbol_index = 0;
-int rsset = 0;
+unsigned int symbol_index = 0;
+unsigned int rsset = 0;
 
 // input
 unsigned int length_ints = 0;
@@ -46,7 +46,8 @@ struct ines_header ines = { 1, 0, 0, 1, 0 };
  * @param {char *} argv[] - Argument array
  */
 int main(int argc, char *argv[]) {
-    int rc = RETURN_OK, i = 0, l = 0, byte = 0;
+    int rc = RETURN_OK;
+    unsigned int i = 0, l = 0, byte = 0;
     char *exec = NULL, *filename = NULL, *outfilename = NULL, *recipe = NULL;
     FILE *file = NULL, *outfile = NULL;
 
@@ -297,7 +298,7 @@ int main(int argc, char *argv[]) {
     }
 
     // write rom data
-    for (i = 0, l = offset_max; i < l; i++) {
+    for (i = 0, l = (unsigned int)offset_max; i < l; i++) {
         (void)fwrite(rom+i, 1, 1, outfile);
     }
 
@@ -311,49 +312,49 @@ cleanup:
 
 /**
  * Test if undocumented flag is active
- * @return {int} True if flag active, false if not
+ * @return {unsigned int} True if flag active, false if not
  */
-int is_flag_undocumented() {
+unsigned int is_flag_undocumented() {
     return (flags & FLAG_UNDOCUMENTED) != 0 ? TRUE : FALSE;
 }
 
 /**
  * Test if nes flag is active
- * @return {int} True if flag active, false if not
+ * @return {unsigned int} True if flag active, false if not
  */
-int is_flag_nes() {
+unsigned int is_flag_nes() {
     return (flags & FLAG_NES) != 0 ? TRUE : FALSE;
 }
 
 /**
  * Test if disassemble flag is active
- * @return {int} Return code
+ * @return {unsigned int} Return code
  */
-int is_flag_disassemble() {
+unsigned int is_flag_disassemble() {
     return (flags & FLAG_DISASSEMBLE) != 0 ? TRUE : FALSE;
 }
 
 /**
  * Test if sumlate flag is active
- * @return {int} Return code
+ * @return {unsigned int} Return code
  */
-int is_flag_simulate() {
+unsigned int is_flag_simulate() {
     return (flags & FLAG_SIMULATE) != 0 ? TRUE : FALSE;
 }
 
 /**
  * Test if CHR segment
- * @return {int} True if is segment, false if not
+ * @return {unsigned int} True if is segment, false if not
  */
-int is_segment_chr() {
+unsigned int is_segment_chr() {
     return segment_type == SEGMENT_CHR ? TRUE : FALSE;
 }
 
 /**
  * Test if PRG segment
- * @return {int} True if is segment, false if not
+ * @return {unsigned int} True if is segment, false if not
  */
-int is_segment_prg() {
+unsigned int is_segment_prg() {
     return segment_type == SEGMENT_PRG ? TRUE : FALSE;
 }
 
