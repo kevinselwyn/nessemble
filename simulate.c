@@ -28,7 +28,7 @@ char buffer[BUF_SIZE];
  */
 int simulate(char *input, char *recipe) {
     int rc = RETURN_OK, i = 0, l = 0, header = 0;
-    int inesprg = 1, ineschr = 1;
+    int inesprg = 1;
     size_t insize = 0;
     char *indata = NULL;
     FILE *recipe_file = NULL;
@@ -62,7 +62,6 @@ int simulate(char *input, char *recipe) {
     // load banks
     if (header) {
         inesprg = (int)indata[4];
-        ineschr = (int)indata[5];
 
         if (inesprg == 1) {
             registers.pc = 0xC000;
@@ -104,7 +103,9 @@ int simulate(char *input, char *recipe) {
 
             printf("nessemble> ");
 
-            fgets(buffer, BUF_SIZE, stdin);
+            if (fgets(buffer, BUF_SIZE, stdin) == NULL) {
+                break;
+            }
 
             if (repl(buffer)) {
                 break;
@@ -422,34 +423,11 @@ void do_aax(int opcode_index, int value) {
 }
 
 void do_adc(int opcode_index, int value) {
-    unsigned int length = 0, mode = 0, data = 0, tmp = 0;
 
-    length = (unsigned int)opcodes[opcode_index].length;
-    mode = (unsigned int)opcodes[opcode_index].mode;
-
-    data = get_data(mode, value);
-
-    tmp = registers.a + data + registers.flags.carry;
-    registers.flags.overflow = ((!(((registers.a ^ data) & 0x80) != 0) && (((registers.a ^ tmp) & 0x80)) != 0) ? 1 : 0);
-    registers.flags.carry = tmp > 0xFF ? 1 : 0;
-    registers.flags.negative = (tmp >> 0x07) & 0x01;
-    registers.flags.zero = (tmp & 0xFF) == 0 ? 1 : 0;
-    registers.a = tmp & 0xFF;
-    registers.pc += (int)length;
 }
 
 void do_and(int opcode_index, int value) {
-    unsigned int length = 0, mode = 0, data = 0;
 
-    length = (unsigned int)opcodes[opcode_index].length;
-    mode = (unsigned int)opcodes[opcode_index].mode;
-
-    data = get_data(mode, value);
-
-    registers.a = registers.a & value;
-    registers.flags.negative = (registers.a >> 0x07) & 1;
-    registers.flags.zero = registers.a == 0 ? 1 : 0;
-    registers.pc += (int)length;
 }
 
 void do_arr(int opcode_index, int value) {
@@ -457,26 +435,7 @@ void do_arr(int opcode_index, int value) {
 }
 
 void do_asl(int opcode_index, int value) {
-    unsigned int length = 0, mode = 0, tmp = 0;
 
-    length = (unsigned int)opcodes[opcode_index].length;
-    mode = (unsigned int)opcodes[opcode_index].mode;
-
-    if ((mode & MODE_ACCUMULATOR) != 0) {
-        registers.flags.carry = (registers.a >> 0x07) & 0x01;
-        registers.a = (registers.a << 0x01) & 0xFF;
-        registers.flags.negative = (registers.a >> 0x07) & 0x01;
-        registers.flags.zero = (registers.a & 0xFF) == 0 ? 1 : 0;
-    } else {
-        tmp = (unsigned int)rom_data[value] & 0xFF;
-        registers.flags.carry = (tmp >> 0x07) & 0x01;
-        tmp = (tmp << 0x01) & 0xFF;
-        registers.flags.negative = (tmp >> 0x07) & 0x01;
-        registers.flags.zero = (tmp & 0xFF) == 0 ? 1 : 0;
-        rom_data[value] = (char)tmp;
-    }
-
-    registers.pc += (int)length;
 }
 
 void do_asr(int opcode_index, int value) {
@@ -624,20 +583,7 @@ void do_lax(int opcode_index, int value) {
 }
 
 void do_lda(int opcode_index, int value) {
-    unsigned int length = 0, mode = 0;
 
-    length = (unsigned int)opcodes[opcode_index].length;
-    mode = (unsigned int)opcodes[opcode_index].mode;
-
-    if ((mode & MODE_IMMEDIATE) != 0) {
-        registers.a = (unsigned int)value & 0xFF;
-    } else {
-        registers.a = (unsigned int)rom_data[value] & 0xFF;
-    }
-
-    registers.flags.negative = (registers.a >> 7) & 1;
-    registers.flags.zero = registers.a == 0 ? 1 : 0;
-    registers.pc += (int)length;
 }
 
 void do_ldx(int opcode_index, int value) {
@@ -725,11 +671,7 @@ void do_sre(int opcode_index, int value) {
 }
 
 void do_sta(int opcode_index, int value) {
-    unsigned int length = (unsigned int)opcodes[opcode_index].length;
 
-    rom_data[value] = (char)registers.a;
-
-    registers.pc += (int)length;
 }
 
 void do_stx(int opcode_index, int value) {

@@ -174,7 +174,7 @@ void assemble_indirect_xy(char *mnemonic, int address, char reg) {
  */
 void assemble_relative(char *mnemonic, int address) {
     int opcode_id = get_opcode(mnemonic, MODE_RELATIVE);
-    int offset = get_address_offset() + 1;
+    unsigned int offset = get_address_offset() + 1;
 
     if (offset > address) {
         address = 0xFF - (offset - address);

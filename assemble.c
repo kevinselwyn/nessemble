@@ -43,8 +43,8 @@ unsigned int get_rom_index() {
  * Get address offset
  * @return {int} PC offset
  */
-int get_address_offset() {
-    int offset = 0;
+unsigned int get_address_offset() {
+    unsigned int offset = 0;
 
     if (is_flag_nes() == TRUE) {
         if (is_segment_prg() == TRUE) {
@@ -152,7 +152,7 @@ void add_constant(char *name, int value) {
  * @param {char *} name - Label name
  */
 void add_label(char *name) {
-    int offset = get_address_offset();
+    unsigned int offset = get_address_offset();
 
     add_symbol(name, offset, SYMBOL_LABEL);
 }
