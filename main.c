@@ -16,8 +16,8 @@ unsigned int pass = 1;
 int offset_max = 0;
 
 // banks
-int prg_offsets[MAX_BANKS];
-int chr_offsets[MAX_BANKS];
+unsigned int prg_offsets[MAX_BANKS];
+unsigned int chr_offsets[MAX_BANKS];
 int prg_index = 0;
 int chr_index = 0;
 

@@ -119,8 +119,8 @@ struct ines_header ines;
 unsigned int *rom;
 
 /* OFFSETS */
-int prg_offsets[MAX_BANKS];
-int chr_offsets[MAX_BANKS];
+unsigned int prg_offsets[MAX_BANKS];
+unsigned int chr_offsets[MAX_BANKS];
 int prg_index;
 int chr_index;
 int offset_max;
@@ -172,7 +172,7 @@ void end_pass();
 
 /* FILE LOCATION UTILS */
 unsigned int get_rom_index();
-int get_address_offset();
+unsigned int get_address_offset();
 void write_byte(unsigned int byte);
 
 /* SYMBOL UTILS */
