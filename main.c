@@ -315,7 +315,7 @@ cleanup:
  * @return {unsigned int} True if flag active, false if not
  */
 unsigned int is_flag_undocumented() {
-    return (flags & FLAG_UNDOCUMENTED) != 0 ? TRUE : FALSE;
+    return (unsigned int)((flags & FLAG_UNDOCUMENTED) != 0 ? TRUE : FALSE);
 }
 
 /**
@@ -323,7 +323,7 @@ unsigned int is_flag_undocumented() {
  * @return {unsigned int} True if flag active, false if not
  */
 unsigned int is_flag_nes() {
-    return (flags & FLAG_NES) != 0 ? TRUE : FALSE;
+    return (unsigned int)((flags & FLAG_NES) != 0 ? TRUE : FALSE);
 }
 
 /**
@@ -331,7 +331,7 @@ unsigned int is_flag_nes() {
  * @return {unsigned int} Return code
  */
 unsigned int is_flag_disassemble() {
-    return (flags & FLAG_DISASSEMBLE) != 0 ? TRUE : FALSE;
+    return (unsigned int)((flags & FLAG_DISASSEMBLE) != 0 ? TRUE : FALSE);
 }
 
 /**
@@ -339,7 +339,7 @@ unsigned int is_flag_disassemble() {
  * @return {unsigned int} Return code
  */
 unsigned int is_flag_simulate() {
-    return (flags & FLAG_SIMULATE) != 0 ? TRUE : FALSE;
+    return (unsigned int)((flags & FLAG_SIMULATE) != 0 ? TRUE : FALSE);
 }
 
 /**
@@ -347,7 +347,7 @@ unsigned int is_flag_simulate() {
  * @return {unsigned int} True if is segment, false if not
  */
 unsigned int is_segment_chr() {
-    return segment_type == SEGMENT_CHR ? TRUE : FALSE;
+    return (unsigned int)(segment_type == SEGMENT_CHR ? TRUE : FALSE);
 }
 
 /**
@@ -355,7 +355,7 @@ unsigned int is_segment_chr() {
  * @return {unsigned int} True if is segment, false if not
  */
 unsigned int is_segment_prg() {
-    return segment_type == SEGMENT_PRG ? TRUE : FALSE;
+    return (unsigned int)(segment_type == SEGMENT_PRG ? TRUE : FALSE);
 }
 
 /**
