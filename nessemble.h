@@ -31,7 +31,7 @@
 #define FLAG_DISASSEMBLE  0x04
 #define FLAG_SIMULATE     0x08
 
-int flags;
+unsigned int flags;
 
 /* SEGMENTS */
 #define SEGMENT_CHR 1
@@ -88,12 +88,12 @@ struct symbol {
 };
 
 struct symbol symbols[1024];
-int symbol_index;
-int rsset;
+unsigned int symbol_index;
+unsigned int rsset;
 
 /* SEGMENTS */
 char *segment;
-int segment_type;
+unsigned int segment_type;
 
 /* CWD */
 char cwd[PATH_MAX + 1];
@@ -109,7 +109,7 @@ char yycolno;
 
 /* INES HEADER */
 struct ines_header {
-    int chr, map, mir, prg, trn;
+    unsigned int chr, map, mir, prg, trn;
 };
 
 /* INES */
@@ -121,13 +121,13 @@ unsigned int *rom;
 /* OFFSETS */
 unsigned int prg_offsets[MAX_BANKS];
 unsigned int chr_offsets[MAX_BANKS];
-int prg_index;
-int chr_index;
+unsigned int prg_index;
+unsigned int chr_index;
 int offset_max;
 
 /* TRAINER */
 unsigned int trainer[TRAINER_MAX];
-int offset_trainer;
+unsigned int offset_trainer;
 
 /* INCLUDE VARS */
 int include_stack_ptr;
@@ -154,14 +154,14 @@ void include_file_pop();
 void include_file_push(char *filename);
 
 /* FLAG TESTS */
-int is_flag_undocumented();
-int is_flag_nes();
-int is_flag_disassemble();
-int is_flag_simulate();
+unsigned int is_flag_undocumented();
+unsigned int is_flag_nes();
+unsigned int is_flag_disassemble();
+unsigned int is_flag_simulate();
 
 /* SEGMENT TESTS */
-int is_segment_chr();
-int is_segment_prg();
+unsigned int is_segment_chr();
+unsigned int is_segment_prg();
 
 /* ERROR REPORTING */
 void yyerror(const char *fmt, ...);
@@ -176,9 +176,9 @@ unsigned int get_address_offset();
 void write_byte(unsigned int byte);
 
 /* SYMBOL UTILS */
-void add_symbol(char *name, int value, int type);
+void add_symbol(char *name, unsigned int value, unsigned int type);
 int get_symbol(char *name);
-void add_constant(char *name, int value);
+void add_constant(char *name, unsigned int value);
 void add_label(char *name);
 
 /* PSEUDO UTILS */
@@ -205,19 +205,19 @@ void pseudo_rs(char *label, int size);
 void pseudo_segment(char *string);
 
 /* OPCODE UTILS */
-int get_opcode(char *mnemonic, int mode);
+int get_opcode(char *mnemonic, unsigned int mode);
 
 /* ASSEMBLY UTILS */
-void assemble_absolute(char *mnemonic, int address);
-void assemble_absolute_xy(char *mnemonic, int address, char reg);
+void assemble_absolute(char *mnemonic, unsigned int address);
+void assemble_absolute_xy(char *mnemonic, unsigned int address, char reg);
 void assemble_accumulator(char *mnemonic);
 void assemble_implied(char *mnemonic);
-void assemble_immediate(char *mnemonic, int value);
-void assemble_indirect(char *mnemonic, int address);
-void assemble_indirect_xy(char *mnemonic, int address, char reg);
-void assemble_relative(char *mnemonic, int address);
-void assemble_zeropage(char *mnemonic, int address);
-void assemble_zeropage_xy(char *mnemonic, int address, char reg);
+void assemble_immediate(char *mnemonic, unsigned int value);
+void assemble_indirect(char *mnemonic, unsigned int address);
+void assemble_indirect_xy(char *mnemonic, unsigned int address, char reg);
+void assemble_relative(char *mnemonic, unsigned int address);
+void assemble_zeropage(char *mnemonic, unsigned int address);
+void assemble_zeropage_xy(char *mnemonic, unsigned int address, char reg);
 
 /* DISASSEMBLY UTILS */
 int disassemble(char *input, char *output);

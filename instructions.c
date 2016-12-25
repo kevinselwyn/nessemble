@@ -7,10 +7,11 @@
 /**
  * Get opcode
  * @param {char *} mnemonic - Mnemonic
- * @param {int} mode - Addressing mode
+ * @param {unsigned int} mode - Addressing mode
  */
-int get_opcode(char *mnemonic, int mode) {
-    int i = 0, l = 0, opcode_index = -1;
+int get_opcode(char *mnemonic, unsigned int mode) {
+    int opcode_index = -1;
+    unsigned int i = 0, l = 0;
 
     for (i = 0, l = OPCODE_COUNT; i < l; i++) {
         if (opcode_index == -1 && opcodes[i].mode == mode && strcmp(opcodes[i].mnemonic, mnemonic) == 0) {
@@ -32,9 +33,9 @@ int get_opcode(char *mnemonic, int mode) {
 /**
  * Assemble absolute addressing mode
  * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
+ * @param {unsigned int} address - Address
  */
-void assemble_absolute(char *mnemonic, int address) {
+void assemble_absolute(char *mnemonic, unsigned int address) {
     int opcode_index = get_opcode(mnemonic, MODE_ABSOLUTE);
 
     if (opcode_index == -1) {
@@ -58,10 +59,10 @@ void assemble_absolute(char *mnemonic, int address) {
 /**
  * Assemble absolute_x/absolute_y addressing mode
  * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
+ * @param {unsigned int} address - Address
  * @param {char} reg - Register
  */
-void assemble_absolute_xy(char *mnemonic, int address, char reg) {
+void assemble_absolute_xy(char *mnemonic, unsigned int address, char reg) {
     int opcode_index = -1;
 
     if (reg == 'X') {
@@ -112,9 +113,9 @@ void assemble_implied(char *mnemonic) {
 /**
  * Assemble immediate addressing mode
  * @param {char *} mnemonic - Mnemonic
- * @param {int} value - Value
+ * @param {unsigned int} value - Value
  */
-void assemble_immediate(char *mnemonic, int value) {
+void assemble_immediate(char *mnemonic, unsigned int value) {
     int opcode_index = get_opcode(mnemonic, MODE_IMMEDIATE);
 
     if (opcode_index == -1) {
@@ -128,9 +129,9 @@ void assemble_immediate(char *mnemonic, int value) {
 /**
  * Assemble indirect addressing mode
  * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
+ * @param {unsigned int} address - Address
  */
-void assemble_indirect(char *mnemonic, int address) {
+void assemble_indirect(char *mnemonic, unsigned int address) {
     int opcode_index = get_opcode(mnemonic, MODE_INDIRECT);
 
     if (opcode_index == -1) {
@@ -145,10 +146,10 @@ void assemble_indirect(char *mnemonic, int address) {
 /**
  * Assemble indirect_x/indirect_y addressing mode
  * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
+ * @param {unsigned int} address - Address
  * @param {char} reg - Register
  */
-void assemble_indirect_xy(char *mnemonic, int address, char reg) {
+void assemble_indirect_xy(char *mnemonic, unsigned int address, char reg) {
     int opcode_index = -1;
 
     if (reg == 'X') {
@@ -170,9 +171,9 @@ void assemble_indirect_xy(char *mnemonic, int address, char reg) {
 /**
  * Assemble relative addressing mode
  * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
+ * @param {unsigned int} address - Address
  */
-void assemble_relative(char *mnemonic, int address) {
+void assemble_relative(char *mnemonic, unsigned int address) {
     int opcode_id = get_opcode(mnemonic, MODE_RELATIVE);
     unsigned int offset = get_address_offset() + 1;
 
@@ -192,9 +193,9 @@ void assemble_relative(char *mnemonic, int address) {
 /**
  * Assemble zeropage addressing mode
  * @param {char *} mnemonic - Mnemonic
- * @param {int} address - Address
+ * @param {unsigned int} address - Address
  */
-void assemble_zeropage(char *mnemonic, int address) {
+void assemble_zeropage(char *mnemonic, unsigned int address) {
     int opcode_id = get_opcode(mnemonic, MODE_ZEROPAGE);
 
     write_byte((unsigned int)opcode_id);
@@ -207,7 +208,7 @@ void assemble_zeropage(char *mnemonic, int address) {
  * @param {int} address - Address
  * @param {char} reg - Register
  */
-void assemble_zeropage_xy(char *mnemonic, int address, char reg) {
+void assemble_zeropage_xy(char *mnemonic, unsigned int address, char reg) {
     int opcode_index = -1;
 
     if (reg == 'X') {

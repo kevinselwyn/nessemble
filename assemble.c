@@ -74,7 +74,7 @@ unsigned int get_address_offset() {
  * @param {unsigned int} byte - Byte to write
  */
 void write_byte(unsigned int byte) {
-    int offset = get_rom_index();
+    unsigned int offset = get_rom_index();
 
     if (ines.trn == 1) {
         if (pass == 2) {
@@ -98,18 +98,18 @@ void write_byte(unsigned int byte) {
         chr_offsets[chr_index]++;
     }
 
-    if (offset + 1 > offset_max) {
-        offset_max = offset + 1;
+    if ((int)offset + 1 > offset_max) {
+        offset_max = (int)offset + 1;
     }
 }
 
 /**
  * Add symbol
  * @param {char *} name - Symbol name
- * @param {int} value - Symbol value
- * @param {int} type - Symbol type
+ * @param {unsigned int} value - Symbol value
+ * @param {unsigned int} type - Symbol type
  */
-void add_symbol(char *name, int value, int type) {
+void add_symbol(char *name, unsigned int value, unsigned int type) {
     if (pass == 1) {
         symbols[symbol_index].name = name;
         symbols[symbol_index].value = value;
@@ -123,7 +123,8 @@ void add_symbol(char *name, int value, int type) {
  * @return {int} Symbol ID
  */
 int get_symbol(char *name) {
-    int i = 0, l = 0, symbol_id = -1;
+    int symbol_id = -1;
+    unsigned int i = 0, l = 0;
 
     for (i = 0, l = symbol_index; i < l; i++) {
         if (symbol_id == -1 && strcmp(symbols[i].name, name) == 0) {
@@ -143,7 +144,7 @@ int get_symbol(char *name) {
  * @param {char *} name - Constant name
  * @param {int} value - Constant value
  */
-void add_constant(char *name, int value) {
+void add_constant(char *name, unsigned int value) {
     add_symbol(name, value, SYMBOL_CONSTANT);
 }
 
