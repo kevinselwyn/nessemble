@@ -128,7 +128,7 @@ int get_symbol(char *name) {
 
     for (i = 0, l = symbol_index; i < l; i++) {
         if (symbol_id == -1 && strcmp(symbols[i].name, name) == 0) {
-            symbol_id = i;
+            symbol_id = (int)i;
         }
     }
 
