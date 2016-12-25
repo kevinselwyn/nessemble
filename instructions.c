@@ -17,11 +17,11 @@ int get_opcode(char *mnemonic, unsigned int mode) {
         if (opcode_index == -1 && opcodes[i].mode == mode && strcmp(opcodes[i].mnemonic, mnemonic) == 0) {
             if (is_flag_undocumented() == TRUE) {
                 if ((opcodes[i].meta & META_UNDOCUMENTED) != 0) {
-                    opcode_index = i;
+                    opcode_index = (int)i;
                 }
             } else {
                 if ((opcodes[i].meta & META_UNDOCUMENTED) == 0) {
-                    opcode_index = i;
+                    opcode_index = (int)i;
                 }
             }
         }

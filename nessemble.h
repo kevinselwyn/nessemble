@@ -60,11 +60,7 @@ unsigned int flags;
 
 struct opcode {
     char mnemonic[4];
-    int mode;
-    int opcode;
-    int length;
-    int timing;
-    int meta;
+    unsigned int mode, opcode, length, timing, meta;
     void (*func)(int, int);
 };
 
@@ -83,8 +79,7 @@ FILE *yyin;
 
 struct symbol {
     char *name;
-    int value;
-    int type;
+    unsigned int value, type;
 };
 
 struct symbol symbols[1024];
