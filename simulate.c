@@ -655,11 +655,11 @@ void do_sei(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_slo(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_sre(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_sta(unsigned int opcode_index, unsigned int value) {
@@ -675,11 +675,11 @@ void do_sty(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_sxa(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_sya(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_tax(unsigned int opcode_index, unsigned int value) {
@@ -691,23 +691,31 @@ void do_tay(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_top(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_tsx(unsigned int opcode_index, unsigned int value) {
-
+    registers.x = registers.sp;
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_txa(unsigned int opcode_index, unsigned int value) {
-
+    registers.a = registers.x;
+    registers.flags.negative = (registers.x >> 0x07) & 1;
+    registers.flags.zero = (unsigned int)(registers.x == 0 ? 1 : 0);
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_txs(unsigned int opcode_index, unsigned int value) {
-
+    registers.sp = registers.x;
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_tya(unsigned int opcode_index, unsigned int value) {
-
+    registers.a = registers.y;
+    registers.flags.negative = (registers.y >> 0x07) & 1;
+    registers.flags.zero = (unsigned int)(registers.y == 0 ? 1 : 0);
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_xaa(unsigned int opcode_index, unsigned int value) {

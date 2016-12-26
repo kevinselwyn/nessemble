@@ -1,0 +1,2 @@
+.registers X=40,SP=F0
+.step
