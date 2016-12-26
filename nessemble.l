@@ -79,7 +79,7 @@ int include_stack_ptr = 0;
 %[0-1]+                { yylval.ival = bin2int(yytext); return NUMBER_BIN; }
 0[0-7]+                { yylval.ival = oct2int(yytext); return NUMBER_OCT; }
 [0-9]+                 { yylval.ival = dec2int(yytext); return NUMBER_DEC; }
-'.*'                   { yylval.ival = (int)yytext[1]; return NUMBER_CHAR; }
+'.'                    { yylval.ival = (int)yytext[1]; return NUMBER_CHAR; }
 
 [a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = strdup(yytext); return TEXT; }
 \".+\"                 { yylval.sval = strdup(yytext); return QUOT_STRING; }
