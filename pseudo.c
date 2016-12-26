@@ -23,7 +23,7 @@ void pseudo_ascii(char *string, int offset) {
  * .chr[0-9]+ pseudo instruction
  * @param {int} index - CHR bank index
  */
-void pseudo_chr(int index) {
+void pseudo_chr(unsigned int index) {
     segment_type = SEGMENT_CHR;
 
     chr_index = index;
@@ -104,7 +104,7 @@ void pseudo_hibytes() {
  * .ineschr pseudo instruction
  * @param {int} value - Number of 8KB CHR banks
  */
-void pseudo_ineschr(int value) {
+void pseudo_ineschr(unsigned int value) {
     flags |= FLAG_NES;
 
     ines.chr = value;
@@ -114,7 +114,7 @@ void pseudo_ineschr(int value) {
  * .inesmap pseudo instruction
  * @param {int} value - Mapper ID
  */
-void pseudo_inesmap(int value) {
+void pseudo_inesmap(unsigned int value) {
     flags |= FLAG_NES;
 
     ines.map = value;
@@ -124,7 +124,7 @@ void pseudo_inesmap(int value) {
  * .inesmir pseudo instruction
  * @param {int} value - Mirroring value
  */
-void pseudo_inesmir(int value) {
+void pseudo_inesmir(unsigned int value) {
     flags |= FLAG_NES;
 
     ines.mir = value;
@@ -134,7 +134,7 @@ void pseudo_inesmir(int value) {
  * .inesprg pseudo instruction
  * @param {int} value - Number of 16KB PRG banks
  */
-void pseudo_inesprg(int value) {
+void pseudo_inesprg(unsigned int value) {
     flags |= FLAG_NES;
 
     ines.prg = value;
@@ -299,7 +299,7 @@ void pseudo_lobytes() {
  * .org pseudo instruction
  * @param {int} address - Organization address
  */
-void pseudo_org(int address) {
+void pseudo_org(unsigned int address) {
     // TODO: add check for too high an address
 
     if (is_segment_prg() == TRUE) {
@@ -330,7 +330,7 @@ void pseudo_out(char *string) {
  * .prg[0-9]+ pseudo instruction
  * @param {int} index - PRG bank index
  */
-void pseudo_prg(int index) {
+void pseudo_prg(unsigned int index) {
     segment_type = SEGMENT_PRG;
 
     prg_index = index;
@@ -340,7 +340,7 @@ void pseudo_prg(int index) {
  * .rsset pseudo instruction
  * @param {int} address - Variable start address
  */
-void pseudo_rsset(int address) {
+void pseudo_rsset(unsigned int address) {
     rsset = address;
 }
 
@@ -368,10 +368,10 @@ void pseudo_segment(char *string) {
     segment[length-2] = '\0';
 
     if (length-2 > 3 && strncmp(segment, "PRG", 3) == 0) {
-        pseudo_prg((int)strtol(segment+3, NULL, 10));
+        pseudo_prg((unsigned int)strtol(segment+3, NULL, 10));
     }
 
     if (length-2 > 3 && strncmp(segment, "CHR", 3) == 0) {
-        pseudo_chr((int)strtol(segment+3, NULL, 10));
+        pseudo_chr((unsigned int)strtol(segment+3, NULL, 10));
     }
 }
