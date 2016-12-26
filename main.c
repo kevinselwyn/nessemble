@@ -87,6 +87,11 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
+        if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--check") == 0) {
+            flags |= FLAG_CHECK;
+            continue;
+        }
+
         filename = argv[i];
     }
 
@@ -238,6 +243,12 @@ int main(int argc, char *argv[]) {
 
     /* DONE */
 
+    // check
+    if (is_flag_check() == TRUE) {
+        fprintf(stderr, "No errors\n");
+        goto cleanup;
+    }
+
     // write output
     outfile = fopen(outfilename, "w");
 
@@ -319,7 +330,7 @@ unsigned int is_flag_nes() {
 
 /**
  * Test if disassemble flag is active
- * @return {unsigned int} Return code
+ * @return {unsigned int} True if flag active, false if not
  */
 unsigned int is_flag_disassemble() {
     return (unsigned int)((flags & FLAG_DISASSEMBLE) != 0 ? TRUE : FALSE);
@@ -327,10 +338,18 @@ unsigned int is_flag_disassemble() {
 
 /**
  * Test if sumlate flag is active
- * @return {unsigned int} Return code
+ * @return {unsigned int} True if flag active, false if not
  */
 unsigned int is_flag_simulate() {
     return (unsigned int)((flags & FLAG_SIMULATE) != 0 ? TRUE : FALSE);
+}
+
+/**
+ * Test if check flag is active
+ * @return {unsigned int} True if flag active, false if not
+ */
+unsigned int is_flag_check() {
+    return (unsigned int)((flags & FLAG_CHECK) != 0 ? TRUE : FALSE);
 }
 
 /**

@@ -30,6 +30,7 @@
 #define FLAG_NES          0x02
 #define FLAG_DISASSEMBLE  0x04
 #define FLAG_SIMULATE     0x08
+#define FLAG_CHECK        0x10
 
 unsigned int flags;
 
@@ -134,7 +135,7 @@ unsigned int pass;
 int main(int argc, char *argv[]);
 
 /* USAGE */
-#define USAGE_FLAG_COUNT 7
+#define USAGE_FLAG_COUNT 8
 
 struct usage_flag {
     char *invocation, *description;
@@ -151,6 +152,7 @@ unsigned int is_flag_undocumented();
 unsigned int is_flag_nes();
 unsigned int is_flag_disassemble();
 unsigned int is_flag_simulate();
+unsigned int is_flag_check();
 
 /* SEGMENT TESTS */
 unsigned int is_segment_chr();

@@ -6,6 +6,7 @@ static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-o, --output <outfile.rom>", "output file" },
     { "-f, --format {NES,RAW}", "output format" },
     { "-u, --undocumented", "use undocumented opcodes" },
+    { "-c, --check", "check syntax only" },
     { "-d, --disassemble", "disassemble infile" },
     { "-s, --simulate <infile.rom>", "start the simulator" },
     { "-r, --recipe <recipe.txt>", "recipe file for the simulator" },
