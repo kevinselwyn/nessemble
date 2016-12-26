@@ -5,9 +5,12 @@ Usage: nessemble [options] <infile.asm>
 
 Options:
   -o, --output <outfile.rom>   output file
-  -d, --disassemble            disassemble infile
-  -f, --format (NES|RAW)       output format
+  -f, --format {NES,RAW}       output format
   -u, --undocumented           use undocumented opcodes
+  -c, --check                  check syntax only
+  -d, --disassemble            disassemble infile
+  -s, --simulate <infile.rom>  start the simulator
+  -r, --recipe <recipe.txt>    recipe file for the simulator
   -h, --help                   print this message
 ```
 
@@ -46,9 +49,28 @@ Output:
 0000 | 28 45 4C 4C 4F 0C 00 37  4F 52 4C 44 01 | Hello, World!
 ```
 
-### .bank
+### .chrX
 
-TODO
+Set the CHR-ROM bank to X.
+
+input:
+
+```
+.chr0
+    .db $01, $02
+
+.chr1
+    .db $03, $04
+```
+
+Output:
+
+```
+0010 | 01 02 FF FF FF FF FF FF  FF FF FF FF FF FF FF FF |
+...
+2010 | 03 04 FF FF FF FF FF FF  FF FF FF FF FF FF FF FF |
+...
+```
 
 ### .db
 
