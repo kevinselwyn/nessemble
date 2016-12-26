@@ -4,39 +4,6 @@
 #include <stdarg.h>
 #include "nessemble.h"
 
-// path
-char *cwd_path = NULL;
-
-// cli
-unsigned int flags = 0;
-
-// io
-unsigned int *rom = NULL;
-unsigned int pass = 1;
-int offset_max = 0;
-
-// banks
-unsigned int prg_offsets[MAX_BANKS];
-unsigned int chr_offsets[MAX_BANKS];
-unsigned int prg_index = 0;
-unsigned int chr_index = 0;
-
-// segment
-char *segment = NULL;
-unsigned int segment_type = 0;
-
-// trainer
-unsigned int trainer[TRAINER_MAX];
-unsigned int offset_trainer = 0;
-
-// symbols
-unsigned int symbol_index = 0;
-unsigned int rsset = 0;
-
-// input
-unsigned int length_ints = 0;
-unsigned int ints[MAX_INTS];
-
 // ines
 struct ines_header ines = { 1, 0, 0, 1, 0 };
 
@@ -61,7 +28,7 @@ int main(int argc, char *argv[]) {
     }
 
     // parse args
-    for (i = 1, l = argc; i < l; i++) {
+    for (i = 1, l = (unsigned int)argc; i < l; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             rc = usage(exec);
             goto cleanup;
@@ -123,6 +90,11 @@ int main(int argc, char *argv[]) {
         filename = argv[i];
     }
 
+    if (!filename) {
+        rc = usage(exec);
+        goto cleanup;
+    }
+
     // get cwd
     if (!realpath(filename, cwd)) {
         fprintf(stderr, "Could not find real path of %s\n", filename);
@@ -133,7 +105,14 @@ int main(int argc, char *argv[]) {
 
     cwd_path = strdup(cwd);
 
-    for (i = (int)strlen(cwd_path), l = 0; i >= l; i--) {
+    if (!cwd_path) {
+        fprintf(stderr, "Could not find path of %s\n", filename);
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    for (i = (unsigned int)strlen(cwd_path), l = 0; i >= l; i--) {
         if (cwd_path[i] == '/') {
             cwd_path[i] = '\0';
             break;
@@ -142,13 +121,25 @@ int main(int argc, char *argv[]) {
 
     // simulate
     if (is_flag_simulate() == TRUE) {
-        rc = simulate(cwd, recipe);
+        if (!recipe) {
+            rc = simulate(cwd, "");
+        } else {
+            rc = simulate(cwd, recipe);
+        }
+
         goto cleanup;
     }
 
     // output
     if (!outfilename || strcmp(outfilename, "-") == 0) {
-        outfilename = "/dev/stdout";
+        outfilename = strdup("/dev/stdout");
+    }
+
+    if (!outfilename) {
+        fprintf(stderr, "Could not find output\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
     }
 
     // disassemble
@@ -170,7 +161,6 @@ int main(int argc, char *argv[]) {
     yyin = file;
 
     // segment
-    segment = (char *)malloc(sizeof(char) * 8);
     strcpy(segment, "PRG0");
     segment_type = SEGMENT_PRG;
 
@@ -200,7 +190,7 @@ int main(int argc, char *argv[]) {
 
     // get offset max
     if (is_flag_nes() == TRUE) {
-        offset_max = (ines.prg * BANK_PRG) + (ines.chr * BANK_CHR);
+        offset_max = (int)((ines.prg * BANK_PRG) + (ines.chr * BANK_CHR));
     }
 
     // create rom
@@ -214,7 +204,7 @@ int main(int argc, char *argv[]) {
     }
 
     // set all bytes to 0xFF
-    for (i = 0, l = offset_max; i < l; i++) {
+    for (i = 0, l = (unsigned int)offset_max; i < l; i++) {
         rom[i] = 0xFF;
     }
 
@@ -256,6 +246,13 @@ int main(int argc, char *argv[]) {
 
     // write output
     outfile = fopen(outfilename, "w");
+
+    if (!outfile) {
+        fprintf(stderr, "Could not open %s\n", outfilename);
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
 
     // write nes header
     if (is_flag_nes() == TRUE) {
@@ -304,7 +301,7 @@ int main(int argc, char *argv[]) {
 
 cleanup:
     if (file) {
-        fclose(file);
+        (void)fclose(file);
     }
 
     return rc;

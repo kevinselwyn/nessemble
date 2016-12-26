@@ -76,7 +76,7 @@ int simulate(char *input, char *recipe) {
     }
 
     // simulate
-    if (recipe) {
+    if (recipe != NULL && strcmp(recipe, "") != 0) {
         recipe_file = fopen(recipe, "r");
 
         if (!recipe_file) {

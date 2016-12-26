@@ -31,10 +31,10 @@ int power(int x, int y) {
 /**
  * Parse int from string
  * @param {char *} text - Text to parse
- * @return {int} Integer
+ * @return {unsigned int} Integer
  */
-int parse2int(char *text) {
-    return (int)strtol(text+4, NULL, 10);
+unsigned int parse2int(char *text) {
+    return (unsigned int)strtol(text+4, NULL, 10);
 }
 
 /**

@@ -87,7 +87,7 @@ unsigned int symbol_index;
 unsigned int rsset;
 
 /* SEGMENTS */
-char *segment;
+char segment[8];
 unsigned int segment_type;
 
 /* CWD */
@@ -108,7 +108,7 @@ struct ines_header {
 };
 
 /* INES */
-struct ines_header ines;
+extern struct ines_header ines;
 
 /* IO */
 unsigned int *rom;
@@ -139,8 +139,6 @@ int main(int argc, char *argv[]);
 struct usage_flag {
     char *invocation, *description;
 };
-
-struct usage_flag usage_flags[USAGE_FLAG_COUNT];
 
 int usage(char *exec);
 
@@ -178,24 +176,24 @@ void add_label(char *name);
 
 /* PSEUDO UTILS */
 void pseudo_ascii(char *string, int offset);
-void pseudo_chr(int index);
+void pseudo_chr(unsigned int index);
 void pseudo_db();
 void pseudo_defchr();
 void pseudo_dw();
 void pseudo_hibytes();
-void pseudo_ineschr(int value);
-void pseudo_inesmap(int value);
-void pseudo_inesmir(int value);
-void pseudo_inesprg(int value);
+void pseudo_ineschr(unsigned int value);
+void pseudo_inesmap(unsigned int value);
+void pseudo_inesmir(unsigned int value);
+void pseudo_inesprg(unsigned int value);
 void pseudo_inestrn(char *string);
 void pseudo_incbin(char *string, int offset, int limit);
 void pseudo_include(char *string);
 void pseudo_incpng(char *string, int offset, int limit);
 void pseudo_lobytes();
-void pseudo_org(int address);
+void pseudo_org(unsigned int address);
 void pseudo_out(char *string);
-void pseudo_prg(int index);
-void pseudo_rsset(int address);
+void pseudo_prg(unsigned int index);
+void pseudo_rsset(unsigned int address);
 void pseudo_rs(char *label, int size);
 void pseudo_segment(char *string);
 
@@ -309,7 +307,7 @@ void do_xas(int opcode_index, int value);
 
 /* UTILS */
 int power(int x, int y);
-int parse2int(char *text);
+unsigned int parse2int(char *text);
 int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);

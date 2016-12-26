@@ -8,6 +8,7 @@
     char *sval;
     char cval;
     int ival;
+    unsigned int uval;
 }
 
 %token ENDL
@@ -85,14 +86,15 @@
 %type <ival> number_base
 %type <ival> number_highlow
 %type <ival> label
-%type <ival> pseudo_chr
-%type <ival> pseudo_ineschr
-%type <ival> pseudo_inesmap
-%type <ival> pseudo_inesmir
-%type <ival> pseudo_inesprg
-%type <ival> pseudo_org
-%type <ival> pseudo_prg
-%type <ival> pseudo_rsset
+
+%type <uval> pseudo_chr
+%type <uval> pseudo_ineschr
+%type <uval> pseudo_inesmap
+%type <uval> pseudo_inesmir
+%type <uval> pseudo_inesprg
+%type <uval> pseudo_org
+%type <uval> pseudo_prg
+%type <uval> pseudo_rsset
 
 %%
 
