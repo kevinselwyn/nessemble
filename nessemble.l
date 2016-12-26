@@ -50,7 +50,7 @@ int include_stack_ptr = 0;
 
 ".ascii"               { return PSEUDO_ASCII; }
 ".byte"                { return PSEUDO_BYTE; }
-\.chr[0-9]+            { yylval.uval = parse2int(yytext); return PSEUDO_CHR; }
+\.chr[0-9]+            { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_CHR; }
 ".db"                  { return PSEUDO_DB; }
 ".defchr"              { return PSEUDO_DEFCHR; }
 ".dw"                  { return PSEUDO_DW; }
@@ -66,7 +66,7 @@ int include_stack_ptr = 0;
 ".lobytes"             { return PSEUDO_LOBYTES; }
 ".org"                 { return PSEUDO_ORG; }
 ".out"                 { return PSEUDO_OUT; }
-\.prg[0-9]+            { yylval.uval = parse2int(yytext); return PSEUDO_PRG; }
+\.prg[0-9]+            { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_PRG; }
 ".rsset"               { return PSEUDO_RSSET; }
 ".rs"                  { return PSEUDO_RS; }
 ".segment"             { return PSEUDO_SEGMENT; }
@@ -75,9 +75,9 @@ int include_stack_ptr = 0;
 <include>[ \t]*        { /* WHITESPACE */ }
 <include>[^ \t\n]+     { BEGIN(INITIAL); yylval.sval = strdup(yytext); return QUOT_STRING; }
 
-\$[0-9a-fA-F]+         { yylval.ival = hex2int(yytext); return NUMBER_HEX; }
-%[0-1]+                { yylval.ival = bin2int(yytext); return NUMBER_BIN; }
-0[0-7]+                { yylval.ival = oct2int(yytext); return NUMBER_OCT; }
+\$[0-9a-fA-F]+         { yylval.ival = hex2int(yytext+1); return NUMBER_HEX; }
+%[0-1]+                { yylval.ival = bin2int(yytext+1); return NUMBER_BIN; }
+0[0-7]+                { yylval.ival = oct2int(yytext+1); return NUMBER_OCT; }
 [0-9]+                 { yylval.ival = dec2int(yytext); return NUMBER_DEC; }
 '.'                    { yylval.ival = (int)yytext[1]; return NUMBER_CHAR; }
 

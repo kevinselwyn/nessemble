@@ -11,6 +11,7 @@ LEX_FLAGS    := --outfile=$(LEX_OUT).c
 YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
+
 OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
@@ -42,6 +43,9 @@ $(NAME): $(OBJS) $(NAME).h
 $(TEST): all
 	@./$(TEST).sh
 
+check:
+	@./check.sh
+
 .PHONY: clean
 clean:
-	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS)
+	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) suite_*

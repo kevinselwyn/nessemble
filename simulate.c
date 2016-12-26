@@ -232,23 +232,23 @@ void load_registers(char *input) {
         if (strncmp(input+starts[i], "A=", 2) == 0) {
             strncpy(text, input+starts[i]+2, (size_t)(ends[i] - starts[i] - 2));
             text[2] = '\0';
-            registers.a = (unsigned int)strtol(text, NULL, 16) & 0xFF;
+            registers.a = (unsigned int)hex2int(text) & 0xFF;
         } else if (strncmp(input+starts[i], "X=", 2) == 0) {
             strncpy(text, input+starts[i]+2, (size_t)(ends[i] - starts[i] - 2));
             text[2] = '\0';
-            registers.x = (unsigned int)strtol(text, NULL, 16) & 0xFF;
+            registers.x = (unsigned int)hex2int(text) & 0xFF;
         } else if (strncmp(input+starts[i], "Y=", 2) == 0) {
             strncpy(text, input+starts[i]+2, (size_t)(ends[i] - starts[i] - 2));
             text[2] = '\0';
-            registers.y = (unsigned int)strtol(text, NULL, 16) & 0xFF;
+            registers.y = (unsigned int)hex2int(text) & 0xFF;
         } else if (strncmp(input+starts[i], "PC=", 3) == 0) {
             strncpy(text, input+starts[i]+3, (size_t)(ends[i] - starts[i] - 3));
             text[4] = '\0';
-            registers.pc = (int)strtol(text, NULL, 16) & 0xFFFF;
+            registers.pc = (int)hex2int(text) & 0xFFFF;
         } else if (strncmp(input+starts[i], "SP=", 3) == 0) {
             strncpy(text, input+starts[i]+3, (size_t)(ends[i] - starts[i] - 3));
             text[4] = '\0';
-            registers.sp = (unsigned int)strtol(text, NULL, 16) & 0xFFFF;
+            registers.sp = (unsigned int)hex2int(text) & 0xFFFF;
         } else {
             continue;
         }
@@ -363,12 +363,12 @@ void print_memory(char *input) {
     length = strlen(input);
 
     if (length <= 5) {
-        a = (unsigned int)strtol(input, NULL, 16);
+        a = (unsigned int)hex2int(input);
         b = a;
     } else if (length <= 10) {
-        b = (unsigned int)strtol(input+5, NULL, 16);
+        b = (unsigned int)hex2int(input+5);
         input[5] = '\0';
-        a = (unsigned int)strtol(input, NULL, 16);
+        a = (unsigned int)hex2int(input);
 
         b++;
     }
@@ -403,7 +403,7 @@ void print_memory(char *input) {
 void load_goto(char *input) {
     input[4] = '\0';
 
-    registers.pc = (int)strtol(input, NULL, 16);
+    registers.pc = hex2int(input);
 }
 
 void do_aac(unsigned int opcode_index, unsigned int value) {
