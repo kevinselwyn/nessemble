@@ -221,12 +221,6 @@ int main(int argc, char *argv[]) {
     segment_type = SEGMENT_PRG;
 
     // offsets
-    for (i = 0, l = MAX_BANKS; i < l; i++) {
-        prg_offsets[i] = 0x00;
-        chr_offsets[i] = 0x00;
-    }
-
-    // offsets
     prg_index = 0;
     chr_index = 0;
 
