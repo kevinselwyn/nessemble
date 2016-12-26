@@ -372,10 +372,10 @@ void pseudo_segment(char *string) {
     segment[length-2] = '\0';
 
     if (length-2 > 3 && strncmp(segment, "PRG", 3) == 0) {
-        pseudo_prg((unsigned int)strtol(segment+3, NULL, 10));
+        pseudo_prg((unsigned int)dec2int(segment+3));
     }
 
     if (length-2 > 3 && strncmp(segment, "CHR", 3) == 0) {
-        pseudo_chr((unsigned int)strtol(segment+3, NULL, 10));
+        pseudo_chr((unsigned int)dec2int(segment+3));
     }
 }

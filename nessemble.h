@@ -308,7 +308,6 @@ void do_xas(unsigned int opcode_index, unsigned int value);
 
 /* UTILS */
 int power(int x, int y);
-unsigned int parse2int(char *text);
 int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);

@@ -29,21 +29,12 @@ int power(int x, int y) {
 }
 
 /**
- * Parse int from string
- * @param {char *} text - Text to parse
- * @return {unsigned int} Integer
- */
-unsigned int parse2int(char *text) {
-    return (unsigned int)strtol(text+4, NULL, 10);
-}
-
-/**
  * Convert hex string to int
  * @param {char *} hex - Hexadecimal string (ex: $12)
  * @return {int} Base-10 integer
  */
 int hex2int(char *hex) {
-    return (int)strtol(hex+1, NULL, 16);
+    return (int)strtol(hex, NULL, 16);
 }
 
 /**
@@ -52,7 +43,7 @@ int hex2int(char *hex) {
  * @return {int} Base-10 integer
  */
 int bin2int(char *bin) {
-    return (int)strtol(bin+1, NULL, 2);
+    return (int)strtol(bin, NULL, 2);
 }
 
 /**

@@ -4,3 +4,4 @@ nessemble
 opcodes.c
 y.tab.*
 *.o
+suite_*
