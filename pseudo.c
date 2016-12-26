@@ -236,7 +236,7 @@ void pseudo_incbin(char *string, int offset, int limit) {
     }
 
     for (i = (unsigned int)offset, l = (unsigned int)limit; i < l; i++) {
-        write_byte((unsigned int)bin_data[i]);
+        write_byte((unsigned int)bin_data[i] & 0xFF);
     }
 
 cleanup:
@@ -303,7 +303,11 @@ void pseudo_org(unsigned int address) {
     // TODO: add check for too high an address
 
     if (is_segment_prg() == TRUE) {
-        prg_offsets[prg_index] = address - 0xC000;
+        if (ines.prg < 2) {
+            prg_offsets[prg_index] = address - 0xC000;
+        } else {
+            prg_offsets[prg_index] = address - 0x8000;
+        }
     }
 
     if (is_segment_chr() == TRUE) {

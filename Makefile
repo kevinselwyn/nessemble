@@ -1,7 +1,7 @@
 NAME         := nessemble
 RM           := rm -f
 CC           := gcc
-CC_FLAGS     := -Wall -Wextra
+CC_FLAGS     := -g -Wall -Wextra
 CC_LIB_FLAGS := -ll -lpng
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
