@@ -61,6 +61,7 @@
 %token <ival> NUMBER_BIN
 %token <ival> NUMBER_OCT
 %token <ival> NUMBER_DEC
+%token <ival> NUMBER_CHAR
 %token <ival> PSEUDO_CHR
 %token <ival> PSEUDO_PRG
 
@@ -126,7 +127,7 @@ number
     | number DIV number_base   { $$ = (int)($1 / $3); }
     | number AND number_base   { $$ = $1 & $3; }
     | number OR number_base    { $$ = $1 | $3; }
-    | number XOR number_base    { $$ = $1 ^ $3; }
+    | number XOR number_base   { $$ = $1 ^ $3; }
     ;
 
 number_base
@@ -134,6 +135,7 @@ number_base
     | NUMBER_BIN     { $$ = $1; }
     | NUMBER_OCT     { $$ = $1; }
     | NUMBER_DEC     { $$ = $1; }
+    | NUMBER_CHAR    { $$ = $1; }
     | number_highlow { $$ = $1; }
     ;
 
