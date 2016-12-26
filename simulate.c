@@ -4,6 +4,8 @@
 
 // https://github.com/bfirsh/jsnes/blob/master/source/cpu.js
 
+#define BUF_SIZE 256
+
 struct flgs {
     unsigned int negative, overflow, brk, decimal, ineterrupt, zero, carry;
 };
@@ -15,12 +17,9 @@ struct regs {
     struct flgs flags;
 };
 
-struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } };
+static struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } };
 
-#define BUF_SIZE 256
-
-char *rom_data = NULL;
-char buffer[BUF_SIZE];
+char *rom_data;
 
 /**
  * Simulate 6502
@@ -30,10 +29,16 @@ int simulate(char *input, char *recipe) {
     int rc = RETURN_OK, i = 0, l = 0, header = 0;
     int inesprg = 1;
     size_t insize = 0;
+    char buffer[BUF_SIZE];
     char *indata = NULL;
     FILE *recipe_file = NULL;
 
     insize = load_file(&indata, input);
+
+    if (!indata) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
 
     if (insize == 0) {
         rc = RETURN_EPERM;
@@ -56,11 +61,11 @@ int simulate(char *input, char *recipe) {
     }
 
     for (i = 0, l = 0x10000; i < l; i++) {
-        rom_data[i] = 0xFF;
+        rom_data[i] = (char)0xFF;
     }
 
     // load banks
-    if (header) {
+    if (header == 1) {
         inesprg = (int)indata[4];
 
         if (inesprg == 1) {
@@ -91,12 +96,12 @@ int simulate(char *input, char *recipe) {
                 break;
             }
 
-            if (repl(buffer)) {
+            if (repl(buffer) == TRUE) {
                 break;
             }
         }
     } else {
-        while (1) {
+        while (1 == TRUE) {
             if (registers.pc == -1) {
                 break;
             }
@@ -107,7 +112,7 @@ int simulate(char *input, char *recipe) {
                 break;
             }
 
-            if (repl(buffer)) {
+            if (repl(buffer) == TRUE) {
                 break;
             }
         }
@@ -119,7 +124,7 @@ cleanup:
     }
 
     if (recipe_file) {
-        fclose(recipe_file);
+        (void)fclose(recipe_file);
     }
 
     return rc;
@@ -133,7 +138,7 @@ int repl(char *input) {
 
     if (strncmp(input, ".registers", 10) == 0) {
         if (length > 11) {
-            load_registers(buffer+11);
+            load_registers(input+11);
             print_registers();
         } else {
             print_registers();
@@ -155,7 +160,7 @@ int repl(char *input) {
     if (strncmp(input, ".step", 5) == 0) {
         print_instruction();
 
-        if (step()) {
+        if (step() == TRUE) {
             print_registers();
 
             rc = RETURN_EPERM;
@@ -166,8 +171,8 @@ int repl(char *input) {
     }
 
     if (strncmp(input, ".run", 4) == 0) {
-        while (1) {
-            if (step()) {
+        while (1 == TRUE) {
+            if (step() == TRUE) {
                 print_registers();
 
                 rc = RETURN_EPERM;
@@ -182,34 +187,37 @@ cleanup:
 
 void print_registers() {
     printf(" PC  AC XR YR SP NV-BDIZC\n");
-    printf("%04X ", registers.pc);
+    printf("%04X ", (unsigned int)registers.pc);
     printf("%02X ", registers.a);
     printf("%02X ", registers.x);
     printf("%02X ", registers.y);
     printf("%02X ", registers.sp);
 
-    printf("%d", registers.flags.negative & 1);
-    printf("%d0", registers.flags.overflow & 1);
-    printf("%d", registers.flags.brk & 1);
-    printf("%d", registers.flags.decimal & 1);
-    printf("%d", registers.flags.ineterrupt & 1);
-    printf("%d", registers.flags.zero & 1);
-    printf("%d", registers.flags.carry & 1);
+    printf("%u", registers.flags.negative & 1);
+    printf("%u0", registers.flags.overflow & 1);
+    printf("%u", registers.flags.brk & 1);
+    printf("%u", registers.flags.decimal & 1);
+    printf("%u", registers.flags.ineterrupt & 1);
+    printf("%u", registers.flags.zero & 1);
+    printf("%u", registers.flags.carry & 1);
 
     printf("\n\n");
 }
 
 void load_registers(char *input) {
-    int i = 0, l = 0, index = 0;
-    int starts[10], ends[10];
+    unsigned int i = 0, l = 0, index = 0;
+    unsigned int starts[10], ends[10];
     size_t length = 0;
     char text[8];
 
     length = strlen(input);
 
-    starts[index] = 0;
+    for (i = 0, l = 10; i < l; i++) {
+        starts[i] = 0;
+        ends[i] = 0;
+    }
 
-    for (i = 0, l = (int)length + 1; i < l; i++) {
+    for (i = 0, l = (unsigned int)length + 1; i < l; i++) {
         if (input[i] == ',') {
             ends[index++] = i;
             starts[index] = i + 1;
@@ -224,15 +232,15 @@ void load_registers(char *input) {
         if (strncmp(input+starts[i], "A=", 2) == 0) {
             strncpy(text, input+starts[i]+2, (size_t)(ends[i] - starts[i] - 2));
             text[2] = '\0';
-            registers.a = (int)strtol(text, NULL, 16) & 0xFF;
+            registers.a = (unsigned int)strtol(text, NULL, 16) & 0xFF;
         } else if (strncmp(input+starts[i], "X=", 2) == 0) {
             strncpy(text, input+starts[i]+2, (size_t)(ends[i] - starts[i] - 2));
             text[2] = '\0';
-            registers.x = (int)strtol(text, NULL, 16) & 0xFF;
+            registers.x = (unsigned int)strtol(text, NULL, 16) & 0xFF;
         } else if (strncmp(input+starts[i], "Y=", 2) == 0) {
             strncpy(text, input+starts[i]+2, (size_t)(ends[i] - starts[i] - 2));
             text[2] = '\0';
-            registers.y = (int)strtol(text, NULL, 16) & 0xFF;
+            registers.y = (unsigned int)strtol(text, NULL, 16) & 0xFF;
         } else if (strncmp(input+starts[i], "PC=", 3) == 0) {
             strncpy(text, input+starts[i]+3, (size_t)(ends[i] - starts[i] - 3));
             text[4] = '\0';
@@ -240,7 +248,7 @@ void load_registers(char *input) {
         } else if (strncmp(input+starts[i], "SP=", 3) == 0) {
             strncpy(text, input+starts[i]+3, (size_t)(ends[i] - starts[i] - 3));
             text[4] = '\0';
-            registers.sp = (int)strtol(text, NULL, 16) & 0xFFFF;
+            registers.sp = (unsigned int)strtol(text, NULL, 16) & 0xFFFF;
         } else {
             continue;
         }
@@ -248,11 +256,10 @@ void load_registers(char *input) {
 }
 
 void print_instruction() {
-    int opcode_index = 0, mode = 0;
-    unsigned int arg0 = 0, arg1 = 0;
+    unsigned int opcode_index = 0, mode = 0, arg0 = 0, arg1 = 0;
     char *mnemonic = NULL;
 
-    opcode_index = (int)rom_data[registers.pc] & 0xFF;
+    opcode_index = (unsigned int)rom_data[registers.pc] & 0xFF;
     mode = opcodes[opcode_index].mode;
     mnemonic = opcodes[opcode_index].mnemonic;
 
@@ -266,9 +273,9 @@ void print_instruction() {
     case MODE_RELATIVE:
         arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
         if (arg0 >= 0x80) {
-            printf("%s $%04X\n\n", mnemonic, registers.pc - (0xFF - arg0 - 1));
+            printf("%s $%04X\n\n", mnemonic, (unsigned int)(registers.pc - (0xFF - arg0 - 1)));
         } else {
-            printf("%s $%04X\n\n", mnemonic, registers.pc + arg0);
+            printf("%s $%04X\n\n", mnemonic, (unsigned int)(registers.pc + arg0));
         }
         break;
     case MODE_IMMEDIATE:
@@ -321,9 +328,10 @@ void print_instruction() {
 }
 
 int step() {
-    int rc = RETURN_OK, opcode_index = 0, length = 0, arg0 = 0, arg1 = 0;
+    int rc = RETURN_OK;
+    unsigned int opcode_index = 0, length = 0, arg0 = 0, arg1 = 0;
 
-    opcode_index = (int)rom_data[registers.pc] & 0xFF;
+    opcode_index = (unsigned int)rom_data[registers.pc] & 0xFF;
     length = opcodes[opcode_index].length;
 
     if (is_flag_undocumented() == FALSE && (opcodes[opcode_index].meta & META_UNDOCUMENTED) != 0) {
@@ -334,12 +342,12 @@ int step() {
     if (length == 1) {
         (*opcodes[opcode_index].func)(opcode_index, 0);
     } else {
-        arg0 = (int)rom_data[registers.pc+1] & 0xFF;
+        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
 
         if (length == 2) {
             (*opcodes[opcode_index].func)(opcode_index, arg0);
         } else if (length == 3) {
-            arg1 = (int)rom_data[registers.pc+2] & 0xFF;
+            arg1 = (unsigned int)rom_data[registers.pc+2] & 0xFF;
             (*opcodes[opcode_index].func)(opcode_index, (arg1 << 8) | arg0);
         }
     }
@@ -349,18 +357,18 @@ cleanup:
 }
 
 void print_memory(char *input) {
-    int a = 0, b = 0, i = 0, l = 0, counter = 0;
+    unsigned int a = 0, b = 0, i = 0, l = 0, counter = 0;
     size_t length = 0;
 
     length = strlen(input);
 
     if (length <= 5) {
-        a = (int)strtol(input, NULL, 16);
+        a = (unsigned int)strtol(input, NULL, 16);
         b = a;
     } else if (length <= 10) {
-        b = (int)strtol(input+5, NULL, 16);
+        b = (unsigned int)strtol(input+5, NULL, 16);
         input[5] = '\0';
-        a = (int)strtol(input, NULL, 16);
+        a = (unsigned int)strtol(input, NULL, 16);
 
         b++;
     }
@@ -398,330 +406,314 @@ void load_goto(char *input) {
     registers.pc = (int)strtol(input, NULL, 16);
 }
 
-unsigned int get_data(int mode, int value) {
-    unsigned int data = 0;
+void do_aac(unsigned int opcode_index, unsigned int value) {
 
-    if ((mode & MODE_IMMEDIATE) != 0) {
-        data = value & 0xFF;
-    } else if ((mode & MODE_ZEROPAGE_X) != 0 || (mode & MODE_ABSOLUTE_X) != 0) {
-        data = (unsigned int)rom_data[value + registers.x] & 0xFF;
-    } else if ((mode & MODE_ZEROPAGE_Y) != 0 || (mode & MODE_ABSOLUTE_Y) != 0) {
-        data = (unsigned int)rom_data[value + registers.y] & 0xFF;
-    } else {
-        data = (unsigned int)rom_data[value] & 0xFF;
-    }
-
-    return data;
-}
-
-void do_aac(int opcode_index, int value) {
-
 }
 
-void do_aax(int opcode_index, int value) {
+void do_aax(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_adc(int opcode_index, int value) {
+void do_adc(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_and(int opcode_index, int value) {
+void do_and(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_arr(int opcode_index, int value) {
+void do_arr(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_asl(int opcode_index, int value) {
+void do_asl(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_asr(int opcode_index, int value) {
+void do_asr(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_atx(int opcode_index, int value) {
+void do_atx(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_axa(int opcode_index, int value) {
+void do_axa(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_axs(int opcode_index, int value) {
+void do_axs(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_bcc(int opcode_index, int value) {
+void do_bcc(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_bcs(int opcode_index, int value) {
+void do_bcs(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_beq(int opcode_index, int value) {
+void do_beq(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_bit(int opcode_index, int value) {
+void do_bit(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_bmi(int opcode_index, int value) {
+void do_bmi(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_bne(int opcode_index, int value) {
+void do_bne(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_bpl(int opcode_index, int value) {
+void do_bpl(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_brk(int opcode_index, int value) {
+void do_brk(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_bvc(int opcode_index, int value) {
+void do_bvc(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_bvs(int opcode_index, int value) {
+void do_bvs(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_clc(int opcode_index, int value) {
+void do_clc(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_cld(int opcode_index, int value) {
+void do_cld(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_cli(int opcode_index, int value) {
+void do_cli(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_clv(int opcode_index, int value) {
+void do_clv(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_cmp(int opcode_index, int value) {
+void do_cmp(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_cpx(int opcode_index, int value) {
+void do_cpx(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_cpy(int opcode_index, int value) {
+void do_cpy(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_dcp(int opcode_index, int value) {
+void do_dcp(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_dec(int opcode_index, int value) {
+void do_dec(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_dex(int opcode_index, int value) {
+void do_dex(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_dey(int opcode_index, int value) {
+void do_dey(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_dop(int opcode_index, int value) {
+void do_dop(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_eor(int opcode_index, int value) {
+void do_eor(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_inc(int opcode_index, int value) {
+void do_inc(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_inx(int opcode_index, int value) {
+void do_inx(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_iny(int opcode_index, int value) {
+void do_iny(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_isc(int opcode_index, int value) {
+void do_isc(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_jmp(int opcode_index, int value) {
+void do_jmp(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_jsr(int opcode_index, int value) {
+void do_jsr(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_kil(int opcode_index, int value) {
+void do_kil(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_lar(int opcode_index, int value) {
+void do_lar(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_lax(int opcode_index, int value) {
+void do_lax(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_lda(int opcode_index, int value) {
+void do_lda(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_ldx(int opcode_index, int value) {
+void do_ldx(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_ldy(int opcode_index, int value) {
+void do_ldy(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_lsr(int opcode_index, int value) {
+void do_lsr(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_nop(int opcode_index, int value) {
+void do_nop(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_ora(int opcode_index, int value) {
+void do_ora(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_pha(int opcode_index, int value) {
+void do_pha(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_php(int opcode_index, int value) {
+void do_php(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_pla(int opcode_index, int value) {
+void do_pla(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_plp(int opcode_index, int value) {
+void do_plp(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_rla(int opcode_index, int value) {
+void do_rla(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_rol(int opcode_index, int value) {
+void do_rol(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_ror(int opcode_index, int value) {
+void do_ror(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_rra(int opcode_index, int value) {
+void do_rra(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_rti(int opcode_index, int value) {
+void do_rti(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_rts(int opcode_index, int value) {
+void do_rts(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_sbc(int opcode_index, int value) {
+void do_sbc(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_sec(int opcode_index, int value) {
+void do_sec(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_sed(int opcode_index, int value) {
+void do_sed(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_sei(int opcode_index, int value) {
+void do_sei(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_slo(int opcode_index, int value) {
+void do_slo(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_sre(int opcode_index, int value) {
+void do_sre(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_sta(int opcode_index, int value) {
+void do_sta(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_stx(int opcode_index, int value) {
+void do_stx(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_sty(int opcode_index, int value) {
+void do_sty(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_sxa(int opcode_index, int value) {
+void do_sxa(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_sya(int opcode_index, int value) {
+void do_sya(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_tax(int opcode_index, int value) {
+void do_tax(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_tay(int opcode_index, int value) {
+void do_tay(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_top(int opcode_index, int value) {
+void do_top(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_tsx(int opcode_index, int value) {
+void do_tsx(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_txa(int opcode_index, int value) {
+void do_txa(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_txs(int opcode_index, int value) {
+void do_txs(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_tya(int opcode_index, int value) {
+void do_tya(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_xaa(int opcode_index, int value) {
+void do_xaa(unsigned int opcode_index, unsigned int value) {
 
 }
 
-void do_xas(int opcode_index, int value) {
+void do_xas(unsigned int opcode_index, unsigned int value) {
 
 }

@@ -2,7 +2,7 @@
 #include <string.h>
 #include "nessemble.h"
 
-struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
+static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-o, --output <outfile.rom>", "output file" },
     { "-f, --format {NES,RAW}", "output format" },
     { "-u, --undocumented", "use undocumented opcodes" },
