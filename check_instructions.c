@@ -35,6 +35,227 @@ START_TEST(test_instructions_get_opcode_invalid) {
 }
 END_TEST
 
+START_TEST(test_instructions_assemble_absolute) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 3);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 3);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_absolute("LDA", 0x1234);
+
+    ck_assert_uint_eq(rom[0], 0xAD);
+    ck_assert_uint_eq(rom[1], 0x34);
+    ck_assert_uint_eq(rom[2], 0x12);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
+START_TEST(test_instructions_assemble_absolute_xy) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 3);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 3);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_absolute_xy("LDA", 0x1234, 'X');
+
+    ck_assert_uint_eq(rom[0], 0xBD);
+    ck_assert_uint_eq(rom[1], 0x34);
+    ck_assert_uint_eq(rom[2], 0x12);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
+START_TEST(test_instructions_assemble_accumulator) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 1);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 1);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_accumulator("ROL");
+
+    ck_assert_uint_eq(rom[0], 0x2A);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
+START_TEST(test_instructions_assemble_implied) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 1);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 1);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_implied("TAX");
+
+    ck_assert_uint_eq(rom[0], 0xAA);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
+START_TEST(test_instructions_assemble_immediate) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 2);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 2);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_immediate("LDA", 0x12);
+
+    ck_assert_uint_eq(rom[0], 0xA9);
+    ck_assert_uint_eq(rom[1], 0x12);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
+START_TEST(test_instructions_assemble_indirect) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 3);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 3);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_indirect("JMP", 0x1234);
+
+    ck_assert_uint_eq(rom[0], 0x6C);
+    ck_assert_uint_eq(rom[1], 0x34);
+    ck_assert_uint_eq(rom[2], 0x12);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
+START_TEST(test_instructions_assemble_indirect_xy) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 2);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 2);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_indirect_xy("LDA", 0x12, 'X');
+
+    ck_assert_uint_eq(rom[0], 0xA1);
+    ck_assert_uint_eq(rom[1], 0x12);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
+START_TEST(test_instructions_assemble_relative) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 2);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 2);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_relative("BEQ", 0x20);
+
+    ck_assert_uint_eq(rom[0], 0xF0);
+    ck_assert_uint_eq(rom[1], 0x1E);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
+START_TEST(test_instructions_assemble_zeropage) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 2);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 2);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_zeropage("LDA", 0x12);
+
+    ck_assert_uint_eq(rom[0], 0xA5);
+    ck_assert_uint_eq(rom[1], 0x12);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
+START_TEST(test_instructions_assemble_zeropage_xy) {
+    int oldpass = pass,
+        oldsegment_type = segment_type;
+
+    if (!rom) {
+        rom = (unsigned int *)malloc(sizeof(unsigned int) * 2);
+    } else {
+        rom = (unsigned int *)realloc(rom, sizeof(unsigned int) * 2);
+    }
+
+    pass = 2;
+    segment_type |= SEGMENT_PRG;
+    assemble_zeropage_xy("LDA", 0x12, 'X');
+
+    ck_assert_uint_eq(rom[0], 0xB5);
+    ck_assert_uint_eq(rom[1], 0x12);
+
+    pass = oldpass;
+    segment_type = oldsegment_type;
+}
+END_TEST
+
 Suite * instruction_suite(void) {
     Suite *s;
     TCase *tc_core;
@@ -46,6 +267,16 @@ Suite * instruction_suite(void) {
     tcase_add_test(tc_core, test_instructions_get_opcode_brk);
     tcase_add_test(tc_core, test_instructions_get_opcode_lda);
     tcase_add_test(tc_core, test_instructions_get_opcode_invalid);
+    tcase_add_test(tc_core, test_instructions_assemble_absolute);
+    tcase_add_test(tc_core, test_instructions_assemble_absolute_xy);
+    tcase_add_test(tc_core, test_instructions_assemble_accumulator);
+    tcase_add_test(tc_core, test_instructions_assemble_implied);
+    tcase_add_test(tc_core, test_instructions_assemble_immediate);
+    tcase_add_test(tc_core, test_instructions_assemble_indirect);
+    tcase_add_test(tc_core, test_instructions_assemble_indirect_xy);
+    tcase_add_test(tc_core, test_instructions_assemble_relative);
+    tcase_add_test(tc_core, test_instructions_assemble_zeropage);
+    tcase_add_test(tc_core, test_instructions_assemble_zeropage_xy);
 
     suite_add_tcase(s, tc_core);
 
