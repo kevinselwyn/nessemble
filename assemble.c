@@ -1,6 +1,9 @@
 #include <string.h>
 #include "nessemble.h"
 
+// ines
+struct ines_header ines = { 1, 0, 0, 1, 0 };
+
 /**
  * Handle EOF
  */
