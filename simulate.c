@@ -406,6 +406,21 @@ void load_goto(char *input) {
     registers.pc = hex2int(input);
 }
 
+unsigned int get_address(unsigned int opcode_index, unsigned int value) {
+    int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0;
+
+    if ((mode & MODE_ZEROPAGE) == 0 || (mode & MODE_ABSOLUTE) == 0) {
+        address = value;
+    } else if ((mode & MODE_ZEROPAGE_X) == 0 || (mode & MODE_ABSOLUTE_X) == 0) {
+        address = value + registers.x;
+    } else if ((mode & MODE_ZEROPAGE_Y) == 0 || (mode & MODE_ABSOLUTE_Y) == 0) {
+        address = value + registers.y;
+    }
+
+    return address;
+}
+
 void do_aac(unsigned int opcode_index, unsigned int value) {
 
 }
@@ -671,7 +686,9 @@ void do_stx(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_sty(unsigned int opcode_index, unsigned int value) {
+    unsigned int address = get_address(opcode_index, value);
 
+    rom[address] = (char)value;
 }
 
 void do_sxa(unsigned int opcode_index, unsigned int value) {
