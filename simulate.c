@@ -683,11 +683,17 @@ void do_sya(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_tax(unsigned int opcode_index, unsigned int value) {
-
+    registers.x = registers.a;
+    registers.flags.negative = (registers.a >> 0x07) & 1;
+    registers.flags.zero = (unsigned int)(registers.a == 0 ? 1 : 0);
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_tay(unsigned int opcode_index, unsigned int value) {
-
+    registers.y = registers.a;
+    registers.flags.negative = (registers.a >> 0x07) & 1;
+    registers.flags.zero = (unsigned int)(registers.a == 0 ? 1 : 0);
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_top(unsigned int opcode_index, unsigned int value) {

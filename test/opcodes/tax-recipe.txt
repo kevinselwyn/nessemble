@@ -1,0 +1,2 @@
+.registers A=80,X=40
+.step
