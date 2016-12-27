@@ -4,9 +4,6 @@
 #include <stdarg.h>
 #include "nessemble.h"
 
-// ines
-struct ines_header ines = { 1, 0, 0, 1, 0 };
-
 /**
  * Main function
  * @param {int} argc - Argument count
@@ -310,80 +307,4 @@ cleanup:
     }
 
     return rc;
-}
-
-/**
- * Test if undocumented flag is active
- * @return {unsigned int} True if flag active, false if not
- */
-unsigned int is_flag_undocumented() {
-    return (unsigned int)((flags & FLAG_UNDOCUMENTED) != 0 ? TRUE : FALSE);
-}
-
-/**
- * Test if nes flag is active
- * @return {unsigned int} True if flag active, false if not
- */
-unsigned int is_flag_nes() {
-    return (unsigned int)((flags & FLAG_NES) != 0 ? TRUE : FALSE);
-}
-
-/**
- * Test if disassemble flag is active
- * @return {unsigned int} True if flag active, false if not
- */
-unsigned int is_flag_disassemble() {
-    return (unsigned int)((flags & FLAG_DISASSEMBLE) != 0 ? TRUE : FALSE);
-}
-
-/**
- * Test if sumlate flag is active
- * @return {unsigned int} True if flag active, false if not
- */
-unsigned int is_flag_simulate() {
-    return (unsigned int)((flags & FLAG_SIMULATE) != 0 ? TRUE : FALSE);
-}
-
-/**
- * Test if check flag is active
- * @return {unsigned int} True if flag active, false if not
- */
-unsigned int is_flag_check() {
-    return (unsigned int)((flags & FLAG_CHECK) != 0 ? TRUE : FALSE);
-}
-
-/**
- * Test if CHR segment
- * @return {unsigned int} True if is segment, false if not
- */
-unsigned int is_segment_chr() {
-    return (unsigned int)(segment_type == SEGMENT_CHR ? TRUE : FALSE);
-}
-
-/**
- * Test if PRG segment
- * @return {unsigned int} True if is segment, false if not
- */
-unsigned int is_segment_prg() {
-    return (unsigned int)(segment_type == SEGMENT_PRG ? TRUE : FALSE);
-}
-
-/**
- * Parser error
- * @param {const char *} fmt - Format string
- * @param {...} ... - Variable arguments
- */
-void yyerror(const char *fmt, ...) {
-    int rc = RETURN_EPERM;
-
-    va_list argptr;
-    va_start(argptr, fmt);
-
-    fprintf(stderr, "Error on line %d: ", yylineno);
-    (void)vfprintf(stderr, fmt, argptr);
-    fprintf(stderr, "\n");
-
-    va_end(argptr);
-
-    exit(rc);
 }
