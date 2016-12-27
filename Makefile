@@ -43,7 +43,7 @@ $(NAME): $(OBJS) $(NAME).h
 $(TEST): all
 	@./$(TEST).sh
 
-check:
+check: all
 	@./check.sh
 
 .PHONY: clean
