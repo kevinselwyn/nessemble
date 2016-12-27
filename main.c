@@ -11,9 +11,9 @@
  */
 int main(int argc, char *argv[]) {
     int rc = RETURN_OK;
-    unsigned int i = 0, l = 0, byte = 0;
-    char *exec = NULL, *filename = NULL, *outfilename = NULL, *recipe = NULL;
-    FILE *file = NULL, *outfile = NULL;
+    unsigned int i = 0, l = 0, byte = 0, has_constants = 0, has_labels = 0;
+    char *exec = NULL, *filename = NULL, *outfilename = NULL, *list = NULL, *recipe = NULL;
+    FILE *file = NULL, *outfile = NULL, *listfile = NULL;
 
     // exec
     exec = argv[0];
@@ -29,11 +29,6 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             rc = usage(exec);
             goto cleanup;
-        }
-
-        if (strcmp(argv[i], "-u") == 0 || strcmp(argv[i], "--undocumented") == 0) {
-            flags |= FLAG_UNDOCUMENTED;
-            continue;
         }
 
         if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
@@ -62,6 +57,28 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
+        if (strcmp(argv[i], "-u") == 0 || strcmp(argv[i], "--undocumented") == 0) {
+            flags |= FLAG_UNDOCUMENTED;
+            continue;
+        }
+
+        if (strcmp(argv[i], "-l") == 0 || strcmp(argv[i], "--list") == 0) {
+            if (i + 1 < l) {
+                list = argv[i+1];
+            } else {
+                rc = usage(exec);
+                goto cleanup;
+            }
+
+            i += 1;
+            continue;
+        }
+
+        if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--check") == 0) {
+            flags |= FLAG_CHECK;
+            continue;
+        }
+
         if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--disassemble") == 0) {
             flags |= FLAG_DISASSEMBLE;
             continue;
@@ -81,11 +98,6 @@ int main(int argc, char *argv[]) {
             }
 
             i += 1;
-            continue;
-        }
-
-        if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--check") == 0) {
-            flags |= FLAG_CHECK;
             continue;
         }
 
@@ -301,9 +313,63 @@ int main(int argc, char *argv[]) {
         (void)fwrite(rom+i, 1, 1, outfile);
     }
 
+    // write list
+    if (list != NULL) {
+        listfile = fopen(list, "w");
+
+        if (!listfile) {
+            fprintf(stderr, "Could not open %s\n", list);
+
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        for (i = 0, l = symbol_index; i < l; i++) {
+            if (symbols[i].type == SYMBOL_CONSTANT) {
+                has_constants = TRUE;
+            }
+
+            if (symbols[i].type == SYMBOL_LABEL || symbols[i].type == SYMBOL_RS) {
+                has_labels = TRUE;
+            }
+        }
+
+        if (has_constants == TRUE) {
+            fprintf(listfile, "Constants:\n\n");
+
+            for (i = 0, l = symbol_index; i < l; i++) {
+                if (symbols[i].type == SYMBOL_CONSTANT) {
+                    fprintf(listfile, "%s = $%04X\n", symbols[i].name, symbols[i].value);
+                }
+            }
+        }
+
+        if (has_labels == TRUE) {
+            if (has_constants == TRUE) {
+                fprintf(listfile, "\n");
+            }
+
+            fprintf(listfile, "Labels:\n\n");
+
+            for (i = 0, l = symbol_index; i < l; i++) {
+                if (symbols[i].type == SYMBOL_LABEL || symbols[i].type == SYMBOL_RS) {
+                    fprintf(listfile, "%s = $%04X\n", symbols[i].name, symbols[i].value);
+                }
+            }
+        }
+    }
+
 cleanup:
     if (file) {
         (void)fclose(file);
+    }
+
+    if (outfile) {
+        (void)fclose(outfile);
+    }
+
+    if (listfile) {
+        (void)fclose(listfile);
     }
 
     return rc;
