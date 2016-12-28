@@ -21,7 +21,7 @@ START_TEST(test_usage_usage) {
     stdout_fake();
 
     ck_assert_int_eq(usage("nessemble"), 129);
-    ck_assert_str_eq(buffer, "Usage: nessemble [options] <infile.asm>\n\n  -o, --output <outfile.rom>   output file\n  -f, --format {NES,RAW}       output format\n  -u, --undocumented           use undocumented opcodes\n  -c, --check                  check syntax only\n  -d, --disassemble            disassemble infile\n  -s, --simulate <infile.rom>  start the simulator\n  -r, --recipe <recipe.txt>    recipe file for the simulator\n  -h, --help                   print this message\n");
+    ck_assert_str_eq(buffer, "Usage: nessemble [options] <infile.asm>\n\n  -o, --output <outfile.rom>   output file\n  -f, --format {NES,RAW}       output format\n  -u, --undocumented           use undocumented opcodes\n  -l, --list <listfile.txt>    generate list of labels and constants\n  -c, --check                  check syntax only\n  -d, --disassemble            disassemble infile\n  -s, --simulate <infile.rom>  start the simulator\n  -r, --recipe <recipe.txt>    recipe file for the simulator\n  -h, --help                   print this message\n");
 
     stdout_real();
 }
