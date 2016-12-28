@@ -43,7 +43,7 @@ $(NAME): $(OBJS) $(NAME).h
 $(TEST): all
 	@./$(TEST).sh
 
-check: all
+check: $(LEX_OUT).c $(YACC_OUT).c $(OPCODES).c
 	@./check.sh
 
 .PHONY: clean
