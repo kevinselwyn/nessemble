@@ -1,0 +1,19 @@
+.registers Y=80,X=01
+.step
+.memory $0044
+.step
+.memory $0045
+.step
+.memory $4400
+.step
+.memory $0007
+.step
+.memory $0008
+.step
+.memory $0007
+.step
+.memory $0044
+.step
+.memory $0045
+.step
+.memory $4400
