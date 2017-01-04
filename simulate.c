@@ -7,7 +7,7 @@
 #define BUF_SIZE 256
 
 struct flgs {
-    unsigned int negative, overflow, brk, decimal, ineterrupt, zero, carry;
+    unsigned int negative, overflow, brk, decimal, interrupt, zero, carry;
 };
 
 struct regs {
@@ -197,7 +197,7 @@ void print_registers() {
     printf("%u0", registers.flags.overflow & 1);
     printf("%u", registers.flags.brk & 1);
     printf("%u", registers.flags.decimal & 1);
-    printf("%u", registers.flags.ineterrupt & 1);
+    printf("%u", registers.flags.interrupt & 1);
     printf("%u", registers.flags.zero & 1);
     printf("%u", registers.flags.carry & 1);
 
@@ -658,15 +658,18 @@ void do_sbc(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_sec(unsigned int opcode_index, unsigned int value) {
-
+    registers.flags.carry = 1;
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_sed(unsigned int opcode_index, unsigned int value) {
-
+    registers.flags.decimal = 1;
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_sei(unsigned int opcode_index, unsigned int value) {
-
+    registers.flags.interrupt = 1;
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_slo(unsigned int opcode_index, unsigned int value) {
