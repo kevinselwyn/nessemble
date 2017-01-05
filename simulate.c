@@ -410,12 +410,27 @@ unsigned int get_address(unsigned int opcode_index, unsigned int value) {
     int mode = opcodes[opcode_index].mode;
     unsigned int address = 0;
 
-    if (mode == MODE_ZEROPAGE || mode == MODE_ABSOLUTE) {
+    switch (mode) {
+    case MODE_ZEROPAGE:
+    case MODE_ABSOLUTE:
         address = value;
-    } else if (mode == MODE_ZEROPAGE_X || mode == MODE_ABSOLUTE_X) {
+        break;
+    case MODE_ZEROPAGE_X:
+    case MODE_ABSOLUTE_X:
         address = value + registers.x;
-    } else if (mode == MODE_ZEROPAGE_Y || mode == MODE_ABSOLUTE_Y) {
+        break;
+    case MODE_ZEROPAGE_Y:
+    case MODE_ABSOLUTE_Y:
         address = value + registers.y;
+        break;
+    case MODE_INDIRECT_X:
+        address = ((int)rom_data[value + registers.x + 0x01] << 0x08) | (int)rom_data[value + registers.x];
+        break;
+    case MODE_INDIRECT_Y:
+        address = (((int)rom_data[value + 0x01] << 0x08) | (int)rom_data[value]) + registers.y;
+        break;
+    default:
+        break;
     }
 
     return address;
@@ -681,7 +696,10 @@ void do_sre(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_sta(unsigned int opcode_index, unsigned int value) {
+    unsigned int address = get_address(opcode_index, value);
 
+    rom_data[address] = (char)registers.a;
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_stx(unsigned int opcode_index, unsigned int value) {
