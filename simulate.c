@@ -685,7 +685,10 @@ void do_sta(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_stx(unsigned int opcode_index, unsigned int value) {
+    unsigned int address = get_address(opcode_index, value);
 
+    rom_data[address] = (char)registers.x;
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_sty(unsigned int opcode_index, unsigned int value) {
