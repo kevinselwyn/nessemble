@@ -5,3 +5,4 @@ opcodes.c
 y.tab.*
 *.o
 suite_*
+.vagrant
