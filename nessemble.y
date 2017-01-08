@@ -40,7 +40,10 @@
 %token PSEUDO_DB
 %token PSEUDO_DEFCHR
 %token PSEUDO_DW
+%token PSEUDO_ENDIF
 %token PSEUDO_HIBYTES
+%token PSEUDO_IFDEF
+%token PSEUDO_IFNDEF
 %token PSEUDO_INCBIN
 %token PSEUDO_INCLUDE
 %token PSEUDO_INCPNG
@@ -76,6 +79,8 @@
 %token UNKNOWN
 
 %type <sval> pseudo_ascii
+%type <sval> pseudo_ifdef
+%type <sval> pseudo_ifndef
 %type <sval> pseudo_incbin
 %type <sval> pseudo_include
 %type <sval> pseudo_incpng
@@ -174,7 +179,10 @@ pseudo
     | pseudo_db      { pseudo_db(); }
     | pseudo_defchr  { pseudo_defchr(); }
     | pseudo_dw      { pseudo_dw(); }
+    | pseudo_endif   { pseudo_endif(); }
     | pseudo_hibytes { pseudo_hibytes(); }
+    | pseudo_ifdef   { pseudo_ifdef($1); }
+    | pseudo_ifndef  { pseudo_ifndef($1); }
     | pseudo_incbin  { /* NOTHING */ }
     | pseudo_include { pseudo_include($1); }
     | pseudo_incpng  { /* NOTHING */ }
@@ -227,9 +235,21 @@ pseudo_dw
     | pseudo_dw COMMA number { ints[length_ints++] = $3; }
     ;
 
+pseudo_endif
+    : PSEUDO_ENDIF
+    ;
+
 pseudo_hibytes
     : PSEUDO_HIBYTES number       { ints[length_ints++] = $2; }
     | pseudo_hibytes COMMA number { ints[length_ints++] = $3; }
+    ;
+
+pseudo_ifdef
+    : PSEUDO_IFDEF TEXT { $$ = $2; }
+    ;
+
+pseudo_ifndef
+    : PSEUDO_IFNDEF TEXT { $$ = $2; }
     ;
 
 pseudo_incbin

@@ -54,7 +54,10 @@ int include_stack_ptr = 0;
 ".db"                  { return PSEUDO_DB; }
 ".defchr"              { return PSEUDO_DEFCHR; }
 ".dw"                  { return PSEUDO_DW; }
+".endif"               { return PSEUDO_ENDIF; }
 ".hibytes"             { return PSEUDO_HIBYTES; }
+".ifdef"               { return PSEUDO_IFDEF; }
+".ifndef"              { return PSEUDO_IFNDEF; }
 ".incbin"              { return PSEUDO_INCBIN; }
 ".include"             { BEGIN(include); return PSEUDO_INCLUDE; }
 ".incpng"              { return PSEUDO_INCPNG; }

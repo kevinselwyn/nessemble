@@ -88,6 +88,13 @@ void pseudo_dw() {
 }
 
 /**
+ * .endif pseudo instruction
+ */
+void pseudo_endif() {
+
+}
+
+/**
  * .hibytes pseudo instruction
  */
 void pseudo_hibytes() {
@@ -98,6 +105,20 @@ void pseudo_hibytes() {
     }
 
     length_ints = 0;
+}
+
+/**
+ * .ifdef pseudo instruction
+ */
+void pseudo_ifdef() {
+
+}
+
+/**
+ * .ifndef pseudo instruction
+ */
+void pseudo_ifndef() {
+
 }
 
 /**
