@@ -3,6 +3,11 @@
 #include <string.h>
 #include "nessemble.h"
 
+unsigned int if_depth = 0;
+unsigned int if_active = FALSE;
+unsigned int if_type = IF_IFDEF;
+char *if_label = NULL;
+
 /**
  * .ascii pseudo instruction
  * @param {char *} string - ASCII string
@@ -88,10 +93,25 @@ void pseudo_dw() {
 }
 
 /**
+ * .else pseudo instruction
+ */
+void pseudo_else() {
+    if (if_type == IF_IFDEF) {
+        if_type = IF_IFNDEF;
+    } else {
+        if_type = IF_IFDEF;
+    }
+}
+
+/**
  * .endif pseudo instruction
  */
 void pseudo_endif() {
+    if_depth--;
 
+    if (if_depth == 0) {
+        if_active = FALSE;
+    }
 }
 
 /**
@@ -110,15 +130,21 @@ void pseudo_hibytes() {
 /**
  * .ifdef pseudo instruction
  */
-void pseudo_ifdef() {
-
+void pseudo_ifdef(char *label) {
+    if_depth++;
+    if_active = TRUE;
+    if_type = IF_IFDEF;
+    if_label = label;
 }
 
 /**
  * .ifndef pseudo instruction
  */
-void pseudo_ifndef() {
-
+void pseudo_ifndef(char *label) {
+    if_depth++;
+    if_active = TRUE;
+    if_type = IF_IFNDEF;
+    if_label = label;
 }
 
 /**
