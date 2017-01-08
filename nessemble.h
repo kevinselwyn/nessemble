@@ -87,6 +87,15 @@ struct symbol symbols[1024];
 unsigned int symbol_index;
 unsigned int rsset;
 
+/* IF */
+#define IF_IFDEF  1
+#define IF_IFNDEF 2
+
+unsigned int if_depth;
+unsigned int if_active;
+unsigned int if_type;
+char *if_label;
+
 /* SEGMENTS */
 char segment[8];
 unsigned int segment_type;
@@ -175,6 +184,7 @@ void add_symbol(char *name, unsigned int value, unsigned int type);
 int get_symbol(char *name);
 void add_constant(char *name, unsigned int value);
 void add_label(char *name);
+int has_label(char *name);
 
 /* PSEUDO UTILS */
 void pseudo_ascii(char *string, int offset);
@@ -182,10 +192,11 @@ void pseudo_chr(unsigned int index);
 void pseudo_db();
 void pseudo_defchr();
 void pseudo_dw();
+void pseudo_else();
 void pseudo_endif();
 void pseudo_hibytes();
-void pseudo_ifdef();
-void pseudo_ifndef();
+void pseudo_ifdef(char *label);
+void pseudo_ifndef(char *label);
 void pseudo_ineschr(unsigned int value);
 void pseudo_inesmap(unsigned int value);
 void pseudo_inesmir(unsigned int value);

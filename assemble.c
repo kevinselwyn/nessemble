@@ -79,6 +79,18 @@ unsigned int get_address_offset() {
 void write_byte(unsigned int byte) {
     unsigned int offset = get_rom_index();
 
+    if (if_active == TRUE) {
+        if (if_type == IF_IFDEF) {
+            if (!has_label(if_label)) {
+                return;
+            }
+        } else if (if_type == IF_IFNDEF) {
+            if (has_label(if_label)) {
+                return;
+            }
+        }
+    }
+
     if (ines.trn == 1) {
         if (pass == 2) {
             trainer[offset_trainer] = byte;
@@ -159,4 +171,21 @@ void add_label(char *name) {
     unsigned int offset = get_address_offset();
 
     add_symbol(name, offset, SYMBOL_LABEL);
+}
+
+/**
+ * Has label test
+ * @param {char *} name - Label name
+ * @return {int} True if true, false if not
+ */
+int has_label(char *name) {
+    unsigned int i = 0, l = 0;
+
+    for (i = 0, l = symbol_index; i < l; i++) {
+        if (strcmp(symbols[i].name, name) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }

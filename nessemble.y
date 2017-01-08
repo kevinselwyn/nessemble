@@ -21,6 +21,8 @@
 %token AND
 %token OR
 %token XOR
+%token RSHIFT
+%token LSHIFT
 
 %token HASH
 %token COMMA
@@ -40,6 +42,7 @@
 %token PSEUDO_DB
 %token PSEUDO_DEFCHR
 %token PSEUDO_DW
+%token PSEUDO_ELSE
 %token PSEUDO_ENDIF
 %token PSEUDO_HIBYTES
 %token PSEUDO_IFDEF
@@ -124,15 +127,17 @@ close_char
     ;
 
 number
-    : number_base              { $$ = $1; }
-    | label                    { $$ = $1; }
-    | number PLUS number_base  { $$ = $1 + $3; }
-    | number MINUS number_base { $$ = $1 - $3; }
-    | number MULT number_base  { $$ = $1 * $3; }
-    | number DIV number_base   { $$ = (int)($1 / $3); }
-    | number AND number_base   { $$ = $1 & $3; }
-    | number OR number_base    { $$ = $1 | $3; }
-    | number XOR number_base   { $$ = $1 ^ $3; }
+    : number_base                   { $$ = $1; }
+    | label                         { $$ = $1; }
+    | number PLUS number_base       { $$ = $1 + $3; }
+    | number MINUS number_base      { $$ = $1 - $3; }
+    | number MULT number_base       { $$ = $1 * $3; }
+    | number DIV number_base        { $$ = (int)($1 / $3); }
+    | number AND number_base        { $$ = $1 & $3; }
+    | number OR number_base         { $$ = $1 | $3; }
+    | number XOR number_base        { $$ = $1 ^ $3; }
+    | number RSHIFT number_base     { $$ = $1 >> $3; }
+    | number LSHIFT number_base     { $$ = $1 << $3; }
     ;
 
 number_base
@@ -179,6 +184,7 @@ pseudo
     | pseudo_db      { pseudo_db(); }
     | pseudo_defchr  { pseudo_defchr(); }
     | pseudo_dw      { pseudo_dw(); }
+    | pseudo_else    { pseudo_else(); }
     | pseudo_endif   { pseudo_endif(); }
     | pseudo_hibytes { pseudo_hibytes(); }
     | pseudo_ifdef   { pseudo_ifdef($1); }
@@ -233,6 +239,10 @@ pseudo_dw_alias
 pseudo_dw
     : pseudo_dw_alias number { ints[length_ints++] = $2; }
     | pseudo_dw COMMA number { ints[length_ints++] = $3; }
+    ;
+
+pseudo_else
+    : PSEUDO_ELSE
     ;
 
 pseudo_endif
@@ -320,7 +330,8 @@ pseudo_segment
 /* Constant */
 
 constant_decl
-    : TEXT EQU number { add_constant($1, $3); }
+    : TEXT            { add_constant($1, 0x01); }
+    | TEXT EQU number { add_constant($1, $3); }
     ;
 
 /* Label */

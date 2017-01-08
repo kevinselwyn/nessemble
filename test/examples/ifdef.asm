@@ -1,9 +1,13 @@
 DEFINED = $01
 
 .ifdef UNDEFINED
-.db $01, $02
+.db $12, $34
+.else
+.db $56, $78
 .endif
 
 .ifdef DEFINED
 .db $10, $20
+.else
+.db $30, $40
 .endif

@@ -34,6 +34,8 @@ int include_stack_ptr = 0;
 "&"                    { return AND; }
 "|"                    { return OR; }
 "^"                    { return XOR; }
+">>"                   { return RSHIFT; }
+"<<"                   { return LSHIFT; }
 
 "#"                    { return HASH; }
 ","                    { return COMMA; }
@@ -54,6 +56,7 @@ int include_stack_ptr = 0;
 ".db"                  { return PSEUDO_DB; }
 ".defchr"              { return PSEUDO_DEFCHR; }
 ".dw"                  { return PSEUDO_DW; }
+".else"                { return PSEUDO_ELSE; }
 ".endif"               { return PSEUDO_ENDIF; }
 ".hibytes"             { return PSEUDO_HIBYTES; }
 ".ifdef"               { return PSEUDO_IFDEF; }
