@@ -145,6 +145,12 @@ int repl(char *input) {
         }
     }
 
+    if (strncmp(input, ".fill", 5) == 0) {
+        if (length > 6) {
+            print_memory(fill_memory(input+6));
+        }
+    }
+
     if (strncmp(input, ".instruction", 12) == 0) {
         print_instruction();
     }
@@ -253,6 +259,34 @@ void load_registers(char *input) {
             continue;
         }
     }
+}
+
+char *fill_memory(char *input) {
+    unsigned int i = 0, l = 0, addr_start = 0, addr_end = 0;
+    size_t length = 0;
+    char *addrs = NULL;
+
+    addrs = malloc(sizeof(char) * 10);
+
+    input[4] = '\0';
+    addr_start = hex2int(input);
+    addr_end = addr_start - 1;
+    input[4] = ' ';
+
+    length = strlen(input+5);
+
+    for (i = 0, l = (int)(length / 3); i < l; i++) {
+        rom_data[addr_start + i] = (char)hex2int(input + (5 + (i * 3)));
+        addr_end++;
+    }
+
+    if (addr_end - addr_start == 0) {
+        sprintf(addrs, "%04X", addr_start);
+    } else {
+        sprintf(addrs, "%04X:%04X", addr_start, addr_end);
+    }
+
+    return addrs;
 }
 
 void print_instruction() {
@@ -369,8 +403,6 @@ void print_memory(char *input) {
         b = (unsigned int)hex2int(input+5);
         input[5] = '\0';
         a = (unsigned int)hex2int(input);
-
-        b++;
     }
 
     printf("       00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F\n");
@@ -424,10 +456,10 @@ unsigned int get_address(unsigned int opcode_index, unsigned int value) {
         address = value + registers.y;
         break;
     case MODE_INDIRECT_X:
-        address = ((int)rom_data[value + registers.x + 0x01] << 0x08) | (int)rom_data[value + registers.x];
+        address = (((unsigned int)rom_data[value + registers.x + 0x01] & 0xFF) << 0x08) | ((unsigned int)rom_data[value + registers.x] & 0xFF);
         break;
     case MODE_INDIRECT_Y:
-        address = (((int)rom_data[value + 0x01] << 0x08) | (int)rom_data[value]) + registers.y;
+        address = ((((unsigned int)rom_data[value + 0x01] & 0xFF) << 0x08) | ((unsigned int)rom_data[value] & 0xFF)) + registers.y;
         break;
     default:
         break;

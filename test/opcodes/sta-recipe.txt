@@ -1,0 +1,47 @@
+.registers A=80,X=01,Y=10
+.fill 0044 00 00 00
+.step
+.memory 0044
+.step
+.memory 0045
+.step
+.memory 4400
+.step
+.memory 4401
+.step
+.memory 4410
+.step
+.memory 0080
+.fill 0045 00
+.step
+.memory 0090
+.step
+.memory 0011
+.step
+.memory 0012
+.step
+.memory 0011
+.step
+.memory 0012
+.step
+.memory 0021
+.step
+.memory 0080
+.fill 0045 00
+.step
+.memory 0090
+.step
+.memory 0044
+.step
+.memory 0045
+.step
+.memory 4400
+.step
+.memory 4401
+.step
+.memory 4410
+.step
+.memory 0080
+.fill 0045 00
+.step
+.memory 0090
