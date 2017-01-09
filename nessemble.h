@@ -88,12 +88,14 @@ unsigned int symbol_index;
 unsigned int rsset;
 
 /* IF */
+#define IF_IF     0
 #define IF_IFDEF  1
 #define IF_IFNDEF 2
 
 unsigned int if_depth;
 unsigned int if_active;
 unsigned int if_type;
+unsigned int if_cond;
 char *if_label;
 
 /* SEGMENTS */
@@ -195,6 +197,7 @@ void pseudo_dw();
 void pseudo_else();
 void pseudo_endif();
 void pseudo_hibytes();
+void pseudo_if(unsigned int cond);
 void pseudo_ifdef(char *label);
 void pseudo_ifndef(char *label);
 void pseudo_ineschr(unsigned int value);

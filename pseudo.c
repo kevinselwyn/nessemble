@@ -6,6 +6,7 @@
 unsigned int if_depth = 0;
 unsigned int if_active = FALSE;
 unsigned int if_type = IF_IFDEF;
+unsigned int if_cond = FALSE;
 char *if_label = NULL;
 
 /**
@@ -125,6 +126,16 @@ void pseudo_hibytes() {
     }
 
     length_ints = 0;
+}
+
+/**
+ * .if pseudo instruction
+ */
+void pseudo_if(unsigned int cond) {
+    if_depth++;
+    if_active = TRUE;
+    if_type = IF_IF;
+    if_cond = cond;
 }
 
 /**
