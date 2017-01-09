@@ -21,80 +21,81 @@ int include_stack_ptr = 0;
 
 %%
 
-\n                     { return ENDL; }
-^[ \t]+                { return INDENTATION; }
+\n                       { return ENDL; }
+^[ \t]+                  { return INDENTATION; }
 
-[ ]+                   { /* WHITESPACE */ }
-;.*                    { /* COMMENT */ }
+[ ]+                     { /* WHITESPACE */ }
+;.*                      { /* COMMENT */ }
 
-"+"                    { return PLUS; }
-"-"                    { return MINUS; }
-"*"                    { return MULT; }
-"/"                    { return DIV; }
-"&"                    { return AND; }
-"|"                    { return OR; }
-"^"                    { return XOR; }
-">>"                   { return RSHIFT; }
-"<<"                   { return LSHIFT; }
+"+"                      { return PLUS; }
+"-"                      { return MINUS; }
+"*"                      { return MULT; }
+"/"                      { return DIV; }
+"&"                      { return AND; }
+"|"                      { return OR; }
+"^"                      { return XOR; }
+">>"                     { return RSHIFT; }
+"<<"                     { return LSHIFT; }
 
-"#"                    { return HASH; }
-","                    { return COMMA; }
-"="                    { return EQU; }
-":"                    { return COLON; }
-"("                    { return OPEN_PAREN; }
-")"                    { return CLOSE_PAREN; }
-"["                    { return OPEN_BRACK; }
-"]"                    { return CLOSE_BRACK; }
-"<"                    { return CARET; }
+"#"                      { return HASH; }
+","                      { return COMMA; }
+"="                      { return EQU; }
+":"                      { return COLON; }
+"("                      { return OPEN_PAREN; }
+")"                      { return CLOSE_PAREN; }
+"["                      { return OPEN_BRACK; }
+"]"                      { return CLOSE_BRACK; }
+"<"                      { return CARET; }
+">"                      { return GT; }
 
-"HIGH"                 { return HIGH; }
-"LOW"                  { return LOW; }
+"HIGH"                   { return HIGH; }
+"LOW"                    { return LOW; }
 
-".ascii"               { return PSEUDO_ASCII; }
-".byte"                { return PSEUDO_BYTE; }
-\.chr[0-9]+            { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_CHR; }
-".db"                  { return PSEUDO_DB; }
-".defchr"              { return PSEUDO_DEFCHR; }
-".dw"                  { return PSEUDO_DW; }
-".else"                { return PSEUDO_ELSE; }
-".endif"               { return PSEUDO_ENDIF; }
-".hibytes"             { return PSEUDO_HIBYTES; }
-".ifdef"               { return PSEUDO_IFDEF; }
-".ifndef"              { return PSEUDO_IFNDEF; }
-".incbin"              { return PSEUDO_INCBIN; }
-".include"             { BEGIN(include); return PSEUDO_INCLUDE; }
-".incpng"              { return PSEUDO_INCPNG; }
-".ineschr"             { return PSEUDO_INESCHR; }
-".inesmap"             { return PSEUDO_INESMAP; }
-".inesmir"             { return PSEUDO_INESMIR; }
-".inesprg"             { return PSEUDO_INESPRG; }
-".inestrn"             { return PSEUDO_INESTRN; }
-".lobytes"             { return PSEUDO_LOBYTES; }
-".org"                 { return PSEUDO_ORG; }
-".out"                 { return PSEUDO_OUT; }
-\.prg[0-9]+            { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_PRG; }
-".rsset"               { return PSEUDO_RSSET; }
-".rs"                  { return PSEUDO_RS; }
-".segment"             { return PSEUDO_SEGMENT; }
-".word"                { return PSEUDO_WORD; }
+".ascii"                 { return PSEUDO_ASCII; }
+".byte"                  { return PSEUDO_BYTE; }
+\.chr[0-9]+              { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_CHR; }
+".db"                    { return PSEUDO_DB; }
+".defchr"                { return PSEUDO_DEFCHR; }
+".dw"                    { return PSEUDO_DW; }
+".else"                  { return PSEUDO_ELSE; }
+".endif"                 { return PSEUDO_ENDIF; }
+".hibytes"               { return PSEUDO_HIBYTES; }
+".ifdef"                 { return PSEUDO_IFDEF; }
+".ifndef"                { return PSEUDO_IFNDEF; }
+".incbin"                { return PSEUDO_INCBIN; }
+".include"               { BEGIN(include); return PSEUDO_INCLUDE; }
+".incpng"                { return PSEUDO_INCPNG; }
+".ineschr"               { return PSEUDO_INESCHR; }
+".inesmap"               { return PSEUDO_INESMAP; }
+".inesmir"               { return PSEUDO_INESMIR; }
+".inesprg"               { return PSEUDO_INESPRG; }
+".inestrn"               { return PSEUDO_INESTRN; }
+".lobytes"               { return PSEUDO_LOBYTES; }
+".org"                   { return PSEUDO_ORG; }
+".out"                   { return PSEUDO_OUT; }
+\.prg[0-9]+              { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_PRG; }
+".rsset"                 { return PSEUDO_RSSET; }
+".rs"                    { return PSEUDO_RS; }
+".segment"               { return PSEUDO_SEGMENT; }
+".word"                  { return PSEUDO_WORD; }
 
-<include>[ \t]*        { /* WHITESPACE */ }
-<include>[^ \t\n]+     { BEGIN(INITIAL); yylval.sval = strdup(yytext); return QUOT_STRING; }
+<include>[ \t]*          { /* WHITESPACE */ }
+<include>[^ \t\n]+       { BEGIN(INITIAL); yylval.sval = strdup(yytext); return QUOT_STRING; }
 
-\$[0-9a-fA-F]+         { yylval.ival = hex2int(yytext+1); return NUMBER_HEX; }
-%[0-1]+                { yylval.ival = bin2int(yytext+1); return NUMBER_BIN; }
-0[0-7]+                { yylval.ival = oct2int(yytext+1); return NUMBER_OCT; }
-[0-9]+                 { yylval.ival = dec2int(yytext); return NUMBER_DEC; }
-'.'                    { yylval.ival = (int)yytext[1]; return NUMBER_CHAR; }
+\$[0-9a-fA-F]+           { yylval.ival = hex2int(yytext+1); return NUMBER_HEX; }
+%[0-1]+                  { yylval.ival = bin2int(yytext+1); return NUMBER_BIN; }
+0[0-7]+                  { yylval.ival = oct2int(yytext+1); return NUMBER_OCT; }
+[0-9]+                   { yylval.ival = dec2int(yytext); return NUMBER_DEC; }
+'.'                      { yylval.ival = (int)yytext[1]; return NUMBER_CHAR; }
 
-[a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = strdup(yytext); return TEXT; }
-\".+\"                 { yylval.sval = strdup(yytext); return QUOT_STRING; }
-[aA]                   { yylval.cval = toupper(yytext[0]); return CHAR_A; }
-[xX]                   { yylval.cval = toupper(yytext[0]); return CHAR_X; }
-[yY]                   { yylval.cval = toupper(yytext[0]); return CHAR_Y; }
+[\.a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = strdup(yytext); return TEXT; }
+\".+\"                   { yylval.sval = strdup(yytext); return QUOT_STRING; }
+[aA]                     { yylval.cval = toupper(yytext[0]); return CHAR_A; }
+[xX]                     { yylval.cval = toupper(yytext[0]); return CHAR_X; }
+[yY]                     { yylval.cval = toupper(yytext[0]); return CHAR_Y; }
 
-<<EOF>>                { return FEOF; }
-.                      { if (strdup(yytext)[0] == 13) { return ENDL; } else { return UNKNOWN; } }
+<<EOF>>                  { return FEOF; }
+.                        { if (strdup(yytext)[0] == 13) { return ENDL; } else { return UNKNOWN; } }
 
 %%
 

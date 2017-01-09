@@ -33,6 +33,7 @@
 %token OPEN_BRACK
 %token CLOSE_BRACK
 %token CARET
+%token GT
 
 %token HIGH
 %token LOW
@@ -45,6 +46,7 @@
 %token PSEUDO_ELSE
 %token PSEUDO_ENDIF
 %token PSEUDO_HIBYTES
+%token PSEUDO_IF
 %token PSEUDO_IFDEF
 %token PSEUDO_IFNDEF
 %token PSEUDO_INCBIN
@@ -97,6 +99,7 @@
 %type <ival> label
 
 %type <uval> pseudo_chr
+%type <uval> pseudo_if
 %type <uval> pseudo_ineschr
 %type <uval> pseudo_inesmap
 %type <uval> pseudo_inesmir
@@ -116,28 +119,27 @@ program
 
 /* Atomic */
 
-open_char
-    : OPEN_PAREN
-    | OPEN_BRACK
+lt
+    : CARET
     ;
 
-close_char
-    : CLOSE_PAREN
-    | CLOSE_BRACK
+gt
+    : GT
     ;
 
 number
     : number_base                   { $$ = $1; }
     | label                         { $$ = $1; }
-    | number PLUS number_base       { $$ = $1 + $3; }
-    | number MINUS number_base      { $$ = $1 - $3; }
-    | number MULT number_base       { $$ = $1 * $3; }
-    | number DIV number_base        { $$ = (int)($1 / $3); }
-    | number AND number_base        { $$ = $1 & $3; }
-    | number OR number_base         { $$ = $1 | $3; }
-    | number XOR number_base        { $$ = $1 ^ $3; }
-    | number RSHIFT number_base     { $$ = $1 >> $3; }
-    | number LSHIFT number_base     { $$ = $1 << $3; }
+    | number MULT number            { $$ = $1 * $3; }
+    | number DIV number             { $$ = (int)($1 / $3); }
+    | number PLUS number            { $$ = $1 + $3; }
+    | number MINUS number           { $$ = $1 - $3; }
+    | number AND number             { $$ = $1 & $3; }
+    | number OR number              { $$ = $1 | $3; }
+    | number XOR number             { $$ = $1 ^ $3; }
+    | number RSHIFT number          { $$ = $1 >> $3; }
+    | number LSHIFT number          { $$ = $1 << $3; }
+    | OPEN_PAREN number CLOSE_PAREN { $$ = $2; }
     ;
 
 number_base
@@ -150,8 +152,8 @@ number_base
     ;
 
 number_highlow
-    : LOW open_char number close_char  { $$ = $3 & 255; }
-    | HIGH open_char number close_char { $$ = ($3 >> 8) & 255; }
+    : LOW OPEN_PAREN number CLOSE_PAREN  { $$ = $3 & 255; }
+    | HIGH OPEN_PAREN number CLOSE_PAREN { $$ = ($3 >> 8) & 255; }
     ;
 
 label
@@ -187,6 +189,7 @@ pseudo
     | pseudo_else    { pseudo_else(); }
     | pseudo_endif   { pseudo_endif(); }
     | pseudo_hibytes { pseudo_hibytes(); }
+    | pseudo_if      { pseudo_if($1); }
     | pseudo_ifdef   { pseudo_ifdef($1); }
     | pseudo_ifndef  { pseudo_ifndef($1); }
     | pseudo_incbin  { /* NOTHING */ }
@@ -252,6 +255,11 @@ pseudo_endif
 pseudo_hibytes
     : PSEUDO_HIBYTES number       { ints[length_ints++] = $2; }
     | pseudo_hibytes COMMA number { ints[length_ints++] = $3; }
+    ;
+
+pseudo_if
+    : number lt number { $$ = $1 < $3 ? TRUE : FALSE; }
+    | number gt number { $$ = $1 > $3 ? TRUE : FALSE; }
     ;
 
 pseudo_ifdef
@@ -343,18 +351,18 @@ label_decl
 /* Instruction */
 
 instruction
-    : TEXT CHAR_A                                   { assemble_accumulator($1); }
-    | TEXT HASH number                              { assemble_immediate($1, $3); }
-    | TEXT open_char number close_char              { assemble_indirect($1, $3); }
-    | TEXT open_char number COMMA CHAR_X close_char { assemble_indirect_xy($1, $3, $5); }
-    | TEXT open_char number close_char COMMA CHAR_Y { assemble_indirect_xy($1, $3, $6); }
-    | TEXT CARET number COMMA CHAR_X                { assemble_zeropage_xy($1, $3, $5); }
-    | TEXT CARET number COMMA CHAR_Y                { assemble_zeropage_xy($1, $3, $5); }
-    | TEXT number COMMA CHAR_X                      { assemble_absolute_xy($1, $2, $4); }
-    | TEXT number COMMA CHAR_Y                      { assemble_absolute_xy($1, $2, $4); }
-    | TEXT CARET number ENDL                        { assemble_zeropage($1, $3); }
-    | TEXT number ENDL                              { assemble_absolute($1, $2); }
-    | TEXT ENDL                                     { assemble_implied($1); }
+    : TEXT CHAR_A                                     { assemble_accumulator($1); }
+    | TEXT HASH number                                { assemble_immediate($1, $3); }
+    | TEXT OPEN_BRACK number CLOSE_BRACK              { assemble_indirect($1, $3); }
+    | TEXT OPEN_BRACK number COMMA CHAR_X CLOSE_BRACK { assemble_indirect_xy($1, $3, $5); }
+    | TEXT OPEN_BRACK number CLOSE_BRACK COMMA CHAR_Y { assemble_indirect_xy($1, $3, $6); }
+    | TEXT CARET number COMMA CHAR_X                  { assemble_zeropage_xy($1, $3, $5); }
+    | TEXT CARET number COMMA CHAR_Y                  { assemble_zeropage_xy($1, $3, $5); }
+    | TEXT number COMMA CHAR_X                        { assemble_absolute_xy($1, $2, $4); }
+    | TEXT number COMMA CHAR_Y                        { assemble_absolute_xy($1, $2, $4); }
+    | TEXT CARET number ENDL                          { assemble_zeropage($1, $3); }
+    | TEXT number ENDL                                { assemble_absolute($1, $2); }
+    | TEXT ENDL                                       { assemble_implied($1); }
     ;
 
 %%
