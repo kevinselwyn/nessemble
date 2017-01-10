@@ -16,6 +16,7 @@
 
 %token PLUS
 %token MINUS
+%token POW
 %token MULT
 %token DIV
 %token AND
@@ -130,6 +131,7 @@ gt
 number
     : number_base                   { $$ = $1; }
     | label                         { $$ = $1; }
+    | number POW number             { $$ = power($1, $3); }
     | number MULT number            { $$ = $1 * $3; }
     | number DIV number             { $$ = (int)($1 / $3); }
     | number PLUS number            { $$ = $1 + $3; }
