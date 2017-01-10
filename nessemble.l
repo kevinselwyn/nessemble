@@ -29,6 +29,7 @@ int include_stack_ptr = 0;
 
 "+"                      { return PLUS; }
 "-"                      { return MINUS; }
+"**"                     { return POW; }
 "*"                      { return MULT; }
 "/"                      { return DIV; }
 "&"                      { return AND; }
