@@ -147,10 +147,6 @@ int get_symbol(char *name) {
         }
     }
 
-    if (symbol_id == -1) {
-        yyerror("Invalid symbol `%s`", name);
-    }
-
     return symbol_id;
 }
 
