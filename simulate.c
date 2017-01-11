@@ -685,7 +685,26 @@ void do_rol(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_ror(unsigned int opcode_index, unsigned int value) {
+    int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0, tmp = 0, add = 0;
 
+    if (mode == MODE_ACCUMULATOR) {
+        add = registers.flags.carry << 0x07;
+        registers.flags.carry = registers.a & 1;
+        tmp = (registers.a >> 1) + add;
+        registers.a = tmp;
+    } else {
+        address = get_address(opcode_index, value);
+        tmp = (unsigned int)rom_data[address] & 0xFF;
+        add = registers.flags.carry << 0x07;
+        registers.flags.carry = tmp & 1;
+        tmp = (tmp >> 1) + add;
+        rom_data[address] = (char)tmp;
+    }
+
+    registers.flags.negative = (registers.a >> 0x07) & 1;
+    registers.flags.zero = (unsigned int)(tmp == 0 ? 1 : 0);
+    registers.pc += opcodes[opcode_index].length;
 }
 
 void do_rra(unsigned int opcode_index, unsigned int value) {
