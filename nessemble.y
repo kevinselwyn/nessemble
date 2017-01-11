@@ -159,7 +159,7 @@ number_highlow
     ;
 
 label
-    : TEXT { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { $$ = 0; } }
+    : TEXT { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { $$ = 1; } }
     ;
 
 comma
