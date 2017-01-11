@@ -150,9 +150,9 @@ do
         if [ $diff_rc -ne 0 ]
         then
             printf "\n\n  Actual:\n    "
-            ./nessemble $asm --output - $flags | hexdump -n 32 -e '1/1 "%.2X "'
+            ./nessemble $asm --output - $flags | hexdump -n 128 -e '1/1 "%.2X "'
             printf "\n\n  Expected:\n    "
-            cat "$rom.rom" | hexdump -n 32 -e '1/1 "%.2X "'
+            cat "$rom.rom" | hexdump -n 128 -e '1/1 "%.2X "'
             printf "\n\n"
         fi
 

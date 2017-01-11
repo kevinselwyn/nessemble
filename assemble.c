@@ -126,6 +126,18 @@ void write_byte(unsigned int byte) {
  */
 void add_symbol(char *name, unsigned int value, unsigned int type) {
     if (pass == 1) {
+        if (if_active == TRUE) {
+            if (if_type == IF_IFDEF) {
+                if (!has_label(if_label)) {
+                    return;
+                }
+            } else if (if_type == IF_IFNDEF) {
+                if (has_label(if_label)) {
+                    return;
+                }
+            }
+        }
+
         symbols[symbol_index].name = name;
         symbols[symbol_index].value = value;
         symbols[symbol_index++].type = type;
