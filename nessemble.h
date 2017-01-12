@@ -236,6 +236,7 @@ int disassemble(char *input, char *output);
 
 /* SIMULATE UTILS */
 int simulate(char *input, char *recipe);
+void usage_simulate();
 int repl(char *input);
 void print_registers();
 void load_registers(char *input);
@@ -243,6 +244,7 @@ void load_flags(char *input);
 char *fill_memory(char *input);
 void print_instruction();
 int step();
+int steps(char *input);
 void print_memory(char *input);
 void load_goto(char *input);
 
