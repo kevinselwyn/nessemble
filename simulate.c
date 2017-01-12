@@ -22,6 +22,22 @@ static struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } 
 char *rom_data;
 
 /**
+ * Simulate usage
+ */
+void usage_simulate() {
+    printf("Options:\n\n");
+    printf("  .registers [register=XXXX,...]  Print registers (sets registers w/ options)\n");
+    printf("  .flags [flag=X,...]             Print flags (sets flags w/ options)\n");
+    printf("  .fill XXXX NN ...               Fill memory address with NN byte(s)\n");
+    printf("  .instruction                    Print next instruction\n");
+    printf("  .memory XXXX[:XXXX]             Print memory in address range\n");
+    printf("  .goto XXXX                      Set program counter to XXXX\n");
+    printf("  .step [X]                       Step program counter by 1 or X\n");
+    printf("  .run                            Run program\n");
+    printf("  .help                           Print this message\n\n");
+}
+
+/**
  * Simulate 6502
  * @param {char *} input - Input filename
  */
@@ -130,11 +146,22 @@ cleanup:
     return rc;
 }
 
+/**
+ * Simulate REPL
+ * @param {char *} input - User input
+ * @return {int} Return code
+ */
 int repl(char *input) {
     int rc = RETURN_OK;
     size_t length = 0;
 
     length = strlen(input);
+
+    if (strncmp(input, ".help", 5) == 0) {
+        usage_simulate();
+
+        goto cleanup;
+    }
 
     if (strncmp(input, ".registers", 10) == 0) {
         if (length > 11) {
@@ -143,6 +170,8 @@ int repl(char *input) {
         } else {
             print_registers();
         }
+
+        goto cleanup;
     }
 
     if (strncmp(input, ".flags", 6) == 0) {
@@ -152,37 +181,44 @@ int repl(char *input) {
         } else {
             print_registers();
         }
+
+        goto cleanup;
     }
 
     if (strncmp(input, ".fill", 5) == 0) {
         if (length > 6) {
             print_memory(fill_memory(input+6));
         }
+
+        goto cleanup;
     }
 
     if (strncmp(input, ".instruction", 12) == 0) {
         print_instruction();
+
+        goto cleanup;
     }
 
     if (strncmp(input, ".memory", 7) == 0) {
         print_memory(input+8);
+
+        goto cleanup;
     }
 
     if (strncmp(input, ".goto", 5) == 0) {
         load_goto(input+6);
+
+        goto cleanup;
     }
 
     if (strncmp(input, ".step", 5) == 0) {
-        print_instruction();
-
-        if (step() == TRUE) {
-            print_registers();
-
-            rc = RETURN_EPERM;
-            goto cleanup;
+        if (length > 6) {
+            steps(input+6);
+        } else {
+            steps("1");
         }
 
-        print_registers();
+        goto cleanup;
     }
 
     if (strncmp(input, ".run", 4) == 0) {
@@ -194,6 +230,8 @@ int repl(char *input) {
                 goto cleanup;
             }
         }
+
+        goto cleanup;
     }
 
 cleanup:
@@ -452,6 +490,27 @@ int step() {
             arg1 = (unsigned int)rom_data[registers.pc+2] & 0xFF;
             (*opcodes[opcode_index].func)(opcode_index, (arg1 << 8) | arg0);
         }
+    }
+
+cleanup:
+    return rc;
+}
+
+int steps(char *input) {
+    int rc = RETURN_OK;
+    unsigned int i = 0, l = 0, count = 0;
+
+    count = dec2int(input);
+
+    for (i = 0, l = count; i < l; i++) {
+        print_instruction();
+
+        if (step() == TRUE) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        print_registers();
     }
 
 cleanup:
