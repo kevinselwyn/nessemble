@@ -53,6 +53,7 @@
 %token PSEUDO_INCBIN
 %token PSEUDO_INCLUDE
 %token PSEUDO_INCPNG
+%token PSEUDO_INCSCREEN
 %token PSEUDO_INESCHR
 %token PSEUDO_INESMAP
 %token PSEUDO_INESMIR
@@ -183,32 +184,33 @@ line
 /* Pseudo */
 
 pseudo
-    : pseudo_ascii   { /* NOTHING */ }
-    | pseudo_chr     { pseudo_chr($1); }
-    | pseudo_db      { pseudo_db(); }
-    | pseudo_defchr  { pseudo_defchr(); }
-    | pseudo_dw      { pseudo_dw(); }
-    | pseudo_else    { pseudo_else(); }
-    | pseudo_endif   { pseudo_endif(); }
-    | pseudo_hibytes { pseudo_hibytes(); }
-    | pseudo_if      { pseudo_if($1); }
-    | pseudo_ifdef   { pseudo_ifdef($1); }
-    | pseudo_ifndef  { pseudo_ifndef($1); }
-    | pseudo_incbin  { /* NOTHING */ }
-    | pseudo_include { pseudo_include($1); }
-    | pseudo_incpng  { /* NOTHING */ }
-    | pseudo_ineschr { pseudo_ineschr($1); }
-    | pseudo_inesmap { pseudo_inesmap($1); }
-    | pseudo_inesmir { pseudo_inesmir($1); }
-    | pseudo_inesprg { pseudo_inesprg($1); }
-    | pseudo_inestrn { pseudo_inestrn($1); }
-    | pseudo_lobytes { pseudo_lobytes(); }
-    | pseudo_org     { pseudo_org($1); }
-    | pseudo_out     { pseudo_out($1); }
-    | pseudo_prg     { pseudo_prg($1); }
-    | pseudo_rsset   { pseudo_rsset($1); }
-    | pseudo_rs      { /* NOTHING */ }
-    | pseudo_segment { pseudo_segment($1); }
+    : pseudo_ascii     { /* NOTHING */ }
+    | pseudo_chr       { pseudo_chr($1); }
+    | pseudo_db        { pseudo_db(); }
+    | pseudo_defchr    { pseudo_defchr(); }
+    | pseudo_dw        { pseudo_dw(); }
+    | pseudo_else      { pseudo_else(); }
+    | pseudo_endif     { pseudo_endif(); }
+    | pseudo_hibytes   { pseudo_hibytes(); }
+    | pseudo_if        { pseudo_if($1); }
+    | pseudo_ifdef     { pseudo_ifdef($1); }
+    | pseudo_ifndef    { pseudo_ifndef($1); }
+    | pseudo_incbin    { /* NOTHING */ }
+    | pseudo_include   { pseudo_include($1); }
+    | pseudo_incpng    { /* NOTHING */ }
+    | pseudo_incscreen { /* NOTHING */ }
+    | pseudo_ineschr   { pseudo_ineschr($1); }
+    | pseudo_inesmap   { pseudo_inesmap($1); }
+    | pseudo_inesmir   { pseudo_inesmir($1); }
+    | pseudo_inesprg   { pseudo_inesprg($1); }
+    | pseudo_inestrn   { pseudo_inestrn($1); }
+    | pseudo_lobytes   { pseudo_lobytes(); }
+    | pseudo_org       { pseudo_org($1); }
+    | pseudo_out       { pseudo_out($1); }
+    | pseudo_prg       { pseudo_prg($1); }
+    | pseudo_rsset     { pseudo_rsset($1); }
+    | pseudo_rs        { /* NOTHING */ }
+    | pseudo_segment   { pseudo_segment($1); }
     ;
 
 pseudo_ascii
@@ -286,6 +288,10 @@ pseudo_incpng
     : PSEUDO_INCPNG QUOT_STRING                           { pseudo_incpng($2, 0, -1); }
     | PSEUDO_INCPNG QUOT_STRING COMMA number              { pseudo_incpng($2, $4, -1); }
     | PSEUDO_INCPNG QUOT_STRING COMMA number COMMA number { pseudo_incpng($2, $4, $6); }
+    ;
+
+pseudo_incscreen
+    : PSEUDO_INCSCREEN QUOT_STRING QUOT_STRING { pseudo_incscreen($2, $3); }
     ;
 
 pseudo_ineschr
