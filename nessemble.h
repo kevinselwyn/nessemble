@@ -208,6 +208,7 @@ void pseudo_inestrn(char *string);
 void pseudo_incbin(char *string, int offset, int limit);
 void pseudo_include(char *string);
 void pseudo_incpng(char *string, int offset, int limit);
+void pseudo_incscreen(char *string, char *type);
 void pseudo_lobytes();
 void pseudo_org(unsigned int address);
 void pseudo_out(char *string);

@@ -66,6 +66,7 @@ int include_stack_ptr = 0;
 ".incbin"                { return PSEUDO_INCBIN; }
 ".include"               { BEGIN(include); return PSEUDO_INCLUDE; }
 ".incpng"                { return PSEUDO_INCPNG; }
+".incscreen"             { return PSEUDO_INCSCREEN; }
 ".ineschr"               { return PSEUDO_INESCHR; }
 ".inesmap"               { return PSEUDO_INESMAP; }
 ".inesmir"               { return PSEUDO_INESMIR; }
@@ -90,7 +91,7 @@ int include_stack_ptr = 0;
 '.'                      { yylval.ival = (int)yytext[1]; return NUMBER_CHAR; }
 
 [\.a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = strdup(yytext); return TEXT; }
-\".+\"                   { yylval.sval = strdup(yytext); return QUOT_STRING; }
+\"[^"]*\"                { yylval.sval = strdup(yytext); return QUOT_STRING; }
 [aA]                     { yylval.cval = toupper(yytext[0]); return CHAR_A; }
 [xX]                     { yylval.cval = toupper(yytext[0]); return CHAR_X; }
 [yY]                     { yylval.cval = toupper(yytext[0]); return CHAR_Y; }
