@@ -145,6 +145,15 @@ int repl(char *input) {
         }
     }
 
+    if (strncmp(input, ".flags", 6) == 0) {
+        if (length > 7) {
+            load_flags(input+7);
+            print_registers();
+        } else {
+            print_registers();
+        }
+    }
+
     if (strncmp(input, ".fill", 5) == 0) {
         if (length > 6) {
             print_memory(fill_memory(input+6));
@@ -255,6 +264,65 @@ void load_registers(char *input) {
             strncpy(text, input+starts[i]+3, (size_t)(ends[i] - starts[i] - 3));
             text[4] = '\0';
             registers.sp = (unsigned int)hex2int(text) & 0xFFFF;
+        } else {
+            continue;
+        }
+    }
+}
+
+void load_flags(char *input) {
+    unsigned int i = 0, l = 0, index = 0;
+    unsigned int starts[10], ends[10];
+    size_t length = 0;
+    char text[13];
+
+    length = strlen(input);
+
+    for (i = 0, l = 10; i < l; i++) {
+        starts[i] = 0;
+        ends[i] = 0;
+    }
+
+    for (i = 0, l = (unsigned int)length + 1; i < l; i++) {
+        if (input[i] == ',') {
+            ends[index++] = i;
+            starts[index] = i + 1;
+        }
+
+        if (input[i] == '\0') {
+            ends[index++] = i - 1;
+        }
+    }
+
+    for (i = 0, l = index; i < l; i++) {
+        if (strncmp(input+starts[i], "negative=", 9) == 0) {
+            strncpy(text, input+starts[i]+9, (size_t)(ends[i] - starts[i] - 9));
+            text[9] = '\0';
+            registers.flags.negative = (unsigned int)dec2int(text) & 1;
+        } else if (strncmp(input+starts[i], "overflow=", 9) == 0) {
+            strncpy(text, input+starts[i]+9, (size_t)(ends[i] - starts[i] - 9));
+            text[9] = '\0';
+            registers.flags.overflow = (unsigned int)dec2int(text) & 1;
+        } else if (strncmp(input+starts[i], "break=", 6) == 0) {
+            strncpy(text, input+starts[i]+6, (size_t)(ends[i] - starts[i] - 6));
+            text[6] = '\0';
+            registers.flags.brk = (unsigned int)dec2int(text) & 1;
+        } else if (strncmp(input+starts[i], "decimal=", 8) == 0) {
+            strncpy(text, input+starts[i]+8, (size_t)(ends[i] - starts[i] - 8));
+            text[8] = '\0';
+            registers.flags.decimal = (unsigned int)dec2int(text) & 1;
+        } else if (strncmp(input+starts[i], "interrupt=", 10) == 0) {
+            strncpy(text, input+starts[i]+10, (size_t)(ends[i] - starts[i] - 10));
+            text[10] = '\0';
+            registers.flags.interrupt = (unsigned int)dec2int(text) & 1;
+        } else if (strncmp(input+starts[i], "zero=", 5) == 0) {
+            strncpy(text, input+starts[i]+5, (size_t)(ends[i] - starts[i] - 5));
+            text[5] = '\0';
+            registers.flags.zero = (unsigned int)dec2int(text) & 1;
+        } else if (strncmp(input+starts[i], "carry=", 6) == 0) {
+            strncpy(text, input+starts[i]+6, (size_t)(ends[i] - starts[i] - 6));
+            text[6] = '\0';
+            registers.flags.carry = (unsigned int)dec2int(text) & 1;
         } else {
             continue;
         }

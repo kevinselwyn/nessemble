@@ -1,30 +1,45 @@
 .registers A=20,X=01
 .fill 0044 20 20
 .fill 4400 20 20
+.flags carry=0,negative=0,zero=0
 .step
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0044
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0045
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4400
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4401
+.flags carry=0,negative=0,zero=0
 .step
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0044
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0045
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4400
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4401
+.flags carry=0,negative=0,zero=0
 .step
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0044
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0045
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4400
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4401

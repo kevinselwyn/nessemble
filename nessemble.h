@@ -239,6 +239,7 @@ int simulate(char *input, char *recipe);
 int repl(char *input);
 void print_registers();
 void load_registers(char *input);
+void load_flags(char *input);
 char *fill_memory(char *input);
 void print_instruction();
 int step();

@@ -2,29 +2,43 @@
 .fill 0044 80 80
 .fill 4400 80 80
 .step
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0044
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0045
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4400
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4401
+.flags carry=0,negative=0,zero=0
 .step
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0044
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0045
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4400
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4401
+.flags carry=0,negative=0,zero=0
 .step
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0044
+.flags carry=0,negative=0,zero=0
 .step
 .memory 0045
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4400
+.flags carry=0,negative=0,zero=0
 .step
 .memory 4401
