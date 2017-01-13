@@ -248,6 +248,14 @@ int step();
 int steps(char *input);
 void print_memory(char *input);
 void load_goto(char *input);
+unsigned int get_address(unsigned int opcode_index, unsigned int value);
+unsigned int get_byte(unsigned int address);
+void set_byte(unsigned int address, unsigned int byte);
+unsigned int get_register(unsigned int reg);
+void set_register(unsigned int reg, unsigned int value);
+void inc_register(unsigned int reg, int value);
+unsigned int get_flag(unsigned int flag);
+void set_flag(unsigned int flag, unsigned int value);
 
 void do_aac(unsigned int opcode_index, unsigned int value);
 void do_aax(unsigned int opcode_index, unsigned int value);

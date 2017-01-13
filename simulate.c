@@ -6,6 +6,20 @@
 
 #define BUF_SIZE 256
 
+#define REGISTER_A  1
+#define REGISTER_X  2
+#define REGISTER_Y  3
+#define REGISTER_PC 4
+#define REGISTER_SP 5
+
+#define FLG_NEGATIVE  1
+#define FLG_OVERFLOW  2
+#define FLG_BREAK     3
+#define FLG_DECIMAL   4
+#define FLG_INTERRUPT 5
+#define FLG_ZERO      6
+#define FLG_CARRY     7
+
 struct flgs {
     unsigned int negative, overflow, brk, decimal, interrupt, zero, carry;
 };
@@ -595,6 +609,144 @@ unsigned int get_address(unsigned int opcode_index, unsigned int value) {
     return address;
 }
 
+unsigned int get_byte(unsigned int address) {
+    return (unsigned int)rom_data[address];
+}
+
+void set_byte(unsigned int address, unsigned int byte) {
+    rom_data[address] = (char)byte;
+}
+
+unsigned int get_register(unsigned int reg) {
+    unsigned int value = 0;
+
+    switch (reg) {
+    case REGISTER_A:
+        value = registers.a;
+        break;
+    case REGISTER_X:
+        value = registers.x;
+        break;
+    case REGISTER_Y:
+        value = registers.y;
+        break;
+    case REGISTER_PC:
+        value = (unsigned int)registers.pc;
+        break;
+    case REGISTER_SP:
+        value = registers.sp;
+        break;
+    default:
+        break;
+    }
+
+    return value;
+}
+
+void set_register(unsigned int reg, unsigned int value) {
+    switch (reg) {
+    case REGISTER_A:
+        registers.a = value;
+        break;
+    case REGISTER_X:
+        registers.x = value;
+        break;
+    case REGISTER_Y:
+        registers.y = value;
+        break;
+    case REGISTER_PC:
+        registers.pc = (int)value;
+        break;
+    case REGISTER_SP:
+        registers.sp = value;
+        break;
+    default:
+        break;
+    }
+}
+
+void inc_register(unsigned int reg, int value) {
+    switch (reg) {
+    case REGISTER_A:
+        registers.a = (unsigned int)value;
+        break;
+    case REGISTER_X:
+        registers.x = (unsigned int)value;
+        break;
+    case REGISTER_Y:
+        registers.y += (unsigned int)value;
+        break;
+    case REGISTER_PC:
+        registers.pc += value;
+        break;
+    case REGISTER_SP:
+        registers.sp = (unsigned int)value;
+        break;
+    default:
+        break;
+    }
+}
+
+unsigned int get_flag(unsigned int flag) {
+    unsigned int value = 0;
+
+    switch (flag) {
+    case FLG_NEGATIVE:
+        value = registers.flags.negative;
+        break;
+    case FLG_OVERFLOW:
+        value = registers.flags.overflow;
+        break;
+    case FLG_BREAK:
+        value = registers.flags.brk;
+        break;
+    case FLG_DECIMAL:
+        value = registers.flags.decimal;
+        break;
+    case FLG_INTERRUPT:
+        value = registers.flags.interrupt;
+        break;
+    case FLG_ZERO:
+        value = registers.flags.zero;
+        break;
+    case FLG_CARRY:
+        value = registers.flags.carry;
+        break;
+    default:
+        break;
+    }
+
+    return value;
+}
+
+void set_flag(unsigned int flag, unsigned int value) {
+    switch (flag) {
+    case FLG_NEGATIVE:
+        registers.flags.negative = value;
+        break;
+    case FLG_OVERFLOW:
+        registers.flags.overflow = value;
+        break;
+    case FLG_BREAK:
+        registers.flags.brk = value;
+        break;
+    case FLG_DECIMAL:
+        registers.flags.decimal = value;
+        break;
+    case FLG_INTERRUPT:
+        registers.flags.interrupt = value;
+        break;
+    case FLG_ZERO:
+        registers.flags.zero = value;
+        break;
+    case FLG_CARRY:
+        registers.flags.carry = value;
+        break;
+    default:
+        break;
+    }
+}
+
 void do_aac(unsigned int opcode_index, unsigned int value) {
 
 }
@@ -812,23 +964,23 @@ void do_rol(unsigned int opcode_index, unsigned int value) {
     unsigned int address = 0, tmp = 0, add = 0;
 
     if (mode == MODE_ACCUMULATOR) {
-        tmp = registers.a;
-        add = registers.flags.carry;
-        registers.flags.carry = (tmp >> 0x07) & 1;
-        tmp = ((tmp << 0x01) & 0xFF) + add;
-        registers.a = tmp;
+        tmp = get_register(REGISTER_A);
+        add = get_flag(FLG_CARRY);
+        set_flag(FLG_CARRY, (tmp >> 7) & 1);
+        tmp = ((tmp << 1) & 0xFF) + add;
+        set_register(REGISTER_A, tmp);
     } else {
         address = get_address(opcode_index, value);
-        tmp = (unsigned int)rom_data[address];
-        add = registers.flags.carry;
-        registers.flags.carry = (tmp >> 0x07) & 1;
-        tmp = ((tmp << 0x01) & 0xFF) + add;
-        rom_data[address] = (char)tmp;
+        tmp = get_byte(address);
+        add = get_flag(FLG_CARRY);
+        set_flag(FLG_CARRY, (tmp >> 7) & 1);
+        tmp = ((tmp << 1) & 0xFF) + add;
+        set_byte(address, tmp);
     }
 
-    registers.flags.negative = (tmp >> 0x07) & 1;
-    registers.flags.zero = (unsigned int)(tmp == 0 ? 1 : 0);
-    registers.pc += opcodes[opcode_index].length;
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_ror(unsigned int opcode_index, unsigned int value) {
@@ -836,22 +988,22 @@ void do_ror(unsigned int opcode_index, unsigned int value) {
     unsigned int address = 0, tmp = 0, add = 0;
 
     if (mode == MODE_ACCUMULATOR) {
-        add = registers.flags.carry << 0x07;
-        registers.flags.carry = registers.a & 1;
-        tmp = (registers.a >> 1) + add;
-        registers.a = tmp;
+        add = get_flag(FLG_CARRY) << 7;
+        set_flag(FLG_CARRY, registers.a & 1);
+        tmp = (get_register(REGISTER_A) >> 1) + add;
+        set_register(REGISTER_A, tmp);
     } else {
         address = get_address(opcode_index, value);
-        tmp = (unsigned int)rom_data[address] & 0xFF;
-        add = registers.flags.carry << 0x07;
-        registers.flags.carry = tmp & 1;
+        tmp = get_byte(address) & 0xFF;
+        add = get_flag(FLG_CARRY) << 7;
+        set_flag(FLG_CARRY, tmp & 1);
         tmp = (tmp >> 1) + add;
-        rom_data[address] = (char)tmp;
+        set_byte(address, tmp);
     }
 
-    registers.flags.negative = (tmp >> 0x07) & 1;
-    registers.flags.zero = (unsigned int)(tmp == 0 ? 1 : 0);
-    registers.pc += opcodes[opcode_index].length;
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_rra(unsigned int opcode_index, unsigned int value) {
@@ -871,18 +1023,18 @@ void do_sbc(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_sec(unsigned int opcode_index, unsigned int value) {
-    registers.flags.carry = 1;
-    registers.pc += opcodes[opcode_index].length;
+    set_flag(FLG_CARRY, 1);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_sed(unsigned int opcode_index, unsigned int value) {
-    registers.flags.decimal = 1;
-    registers.pc += opcodes[opcode_index].length;
+    set_flag(FLG_DECIMAL, 1);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_sei(unsigned int opcode_index, unsigned int value) {
-    registers.flags.interrupt = 1;
-    registers.pc += opcodes[opcode_index].length;
+    set_flag(FLG_INTERRUPT, 1);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_slo(unsigned int opcode_index, unsigned int value) {
@@ -896,22 +1048,22 @@ void do_sre(unsigned int opcode_index, unsigned int value) {
 void do_sta(unsigned int opcode_index, unsigned int value) {
     unsigned int address = get_address(opcode_index, value);
 
-    rom_data[address] = (char)registers.a;
-    registers.pc += opcodes[opcode_index].length;
+    set_byte(address, get_register(REGISTER_A));
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_stx(unsigned int opcode_index, unsigned int value) {
     unsigned int address = get_address(opcode_index, value);
 
-    rom_data[address] = (char)registers.x;
-    registers.pc += opcodes[opcode_index].length;
+    set_byte(address, get_register(REGISTER_X));
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_sty(unsigned int opcode_index, unsigned int value) {
     unsigned int address = get_address(opcode_index, value);
 
-    rom_data[address] = (char)registers.y;
-    registers.pc += opcodes[opcode_index].length;
+    set_byte(address, get_register(REGISTER_Y));
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_sxa(unsigned int opcode_index, unsigned int value) {
@@ -923,17 +1075,17 @@ void do_sya(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_tax(unsigned int opcode_index, unsigned int value) {
-    registers.x = registers.a;
-    registers.flags.negative = (registers.a >> 0x07) & 1;
-    registers.flags.zero = (unsigned int)(registers.a == 0 ? 1 : 0);
-    registers.pc += opcodes[opcode_index].length;
+    set_register(REGISTER_X, get_register(REGISTER_A));
+    set_flag(FLG_NEGATIVE, (get_register(REGISTER_A) >> 7) & 1);
+    set_flag(FLG_ZERO, get_register(REGISTER_A) == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_tay(unsigned int opcode_index, unsigned int value) {
-    registers.y = registers.a;
-    registers.flags.negative = (registers.a >> 0x07) & 1;
-    registers.flags.zero = (unsigned int)(registers.a == 0 ? 1 : 0);
-    registers.pc += opcodes[opcode_index].length;
+    set_register(REGISTER_Y, get_register(REGISTER_A));
+    set_flag(FLG_NEGATIVE, (get_register(REGISTER_A) >> 7) & 1);
+    set_flag(FLG_ZERO, get_register(REGISTER_A) == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_top(unsigned int opcode_index, unsigned int value) {
@@ -941,27 +1093,27 @@ void do_top(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_tsx(unsigned int opcode_index, unsigned int value) {
-    registers.x = registers.sp;
-    registers.pc += opcodes[opcode_index].length;
+    set_register(REGISTER_X, get_register(REGISTER_SP));
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_txa(unsigned int opcode_index, unsigned int value) {
-    registers.a = registers.x;
-    registers.flags.negative = (registers.x >> 0x07) & 1;
-    registers.flags.zero = (unsigned int)(registers.x == 0 ? 1 : 0);
-    registers.pc += opcodes[opcode_index].length;
+    set_register(REGISTER_A, get_register(REGISTER_X));
+    set_flag(FLG_NEGATIVE, (get_register(REGISTER_X) >> 7) & 1);
+    set_flag(FLG_ZERO, get_register(REGISTER_X) == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_txs(unsigned int opcode_index, unsigned int value) {
-    registers.sp = registers.x;
-    registers.pc += opcodes[opcode_index].length;
+    set_register(REGISTER_SP, get_register(REGISTER_X));
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_tya(unsigned int opcode_index, unsigned int value) {
-    registers.a = registers.y;
-    registers.flags.negative = (registers.y >> 0x07) & 1;
-    registers.flags.zero = (unsigned int)(registers.y == 0 ? 1 : 0);
-    registers.pc += opcodes[opcode_index].length;
+    set_register(REGISTER_A, get_register(REGISTER_Y));
+    set_flag(FLG_NEGATIVE, (get_register(REGISTER_Y) >> 7) & 1);
+    set_flag(FLG_ZERO, get_register(REGISTER_Y) == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_xaa(unsigned int opcode_index, unsigned int value) {
