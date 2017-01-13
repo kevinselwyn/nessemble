@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include "nessemble.h"
 
 // https://github.com/bfirsh/jsnes/blob/master/source/cpu.js
@@ -49,6 +52,31 @@ void usage_simulate() {
     printf("  .step [X]                       Step program counter by 1 or X\n");
     printf("  .run                            Run program\n");
     printf("  .help                           Print this message\n\n");
+}
+
+int kbhit() {
+    struct termios oldt, newt;
+    int ch;
+    int oldf;
+
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    ch = getchar();
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    if(ch != EOF) {
+        ungetc(ch, stdin);
+        return 1;
+    }
+
+    return 0;
 }
 
 /**
@@ -126,7 +154,7 @@ int simulate(char *input, char *recipe) {
                 break;
             }
 
-            if (repl(buffer) == TRUE) {
+            if (repl(buffer+1) == TRUE) {
                 break;
             }
         }
@@ -138,13 +166,44 @@ int simulate(char *input, char *recipe) {
 
             printf("nessemble> ");
 
-            if (fgets(buffer, BUF_SIZE, stdin) == NULL) {
-                break;
+            // HISTORY
+history:
+            while (!kbhit()) {
+                continue;
             }
 
-            if (repl(buffer) == TRUE) {
-                break;
+            int a = 0, b = 0;
+            a = getchar();
+
+            if (a == 0x0A && strlen(buffer) > 1) {
+                fprintf(stderr, "Buffer: %s\nLength: %d\n", buffer, strlen(buffer));
+                goto history;
+            } else if (a == 0x1B && getchar() == 0x5B) {
+                b = getchar();
+
+                if (b == 'A') {
+                    fprintf(stderr, "History up\n");
+                } else if (b == 'B') {
+                    fprintf(stderr, "History down\n");
+                } else {
+                    goto history;
+                }
+            } else if (a == '.') {
+                printf(".");
+
+                if (fgets(buffer, BUF_SIZE, stdin) == NULL) {
+                    break;
+                }
+
+execute:
+                if (repl(buffer) == TRUE) {
+                    break;
+                }
+            } else {
+                goto history;
             }
+
+            buffer[0] = '\0';
         }
     }
 
@@ -171,15 +230,15 @@ int repl(char *input) {
 
     length = strlen(input);
 
-    if (strncmp(input, ".help", 5) == 0) {
+    if (strncmp(input, "help", 4) == 0) {
         usage_simulate();
 
         goto cleanup;
     }
 
-    if (strncmp(input, ".registers", 10) == 0) {
-        if (length > 11) {
-            load_registers(input+11);
+    if (strncmp(input, "registers", 9) == 0) {
+        if (length > 10) {
+            load_registers(input+10);
             print_registers();
         } else {
             print_registers();
@@ -188,46 +247,46 @@ int repl(char *input) {
         goto cleanup;
     }
 
-    if (strncmp(input, ".flags", 6) == 0) {
-        if (length > 7) {
-            load_flags(input+7);
-            print_registers();
-        } else {
-            print_registers();
-        }
-
-        goto cleanup;
-    }
-
-    if (strncmp(input, ".fill", 5) == 0) {
+    if (strncmp(input, "flags", 5) == 0) {
         if (length > 6) {
-            print_memory(fill_memory(input+6));
+            load_flags(input+6);
+            print_registers();
+        } else {
+            print_registers();
         }
 
         goto cleanup;
     }
 
-    if (strncmp(input, ".instruction", 12) == 0) {
+    if (strncmp(input, "fill", 4) == 0) {
+        if (length > 5) {
+            print_memory(fill_memory(input+5));
+        }
+
+        goto cleanup;
+    }
+
+    if (strncmp(input, "instruction", 11) == 0) {
         print_instruction();
 
         goto cleanup;
     }
 
-    if (strncmp(input, ".memory", 7) == 0) {
-        print_memory(input+8);
+    if (strncmp(input, "memory", 6) == 0) {
+        print_memory(input+7);
 
         goto cleanup;
     }
 
-    if (strncmp(input, ".goto", 5) == 0) {
-        load_goto(input+6);
+    if (strncmp(input, "goto", 4) == 0) {
+        load_goto(input+5);
 
         goto cleanup;
     }
 
-    if (strncmp(input, ".step", 5) == 0) {
-        if (length > 6) {
-            steps(input+6);
+    if (strncmp(input, "step", 4) == 0) {
+        if (length > 5) {
+            steps(input+5);
         } else {
             steps("1");
         }
@@ -235,7 +294,7 @@ int repl(char *input) {
         goto cleanup;
     }
 
-    if (strncmp(input, ".run", 4) == 0) {
+    if (strncmp(input, "run", 3) == 0) {
         while (1 == TRUE) {
             if (step() == TRUE) {
                 print_registers();
