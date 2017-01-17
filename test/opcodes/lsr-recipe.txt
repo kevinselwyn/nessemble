@@ -1,0 +1,35 @@
+.registers A=80,X=01
+.fill 0044 80 80
+.fill 4400 80 80
+.step
+.step
+.memory 0044
+.step
+.memory 0045
+.step
+.memory 4400
+.step
+.memory 4401
+.registers A=80
+.fill 000B 80 80
+.step
+.step
+.memory 000B
+.step
+.memory 000C
+.step
+.memory 000B
+.step
+.memory 000C
+.registers A=80
+.fill 0044 80 80
+.fill 4400 80 80
+.step
+.step
+.memory 0044
+.step
+.memory 0045
+.step
+.memory 4400
+.step
+.memory 4401
