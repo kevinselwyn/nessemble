@@ -245,7 +245,7 @@ void pseudo_incscreen(char *string, char *type) {
         for (k = 0, l = 16; k < l; k += 16) {
             for (y = i; y < i + 16; y++) {
                 for (x = k; x < k + 16; x++) {
-                    fprintf(stderr, "%d %d\n", x, y);
+                    //fprintf(stderr, "%d %d\n", x, y);
                 }
             }
         }

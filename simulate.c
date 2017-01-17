@@ -669,7 +669,7 @@ unsigned int get_address(unsigned int opcode_index, unsigned int value) {
 }
 
 unsigned int get_byte(unsigned int address) {
-    return (unsigned int)rom_data[address];
+    return (unsigned int)rom_data[address] & 0xFF;
 }
 
 void set_byte(unsigned int address, unsigned int byte) {
@@ -987,11 +987,29 @@ void do_ldy(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_lsr(unsigned int opcode_index, unsigned int value) {
+    int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0, tmp = 0;
 
+    if (mode == MODE_ACCUMULATOR) {
+        tmp = registers.a & 0xFF;
+        set_flag(FLG_CARRY, tmp & 1);
+        tmp = (tmp >> 1) & 0xFF;
+        set_register(REGISTER_A, tmp);
+    } else {
+        address = get_address(opcode_index, value);
+        tmp = get_byte(address);
+        set_flag(FLG_CARRY, tmp & 1);
+        tmp = (tmp >> 1) & 0xFF;
+        set_byte(address, tmp);
+    }
+
+    set_flag(FLG_NEGATIVE, 0);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_nop(unsigned int opcode_index, unsigned int value) {
-
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_ora(unsigned int opcode_index, unsigned int value) {
