@@ -67,6 +67,7 @@ int include_stack_ptr = 0;
 ".include"               { BEGIN(include); return PSEUDO_INCLUDE; }
 ".incpng"                { return PSEUDO_INCPNG; }
 ".incscreen"             { return PSEUDO_INCSCREEN; }
+".incwav"                { return PSEUDO_INCWAV; }
 ".ineschr"               { return PSEUDO_INESCHR; }
 ".inesmap"               { return PSEUDO_INESMAP; }
 ".inesmir"               { return PSEUDO_INESMIR; }
