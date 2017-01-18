@@ -54,6 +54,7 @@
 %token PSEUDO_INCLUDE
 %token PSEUDO_INCPNG
 %token PSEUDO_INCSCREEN
+%token PSEUDO_INCWAV
 %token PSEUDO_INESCHR
 %token PSEUDO_INESMAP
 %token PSEUDO_INESMIR
@@ -91,6 +92,7 @@
 %type <sval> pseudo_incbin
 %type <sval> pseudo_include
 %type <sval> pseudo_incpng
+%type <sval> pseudo_incwav
 %type <sval> pseudo_inestrn
 %type <sval> pseudo_out
 %type <sval> pseudo_segment
@@ -199,6 +201,7 @@ pseudo
     | pseudo_include   { pseudo_include($1); }
     | pseudo_incpng    { /* NOTHING */ }
     | pseudo_incscreen { /* NOTHING */ }
+    | pseudo_incwav    { pseudo_incwav($1); }
     | pseudo_ineschr   { pseudo_ineschr($1); }
     | pseudo_inesmap   { pseudo_inesmap($1); }
     | pseudo_inesmir   { pseudo_inesmir($1); }
@@ -292,6 +295,10 @@ pseudo_incpng
 
 pseudo_incscreen
     : PSEUDO_INCSCREEN QUOT_STRING QUOT_STRING { pseudo_incscreen($2, $3); }
+    ;
+
+pseudo_incwav
+    : PSEUDO_INCWAV QUOT_STRING { $$ = $2; }
     ;
 
 pseudo_ineschr
