@@ -203,21 +203,12 @@ void pseudo_inesprg(unsigned int value) {
  * @param {char *} string - Filename of trainer
  */
 void pseudo_inestrn(char *string) {
-    size_t path_length = 0, string_length = 0;
     char *path = NULL;
 
-    string_length = strlen(string);
-    path_length = strlen(cwd_path) + string_length - 1;
-    path = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!path) {
-        yyerror("Memory error");
+    if (get_fullpath(&path, string) != 0) {
+        yyerror("Could not get full path of %s", string);
         goto cleanup;
     }
-
-    strcpy(path, cwd_path);
-    strcat(path, "/");
-    strncat(path, string + 1, string_length - 2);
 
     flags |= FLAG_NES;
 
@@ -237,22 +228,14 @@ cleanup:
  */
 void pseudo_incbin(char *string, int offset, int limit) {
     unsigned int i = 0, l = 0;
-    size_t path_length = 0, string_length = 0, bin_length = 0;
+    size_t bin_length = 0;
     char *path = NULL, *bin_data = NULL;
     FILE *incbin = NULL;
 
-    string_length = strlen(string);
-    path_length = strlen(cwd_path) + string_length - 1;
-    path = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!path) {
-        yyerror("Memory error");
+    if (get_fullpath(&path, string) != 0) {
+        yyerror("Could not get full path of %s", string);
         goto cleanup;
     }
-
-    strcpy(path, cwd_path);
-    strcat(path, "/");
-    strncat(path, string + 1, string_length - 2);
 
     incbin = fopen(path, "r");
 
@@ -316,21 +299,12 @@ cleanup:
  * @param {char *} string - Filename to include
  */
 void pseudo_include(char *string) {
-    size_t path_length = 0, string_length = 0;
     char *path = NULL;
 
-    string_length = strlen(string);
-    path_length = strlen(cwd_path) + string_length - 1;
-    path = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!path) {
-        yyerror("Memory error");
+    if (get_fullpath(&path, string) != 0) {
+        yyerror("Could not get full path of %s", string);
         goto cleanup;
     }
-
-    strcpy(path, cwd_path);
-    strcat(path, "/");
-    strncat(path, string + 1, string_length - 2);
 
     include_file_push(path);
 

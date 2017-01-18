@@ -342,6 +342,7 @@ int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);
 int dec2int(char *dec);
+int get_fullpath(char **path, char *string);
 size_t load_file(char **data, char *filename);
 
 #endif /* _NESSEMBLE_H */

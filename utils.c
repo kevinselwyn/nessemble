@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include "nessemble.h"
 
 /**
@@ -63,6 +64,35 @@ int oct2int(char *oct) {
  */
 int dec2int(char *dec) {
     return atoi(dec);
+}
+
+/**
+ * Get fullpath
+ */
+int get_fullpath(char **path, char *string) {
+    int rc = RETURN_OK;
+    size_t string_length = 0, path_length = 0;
+    char *fullpath = NULL;
+
+    string_length = strlen(string);
+    path_length = strlen(cwd_path) + string_length - 1;
+    fullpath = (char *)malloc(sizeof(char) * (path_length + 1));
+
+    if (!fullpath) {
+        yyerror("Memory error");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    strcpy(fullpath, cwd_path);
+    strcat(fullpath, "/");
+    strncat(fullpath, string + 1, string_length - 2);
+
+    *path = fullpath;
+
+cleanup:
+    return rc;
 }
 
 /**
