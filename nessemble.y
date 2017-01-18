@@ -201,7 +201,7 @@ pseudo
     | pseudo_include   { pseudo_include($1); }
     | pseudo_incpng    { /* NOTHING */ }
     | pseudo_incscreen { /* NOTHING */ }
-    | pseudo_incwav    { pseudo_incwav($1); }
+    | pseudo_incwav    { /* NOTHING */ }
     | pseudo_ineschr   { pseudo_ineschr($1); }
     | pseudo_inesmap   { pseudo_inesmap($1); }
     | pseudo_inesmir   { pseudo_inesmir($1); }
@@ -298,7 +298,8 @@ pseudo_incscreen
     ;
 
 pseudo_incwav
-    : PSEUDO_INCWAV QUOT_STRING { $$ = $2; }
+    : PSEUDO_INCWAV QUOT_STRING number { pseudo_incwav($2, $3); }
+    | PSEUDO_INCWAV QUOT_STRING        { pseudo_incwav($2, 24); }
     ;
 
 pseudo_ineschr
