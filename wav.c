@@ -156,9 +156,9 @@ static void close_wav(wave_src *wav) {
     }
 }
 
-void pseudo_incwav(char *string) {
+void pseudo_incwav(char *string, int amplitude) {
     int x = 0, y = 0;
-    int amplitude = 24, subsample = 99, oversample = 100;
+    int subsample = 99, oversample = 100;
     long filelen = 0;
     char *path = NULL;
     wave_src wav = { { 0, 0, 0, 0, 0, 0 } , NULL, 0, 0 };
@@ -176,6 +176,14 @@ void pseudo_incwav(char *string) {
     if (wav.fmt.channels != 1) {
         yyerror("%s is not mono", string);
         goto cleanup;
+    }
+
+    if (amplitude < 2) {
+        amplitude = 2;
+    }
+
+    if (amplitude > 40) {
+        amplitude = 40;
     }
 
     while (wav.chunk_left > 0) {
