@@ -39,8 +39,6 @@ void pseudo_macro(char *string) {
         goto cleanup;
     }
 
-    fprintf(stderr, "Macro: %s\n%s", macros[index].name, macros[index].text);
-
 cleanup:
     return;
 }

@@ -1,6 +1,6 @@
 .macrodef TEST_MACRO
-    LDA #\1
-    STA \2
+    TAX
+    TAY
 .endm
 
 .macro TEST_MACRO $01 $02

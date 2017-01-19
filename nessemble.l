@@ -111,7 +111,7 @@ int include_stack_ptr = 0;
 
 /**
  * Pushes an .include file to the buffer
- * @param {char} filename - Filename to include
+ * @param {char *} filename - Filename to include
  */
 void include_file_push(char *filename) {
     // push to include stack
@@ -140,6 +140,37 @@ void include_file_pop() {
     // if all popped, end pass
     if (--include_stack_ptr < 0) {
         end_pass();
+        return;
+    }
+
+    // delete buffer
+    yy_delete_buffer(YY_CURRENT_BUFFER);
+
+    // switch to next buffer
+    yy_switch_to_buffer(include_stack[include_stack_ptr]);
+}
+
+/**
+ * Pushes a string to the buffer
+ * @param {char *} string - String to parse
+ */
+void include_string_push(char *string) {
+    // push to include stack
+    include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
+
+    // switch to buffer
+    yy_switch_to_buffer(yy_scan_string(string));
+
+    // continue with lexing
+    BEGIN(INITIAL);
+}
+
+/**
+ * Pops previous buffer after string
+ */
+void include_string_pop() {
+    // if all popped, end pass
+    if (--include_stack_ptr < 0) {
         return;
     }
 
