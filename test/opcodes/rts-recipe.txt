@@ -1,0 +1,3 @@
+.registers SP=FD
+.fill 01FE 34 12
+.step
