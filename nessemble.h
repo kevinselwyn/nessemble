@@ -170,6 +170,8 @@ int usage(char *exec);
 /* INCLUDE UTILS */
 void include_file_pop();
 void include_file_push(char *filename);
+void include_string_push(char *string);
+void include_string_pop();
 
 /* FLAG TESTS */
 unsigned int is_flag_undocumented();
