@@ -19,19 +19,19 @@ typedef struct wave_src {
 } wave_src;
 
 static unsigned int fgetu16(FILE *fp) {
-    unsigned char a = fgetc(fp);
-    unsigned char b = fgetc(fp);
+    unsigned int a = (unsigned int)fgetc(fp);
+    unsigned int b = (unsigned int)fgetc(fp);
 
     return a | (b << 8);
 }
 
 static long int fgetu32(FILE *fp) {
-    unsigned char a = fgetc(fp);
-    unsigned char b = fgetc(fp);
-    unsigned char c = fgetc(fp);
-    unsigned char d = fgetc(fp);
+    unsigned int a = (unsigned int)fgetc(fp);
+    unsigned int b = (unsigned int)fgetc(fp);
+    unsigned int c = (unsigned int)fgetc(fp);
+    unsigned int d = (unsigned int)fgetc(fp);
 
-    return a | (b << 8) | (c << 16) | (d << 24);
+    return (long int)(a | (b << 8) | (c << 16) | (d << 24));
 }
 
 static int wav_format(wave_fmt *format, FILE *fp) {
