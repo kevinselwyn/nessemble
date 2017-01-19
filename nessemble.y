@@ -98,6 +98,7 @@
 %type <sval> pseudo_incpng
 %type <sval> pseudo_incwav
 %type <sval> pseudo_inestrn
+%type <sval> pseudo_macro
 %type <sval> pseudo_out
 %type <sval> pseudo_segment
 
@@ -212,7 +213,8 @@ pseudo
     | pseudo_inesprg   { pseudo_inesprg($1); }
     | pseudo_inestrn   { pseudo_inestrn($1); }
     | pseudo_lobytes   { pseudo_lobytes(); }
-    | pseudo_macro     { /* NOTHING */ }
+    | pseudo_macro     { pseudo_macro($1); }
+    | pseudo_macro_def { /* NOTHING */ }
     | pseudo_org       { pseudo_org($1); }
     | pseudo_out       { pseudo_out($1); }
     | pseudo_prg       { pseudo_prg($1); }
@@ -333,8 +335,12 @@ pseudo_lobytes
     ;
 
 pseudo_macro
-    : PSEUDO_MACRO        { /* NOTHING */ }
-    | PSEUDO_MACRO_DEF    { add_macro($1); }
+    : PSEUDO_MACRO TEXT   { length_args = 0; $$ = $2; }
+    | pseudo_macro number { args[length_args++] = $2; $$ = $1; }
+    ;
+
+pseudo_macro_def
+    : PSEUDO_MACRO_DEF    { add_macro($1); }
     | PSEUDO_MACRO_END    { end_macro(); }
     | PSEUDO_MACRO_APPEND { append_macro($1); }
     ;

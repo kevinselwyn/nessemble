@@ -9,11 +9,38 @@ void add_macro(char *name) {
 }
 
 void end_macro() {
-    fprintf(stderr, "Macro: %s\n%s", macros[macro_index].name, macros[macro_index].text);
     macro_index++;
 }
 
 void append_macro(char *text) {
     strcat(macros[macro_index].text, text);
     strcat(macros[macro_index].text, "\n");
+}
+
+int get_macro(char *name) {
+    int index = -1;
+    unsigned int i = 0, l = 0;
+
+    for (i = 0, l = macro_index; i < l; i++) {
+        if (strcmp(macros[i].name, name) == 0) {
+            index = (int)i;
+            break;
+        }
+    }
+
+    return index;
+}
+
+void pseudo_macro(char *string) {
+    int index = get_macro(string);
+
+    if (index == -1) {
+        yyerror("Could not find macro %s", string);
+        goto cleanup;
+    }
+
+    fprintf(stderr, "Macro: %s\n%s", macros[index].name, macros[index].text);
+
+cleanup:
+    return;
 }
