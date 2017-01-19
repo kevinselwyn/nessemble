@@ -81,11 +81,11 @@ void write_byte(unsigned int byte) {
 
     if (if_active == TRUE) {
         if (if_type == IF_IFDEF) {
-            if (!has_label(if_label)) {
+            if (has_label(if_label) == FALSE) {
                 return;
             }
         } else if (if_type == IF_IFNDEF) {
-            if (has_label(if_label)) {
+            if (has_label(if_label) == TRUE) {
                 return;
             }
         }
@@ -128,11 +128,11 @@ void add_symbol(char *name, unsigned int value, unsigned int type) {
     if (pass == 1) {
         if (if_active == TRUE) {
             if (if_type == IF_IFDEF) {
-                if (!has_label(if_label)) {
+                if (has_label(if_label) == FALSE) {
                     return;
                 }
             } else if (if_type == IF_IFNDEF) {
-                if (has_label(if_label)) {
+                if (has_label(if_label) == TRUE) {
                     return;
                 }
             }
