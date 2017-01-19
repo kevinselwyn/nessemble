@@ -17,8 +17,11 @@
 #define BANK_PRG          0x4000
 #define BANK_CHR          0x2000
 #define BANK_SIZE         0x4000
+#define MAX_SYMBOLS       1024
+#define MAX_MACROS        1024
 #define MAX_BANKS         256
 #define MAX_INTS          256
+#define MAX_ARGS          10
 #define TRAINER_MAX       512
 
 #ifndef PATH_MAX
@@ -83,7 +86,7 @@ struct symbol {
     unsigned int value, type;
 };
 
-struct symbol symbols[1024];
+struct symbol symbols[MAX_SYMBOLS];
 unsigned int symbol_index;
 unsigned int rsset;
 
@@ -92,8 +95,10 @@ struct macro {
     char *name, *text;
 };
 
-struct macro macros[1024];
+struct macro macros[MAX_MACROS];
 unsigned int macro_index;
+unsigned int length_args;
+unsigned int args[MAX_ARGS];
 
 /* IF */
 #define IF_IF     0
@@ -219,6 +224,7 @@ void pseudo_incpng(char *string, int offset, int limit);
 void pseudo_incscreen(char *string, char *type);
 void pseudo_incwav(char *string, int amplitude);
 void pseudo_lobytes();
+void pseudo_macro(char *string);
 void pseudo_org(unsigned int address);
 void pseudo_out(char *string);
 void pseudo_prg(unsigned int index);
@@ -233,6 +239,7 @@ int get_opcode(char *mnemonic, unsigned int mode);
 void add_macro(char *name);
 void end_macro();
 void append_macro(char *text);
+int get_macro(char *name);
 
 /* ASSEMBLY UTILS */
 void assemble_absolute(char *mnemonic, unsigned int address);
