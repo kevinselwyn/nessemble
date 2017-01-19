@@ -1,4 +1,5 @@
 .DS_Store
+.vagrant
 lex.yy.c
 nessemble
 opcodes.c
