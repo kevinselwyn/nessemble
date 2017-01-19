@@ -61,6 +61,7 @@
 %token PSEUDO_INESPRG
 %token PSEUDO_INESTRN
 %token PSEUDO_LOBYTES
+%token PSEUDO_MACRO
 %token PSEUDO_MACRO_END
 %token PSEUDO_ORG
 %token PSEUDO_OUT
@@ -79,7 +80,7 @@
 
 %token <sval> TEXT
 %token <sval> QUOT_STRING
-%token <sval> PSEUDO_MACRO
+%token <sval> PSEUDO_MACRO_DEF
 %token <sval> PSEUDO_MACRO_APPEND
 
 %token <cval> CHAR_A
@@ -332,7 +333,8 @@ pseudo_lobytes
     ;
 
 pseudo_macro
-    : PSEUDO_MACRO        { add_macro($1); }
+    : PSEUDO_MACRO        { /* NOTHING */ }
+    | PSEUDO_MACRO_DEF    { add_macro($1); }
     | PSEUDO_MACRO_END    { end_macro(); }
     | PSEUDO_MACRO_APPEND { append_macro($1); }
     ;
