@@ -727,10 +727,10 @@ void set_register(unsigned int reg, unsigned int value) {
 void inc_register(unsigned int reg, int value) {
     switch (reg) {
     case REGISTER_A:
-        registers.a = (unsigned int)value;
+        registers.a += (unsigned int)value;
         break;
     case REGISTER_X:
-        registers.x = (unsigned int)value;
+        registers.x += (unsigned int)value;
         break;
     case REGISTER_Y:
         registers.y += (unsigned int)value;
@@ -739,7 +739,7 @@ void inc_register(unsigned int reg, int value) {
         registers.pc += value;
         break;
     case REGISTER_SP:
-        registers.sp = (unsigned int)value;
+        registers.sp += (unsigned int)value;
         break;
     default:
         break;
@@ -804,6 +804,17 @@ void set_flag(unsigned int flag, unsigned int value) {
     default:
         break;
     }
+}
+
+void stack_push(unsigned int value) {
+
+}
+
+unsigned int stack_pull() {
+    inc_register(REGISTER_SP, 1);
+    set_register(REGISTER_SP, get_register(REGISTER_SP) & 0xFF);
+
+    return get_byte(0x0100 | get_register(REGISTER_SP));
 }
 
 void do_aac(unsigned int opcode_index, unsigned int value) {
@@ -1092,7 +1103,8 @@ void do_rti(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_rts(unsigned int opcode_index, unsigned int value) {
-
+    set_register(REGISTER_PC, stack_pull());
+    inc_register(REGISTER_PC, stack_pull() << 8);
 }
 
 void do_sbc(unsigned int opcode_index, unsigned int value) {
