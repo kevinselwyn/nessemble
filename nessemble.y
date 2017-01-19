@@ -61,6 +61,7 @@
 %token PSEUDO_INESPRG
 %token PSEUDO_INESTRN
 %token PSEUDO_LOBYTES
+%token PSEUDO_MACRO_END
 %token PSEUDO_ORG
 %token PSEUDO_OUT
 %token PSEUDO_RSSET
@@ -78,6 +79,8 @@
 
 %token <sval> TEXT
 %token <sval> QUOT_STRING
+%token <sval> PSEUDO_MACRO
+%token <sval> PSEUDO_MACRO_APPEND
 
 %token <cval> CHAR_A
 %token <cval> CHAR_X
@@ -208,6 +211,7 @@ pseudo
     | pseudo_inesprg   { pseudo_inesprg($1); }
     | pseudo_inestrn   { pseudo_inestrn($1); }
     | pseudo_lobytes   { pseudo_lobytes(); }
+    | pseudo_macro     { /* NOTHING */ }
     | pseudo_org       { pseudo_org($1); }
     | pseudo_out       { pseudo_out($1); }
     | pseudo_prg       { pseudo_prg($1); }
@@ -325,6 +329,12 @@ pseudo_inestrn
 pseudo_lobytes
     : PSEUDO_LOBYTES number       { ints[length_ints++] = $2; }
     | pseudo_lobytes COMMA number { ints[length_ints++] = $3; }
+    ;
+
+pseudo_macro
+    : PSEUDO_MACRO        { add_macro($1); }
+    | PSEUDO_MACRO_END    { end_macro(); }
+    | PSEUDO_MACRO_APPEND { append_macro($1); }
     ;
 
 pseudo_org

@@ -18,6 +18,7 @@ int include_stack_ptr = 0;
 %option yylineno
 
 %x include
+%x macro
 
 %%
 
@@ -74,6 +75,7 @@ int include_stack_ptr = 0;
 ".inesprg"               { return PSEUDO_INESPRG; }
 ".inestrn"               { return PSEUDO_INESTRN; }
 ".lobytes"               { return PSEUDO_LOBYTES; }
+\.macro.+                { BEGIN(macro); yylval.sval = strdup(yytext+7); return PSEUDO_MACRO; }
 ".org"                   { return PSEUDO_ORG; }
 ".out"                   { return PSEUDO_OUT; }
 \.prg[0-9]+              { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_PRG; }
@@ -84,6 +86,9 @@ int include_stack_ptr = 0;
 
 <include>[ \t]*          { /* WHITESPACE */ }
 <include>[^ \t\n]+       { BEGIN(INITIAL); yylval.sval = strdup(yytext); return QUOT_STRING; }
+
+<macro>\.endm            { BEGIN(INITIAL); return PSEUDO_MACRO_END; }
+<macro>[^\n]+            { yylval.sval = strdup(yytext); return PSEUDO_MACRO_APPEND; }
 
 \$[0-9a-fA-F]+           { yylval.ival = hex2int(yytext+1); return NUMBER_HEX; }
 %[0-1]+                  { yylval.ival = bin2int(yytext+1); return NUMBER_BIN; }

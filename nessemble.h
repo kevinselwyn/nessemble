@@ -87,6 +87,14 @@ struct symbol symbols[1024];
 unsigned int symbol_index;
 unsigned int rsset;
 
+/* MACROS */
+struct macro {
+    char *name, *text;
+};
+
+struct macro macros[1024];
+unsigned int macro_index;
+
 /* IF */
 #define IF_IF     0
 #define IF_IFDEF  1
@@ -220,6 +228,11 @@ void pseudo_segment(char *string);
 
 /* OPCODE UTILS */
 int get_opcode(char *mnemonic, unsigned int mode);
+
+/* MACRO UTILS */
+void add_macro(char *name);
+void end_macro();
+void append_macro(char *text);
 
 /* ASSEMBLY UTILS */
 void assemble_absolute(char *mnemonic, unsigned int address);
