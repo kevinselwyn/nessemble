@@ -124,3 +124,7 @@ int get_color(png_byte *rgb, int color_mode) {
 
     return color;
 }
+
+int match_color(png_byte *rgb, int color_mode) {
+    return 0x10;
+}
