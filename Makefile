@@ -16,7 +16,7 @@ OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c pseudo.c opcodes.c instructions.c macro.c disassemble.c simulate.c png.c wav.c utils.c usage.c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c instructions.c macro.c opcodes.c png.c $(shell ls pseudo/*.c) simulate.c usage.c utils.c wav.c
 OBJS         := ${SRCS:c=o}
 
 ifeq ($(UNAME), Darwin)
@@ -35,7 +35,7 @@ $(OPCODES).c: $(OPCODES).csv
 	./$(OPCODES).sh $< $@
 
 %.o: %.c
-	$(CC) -O -c $< $(CC_FLAGS)
+	$(CC) -O -c $< $(CC_FLAGS) -o $@
 
 $(NAME): $(OBJS) $(NAME).h
 	$(CC) -o $@ $(OBJS) $(CC_FLAGS) $(CC_LIB_FLAGS)
