@@ -35,6 +35,7 @@ void usage_simulate() {
     printf("  .fill XXXX NN ...               Fill memory address with NN byte(s)\n");
     printf("  .instruction                    Print next instruction\n");
     printf("  .memory XXXX[:XXXX]             Print memory in address range\n");
+    printf("  .cycles                         Print count of CPU cycles\n");
     printf("  .goto XXXX                      Set program counter to XXXX\n");
     printf("  .step [X]                       Step program counter by 1 or X\n");
     printf("  .run                            Run program\n");
