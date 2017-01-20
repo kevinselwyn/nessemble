@@ -3,9 +3,76 @@
 #include <png.h>
 #include "nessemble.h"
 
-#define COLOR_COUNT 4
+#define COLOR_COUNT_1BPS 0x04
+#define COLOR_COUNT_FULL 0x40
 
-int colors[COLOR_COUNT] = { 0x00, 0x55, 0xAA, 0xFF };
+int colors_1bps[COLOR_COUNT_1BPS] = { 0x00, 0x55, 0xAA, 0xFF };
+int colors_full[COLOR_COUNT_FULL] = {
+    0x7C7C7C,
+    0x0000FC,
+    0x0000BC,
+    0x4428BC,
+    0x940084,
+    0xA80020,
+    0xA81000,
+    0x881400,
+    0x503000,
+    0x007800,
+    0x006800,
+    0x005800,
+    0x004058,
+    0x000000,
+    0x000000,
+    0x000000,
+    0xBCBCBC,
+    0x0078F8,
+    0x0058F8,
+    0x6844FC,
+    0xD800CC,
+    0xE40058,
+    0xF83800,
+    0xE45C10,
+    0xAC7C00,
+    0x00B800,
+    0x00A800,
+    0x00A844,
+    0x008888,
+    0x000000,
+    0x000000,
+    0x000000,
+    0xF8F8F8,
+    0x3CBCFC,
+    0x6888FC,
+    0x9878F8,
+    0xF878F8,
+    0xF85898,
+    0xF87858,
+    0xFCA044,
+    0xF8B800,
+    0xB8F818,
+    0x58D854,
+    0x58F898,
+    0x00E8D8,
+    0x787878,
+    0x000000,
+    0x000000,
+    0xFCFCFC,
+    0xA4E4FC,
+    0xB8B8F8,
+    0xD8B8F8,
+    0xF8B8F8,
+    0xF8A4C0,
+    0xF0D0B0,
+    0xFCE0A8,
+    0xF8D878,
+    0xD8F878,
+    0xB8F8B8,
+    0xB8F8D8,
+    0x00FCFC,
+    0xF8D8F8,
+    0x000000,
+    0x000000
+};
 
 void free_png(struct png_data png) {
 	int y = 0;
@@ -115,9 +182,9 @@ int get_color(png_byte *rgb, int color_mode) {
 
     avg /= color_mode;
 
-    for (i = 0, l = COLOR_COUNT; i < l; i++) {
-        if (abs(colors[i] - avg) < diff) {
-            diff = abs(colors[i] - avg);
+    for (i = 0, l = COLOR_COUNT_1BPS; i < l; i++) {
+        if (abs(colors_1bps[i] - avg) < diff) {
+            diff = abs(colors_1bps[i] - avg);
             color = i;
         }
     }
@@ -126,5 +193,35 @@ int get_color(png_byte *rgb, int color_mode) {
 }
 
 int match_color(png_byte *rgb, int color_mode) {
-    return 0x10;
+    int r1 = 0, g1 = 0, b1 = 0, r2 = 0, g2 = 0, b2 = 0;
+    int diff = 0xFFFFFF, next_diff = 0xFFFFFF, color = 0, i = 0, l = 0;
+
+    if (color_mode != 3) {
+        fprintf(stderr, "Invalid color mode\n");
+        goto cleanup;
+    }
+
+    for (i = 0, l = COLOR_COUNT_FULL; i < l; i++) {
+        r1 = rgb[0];
+        g1 = rgb[1];
+        b1 = rgb[2];
+
+        r2 = (colors_full[i] >> 16) & 0xFF;
+        g2 = (colors_full[i] >> 8) & 0xFF;
+        b2 = colors_full[i] & 0xFF;
+
+        next_diff = root(power(r2 - r1, 2) + power(g2 - g1, 2) + power(b2 - b1, 2), 2);
+
+        if (next_diff < diff) {
+            diff = next_diff;
+            color = i;
+        }
+    }
+
+    if (color == 0x0D) {
+        color = 0x0F;
+    }
+
+cleanup:
+    return color;
 }

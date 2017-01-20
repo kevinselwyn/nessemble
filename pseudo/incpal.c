@@ -1,8 +1,9 @@
+#include <stdlib.h>
 #include <png.h>
 #include "../nessemble.h"
 
 void pseudo_incpal(char *string) {
-    int color_mode = 0, color = 0, x = 0;
+    int color_mode = 0, color = 0, last_color = -1, x = 0;
     char *path = NULL;
     struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
 
@@ -20,7 +21,10 @@ void pseudo_incpal(char *string) {
         png_byte *rgb = &(row[x * color_mode]);
         color = match_color(rgb, color_mode);
 
-        fprintf(stderr, "%d\n", color);
+        if (color != last_color) {
+            write_byte(color);
+            last_color = color;
+        }
     }
 
 cleanup:
