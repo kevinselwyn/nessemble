@@ -932,19 +932,27 @@ void do_bvs(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_clc(unsigned int opcode_index, unsigned int value) {
-
+    set_flag(FLG_CARRY, 0);
+    inc_cycles(opcodes[opcode_index].timing);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_cld(unsigned int opcode_index, unsigned int value) {
-
+    set_flag(FLG_DECIMAL, 0);
+    inc_cycles(opcodes[opcode_index].timing);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_cli(unsigned int opcode_index, unsigned int value) {
-
+    set_flag(FLG_INTERRUPT, 0);
+    inc_cycles(opcodes[opcode_index].timing);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_clv(unsigned int opcode_index, unsigned int value) {
-
+    set_flag(FLG_OVERFLOW, 0);
+    inc_cycles(opcodes[opcode_index].timing);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
 }
 
 void do_cmp(unsigned int opcode_index, unsigned int value) {

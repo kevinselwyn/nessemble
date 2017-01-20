@@ -1,0 +1,2 @@
+.flags interrupt=1
+.step

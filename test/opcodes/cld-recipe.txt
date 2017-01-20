@@ -1,0 +1,2 @@
+.flags decimal=1
+.step
