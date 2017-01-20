@@ -1,4 +1,5 @@
 NAME         := nessemble
+BIN_DIR      := /usr/local/bin
 RM           := rm -f
 CC           := gcc
 CC_FLAGS     := -g -Wall -Wextra
@@ -45,6 +46,12 @@ $(TEST): all
 
 check: $(LEX_OUT).c $(YACC_OUT).c $(OPCODES).c
 	@./check.sh
+
+install: all
+	install -m 0755 $(NAME) $(BIN_DIR)
+
+uninstall:
+	rm -f $(BIN_DIR)/$(NAME)
 
 .PHONY: clean
 clean:
