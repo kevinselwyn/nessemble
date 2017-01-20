@@ -37,6 +37,7 @@ struct regs {
 static struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } };
 
 char *rom_data;
+unsigned int cycles = 0;
 
 /**
  * Simulate usage
@@ -274,6 +275,12 @@ int repl(char *input) {
 
     if (strncmp(input, "memory", 6) == 0) {
         print_memory(input+7);
+
+        goto cleanup;
+    }
+
+    if (strncmp(input, "cycles", 6) == 0) {
+        print_cycles();
 
         goto cleanup;
     }
@@ -632,6 +639,10 @@ void print_memory(char *input) {
     printf("\n\n");
 }
 
+void print_cycles() {
+    printf("%d cycles\n", cycles);
+}
+
 void load_goto(char *input) {
     input[4] = '\0';
 
@@ -744,6 +755,10 @@ void inc_register(unsigned int reg, int value) {
     default:
         break;
     }
+}
+
+void inc_cycles(unsigned int count) {
+    cycles += count;
 }
 
 unsigned int get_flag(unsigned int flag) {
