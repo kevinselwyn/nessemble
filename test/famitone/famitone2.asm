@@ -16,11 +16,11 @@ FT_SFX_STREAMS = 4     ; number of sound effects PLAyed at once, 1..4
 
 ; internal defines
 
-.ifdef FT_PAL_SUPPORT
-.ifdef FT_NTSC_SUPPORT
+    .ifdef FT_PAL_SUPPORT
+    .ifdef FT_NTSC_SUPPORT
 FT_PITCH_FIX           ; add PAL/NTSC pitch correction code only when both modes are enabled
-.endif
-.endif
+    .endif
+    .endif
 
 FT_DPCM_PTR = (FT_DPCM_OFF & $3FFF) >> 6
 
@@ -168,7 +168,7 @@ APU_SND_CHN    = $4015
 
 ; aliases for the APU registers in the output buffer
 
-.ifndef FT_SFX_ENABLE    ; if sound effects are disabled, write to the APU directly
+    .ifndef FT_SFX_ENABLE    ; if sound effects are disabled, write to the APU directly
 FT_MR_PULSE1_V = APU_PL1_VOL
 FT_MR_PULSE1_L = APU_PL1_LO
 FT_MR_PULSE1_H = APU_PL1_HI
@@ -192,7 +192,7 @@ FT_MR_TRI_L    = FT_OUT_BUF + 7
 FT_MR_TRI_H    = FT_OUT_BUF + 8
 FT_MR_NOISE_V  = FT_OUT_BUF + 9
 FT_MR_NOISE_F  = FT_OUT_BUF + 10
-.endif
+    .endif
 
 ;------------------------------------------------------------------------------
 ; reset APU, initialize FamiTone
@@ -206,20 +206,20 @@ FamiToneInit:
     STX <FT_TEMP_PTR_L
     STY <FT_TEMP_PTR_H
 
-.ifdef FT_PITCH_FIX
+    .ifdef FT_PITCH_FIX
     TAX                 ; set SZ flags for A
     BEQ .pal
     LDA #64
 
 .pal:
 .else
-.ifdef FT_PAL_SUPPORT
+    .ifdef FT_PAL_SUPPORT
     LDA #0
-.endif
-.ifdef FT_NTSC_SUPPORT
+    .endif
+    .ifdef FT_NTSC_SUPPORT
     LDA #64
-.endif
-.endif
+    .endif
+    .endif
     STA FT_PAL_ADJUST
 
     JSR FamiToneMusicStop ; initialize channels AND envelopes
@@ -410,12 +410,12 @@ FamiToneMusicPause:
 ;------------------------------------------------------------------------------
 
 FamiToneUpdate:
-.ifdef FT_THREAD
+    .ifdef FT_THREAD
     LDA FT_TEMP_PTR_L
     PHA
     LDA FT_TEMP_PTR_H
     PHA
-.endif
+    .endif
 
     LDA FT_SONG_SPEED       ; speed 0 means that no music is PLAying currently
     BMI .pause              ; bit 7 set is the pause flag
@@ -476,7 +476,7 @@ FamiToneUpdate:
     STA FT_CH4_DUTY
 
 .no_new_note4:
-.ifdef FT_DPCM_ENABLE
+    .ifdef FT_DPCM_ENABLE
     LDX #LOW(FT_CH5_VARS)   ; process channel 5
     JSR _FT2ChannelUpdate
     BCC .no_new_note5
@@ -487,7 +487,7 @@ FamiToneUpdate:
 .PLAy_sample:
     JSR FamiToneSamplePLAyM
 .no_new_note5:
-.endif
+    .endif
 
 .update_envelopes:
     LDX #LOW(FT_ENVELOPES)  ; process 11 envelopes
@@ -542,9 +542,9 @@ FamiToneUpdate:
     BEQ .ch1cut
     CLC
     ADC FT_CH1_NOTE_OFF
-.ifdef FT_PITCH_FIX
+    .ifdef FT_PITCH_FIX
     ORA FT_PAL_ADJUST
-.endif
+    .endif
     TAX
     LDA FT_CH1_PITCH_OFF
     TAY
@@ -558,11 +558,11 @@ FamiToneUpdate:
 .ch1sign:
     ADC _FT2NoteTableMSB,x
 
-.ifndef FT_SFX_ENABLE
+    .ifndef FT_SFX_ENABLE
     CMP FT_PULSE1_PREV
     BEQ .ch1prev
     STA FT_PULSE1_PREV
-.endif
+    .endif
 
     STA FT_MR_PULSE1_H
 
@@ -577,9 +577,9 @@ FamiToneUpdate:
     BEQ .ch2cut
     CLC
     ADC FT_CH2_NOTE_OFF
-.ifdef FT_PITCH_FIX
+    .ifdef FT_PITCH_FIX
     ORA FT_PAL_ADJUST
-.endif
+    .endif
     TAX
     LDA FT_CH2_PITCH_OFF
     TAY
@@ -593,11 +593,11 @@ FamiToneUpdate:
 .ch2sign:
     ADC _FT2NoteTableMSB,x
 
-.ifndef FT_SFX_ENABLE
+    .ifndef FT_SFX_ENABLE
     CMP FT_PULSE2_PREV
     BEQ .ch2prev
     STA FT_PULSE2_PREV
-.endif
+    .endif
 
     STA FT_MR_PULSE2_H
 .ch2prev:
@@ -610,9 +610,9 @@ FamiToneUpdate:
     BEQ .ch3cut
     CLC
     ADC FT_CH3_NOTE_OFF
-.ifdef FT_PITCH_FIX
+    .ifdef FT_PITCH_FIX
     ORA FT_PAL_ADJUST
-.endif
+    .endif
     TAX
     LDA FT_CH3_PITCH_OFF
     TAY
@@ -650,25 +650,25 @@ FamiToneUpdate:
     ORA #$f0
     STA FT_MR_NOISE_V
 
-.ifdef FT_SFX_ENABLE
+    .ifdef FT_SFX_ENABLE
     ; process all sound effect streams
 
 .if FT_SFX_STREAMS>0
     LDX #FT_SFX_CH0
     JSR _FT2SfxUpdate
-.endif
+    .endif
 .if FT_SFX_STREAMS>1
     LDX #FT_SFX_CH1
     JSR _FT2SfxUpdate
-.endif
+    .endif
 .if FT_SFX_STREAMS>2
     LDX #FT_SFX_CH2
     JSR _FT2SfxUpdate
-.endif
+    .endif
 .if FT_SFX_STREAMS>3
     LDX #FT_SFX_CH3
     JSR _FT2SfxUpdate
-.endif
+    .endif
 
     ; send data from the output buffer to the APU
 
@@ -705,14 +705,14 @@ FamiToneUpdate:
     STA APU_NOISE_VOL
     LDA FT_OUT_BUF+10       ; noise period
     STA APU_NOISE_LO
-.endif
+    .endif
 
-.ifdef FT_THREAD
+    .ifdef FT_THREAD
     PLA
     STA FT_TEMP_PTR_H
     PLA
     STA FT_TEMP_PTR_L
-.endif
+    .endif
 
     RTS
 
@@ -899,7 +899,7 @@ FamiToneSampleStop:
 
     RTS
 
-    .ifdef FT_DPCM_ENABLE
+        .ifdef FT_DPCM_ENABLE
 
 ;------------------------------------------------------------------------------
 ; PLAy DPCM sample, used by music PLAyer, could be used externally
@@ -963,9 +963,9 @@ _FT2SamplePLAy:
 
     RTS
 
-.endif
+    .endif
 
-.ifdef FT_SFX_ENABLE
+    .ifdef FT_SFX_ENABLE
 
 ;------------------------------------------------------------------------------
 ; init sound effects PLAyer, set pointer to data
@@ -978,7 +978,7 @@ FamiToneSfxInit:
 
     LDY #0
 
-.ifdef FT_PITCH_FIX
+    .ifdef FT_PITCH_FIX
 
     LDA FT_PAL_ADJUST        ;add 2 to the sound list pointer for PAL
     BNE .ntsc
@@ -986,7 +986,7 @@ FamiToneSfxInit:
     INY
 .ntsc:
 
-.endif
+    .endif
 
     LDA [FT_TEMP_PTR],y        ;read AND store pointer to the effects list
     STA FT_SFX_ADR_L
@@ -1152,7 +1152,7 @@ _FT2SfxUpdate:
 
     RTS
 
-.endif
+    .endif
 
 ;dummy envelope used to initialize all channels with silence
 
@@ -1164,28 +1164,28 @@ _FT2DummyEnvelope:
 ; first 64 bytes are PAL, next 64 bytes are NTSC
 
 _FT2NoteTableLSB:
-.ifdef FT_PAL_SUPPORT
+    .ifdef FT_PAL_SUPPORT
     .db $00,$33,$da,$86,$36,$eb,$a5,$62,$23,$e7,$af,$7a,$48,$19,$ec,$c2
     .db $9a,$75,$52,$30,$11,$f3,$d7,$bc,$a3,$8c,$75,$60,$4c,$3a,$28,$17
     .db $08,$f9,$eb,$dd,$d1,$c5,$ba,$af,$a5,$9c,$93,$8b,$83,$7c,$75,$6e
     .db $68,$62,$5c,$57,$52,$4d,$49,$45,$41,$3d,$3a,$36,$33,$30,$2d,$2b
-.endif
-.ifdef FT_NTSC_SUPPORT
+    .endif
+    .ifdef FT_NTSC_SUPPORT
     .db $00,$ad,$4d,$f2,$9d,$4c,$00,$b8,$74,$34,$f7,$be,$88,$56,$26,$f8
     .db $ce,$a5,$7f,$5b,$39,$19,$fb,$de,$c3,$aa,$92,$7b,$66,$52,$3f,$2d
     .db $1c,$0c,$fd,$ee,$e1,$d4,$c8,$bd,$b2,$a8,$9f,$96,$8d,$85,$7e,$76
     .db $70,$69,$63,$5e,$58,$53,$4f,$4a,$46,$42,$3e,$3a,$37,$34,$31,$2e
-.endif
+    .endif
 _FT2NoteTableMSB:
-.ifdef FT_PAL_SUPPORT
+    .ifdef FT_PAL_SUPPORT
     .db $00,$06,$05,$05,$05,$04,$04,$04,$04,$03,$03,$03,$03,$03,$02,$02
     .db $02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
     .db $01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-.endif
-.ifdef FT_NTSC_SUPPORT
+    .endif
+    .ifdef FT_NTSC_SUPPORT
     .db $00,$06,$06,$05,$05,$05,$05,$04,$04,$04,$03,$03,$03,$03,$03,$02
     .db $02,$02,$02,$02,$02,$02,$01,$01,$01,$01,$01,$01,$01,$01,$01,$01
     .db $01,$01,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
     .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-.endif
+    .endif
