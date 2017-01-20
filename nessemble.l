@@ -97,6 +97,7 @@ int include_stack_ptr = 0;
 0[0-7]+                  { yylval.ival = oct2int(yytext+1); return NUMBER_OCT; }
 [0-9]+                   { yylval.ival = dec2int(yytext); return NUMBER_DEC; }
 '.'                      { yylval.ival = (int)yytext[1]; return NUMBER_CHAR; }
+\\[0-9]+                 { yylval.ival = dec2int(yytext+1); return NUMBER_ARG; }
 
 [\.a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = strdup(yytext); return TEXT; }
 \"[^"]*\"                { yylval.sval = strdup(yytext); return QUOT_STRING; }
@@ -114,6 +115,8 @@ int include_stack_ptr = 0;
  * @param {char *} filename - Filename to include
  */
 void include_file_push(char *filename) {
+    include_type = INCLUDE_FILE;
+
     // push to include stack
     include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 
@@ -155,6 +158,8 @@ void include_file_pop() {
  * @param {char *} string - String to parse
  */
 void include_string_push(char *string) {
+    include_type = INCLUDE_STRING;
+
     // push to include stack
     include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 
@@ -169,14 +174,11 @@ void include_string_push(char *string) {
  * Pops previous buffer after string
  */
 void include_string_pop() {
-    // if all popped, end pass
-    if (--include_stack_ptr < 0) {
-        return;
-    }
+    include_type = INCLUDE_FILE;
 
     // delete buffer
     yy_delete_buffer(YY_CURRENT_BUFFER);
 
     // switch to next buffer
-    yy_switch_to_buffer(include_stack[include_stack_ptr]);
+    yy_switch_to_buffer(include_stack[--include_stack_ptr]);
 }

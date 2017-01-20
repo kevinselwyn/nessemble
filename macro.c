@@ -39,6 +39,8 @@ void pseudo_macro(char *string) {
         goto cleanup;
     }
 
+    include_string_push(macros[index].text);
+
 cleanup:
     return;
 }
