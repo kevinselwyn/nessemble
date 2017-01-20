@@ -2,6 +2,7 @@
 #define _NESSEMBLE_H
 
 #include <stdio.h>
+#include <png.h>
 
 /* BOOLEAN */
 #define TRUE  1
@@ -279,6 +280,21 @@ void assemble_zeropage_xy(char *mnemonic, unsigned int address, char reg);
 
 /* DISASSEMBLY UTILS */
 int disassemble(char *input, char *output);
+
+/* PNG UTILS */
+struct png_data {
+	int *bits, width, height;
+    char *header[8];
+	png_byte color_type, bit_depth;
+	png_structp png_ptr;
+	png_infop info_ptr;
+	png_bytep *row_pointers;
+};
+
+void free_png(struct png_data png);
+int png_color_mode(int color_type);
+struct png_data read_png(char *filename);
+int get_color(png_byte *rgb, int color_mode);
 
 /* SIMULATE UTILS */
 int simulate(char *input, char *recipe);
