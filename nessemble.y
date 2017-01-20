@@ -52,6 +52,7 @@
 %token PSEUDO_IFNDEF
 %token PSEUDO_INCBIN
 %token PSEUDO_INCLUDE
+%token PSEUDO_INCPAL
 %token PSEUDO_INCPNG
 %token PSEUDO_INCSCREEN
 %token PSEUDO_INCWAV
@@ -96,6 +97,7 @@
 %type <sval> pseudo_ifndef
 %type <sval> pseudo_incbin
 %type <sval> pseudo_include
+%type <sval> pseudo_incpal
 %type <sval> pseudo_incpng
 %type <sval> pseudo_incwav
 %type <sval> pseudo_inestrn
@@ -206,6 +208,7 @@ pseudo
     | pseudo_ifndef    { pseudo_ifndef($1); }
     | pseudo_incbin    { /* NOTHING */ }
     | pseudo_include   { pseudo_include($1); }
+    | pseudo_incpal    { /* NOTHING */ }
     | pseudo_incpng    { /* NOTHING */ }
     | pseudo_incscreen { /* NOTHING */ }
     | pseudo_incwav    { /* NOTHING */ }
@@ -294,6 +297,10 @@ pseudo_incbin
 
 pseudo_include
     : PSEUDO_INCLUDE QUOT_STRING ENDL { $$ = $2; }
+    ;
+
+pseudo_incpal
+    : PSEUDO_INCPAL QUOT_STRING { pseudo_incpal($2); }
     ;
 
 pseudo_incpng
