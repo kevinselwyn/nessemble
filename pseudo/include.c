@@ -13,6 +13,11 @@ void pseudo_include(char *string) {
         goto cleanup;
     }
 
+    if (!path) {
+        yyerror("Could not get full path of %s", string);
+        goto cleanup;
+    }
+
     include_file_push(path);
 
 cleanup:
