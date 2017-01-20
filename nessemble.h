@@ -245,6 +245,7 @@ void pseudo_inesprg(unsigned int value);
 void pseudo_inestrn(char *string);
 void pseudo_incbin(char *string, int offset, int limit);
 void pseudo_include(char *string);
+void pseudo_incpal(char *string);
 void pseudo_incpng(char *string, int offset, int limit);
 void pseudo_incscreen(char *string, char *type);
 void pseudo_incwav(char *string, int amplitude);
