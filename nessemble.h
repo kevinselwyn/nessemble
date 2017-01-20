@@ -403,6 +403,7 @@ void do_xas(unsigned int opcode_index, unsigned int value);
 
 /* UTILS */
 int power(int x, int y);
+int root(int x, int y);
 int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);

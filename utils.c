@@ -4,9 +4,11 @@
 #include <string.h>
 #include "nessemble.h"
 
+#define DBL_EPSILON 2.2204460492503131e-16
+
 /**
  * Exponent math function
- * @param {float} x - Base
+ * @param {int} x - Base
  * @param {int} y - Power
  * @return {int} Result
  */
@@ -28,6 +30,31 @@ int power(int x, int y) {
             return (int)((temp * temp) / x);
         }
     }
+}
+
+/**
+ * Square root math function
+ * @param {int} x - Base
+ * @param {int} y - Power
+ * @return {int} Result
+ */
+int root(int x, int y) {
+    int d = 0, r = 1;
+
+    if (x == 0) {
+        return 0;
+    }
+
+    if (y < 1 || (x < 0 && !(y & 1))) {
+        return 0;
+    }
+
+    do {
+        d = (x / power(r, y - 1) - r) / y;
+        r += d;
+    } while (d >= DBL_EPSILON * 10 || d <= -DBL_EPSILON * 10);
+
+    return r;
 }
 
 /**
