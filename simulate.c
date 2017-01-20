@@ -666,6 +666,9 @@ unsigned int get_address(unsigned int opcode_index, unsigned int value) {
     case MODE_ABSOLUTE_Y:
         address = value + registers.y;
         break;
+    case MODE_INDIRECT:
+        address = (((unsigned int)rom_data[value + 0x01] & 0xFF) << 0x08) | ((unsigned int)rom_data[value] & 0xFF);
+        break;
     case MODE_INDIRECT_X:
         address = (((unsigned int)rom_data[value + registers.x + 0x01] & 0xFF) << 0x08) | ((unsigned int)rom_data[value + registers.x] & 0xFF);
         break;
@@ -1016,7 +1019,9 @@ void do_isc(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_jmp(unsigned int opcode_index, unsigned int value) {
+    unsigned int address = get_address(opcode_index, value);
 
+    set_register(REGISTER_PC, address);
 }
 
 void do_jsr(unsigned int opcode_index, unsigned int value) {
