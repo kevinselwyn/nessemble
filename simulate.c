@@ -1009,15 +1009,54 @@ void do_lax(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_lda(unsigned int opcode_index, unsigned int value) {
+    int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0;
 
+    if (mode == MODE_IMMEDIATE) {
+        set_register(REGISTER_A, value);
+    } else {
+        address = get_address(opcode_index, value);
+        set_register(REGISTER_A, get_byte(address));
+    }
+
+    set_flag(FLG_NEGATIVE, (get_register(REGISTER_A) >> 7) & 1);
+    set_flag(FLG_ZERO, get_register(REGISTER_A) == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_ldx(unsigned int opcode_index, unsigned int value) {
+    int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0;
 
+    if (mode == MODE_IMMEDIATE) {
+        set_register(REGISTER_X, value);
+    } else {
+        address = get_address(opcode_index, value);
+        set_register(REGISTER_X, get_byte(address));
+    }
+
+    set_flag(FLG_NEGATIVE, (get_register(REGISTER_X) >> 7) & 1);
+    set_flag(FLG_ZERO, get_register(REGISTER_X) == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_ldy(unsigned int opcode_index, unsigned int value) {
+    int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0;
 
+    if (mode == MODE_IMMEDIATE) {
+        set_register(REGISTER_Y, value);
+    } else {
+        address = get_address(opcode_index, value);
+        set_register(REGISTER_Y, get_byte(address));
+    }
+
+    set_flag(FLG_NEGATIVE, (get_register(REGISTER_Y) >> 7) & 1);
+    set_flag(FLG_ZERO, get_register(REGISTER_Y) == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_lsr(unsigned int opcode_index, unsigned int value) {

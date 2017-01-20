@@ -1,0 +1,30 @@
+.registers X=01,Y=10
+.fill 0044 80 80
+.fill 4400 40 40
+.fill 4410 40
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.fill 0013 80 80
+.fill 0023 80
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step

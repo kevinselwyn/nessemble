@@ -1,0 +1,19 @@
+.registers X=01
+.fill 0044 80 80
+.fill 4400 40 40
+.step
+.step
+.step
+.step
+.step
+.fill 000C 80 80
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
