@@ -893,7 +893,26 @@ void do_bmi(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_bne(unsigned int opcode_index, unsigned int value) {
+    unsigned int address = 0;
 
+    if (value >= 0x80) {
+        address = (unsigned int)(get_register(REGISTER_PC) - (0xFF - value - 1));
+    } else {
+        address = (unsigned int)(get_register(REGISTER_PC) + value);
+    }
+
+    if (get_flag(FLG_ZERO) == 0) {
+        if ((get_register(REGISTER_PC) & 0xFF00) != (address& 0xFF00)) {
+            inc_cycles(opcodes[opcode_index].timing + 2);
+        } else {
+            inc_cycles(opcodes[opcode_index].timing + 1);
+        }
+
+        set_register(REGISTER_PC, address);
+    } else {
+        inc_cycles(opcodes[opcode_index].timing);
+        inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    }
 }
 
 void do_bpl(unsigned int opcode_index, unsigned int value) {
