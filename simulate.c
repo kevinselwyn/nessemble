@@ -120,7 +120,7 @@ int simulate(char *input, char *recipe) {
     }
 
     for (i = 0, l = 0x10000; i < l; i++) {
-        rom_data[i] = (char)0xFF;
+        set_byte(i, 0xFF);
     }
 
     // load banks
@@ -128,15 +128,15 @@ int simulate(char *input, char *recipe) {
         inesprg = (int)indata[4];
 
         if (inesprg == 1) {
-            registers.pc = 0xC000;
-            memcpy(rom_data+registers.pc, indata+0x10, 0x4000);
+            set_register(REGISTER_PC, 0xC000);
+            memcpy(rom_data + get_register(REGISTER_PC), indata+0x10, 0x4000);
         } else {
-            registers.pc = 0x8000;
-            memcpy(rom_data+registers.pc, indata+0x10, 0x8000);
+            set_register(REGISTER_PC, 0x8000);
+            memcpy(rom_data + get_register(REGISTER_PC), indata+0x10, 0x8000);
         }
     } else {
-        registers.pc = 0x8000;
-        memcpy(rom_data+registers.pc, indata, insize);
+        set_register(REGISTER_PC, 0x8000);
+        memcpy(rom_data + get_register(REGISTER_PC), indata, insize);
     }
 
     // simulate
@@ -177,7 +177,7 @@ history:
             a = getchar();
 
             if (a == 0x0A && strlen(buffer) > 1) {
-                fprintf(stderr, "Buffer: %s\nLength: %d\n", buffer, strlen(buffer));
+                fprintf(stderr, "Buffer: %s\nLength: %d\n", buffer, (int)strlen(buffer));
                 goto history;
             } else if (a == 0x1B && getchar() == 0x5B) {
                 b = getchar();
@@ -628,7 +628,7 @@ void print_memory(char *input) {
         }
 
         if (a <= i && i <= b) {
-            printf("%02X ", (unsigned int)rom_data[i] & 0xFF);
+            printf("%02X ", get_byte(i) & 0xFF);
         } else {
             printf("-- ");
         }
@@ -646,7 +646,7 @@ void print_cycles() {
 void load_goto(char *input) {
     input[4] = '\0';
 
-    registers.pc = hex2int(input);
+    set_register(REGISTER_PC, hex2int(input));
 }
 
 unsigned int get_address(unsigned int opcode_index, unsigned int value) {
@@ -660,20 +660,20 @@ unsigned int get_address(unsigned int opcode_index, unsigned int value) {
         break;
     case MODE_ZEROPAGE_X:
     case MODE_ABSOLUTE_X:
-        address = value + registers.x;
+        address = value + get_register(REGISTER_X);
         break;
     case MODE_ZEROPAGE_Y:
     case MODE_ABSOLUTE_Y:
-        address = value + registers.y;
+        address = value + get_register(REGISTER_Y);
         break;
     case MODE_INDIRECT:
-        address = (((unsigned int)rom_data[value + 0x01] & 0xFF) << 0x08) | ((unsigned int)rom_data[value] & 0xFF);
+        address = ((get_byte(value + 0x01) & 0xFF) << 0x08) | (get_byte(value) & 0xFF);
         break;
     case MODE_INDIRECT_X:
-        address = (((unsigned int)rom_data[value + registers.x + 0x01] & 0xFF) << 0x08) | ((unsigned int)rom_data[value + registers.x] & 0xFF);
+        address = ((get_byte(value + get_register(REGISTER_X) + 0x01) & 0xFF) << 0x08) | (get_byte(value + get_register(REGISTER_X)) & 0xFF);
         break;
     case MODE_INDIRECT_Y:
-        address = ((((unsigned int)rom_data[value + 0x01] & 0xFF) << 0x08) | ((unsigned int)rom_data[value] & 0xFF)) + registers.y;
+        address = (((get_byte(value + 0x01) & 0xFF) << 0x08) | (get_byte(value) & 0xFF)) + get_register(REGISTER_Y);
         break;
     default:
         break;
@@ -840,7 +840,7 @@ void do_aac(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_aax(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_adc(unsigned int opcode_index, unsigned int value) {
@@ -852,7 +852,7 @@ void do_and(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_arr(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_asl(unsigned int opcode_index, unsigned int value) {
@@ -860,19 +860,19 @@ void do_asl(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_asr(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_atx(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_axa(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_axs(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_bcc(unsigned int opcode_index, unsigned int value) {
@@ -990,7 +990,7 @@ void do_cpy(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_dcp(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_dec(unsigned int opcode_index, unsigned int value) {
@@ -1014,7 +1014,7 @@ void do_dey(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_dop(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_eor(unsigned int opcode_index, unsigned int value) {
@@ -1034,7 +1034,7 @@ void do_iny(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_isc(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_jmp(unsigned int opcode_index, unsigned int value) {
@@ -1048,15 +1048,15 @@ void do_jsr(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_kil(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_lar(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_lax(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_lda(unsigned int opcode_index, unsigned int value) {
@@ -1212,7 +1212,7 @@ void do_ror(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_rra(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_rti(unsigned int opcode_index, unsigned int value) {
@@ -1357,9 +1357,9 @@ void do_tya(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_xaa(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_xas(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }

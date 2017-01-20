@@ -63,7 +63,7 @@ static int wav_sample(wave_src *wav) {
         return 0;
     }
 
-    for (i = 0; i < wav->fmt.bits_sample && wav->chunk_left > 0; i += 8) {
+    for (i = 0; i < (int)wav->fmt.bits_sample && wav->chunk_left > 0; i += 8) {
         int c = fgetc(wav->fp);
 
         cur_sample >>= 8;
@@ -77,7 +77,7 @@ static int wav_sample(wave_src *wav) {
 
     cur_sample = (signed short)cur_sample;
 
-    if (++wav->cur_chn >= wav->fmt.channels) {
+    if (++wav->cur_chn >= (int)wav->fmt.channels) {
         wav->cur_chn = 0;
     }
 
