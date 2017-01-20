@@ -100,6 +100,13 @@ unsigned int macro_index;
 unsigned int length_args;
 unsigned int args[MAX_ARGS];
 
+/* INCLUDE */
+#define INCLUDE_NONE   0
+#define INCLUDE_FILE   1
+#define INCLUDE_STRING 2
+
+unsigned int include_type;
+
 /* IF */
 #define IF_IF     0
 #define IF_IFDEF  1

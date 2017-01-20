@@ -75,6 +75,7 @@
 %token <ival> NUMBER_OCT
 %token <ival> NUMBER_DEC
 %token <ival> NUMBER_CHAR
+%token <ival> NUMBER_ARG
 %token <ival> PSEUDO_CHR
 %token <ival> PSEUDO_PRG
 
@@ -158,6 +159,7 @@ number_base
     | NUMBER_OCT     { $$ = $1; }
     | NUMBER_DEC     { $$ = $1; }
     | NUMBER_CHAR    { $$ = $1; }
+    | NUMBER_ARG     { $$ = args[$1 - 1]; }
     | number_highlow { $$ = $1; }
     ;
 
@@ -180,7 +182,7 @@ comma
 
 line
     : ENDL                    { /* NOTHING */ }
-    | FEOF                    { include_file_pop(); if (include_stack_ptr < 0) { YYACCEPT; } }
+    | FEOF                    { if (include_type == INCLUDE_STRING) { include_string_pop(); } else { include_file_pop(); if (include_stack_ptr < 0) { YYACCEPT; } } }
     | INDENTATION             { /* NOTHING */ }
     | pseudo                  { /* NOTHING */ }
     | constant_decl           { /* NOTHING */ }
