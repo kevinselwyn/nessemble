@@ -296,6 +296,7 @@ void free_png(struct png_data png);
 int png_color_mode(int color_type);
 struct png_data read_png(char *filename);
 int get_color(png_byte *rgb, int color_mode);
+int match_color(png_byte *rgb, int color_mode);
 
 /* SIMULATE UTILS */
 int simulate(char *input, char *recipe);
