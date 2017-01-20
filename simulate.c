@@ -1,8 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include "nessemble.h"
 
 // https://github.com/bfirsh/jsnes/blob/master/source/cpu.js
@@ -47,8 +44,9 @@ void usage_simulate() {
  * @param {char *} input - Input filename
  */
 int simulate(char *input, char *recipe) {
-    int rc = RETURN_OK, i = 0, l = 0, header = 0;
+    int rc = RETURN_OK, header = 0;
     int inesprg = 1;
+    unsigned int i = 0, l = 0;
     size_t insize = 0;
     char buffer[BUF_SIZE];
     char *indata = NULL;
@@ -385,24 +383,30 @@ char *fill_memory(char *input) {
 
     addrs = malloc(sizeof(char) * 10);
 
+    if (!addrs) {
+        fprintf(stderr, "Memory error\n");
+        goto cleanup;
+    }
+
     input[4] = '\0';
-    addr_start = hex2int(input);
+    addr_start = (unsigned int)hex2int(input);
     addr_end = addr_start - 1;
     input[4] = ' ';
 
     length = strlen(input+5);
 
-    for (i = 0, l = (int)(length / 3); i < l; i++) {
+    for (i = 0, l = (unsigned int)(length / 3); i < l; i++) {
         rom_data[addr_start + i] = (char)hex2int(input + (5 + (i * 3)));
         addr_end++;
     }
 
     if (addr_end - addr_start == 0) {
-        sprintf(addrs, "%04X", addr_start);
+        (void)snprintf(addrs, 5, "%04X", addr_start);
     } else {
-        sprintf(addrs, "%04X:%04X", addr_start, addr_end);
+        (void)snprintf(addrs, 10, "%04X:%04X", addr_start, addr_end);
     }
 
+cleanup:
     return addrs;
 }
 
@@ -511,7 +515,7 @@ int steps(char *input) {
     int rc = RETURN_OK;
     unsigned int i = 0, l = 0, count = 0;
 
-    count = dec2int(input);
+    count = (unsigned int)dec2int(input);
 
     for (i = 0, l = count; i < l; i++) {
         print_instruction();
@@ -571,13 +575,13 @@ void print_memory(char *input) {
 }
 
 void print_cycles() {
-    printf("%d cycles\n", cycles);
+    printf("%u cycles\n", cycles);
 }
 
 void load_goto(char *input) {
     input[4] = '\0';
 
-    set_register(REGISTER_PC, hex2int(input));
+    set_register(REGISTER_PC, (unsigned int)hex2int(input));
 }
 
 unsigned int get_address(unsigned int opcode_index, unsigned int value) {
