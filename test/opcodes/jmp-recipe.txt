@@ -1,0 +1,13 @@
+.fill 5597 80 00
+.fill 0006 80 00
+.step
+.registers PC=8003
+.step
+.registers PC=8006
+.step
+.registers PC=8009
+.step
+.registers PC=800C
+.step
+.registers PC=800F
+.step
