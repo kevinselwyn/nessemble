@@ -13,6 +13,11 @@ void pseudo_inestrn(char *string) {
         goto cleanup;
     }
 
+    if (!path) {
+        yyerror("Could not get full path of %s", string);
+        goto cleanup;
+    }
+
     flags |= FLAG_NES;
 
     ines.trn = 1;

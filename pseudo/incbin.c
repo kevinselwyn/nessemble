@@ -16,6 +16,11 @@ void pseudo_incbin(char *string, int offset, int limit) {
         goto cleanup;
     }
 
+    if (!path) {
+        yyerror("Could not get full path of %s", string);
+        goto cleanup;
+    }
+
     incbin = fopen(path, "r");
 
     if (!incbin) {

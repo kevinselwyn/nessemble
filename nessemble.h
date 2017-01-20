@@ -118,6 +118,21 @@ unsigned int if_type;
 unsigned int if_cond;
 char *if_label;
 
+/* SIMULATE */
+#define REGISTER_A  1
+#define REGISTER_X  2
+#define REGISTER_Y  3
+#define REGISTER_PC 4
+#define REGISTER_SP 5
+
+#define FLG_NEGATIVE  1
+#define FLG_OVERFLOW  2
+#define FLG_BREAK     3
+#define FLG_DECIMAL   4
+#define FLG_INTERRUPT 5
+#define FLG_ZERO      6
+#define FLG_CARRY     7
+
 /* SEGMENTS */
 char segment[8];
 unsigned int segment_type;
