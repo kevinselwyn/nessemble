@@ -949,11 +949,19 @@ void do_dec(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_dex(unsigned int opcode_index, unsigned int value) {
-
+    set_register(REGISTER_X, (get_register(REGISTER_X) - 1) & 0xFF);
+    set_flag(FLG_NEGATIVE, (get_register(REGISTER_X) >> 7) & 1);
+    set_flag(FLG_ZERO, get_register(REGISTER_X) == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_dey(unsigned int opcode_index, unsigned int value) {
-
+    set_register(REGISTER_Y, (get_register(REGISTER_Y) - 1) & 0xFF);
+    set_flag(FLG_NEGATIVE, (get_register(REGISTER_Y) >> 7) & 1);
+    set_flag(FLG_ZERO, get_register(REGISTER_Y) == 0 ? 1 : 0);
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_dop(unsigned int opcode_index, unsigned int value) {

@@ -1,0 +1,2 @@
+.registers X=01
+.step
