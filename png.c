@@ -119,7 +119,7 @@ struct png_data read_png(char *filename) {
         goto cleanup;
 	}
 
-	if (png_sig_cmp((png_bytep)png.header, 0, 8)) {
+	if (png_sig_cmp((unsigned char *)png.header, 0, 8)) {
 		yyerror("%s is not a PNG\n", filename);
         goto cleanup;
 	}
@@ -159,10 +159,10 @@ struct png_data read_png(char *filename) {
         goto cleanup;
 	}
 
-	png.row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * png.height);
+	png.row_pointers = (unsigned char **) malloc(sizeof(unsigned char *) * png.height);
 
 	for (y = 0; y < png.height; y++) {
-		png.row_pointers[y] = (png_byte*) malloc(png_get_rowbytes(png.png_ptr, png.info_ptr));
+		png.row_pointers[y] = (unsigned char *) malloc(png_get_rowbytes(png.png_ptr, png.info_ptr));
 	}
 
 	png_read_image(png.png_ptr, png.row_pointers);
@@ -173,7 +173,7 @@ cleanup:
 	return png;
 }
 
-int get_color(png_byte *rgb, int color_mode) {
+int get_color(unsigned char *rgb, int color_mode) {
     int avg = 0, diff = 256, color = 0, i = 0, l = 0;
 
     for (i = 0, l = color_mode; i < l; i++) {
@@ -192,7 +192,7 @@ int get_color(png_byte *rgb, int color_mode) {
     return color;
 }
 
-int match_color(png_byte *rgb, int color_mode) {
+int match_color(unsigned char *rgb, int color_mode) {
     int r1 = 0, g1 = 0, b1 = 0, r2 = 0, g2 = 0, b2 = 0;
     int diff = 0xFFFFFF, next_diff = 0xFFFFFF, color = 0, i = 0, l = 0;
 
