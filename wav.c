@@ -168,6 +168,11 @@ void pseudo_incwav(char *string, int amplitude) {
         goto cleanup;
     }
 
+    if (!path) {
+        yyerror("Could not get full path of %s", string);
+        goto cleanup;
+    }
+
     if (open_wav(&wav, path) != 0) {
         yyerror("Could not open %s", string);
         goto cleanup;
