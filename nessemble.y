@@ -33,7 +33,7 @@
 %token CLOSE_PAREN
 %token OPEN_BRACK
 %token CLOSE_BRACK
-%token CARET
+%token LT
 %token GT
 
 %token HIGH
@@ -130,14 +130,6 @@ program
     ;
 
 /* Atomic */
-
-lt
-    : CARET
-    ;
-
-gt
-    : GT
-    ;
 
 number
     : number_base                   { $$ = $1; }
@@ -277,8 +269,8 @@ pseudo_hibytes
     ;
 
 pseudo_if
-    : number lt number { $$ = $1 < $3 ? TRUE : FALSE; }
-    | number gt number { $$ = $1 > $3 ? TRUE : FALSE; }
+    : number LT number { $$ = $1 < $3 ? TRUE : FALSE; }
+    | number GT number { $$ = $1 > $3 ? TRUE : FALSE; }
     ;
 
 pseudo_ifdef
@@ -399,11 +391,11 @@ instruction
     | TEXT OPEN_BRACK number CLOSE_BRACK              { assemble_indirect($1, $3); }
     | TEXT OPEN_BRACK number COMMA CHAR_X CLOSE_BRACK { assemble_indirect_xy($1, $3, $5); }
     | TEXT OPEN_BRACK number CLOSE_BRACK COMMA CHAR_Y { assemble_indirect_xy($1, $3, $6); }
-    | TEXT CARET number COMMA CHAR_X                  { assemble_zeropage_xy($1, $3, $5); }
-    | TEXT CARET number COMMA CHAR_Y                  { assemble_zeropage_xy($1, $3, $5); }
+    | TEXT LT number COMMA CHAR_X                     { assemble_zeropage_xy($1, $3, $5); }
+    | TEXT LT number COMMA CHAR_Y                     { assemble_zeropage_xy($1, $3, $5); }
     | TEXT number COMMA CHAR_X                        { assemble_absolute_xy($1, $2, $4); }
     | TEXT number COMMA CHAR_Y                        { assemble_absolute_xy($1, $2, $4); }
-    | TEXT CARET number ENDL                          { assemble_zeropage($1, $3); }
+    | TEXT LT number ENDL                             { assemble_zeropage($1, $3); }
     | TEXT number ENDL                                { assemble_absolute($1, $2); }
     | TEXT ENDL                                       { assemble_implied($1); }
     ;
