@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <float.h>
 #include "nessemble.h"
-
-#define DBL_EPSILON 2.2204460492503131e-16
 
 /**
  * Exponent math function
@@ -45,14 +44,14 @@ int root(int x, int y) {
         return 0;
     }
 
-    if (y < 1 || (x < 0 && !(y & 1))) {
+    if (y < 1 || (x < 0 && (y & 1) == 0)) {
         return 0;
     }
 
     do {
         d = (x / power(r, y - 1) - r) / y;
         r += d;
-    } while (d >= DBL_EPSILON * 10 || d <= -DBL_EPSILON * 10);
+    } while ((double)d >= (DBL_EPSILON * 10) || (double)d <= (-DBL_EPSILON * 10));
 
     return r;
 }
