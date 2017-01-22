@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include <png.h>
 #include "../nessemble.h"
+#include "../png.h"
 
 void pseudo_incpal(char *string) {
     int color_mode = 0, color = 0, last_color = -1, x = 0;

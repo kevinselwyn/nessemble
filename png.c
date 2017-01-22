@@ -2,6 +2,7 @@
 #include <string.h>
 #include <png.h>
 #include "nessemble.h"
+#include "png.h"
 
 #define COLOR_COUNT_1BPS 0x04
 #define COLOR_COUNT_FULL 0x40
