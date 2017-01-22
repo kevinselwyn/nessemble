@@ -3,3 +3,8 @@
 0004 | A5 A5    | LDA <$A5
 0006 | A5 A5    | LDA <$A5
 0008 | A5 41    | LDA <$41
+000A | A5 A5    | LDA <$A5
+000C | A5 A5    | LDA <$A5
+000E | A5 A5    | LDA <$A5
+0010 | A5 A5    | LDA <$A5
+0012 | A5 41    | LDA <$41

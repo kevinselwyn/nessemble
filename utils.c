@@ -62,6 +62,12 @@ int root(int x, int y) {
  * @return {int} Base-10 integer
  */
 int hex2int(char *hex) {
+    size_t length = strlen(hex);
+
+    if (hex[length - 1] == 'h') {
+        hex[length - 1] = '\0';
+    }
+
     return (int)strtol(hex, NULL, 16);
 }
 
@@ -71,6 +77,12 @@ int hex2int(char *hex) {
  * @return {int} Base-10 integer
  */
 int bin2int(char *bin) {
+    size_t length = strlen(bin);
+
+    if (bin[length - 1] == 'b') {
+        bin[length - 1] = '\0';
+    }
+
     return (int)strtol(bin, NULL, 2);
 }
 
@@ -80,6 +92,12 @@ int bin2int(char *bin) {
  * @return {int} Base-10 integer
  */
 int oct2int(char *oct) {
+    size_t length = strlen(oct);
+
+    if (oct[length - 1] == 'o') {
+        oct[length - 1] = '\0';
+    }
+
     return (int)strtol(oct, NULL, 8);
 }
 
@@ -89,6 +107,12 @@ int oct2int(char *oct) {
  * @return {int} Base-10 integer
  */
 int dec2int(char *dec) {
+    size_t length = strlen(dec);
+
+    if (dec[length - 1] == 'd') {
+        dec[length - 1] = '\0';
+    }
+
     return atoi(dec);
 }
 
