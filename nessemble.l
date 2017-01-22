@@ -94,9 +94,13 @@ int include_stack_ptr = 0;
 <macro>.+                { yylval.sval = strdup(yytext); return PSEUDO_MACRO_APPEND; }
 
 \$[0-9a-fA-F]+           { yylval.ival = hex2int(yytext+1); return NUMBER_HEX; }
+[0-9a-fA-F]+h            { yylval.ival = hex2int(yytext); return NUMBER_HEX; }
 %[0-1]+                  { yylval.ival = bin2int(yytext+1); return NUMBER_BIN; }
+[0-1]+b                  { yylval.ival = bin2int(yytext); return NUMBER_BIN; }
 0[0-7]+                  { yylval.ival = oct2int(yytext+1); return NUMBER_OCT; }
+[0-7]+o                  { yylval.ival = oct2int(yytext); return NUMBER_OCT; }
 [0-9]+                   { yylval.ival = dec2int(yytext); return NUMBER_DEC; }
+[0-9]+d                  { yylval.ival = dec2int(yytext); return NUMBER_DEC; }
 '.'                      { yylval.ival = (int)yytext[1]; return NUMBER_CHAR; }
 \\[0-9]+                 { yylval.ival = dec2int(yytext+1); return NUMBER_ARG; }
 
