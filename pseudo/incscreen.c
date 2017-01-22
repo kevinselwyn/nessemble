@@ -1,5 +1,5 @@
-#include <png.h>
 #include "../nessemble.h"
+#include "../png.h"
 
 void pseudo_incscreen(char *string, char *type) {
     int color_mode = 0, color = 0, byte = 0, tile_index = -1;
