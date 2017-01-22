@@ -47,7 +47,7 @@ int include_stack_ptr = 0;
 ")"                      { return CLOSE_PAREN; }
 "["                      { return OPEN_BRACK; }
 "]"                      { return CLOSE_BRACK; }
-"<"                      { return CARET; }
+"<"                      { return LT; }
 ">"                      { return GT; }
 
 "HIGH"                   { return HIGH; }
