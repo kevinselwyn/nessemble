@@ -17,10 +17,10 @@ struct regs {
     struct flgs flags;
 };
 
-static struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } };
-
 char *rom_data;
-unsigned int cycles = 0;
+
+static struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } };
+static unsigned int cycles = 0;
 
 /**
  * Simulate usage
@@ -222,9 +222,9 @@ int repl(char *input) {
 
     if (strncmp(input, "step", 4) == 0) {
         if (length > 5) {
-            steps(input+5);
+            (void)steps(input+5);
         } else {
-            steps("1");
+            (void)steps("1");
         }
 
         goto cleanup;
@@ -268,7 +268,8 @@ void print_registers() {
 
 void load_registers(char *input) {
     unsigned int i = 0, l = 0, index = 0;
-    unsigned int starts[10], ends[10];
+    unsigned int starts[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    unsigned int ends[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     size_t length = 0;
     char text[8];
 
@@ -319,7 +320,8 @@ void load_registers(char *input) {
 
 void load_flags(char *input) {
     unsigned int i = 0, l = 0, index = 0;
-    unsigned int starts[10], ends[10];
+    unsigned int starts[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    unsigned int ends[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     size_t length = 0;
     char text[13];
 
@@ -585,7 +587,7 @@ void load_goto(char *input) {
 }
 
 unsigned int get_address(unsigned int opcode_index, unsigned int value) {
-    int mode = opcodes[opcode_index].mode;
+    unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0;
 
     switch (mode) {
