@@ -227,6 +227,7 @@ int has_label(char *name);
 
 /* PSEUDO UTILS */
 void pseudo_ascii(char *string, int offset);
+void pseudo_checksum(unsigned int address);
 void pseudo_chr(unsigned int index);
 void pseudo_db();
 void pseudo_defchr();
@@ -387,6 +388,7 @@ void do_xas(unsigned int opcode_index, unsigned int value);
 /* UTILS */
 int power(int x, int y);
 int root(int x, int y);
+int crc_32(unsigned int *buffer, unsigned int length);
 int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);

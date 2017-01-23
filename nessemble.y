@@ -41,6 +41,7 @@
 
 %token PSEUDO_ASCII
 %token PSEUDO_BYTE
+%token PSEUDO_CHECKSUM
 %token PSEUDO_DB
 %token PSEUDO_DEFCHR
 %token PSEUDO_DW
@@ -110,6 +111,7 @@
 %type <ival> number_highlow
 %type <ival> label
 
+%type <uval> pseudo_checksum
 %type <uval> pseudo_chr
 %type <uval> pseudo_if
 %type <uval> pseudo_ineschr
@@ -188,6 +190,7 @@ line
 
 pseudo
     : pseudo_ascii     { /* NOTHING */ }
+    | pseudo_checksum  { pseudo_checksum($1); }
     | pseudo_chr       { pseudo_chr($1); }
     | pseudo_db        { pseudo_db(); }
     | pseudo_defchr    { pseudo_defchr(); }
@@ -224,6 +227,10 @@ pseudo_ascii
     : PSEUDO_ASCII QUOT_STRING                   { pseudo_ascii($2, 0); }
     | PSEUDO_ASCII QUOT_STRING PLUS number_base  { pseudo_ascii($2, $4); }
     | PSEUDO_ASCII QUOT_STRING MINUS number_base { pseudo_ascii($2, $4 * -1); }
+    ;
+
+pseudo_checksum
+    : PSEUDO_CHECKSUM label { $$ = $2; }
     ;
 
 pseudo_chr

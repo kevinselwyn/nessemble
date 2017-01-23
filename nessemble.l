@@ -55,6 +55,7 @@ int include_stack_ptr = 0;
 
 ".ascii"                 { return PSEUDO_ASCII; }
 ".byte"                  { return PSEUDO_BYTE; }
+".checksum"              { return PSEUDO_CHECKSUM; }
 \.chr[0-9]+              { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_CHR; }
 ".db"                    { return PSEUDO_DB; }
 ".defchr"                { return PSEUDO_DEFCHR; }
