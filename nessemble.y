@@ -24,6 +24,9 @@
 %token XOR
 %token RSHIFT
 %token LSHIFT
+%token MOD
+%token DBL_EQU
+%token NOT_EQU
 
 %token HASH
 %token COMMA
@@ -35,6 +38,8 @@
 %token CLOSE_BRACK
 %token LT
 %token GT
+%token LTE
+%token GTE
 
 %token HIGH
 %token LOW
@@ -146,6 +151,13 @@ number
     | number XOR number             { $$ = $1 ^ $3; }
     | number RSHIFT number          { $$ = $1 >> $3; }
     | number LSHIFT number          { $$ = $1 << $3; }
+    | number MOD number             { $$ = $1 % $3; }
+    | number DBL_EQU number         { $$ = $1 == $3 ? TRUE : FALSE; }
+    | number NOT_EQU number         { $$ = $1 != $3 ? TRUE : FALSE; }
+    | number LT number              { $$ = $1 < $3 ? TRUE : FALSE; }
+    | number GT number              { $$ = $1 > $3 ? TRUE : FALSE; }
+    | number LTE number             { $$ = $1 <= $3 ? TRUE : FALSE; }
+    | number GTE number             { $$ = $1 >= $3 ? TRUE : FALSE; }
     | OPEN_PAREN number CLOSE_PAREN { $$ = $2; }
     ;
 
