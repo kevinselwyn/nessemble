@@ -38,6 +38,9 @@ int include_stack_ptr = 0;
 "^"                      { return XOR; }
 ">>"                     { return RSHIFT; }
 "<<"                     { return LSHIFT; }
+"%"                      { return MOD; }
+"=="                     { return DBL_EQU; }
+"!="                     { return NOT_EQU; }
 
 "#"                      { return HASH; }
 ","                      { return COMMA; }
@@ -49,6 +52,8 @@ int include_stack_ptr = 0;
 "]"                      { return CLOSE_BRACK; }
 "<"                      { return LT; }
 ">"                      { return GT; }
+"<="                     { return LTE; }
+">="                     { return GTE; }
 
 "HIGH"                   { return HIGH; }
 "LOW"                    { return LOW; }
