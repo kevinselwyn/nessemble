@@ -68,6 +68,7 @@ int include_stack_ptr = 0;
 ".else"                  { return PSEUDO_ELSE; }
 ".endif"                 { return PSEUDO_ENDIF; }
 ".hibytes"               { return PSEUDO_HIBYTES; }
+".if"                    { return PSEUDO_IF; }
 ".ifdef"                 { return PSEUDO_IFDEF; }
 ".ifndef"                { return PSEUDO_IFNDEF; }
 ".incbin"                { return PSEUDO_INCBIN; }

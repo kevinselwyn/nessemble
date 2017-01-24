@@ -288,8 +288,7 @@ pseudo_hibytes
     ;
 
 pseudo_if
-    : number LT number { $$ = $1 < $3 ? TRUE : FALSE; }
-    | number GT number { $$ = $1 > $3 ? TRUE : FALSE; }
+    : PSEUDO_IF number { $$ = $2; }
     ;
 
 pseudo_ifdef

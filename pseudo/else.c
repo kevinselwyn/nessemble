@@ -4,9 +4,15 @@
  * .else pseudo instruction
  */
 void pseudo_else() {
-    if (if_type == IF_IFDEF) {
+    switch (if_type) {
+    case IF_IF:
+        if_cond = if_cond == TRUE ? FALSE : TRUE;
+        break;
+    case IF_IFDEF:
         if_type = IF_IFNDEF;
-    } else {
+        break;
+    case IF_IFNDEF:
         if_type = IF_IFDEF;
+        break;
     }
 }

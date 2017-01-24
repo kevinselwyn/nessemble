@@ -80,14 +80,22 @@ void write_byte(unsigned int byte) {
     unsigned int offset = get_rom_index();
 
     if (if_active == TRUE) {
-        if (if_type == IF_IFDEF) {
+        switch (if_type) {
+        case IF_IF:
+            if (if_cond == FALSE) {
+                return;
+            }
+            break;
+        case IF_IFDEF:
             if (has_label(if_label) == FALSE) {
                 return;
             }
-        } else if (if_type == IF_IFNDEF) {
+            break;
+        case IF_IFNDEF:
             if (has_label(if_label) == TRUE) {
                 return;
             }
+            break;
         }
     }
 
@@ -127,14 +135,22 @@ void write_byte(unsigned int byte) {
 void add_symbol(char *name, unsigned int value, unsigned int type) {
     if (pass == 1) {
         if (if_active == TRUE) {
-            if (if_type == IF_IFDEF) {
+            switch (if_type) {
+            case IF_IF:
+                if (if_cond == FALSE) {
+                    return;
+                }
+                break;
+            case IF_IFDEF:
                 if (has_label(if_label) == FALSE) {
                     return;
                 }
-            } else if (if_type == IF_IFNDEF) {
+                break;
+            case IF_IFNDEF:
                 if (has_label(if_label) == TRUE) {
                     return;
                 }
+                break;
             }
         }
 
