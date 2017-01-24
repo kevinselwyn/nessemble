@@ -1,0 +1,2 @@
+.registers Y=7F
+.step
