@@ -22,12 +22,19 @@ struct record {
     FILE *file;
 };
 
+struct breakpoint {
+    unsigned int address;
+    char *name;
+};
+
 char *rom_data;
 
 static struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } };
 static unsigned int cycles = 0;
 static struct record records[100];
 static unsigned int record_index = 0;
+static struct breakpoint breakpoints[100];
+static unsigned int breakpoint_index = 0;
 
 /**
  * Simulate usage
@@ -44,6 +51,9 @@ void usage_simulate() {
     printf("  .step [X]                       Step program counter by 1 or X\n");
     printf("  .run                            Run program\n");
     printf("  .record XXXX <filename>         Record writes to address XXXX\n");
+    printf("  .breakpoints                    List all breakpoints\n");
+    printf("  .addbreakpoint XXXX <name>      Add breakpoint at address XXXX with optional name\n");
+    printf("  .removebreakpoint <name>        Remove breakpoint(s) at address XXXX or with name\n");
     printf("  .help                           Print this message\n\n");
 }
 
@@ -240,6 +250,10 @@ int repl(char *input) {
 
     if (strncmp(input, "run", 3) == 0) {
         while (1 == TRUE) {
+            if (at_breakpoint() == TRUE) {
+                goto cleanup;
+            }
+
             if (step() == TRUE) {
                 print_registers();
                 quit();
@@ -255,6 +269,28 @@ int repl(char *input) {
     if (strncmp(input, "record", 6) == 0) {
         if (length > 7) {
             start_record(input+7);
+        }
+
+        goto cleanup;
+    }
+
+    if (strncmp(input, "breakpoints", 11) == 0) {
+        list_breakpoints();
+
+        goto cleanup;
+    }
+
+    if (strncmp(input, "addbreakpoint", 13) == 0) {
+        if (length > 14) {
+            add_breakpoint(input+14);
+        }
+
+        goto cleanup;
+    }
+
+    if (strncmp(input, "removebreakpoint", 16) == 0) {
+        if (length > 17) {
+            remove_breakpoint(input+17);
         }
 
         goto cleanup;
@@ -620,6 +656,90 @@ void start_record(char *input) {
     }
 
     record_index++;
+}
+
+void list_breakpoints() {
+    unsigned int i = 0, l = 0;
+
+    for (i = 0, l = breakpoint_index; i < l; i++) {
+        fprintf(stderr, "%04X", breakpoints[i].address);
+
+        if (breakpoints[i].name) {
+            fprintf(stderr, " %s", breakpoints[i].name);
+        }
+
+        fprintf(stderr, "\n");
+    }
+}
+
+void add_breakpoint(char *input) {
+    unsigned int address = 0;
+    size_t length = 0;
+
+    length = strlen(input) - 1;
+
+    input[length] = '\0';
+    input[4] = '\0';
+    address = (unsigned int)hex2int(input);
+    input[4] = ' ';
+
+    breakpoints[breakpoint_index].address = address;
+
+    if (length > 5) {
+        if (breakpoints[breakpoint_index].name) {
+            free(breakpoints[breakpoint_index].name);
+        }
+
+        breakpoints[breakpoint_index].name = (char *)malloc(sizeof(char) * (length - 4));
+
+        if (breakpoints[breakpoint_index].name) {
+            strcpy(breakpoints[breakpoint_index].name, input+5);
+        }
+    }
+
+    breakpoint_index++;
+}
+
+void remove_breakpoint(char *input) {
+    unsigned int i = 0, l = 0, index = 0, found = FALSE;
+    size_t length = 0;
+
+    length = strlen(input);
+    input[length - 1] = '\0';
+
+    for (i = 0, l = breakpoint_index; i < l; i++) {
+        if (strcmp(breakpoints[i].name, input) == 0) {
+            index = i;
+            found = TRUE;
+            break;
+        }
+    }
+
+    if (found == FALSE) {
+        return;
+    }
+
+    if (index > 0) {
+        for (i = index - 1; i < breakpoint_index - 1; i++) {
+            breakpoints[i] = breakpoints[i + 1];
+        }
+    }
+
+    breakpoint_index--;
+}
+
+unsigned int at_breakpoint() {
+    unsigned int i = 0, l = 0, at = FALSE;
+
+    for (i = 0, l = breakpoint_index; i < l; i++) {
+        if (get_register(REGISTER_PC) == breakpoints[i].address) {
+            fprintf(stderr, "Breakpoint `%s` reached at 0x%04X\n", breakpoints[i].name, breakpoints[i].address);
+
+            at = TRUE;
+        }
+    }
+
+    return at;
 }
 
 void quit() {
