@@ -1,0 +1,3 @@
+.fill 01FD 81 AC 89
+.registers SP=FC
+.step
