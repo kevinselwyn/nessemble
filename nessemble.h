@@ -297,6 +297,8 @@ int steps(char *input);
 void print_memory(char *input);
 void load_goto(char *input);
 void print_cycles();
+void start_record(char *input);
+void quit();
 unsigned int get_address(unsigned int opcode_index, unsigned int value);
 unsigned int get_byte(unsigned int address);
 void set_byte(unsigned int address, unsigned int byte);
