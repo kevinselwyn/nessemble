@@ -234,6 +234,7 @@ void pseudo_defchr();
 void pseudo_dw();
 void pseudo_else();
 void pseudo_endif();
+void pseudo_fill(unsigned int count, unsigned int value);
 void pseudo_hibytes();
 void pseudo_if(unsigned int cond);
 void pseudo_ifdef(char *label);

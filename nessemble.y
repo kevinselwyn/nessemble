@@ -52,6 +52,7 @@
 %token PSEUDO_DW
 %token PSEUDO_ELSE
 %token PSEUDO_ENDIF
+%token PSEUDO_FILL
 %token PSEUDO_HIBYTES
 %token PSEUDO_IF
 %token PSEUDO_IFDEF
@@ -209,6 +210,7 @@ pseudo
     | pseudo_dw        { pseudo_dw(); }
     | pseudo_else      { pseudo_else(); }
     | pseudo_endif     { pseudo_endif(); }
+    | pseudo_fill      { /* NOTHING */ }
     | pseudo_hibytes   { pseudo_hibytes(); }
     | pseudo_if        { pseudo_if($1); }
     | pseudo_ifdef     { pseudo_ifdef($1); }
@@ -280,6 +282,11 @@ pseudo_else
 
 pseudo_endif
     : PSEUDO_ENDIF
+    ;
+
+pseudo_fill
+    : PSEUDO_FILL number number { pseudo_fill($2, $3); }
+    | PSEUDO_FILL number        { pseudo_fill($2, 0xFF); }
     ;
 
 pseudo_hibytes
