@@ -313,6 +313,8 @@ void dec_register(unsigned int reg, int value);
 void inc_cycles(unsigned int count);
 unsigned int get_flag(unsigned int flag);
 void set_flag(unsigned int flag, unsigned int value);
+void stack_push(unsigned int value);
+unsigned int stack_pull();
 
 void do_aac(unsigned int opcode_index, unsigned int value);
 void do_aax(unsigned int opcode_index, unsigned int value);
