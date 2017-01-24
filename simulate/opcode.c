@@ -209,7 +209,15 @@ void do_jmp(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_jsr(unsigned int opcode_index, unsigned int value) {
+    unsigned int address = get_address(opcode_index, value), tmp = 0;
 
+    tmp = get_register(REGISTER_PC);
+
+    stack_push((tmp >> 8) & 0xFF);
+    stack_push(tmp & 0xFF);
+    set_register(REGISTER_PC, address);
+
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_kil(unsigned int opcode_index, unsigned int value) {
