@@ -67,6 +67,7 @@ int include_stack_ptr = 0;
 ".dw"                    { return PSEUDO_DW; }
 ".else"                  { return PSEUDO_ELSE; }
 ".endif"                 { return PSEUDO_ENDIF; }
+".fill"                  { return PSEUDO_FILL; }
 ".hibytes"               { return PSEUDO_HIBYTES; }
 ".if"                    { return PSEUDO_IF; }
 ".ifdef"                 { return PSEUDO_IFDEF; }
