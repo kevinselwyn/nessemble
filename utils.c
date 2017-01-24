@@ -64,7 +64,8 @@ int root(int x, int y) {
  */
 unsigned int crc_32(unsigned int *buffer, unsigned int length) {
     unsigned int crc = 0;
-    unsigned int table[256], has_table = FALSE, rem = 0, octet = 0, i = 0, j = 0;
+    unsigned int has_table = FALSE, rem = 0, octet = 0, i = 0, j = 0;
+    unsigned int table[256];
     unsigned int *p, *q;
 
     if (has_table == FALSE) {
@@ -72,7 +73,7 @@ unsigned int crc_32(unsigned int *buffer, unsigned int length) {
             rem = i;
 
             for (j = 0; j < 8; j++) {
-                if (rem & 1) {
+                if ((rem & 1) != 0) {
                     rem >>= 1;
                     rem ^= 0xEDB88320;
                 } else {
