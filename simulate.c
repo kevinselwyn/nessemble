@@ -697,6 +697,28 @@ void inc_register(unsigned int reg, int value) {
     }
 }
 
+void dec_register(unsigned int reg, int value) {
+    switch (reg) {
+    case REGISTER_A:
+        registers.a -= (unsigned int)value;
+        break;
+    case REGISTER_X:
+        registers.x -= (unsigned int)value;
+        break;
+    case REGISTER_Y:
+        registers.y -= (unsigned int)value;
+        break;
+    case REGISTER_PC:
+        registers.pc -= value;
+        break;
+    case REGISTER_SP:
+        registers.sp -= (unsigned int)value;
+        break;
+    default:
+        break;
+    }
+}
+
 void inc_cycles(unsigned int count) {
     cycles += count;
 }
@@ -762,7 +784,8 @@ void set_flag(unsigned int flag, unsigned int value) {
 }
 
 void stack_push(unsigned int value) {
-
+    set_byte(0x0100 | get_register(REGISTER_SP), value);
+    dec_register(REGISTER_SP, 1);
 }
 
 unsigned int stack_pull() {

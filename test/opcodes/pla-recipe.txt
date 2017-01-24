@@ -1,0 +1,3 @@
+.fill 01FF 80
+.registers SP=FE
+.step
