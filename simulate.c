@@ -17,10 +17,17 @@ struct regs {
     struct flgs flags;
 };
 
+struct record {
+    unsigned int address;
+    FILE *file;
+};
+
 char *rom_data;
 
 static struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } };
 static unsigned int cycles = 0;
+static struct record records[100];
+static unsigned int record_index = 0;
 
 /**
  * Simulate usage
@@ -36,6 +43,7 @@ void usage_simulate() {
     printf("  .goto XXXX                      Set program counter to XXXX\n");
     printf("  .step [X]                       Step program counter by 1 or X\n");
     printf("  .run                            Run program\n");
+    printf("  .record XXXX <filename>         Record writes to address XXXX\n");
     printf("  .help                           Print this message\n\n");
 }
 
@@ -234,12 +242,28 @@ int repl(char *input) {
         while (1 == TRUE) {
             if (step() == TRUE) {
                 print_registers();
+                quit();
 
                 rc = RETURN_EPERM;
                 goto cleanup;
             }
         }
 
+        goto cleanup;
+    }
+
+    if (strncmp(input, "record", 6) == 0) {
+        if (length > 7) {
+            start_record(input+7);
+        }
+
+        goto cleanup;
+    }
+
+    if (strncmp(input, "quit", 4) == 0 || strncmp(input, "exit", 4) == 0) {
+        quit();
+
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -580,6 +604,34 @@ void print_cycles() {
     printf("%u cycles\n", cycles);
 }
 
+void start_record(char *input) {
+    unsigned int address = 0;
+
+    input[4] = '\0';
+    address = (unsigned int)hex2int(input);
+    input[4] = ' ';
+
+    records[record_index].address = address;
+    records[record_index].file = fopen(input+5, "w+");
+
+    if (!records[record_index].file) {
+        fprintf(stderr, "Could not open %s\n", input+5);
+        return;
+    }
+
+    record_index++;
+}
+
+void quit() {
+    unsigned int i = 0, l = 0;
+
+    for (i = 0, l = record_index; i < l; i++) {
+        if (records[i].file) {
+            (void)fclose(records[i].file);
+        }
+    }
+}
+
 void load_goto(char *input) {
     input[4] = '\0';
 
@@ -624,6 +676,14 @@ unsigned int get_byte(unsigned int address) {
 }
 
 void set_byte(unsigned int address, unsigned int byte) {
+    unsigned int i = 0, l = 0;
+
+    for (i = 0, l = record_index; i < l; i++) {
+        if (records[i].address == address) {
+            fprintf(records[i].file, "%04X %02X\n", get_register(REGISTER_PC), byte);
+        }
+    }
+
     rom_data[address] = (char)byte;
 }
 
