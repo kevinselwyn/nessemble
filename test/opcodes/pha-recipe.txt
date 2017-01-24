@@ -1,0 +1,3 @@
+.registers A=80
+.step
+.memory 01FF
