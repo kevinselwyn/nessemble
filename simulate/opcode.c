@@ -435,14 +435,17 @@ void do_rti(unsigned int opcode_index, unsigned int value) {
 
     tmp = (stack_pull() | (stack_pull() << 8)) & 0xFFFF;
 
-    set_register(REGISTER_PC, tmp - 1);
+    set_register(REGISTER_PC, tmp);
 
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_rts(unsigned int opcode_index, unsigned int value) {
-    set_register(REGISTER_PC, stack_pull());
-    inc_register(REGISTER_PC, stack_pull() << 8);
+    unsigned int tmp = 0;
+
+    tmp = stack_pull() | (stack_pull() << 8);
+
+    set_register(REGISTER_PC, tmp);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
