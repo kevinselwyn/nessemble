@@ -6,7 +6,7 @@
 void pseudo_else() {
     switch (if_type) {
     case IF_IF:
-        if_cond = if_cond == TRUE ? FALSE : TRUE;
+        if_cond = (unsigned int)(if_cond == TRUE ? FALSE : TRUE);
         break;
     case IF_IFDEF:
         if_type = IF_IFNDEF;

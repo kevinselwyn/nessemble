@@ -60,8 +60,9 @@ int root(int x, int y) {
  * Calculate CRC-32
  * @param {unsigned int *} buffer - Data buffer
  * @param {unsigned int} length - Data length
+ * @return {unsigned int} CRC-32 value
  */
-int crc_32(unsigned int *buffer, unsigned int length) {
+unsigned int crc_32(unsigned int *buffer, unsigned int length) {
     unsigned int crc = 0;
     unsigned int table[256], has_table = FALSE, rem = 0, octet = 0, i = 0, j = 0;
     unsigned int *p, *q;
