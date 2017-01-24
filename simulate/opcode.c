@@ -69,7 +69,7 @@ void do_beq(unsigned int opcode_index, unsigned int value) {
 
         set_register(REGISTER_PC, address);
     } else {
-        inc_register(REGISTER_PC, opcodes[opcode_index].length);
+        inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     }
 
     inc_cycles(timing);
@@ -104,7 +104,7 @@ void do_bne(unsigned int opcode_index, unsigned int value) {
 
         set_register(REGISTER_PC, address);
     } else {
-        inc_register(REGISTER_PC, opcodes[opcode_index].length);
+        inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     }
 
     inc_cycles(timing);
@@ -129,25 +129,25 @@ void do_bvs(unsigned int opcode_index, unsigned int value) {
 void do_clc(unsigned int opcode_index, unsigned int value) {
     set_flag(FLG_CARRY, 0);
     inc_cycles(opcodes[opcode_index].timing);
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
 }
 
 void do_cld(unsigned int opcode_index, unsigned int value) {
     set_flag(FLG_DECIMAL, 0);
     inc_cycles(opcodes[opcode_index].timing);
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
 }
 
 void do_cli(unsigned int opcode_index, unsigned int value) {
     set_flag(FLG_INTERRUPT, 0);
     inc_cycles(opcodes[opcode_index].timing);
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
 }
 
 void do_clv(unsigned int opcode_index, unsigned int value) {
     set_flag(FLG_OVERFLOW, 0);
     inc_cycles(opcodes[opcode_index].timing);
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
 }
 
 void do_cmp(unsigned int opcode_index, unsigned int value) {
@@ -177,9 +177,9 @@ void do_dex(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_X, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -190,9 +190,9 @@ void do_dey(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_Y, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -211,9 +211,9 @@ void do_inc(unsigned int opcode_index, unsigned int value) {
 
     set_byte(address, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -224,9 +224,9 @@ void do_inx(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_X, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -237,9 +237,9 @@ void do_iny(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_Y, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -278,7 +278,7 @@ void do_lax(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_lda(unsigned int opcode_index, unsigned int value) {
-    int mode = opcodes[opcode_index].mode;
+    unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0, tmp = 0;
 
     if (mode == MODE_IMMEDIATE) {
@@ -290,14 +290,14 @@ void do_lda(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_A, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_ldx(unsigned int opcode_index, unsigned int value) {
-    int mode = opcodes[opcode_index].mode;
+    unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0, tmp = 0;
 
     if (mode == MODE_IMMEDIATE) {
@@ -309,14 +309,14 @@ void do_ldx(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_X, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_ldy(unsigned int opcode_index, unsigned int value) {
-    int mode = opcodes[opcode_index].mode;
+    unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0, tmp = 0;
 
     if (mode == MODE_IMMEDIATE) {
@@ -328,14 +328,14 @@ void do_ldy(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_Y, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_lsr(unsigned int opcode_index, unsigned int value) {
-    int mode = opcodes[opcode_index].mode;
+    unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0, tmp = 0;
 
     if (mode == MODE_ACCUMULATOR) {
@@ -352,19 +352,19 @@ void do_lsr(unsigned int opcode_index, unsigned int value) {
     }
 
     set_flag(FLG_NEGATIVE, 0);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_nop(unsigned int opcode_index, unsigned int value) {
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_ora(unsigned int opcode_index, unsigned int value) {
-    int mode = opcodes[opcode_index].mode;
+    unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0, tmp = 0;
 
     if (mode == MODE_IMMEDIATE) {
@@ -377,17 +377,17 @@ void do_ora(unsigned int opcode_index, unsigned int value) {
     tmp = (tmp & get_register(REGISTER_A)) & 0xFF;
 
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
     set_register(REGISTER_A, tmp);
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_pha(unsigned int opcode_index, unsigned int value) {
     stack_push(get_register(REGISTER_A));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -406,7 +406,7 @@ void do_php(unsigned int opcode_index, unsigned int value) {
 
     stack_push(tmp);
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -417,9 +417,9 @@ void do_pla(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_A, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -436,7 +436,7 @@ void do_plp(unsigned int opcode_index, unsigned int value) {
     set_flag(FLG_OVERFLOW, (tmp >> 6) & 1);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -445,7 +445,7 @@ void do_rla(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_rol(unsigned int opcode_index, unsigned int value) {
-    int mode = opcodes[opcode_index].mode;
+    unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0, tmp = 0, add = 0;
 
     if (mode == MODE_ACCUMULATOR) {
@@ -464,14 +464,14 @@ void do_rol(unsigned int opcode_index, unsigned int value) {
     }
 
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_ror(unsigned int opcode_index, unsigned int value) {
-    int mode = opcodes[opcode_index].mode;
+    unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0, tmp = 0, add = 0;
 
     if (mode == MODE_ACCUMULATOR) {
@@ -489,9 +489,9 @@ void do_ror(unsigned int opcode_index, unsigned int value) {
     }
 
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -529,44 +529,44 @@ void do_rts(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_sbc(unsigned int opcode_index, unsigned int value) {
-    int mode = opcodes[opcode_index].mode, tmp = 0;
+    int tmp = 0;
+    unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0;
 
     if (mode == MODE_IMMEDIATE) {
         tmp = (int)(get_register(REGISTER_A) - value - (1 - get_flag(FLG_CARRY)));
-        set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-        set_flag(FLG_ZERO, (tmp & 0xFF) == 0 ? 1 : 0);
-        set_flag(FLG_OVERFLOW, (((get_register(REGISTER_A) ^ tmp) & 0x80) != 0 && ((get_register(REGISTER_A) ^ value) & 0x80) != 0) ? 1 : 0);
+        set_flag(FLG_NEGATIVE, ((unsigned int)tmp >> 7) & 1);
+        set_flag(FLG_OVERFLOW, (unsigned int)((((get_register(REGISTER_A) ^ tmp) & 0x80) != 0 && ((get_register(REGISTER_A) ^ value) & 0x80) != 0) ? TRUE : FALSE));
     } else {
         address = get_address(opcode_index, value);
         tmp = (int)(get_register(REGISTER_A) - get_byte(address) - (1 - get_flag(FLG_CARRY)));
-        set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-        set_flag(FLG_ZERO, (tmp & 0xFF) == 0 ? 1 : 0);
-        set_flag(FLG_OVERFLOW, (((get_register(REGISTER_A) ^ tmp) & 0x80) != 0 && ((get_register(REGISTER_A) ^ get_byte(address)) & 0x80) != 0) ? 1 : 0);
+        set_flag(FLG_NEGATIVE, ((unsigned int)tmp >> 7) & 1);
+        set_flag(FLG_OVERFLOW, (unsigned int)((((get_register(REGISTER_A) ^ tmp) & 0x80) != 0 && ((get_register(REGISTER_A) ^ get_byte(address)) & 0x80) != 0) ? TRUE : FALSE));
     }
 
-    set_register(REGISTER_A, tmp & 0xFF);
-    set_flag(FLG_CARRY, tmp < 0 ? 0 : 1);
+    set_register(REGISTER_A, (unsigned int)(tmp & 0xFF));
+    set_flag(FLG_ZERO, (unsigned int)((tmp & 0xFF) == 0 ? TRUE : FALSE));
+    set_flag(FLG_CARRY, (unsigned int)(tmp < 0 ? FALSE : TRUE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_sec(unsigned int opcode_index, unsigned int value) {
     set_flag(FLG_CARRY, 1);
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_sed(unsigned int opcode_index, unsigned int value) {
     set_flag(FLG_DECIMAL, 1);
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_sei(unsigned int opcode_index, unsigned int value) {
     set_flag(FLG_INTERRUPT, 1);
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -583,7 +583,7 @@ void do_sta(unsigned int opcode_index, unsigned int value) {
 
     set_byte(address, get_register(REGISTER_A));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -592,7 +592,7 @@ void do_stx(unsigned int opcode_index, unsigned int value) {
 
     set_byte(address, get_register(REGISTER_X));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -601,7 +601,7 @@ void do_sty(unsigned int opcode_index, unsigned int value) {
 
     set_byte(address, get_register(REGISTER_Y));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -620,9 +620,9 @@ void do_tax(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_X, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -633,9 +633,9 @@ void do_tay(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_Y, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -645,7 +645,7 @@ void do_top(unsigned int opcode_index, unsigned int value) {
 
 void do_tsx(unsigned int opcode_index, unsigned int value) {
     set_register(REGISTER_X, get_register(REGISTER_SP));
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -656,15 +656,15 @@ void do_txa(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_A, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_txs(unsigned int opcode_index, unsigned int value) {
     set_register(REGISTER_SP, get_register(REGISTER_X));
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
@@ -675,9 +675,9 @@ void do_tya(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_A, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
-    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
