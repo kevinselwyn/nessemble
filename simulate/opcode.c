@@ -49,26 +49,30 @@ void do_bcs(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_beq(unsigned int opcode_index, unsigned int value) {
-    unsigned int address = 0;
+    unsigned int address = 0, tmp = 0, timing = 0;
+
+    tmp = (unsigned int)get_register(REGISTER_PC);
+    timing = opcodes[opcode_index].timing;
 
     if (value >= 0x80) {
-        address = (unsigned int)(get_register(REGISTER_PC) - (0xFF - value - 1));
+        address = tmp - (0xFF - value - 1);
     } else {
-        address = (unsigned int)(get_register(REGISTER_PC) + value);
+        address = tmp + value;
     }
 
     if (get_flag(FLG_ZERO) != 0) {
-        if ((get_register(REGISTER_PC) & 0xFF00) != (address& 0xFF00)) {
-            inc_cycles(opcodes[opcode_index].timing + 2);
+        if ((tmp & 0xFF00) != (address & 0xFF00)) {
+            timing += 2;
         } else {
-            inc_cycles(opcodes[opcode_index].timing + 1);
+            timing += 1;
         }
 
         set_register(REGISTER_PC, address);
     } else {
-        inc_cycles(opcodes[opcode_index].timing);
         inc_register(REGISTER_PC, opcodes[opcode_index].length);
     }
+
+    inc_cycles(timing);
 }
 
 void do_bit(unsigned int opcode_index, unsigned int value) {
@@ -80,26 +84,30 @@ void do_bmi(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_bne(unsigned int opcode_index, unsigned int value) {
-    unsigned int address = 0;
+    unsigned int address = 0, tmp = 0, timing = 0;
+
+    tmp = (unsigned int)get_register(REGISTER_PC);
+    timing = opcodes[opcode_index].timing;
 
     if (value >= 0x80) {
-        address = (unsigned int)(get_register(REGISTER_PC) - (0xFF - value - 1));
+        address = tmp - (0xFF - value - 1);
     } else {
-        address = (unsigned int)(get_register(REGISTER_PC) + value);
+        address = tmp + value;
     }
 
     if (get_flag(FLG_ZERO) == 0) {
-        if ((get_register(REGISTER_PC) & 0xFF00) != (address& 0xFF00)) {
-            inc_cycles(opcodes[opcode_index].timing + 2);
+        if ((tmp & 0xFF00) != (address& 0xFF00)) {
+            timing += 2;
         } else {
-            inc_cycles(opcodes[opcode_index].timing + 1);
+            timing += 1;
         }
 
         set_register(REGISTER_PC, address);
     } else {
-        inc_cycles(opcodes[opcode_index].timing);
         inc_register(REGISTER_PC, opcodes[opcode_index].length);
     }
+
+    inc_cycles(timing);
 }
 
 void do_bpl(unsigned int opcode_index, unsigned int value) {
@@ -163,17 +171,27 @@ void do_dec(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_dex(unsigned int opcode_index, unsigned int value) {
-    set_register(REGISTER_X, (get_register(REGISTER_X) - 1) & 0xFF);
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_X) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_X) == 0 ? 1 : 0);
+    unsigned int tmp = 0;
+
+    tmp = (get_register(REGISTER_X) - 1) & 0xFF;
+
+    set_register(REGISTER_X, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_dey(unsigned int opcode_index, unsigned int value) {
-    set_register(REGISTER_Y, (get_register(REGISTER_Y) - 1) & 0xFF);
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_Y) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_Y) == 0 ? 1 : 0);
+    unsigned int tmp = 0;
+
+    tmp = (get_register(REGISTER_Y) - 1) & 0xFF;
+
+    set_register(REGISTER_Y, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -187,21 +205,40 @@ void do_eor(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_inc(unsigned int opcode_index, unsigned int value) {
+    unsigned int address = get_address(opcode_index, value), tmp = 0;
 
+    tmp = (get_byte(address) + 1) & 0xFF;
+
+    set_byte(address, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_inx(unsigned int opcode_index, unsigned int value) {
-    set_register(REGISTER_X, (get_register(REGISTER_X) + 1) & 0xFF);
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_X) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_X) == 0 ? 1 : 0);
+    unsigned int tmp = 0;
+
+    tmp = (get_register(REGISTER_X) + 1) & 0xFF;
+
+    set_register(REGISTER_X, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_iny(unsigned int opcode_index, unsigned int value) {
-    set_register(REGISTER_Y, (get_register(REGISTER_Y) + 1) & 0xFF);
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_Y) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_Y) == 0 ? 1 : 0);
+    unsigned int tmp = 0;
+
+    tmp = (get_register(REGISTER_Y) + 1) & 0xFF;
+
+    set_register(REGISTER_Y, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -242,51 +279,57 @@ void do_lax(unsigned int opcode_index, unsigned int value) {
 
 void do_lda(unsigned int opcode_index, unsigned int value) {
     int mode = opcodes[opcode_index].mode;
-    unsigned int address = 0;
+    unsigned int address = 0, tmp = 0;
 
     if (mode == MODE_IMMEDIATE) {
-        set_register(REGISTER_A, value);
+        tmp = value;
     } else {
         address = get_address(opcode_index, value);
-        set_register(REGISTER_A, get_byte(address));
+        tmp = get_byte(address);
     }
 
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_A) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_A) == 0 ? 1 : 0);
+    set_register(REGISTER_A, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_ldx(unsigned int opcode_index, unsigned int value) {
     int mode = opcodes[opcode_index].mode;
-    unsigned int address = 0;
+    unsigned int address = 0, tmp = 0;
 
     if (mode == MODE_IMMEDIATE) {
-        set_register(REGISTER_X, value);
+        tmp = value;
     } else {
         address = get_address(opcode_index, value);
-        set_register(REGISTER_X, get_byte(address));
+        tmp = get_byte(address);
     }
 
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_X) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_X) == 0 ? 1 : 0);
+    set_register(REGISTER_X, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_ldy(unsigned int opcode_index, unsigned int value) {
     int mode = opcodes[opcode_index].mode;
-    unsigned int address = 0;
+    unsigned int address = 0, tmp = 0;
 
     if (mode == MODE_IMMEDIATE) {
-        set_register(REGISTER_Y, value);
+        tmp = value;
     } else {
         address = get_address(opcode_index, value);
-        set_register(REGISTER_Y, get_byte(address));
+        tmp = get_byte(address);
     }
 
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_Y) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_Y) == 0 ? 1 : 0);
+    set_register(REGISTER_Y, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -310,6 +353,7 @@ void do_lsr(unsigned int opcode_index, unsigned int value) {
 
     set_flag(FLG_NEGATIVE, 0);
     set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -320,7 +364,24 @@ void do_nop(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_ora(unsigned int opcode_index, unsigned int value) {
+    int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0, tmp = 0;
 
+    if (mode == MODE_IMMEDIATE) {
+        tmp = value;
+    } else {
+        address = get_address(opcode_index, value);
+        tmp = get_byte(address);
+    }
+
+    tmp = (tmp & get_register(REGISTER_A)) & 0xFF;
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0);
+    set_register(REGISTER_A, tmp);
+
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_pha(unsigned int opcode_index, unsigned int value) {
@@ -404,6 +465,7 @@ void do_rol(unsigned int opcode_index, unsigned int value) {
 
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
     set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -428,6 +490,7 @@ void do_ror(unsigned int opcode_index, unsigned int value) {
 
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
     set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -474,17 +537,16 @@ void do_sbc(unsigned int opcode_index, unsigned int value) {
         set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
         set_flag(FLG_ZERO, (tmp & 0xFF) == 0 ? 1 : 0);
         set_flag(FLG_OVERFLOW, (((get_register(REGISTER_A) ^ tmp) & 0x80) != 0 && ((get_register(REGISTER_A) ^ value) & 0x80) != 0) ? 1 : 0);
-        set_flag(FLG_CARRY, tmp < 0 ? 0 : 1);
-        set_register(REGISTER_A, tmp & 0xFF);
     } else {
         address = get_address(opcode_index, value);
         tmp = (int)(get_register(REGISTER_A) - get_byte(address) - (1 - get_flag(FLG_CARRY)));
         set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
         set_flag(FLG_ZERO, (tmp & 0xFF) == 0 ? 1 : 0);
         set_flag(FLG_OVERFLOW, (((get_register(REGISTER_A) ^ tmp) & 0x80) != 0 && ((get_register(REGISTER_A) ^ get_byte(address)) & 0x80) != 0) ? 1 : 0);
-        set_flag(FLG_CARRY, tmp < 0 ? 0 : 1);
-        set_register(REGISTER_A, tmp & 0xFF);
     }
+
+    set_register(REGISTER_A, tmp & 0xFF);
+    set_flag(FLG_CARRY, tmp < 0 ? 0 : 1);
 
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
@@ -520,6 +582,7 @@ void do_sta(unsigned int opcode_index, unsigned int value) {
     unsigned int address = get_address(opcode_index, value);
 
     set_byte(address, get_register(REGISTER_A));
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -528,6 +591,7 @@ void do_stx(unsigned int opcode_index, unsigned int value) {
     unsigned int address = get_address(opcode_index, value);
 
     set_byte(address, get_register(REGISTER_X));
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -536,6 +600,7 @@ void do_sty(unsigned int opcode_index, unsigned int value) {
     unsigned int address = get_address(opcode_index, value);
 
     set_byte(address, get_register(REGISTER_Y));
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -549,17 +614,27 @@ void do_sya(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_tax(unsigned int opcode_index, unsigned int value) {
-    set_register(REGISTER_X, get_register(REGISTER_A));
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_A) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_A) == 0 ? 1 : 0);
+    unsigned int tmp = 0;
+
+    tmp = get_register(REGISTER_A);
+
+    set_register(REGISTER_X, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_tay(unsigned int opcode_index, unsigned int value) {
-    set_register(REGISTER_Y, get_register(REGISTER_A));
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_A) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_A) == 0 ? 1 : 0);
+    unsigned int tmp = 0;
+
+    tmp = get_register(REGISTER_A);
+
+    set_register(REGISTER_Y, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -575,9 +650,14 @@ void do_tsx(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_txa(unsigned int opcode_index, unsigned int value) {
-    set_register(REGISTER_A, get_register(REGISTER_X));
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_X) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_X) == 0 ? 1 : 0);
+    unsigned int tmp = 0;
+
+    tmp = get_register(REGISTER_X);
+
+    set_register(REGISTER_A, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
@@ -589,9 +669,14 @@ void do_txs(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_tya(unsigned int opcode_index, unsigned int value) {
-    set_register(REGISTER_A, get_register(REGISTER_Y));
-    set_flag(FLG_NEGATIVE, (get_register(REGISTER_Y) >> 7) & 1);
-    set_flag(FLG_ZERO, get_register(REGISTER_Y) == 0 ? 1 : 0);
+    unsigned int tmp = 0;
+
+    tmp = get_register(REGISTER_Y);
+
+    set_register(REGISTER_A, tmp);
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
     inc_register(REGISTER_PC, opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
 }
