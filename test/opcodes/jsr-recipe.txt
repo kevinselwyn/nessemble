@@ -1,0 +1,8 @@
+.step
+.memory 01FE:01FF
+.registers PC=8003
+.step
+.memory 01FC:01FD
+.registers PC=8006
+.step
+.memory 01FA:01FB
