@@ -308,7 +308,10 @@ void do_ora(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_pha(unsigned int opcode_index, unsigned int value) {
+    stack_push(get_register(REGISTER_A));
 
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_php(unsigned int opcode_index, unsigned int value) {
@@ -325,6 +328,9 @@ void do_php(unsigned int opcode_index, unsigned int value) {
     tmp |= get_flag(FLG_NEGATIVE) << 7;
 
     stack_push(tmp);
+
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_pla(unsigned int opcode_index, unsigned int value) {
@@ -335,6 +341,9 @@ void do_pla(unsigned int opcode_index, unsigned int value) {
     set_register(REGISTER_A, tmp);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
     set_flag(FLG_ZERO, tmp == 0 ? 1 : 0);
+
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_plp(unsigned int opcode_index, unsigned int value) {
@@ -349,6 +358,9 @@ void do_plp(unsigned int opcode_index, unsigned int value) {
     set_flag(FLG_BREAK, (tmp >> 4) & 1);
     set_flag(FLG_OVERFLOW, (tmp >> 6) & 1);
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+
+    inc_register(REGISTER_PC, opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_rla(unsigned int opcode_index, unsigned int value) {
@@ -424,6 +436,8 @@ void do_rti(unsigned int opcode_index, unsigned int value) {
     tmp = (stack_pull() | (stack_pull() << 8)) & 0xFFFF;
 
     set_register(REGISTER_PC, tmp - 1);
+
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_rts(unsigned int opcode_index, unsigned int value) {
