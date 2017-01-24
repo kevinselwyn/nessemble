@@ -11,3 +11,7 @@ DEFINED = $01
 .else
 .db $30, $40
 .endif
+
+.if DEFINED == $01
+.db $30
+.endif
