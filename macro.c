@@ -4,8 +4,21 @@
 #include "nessemble.h"
 
 void add_macro(char *name) {
-    macros[macro_index].name = name;
+    macros[macro_index].name = (char *)malloc(sizeof(char) * 1024);
+
+    if (!macros[macro_index].name) {
+        yyerror("Memory error");
+    }
+
+    strcpy(macros[macro_index].name, name);
+
     macros[macro_index].text = (char *)malloc(sizeof(char) * (1024 * 1024));
+
+    if (!macros[macro_index].text) {
+        yyerror("Memory error");
+    }
+
+    strcpy(macros[macro_index].text, "");
 }
 
 void end_macro() {
@@ -13,6 +26,10 @@ void end_macro() {
 }
 
 void append_macro(char *text) {
+    if (!macros[macro_index].text) {
+        return;
+    }
+
     strcat(macros[macro_index].text, text);
     strcat(macros[macro_index].text, "\n");
 }
