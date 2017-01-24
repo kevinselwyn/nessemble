@@ -303,6 +303,7 @@ void set_byte(unsigned int address, unsigned int byte);
 unsigned int get_register(unsigned int reg);
 void set_register(unsigned int reg, unsigned int value);
 void inc_register(unsigned int reg, int value);
+void dec_register(unsigned int reg, int value);
 void inc_cycles(unsigned int count);
 unsigned int get_flag(unsigned int flag);
 void set_flag(unsigned int flag, unsigned int value);

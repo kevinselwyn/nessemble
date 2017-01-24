@@ -1,0 +1,3 @@
+.flags negative=1,carry=1
+.step
+.memory 01FF
