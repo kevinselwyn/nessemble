@@ -1,0 +1,30 @@
+.registers A=44,X=01,Y=10
+.fill 0044 45 43
+.fill 4400 45 43
+.fill 4410 44
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.fill 0013 45 43
+.fill 0023 44
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
+.step
