@@ -5,7 +5,7 @@
 
 ;;;;;;;;;;;;;;;;
 
-.prg0
+.prg 0
 
 RESET:
     SEI
@@ -153,6 +153,6 @@ sprites:
 
 ;;;;;;;;;;;;;;;;
 
-.chr0
+.chr 0
 
   .incpng "controller.png"

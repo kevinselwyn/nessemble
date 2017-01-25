@@ -5,7 +5,7 @@
 
 ;;;;;;;;;;;;;;;;
 
-.prg0
+.prg 0
 
 RESET:
     SEI
@@ -113,6 +113,6 @@ palette:
 
 ;;;;;;;;;;;;;;;;
 
-.chr0
+.chr 0
 
     .incpng "sprites.png"

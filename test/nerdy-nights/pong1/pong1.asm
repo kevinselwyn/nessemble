@@ -39,7 +39,7 @@ PADDLE2X       = $F0
 
 ;;;;;;;;;;;;;;;;
 
-.prg0
+.prg 0
 
 RESET:
     SEI
@@ -358,6 +358,6 @@ sprites:
 
 ;;;;;;;;;;;;;;;;
 
-.chr0
+.chr 0
 
   .incpng "pong1.png"
