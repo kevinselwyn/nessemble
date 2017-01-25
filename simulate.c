@@ -158,6 +158,10 @@ int simulate(char *input, char *recipe) {
     }
 
 cleanup:
+    if (indata) {
+        free(indata);
+    }
+
     if (rom_data) {
         free(rom_data);
     }
@@ -177,6 +181,7 @@ cleanup:
 int repl(char *input) {
     int rc = RETURN_OK;
     size_t length = 0;
+    char *addrs = NULL;
 
     length = strlen(input);
 
@@ -210,7 +215,12 @@ int repl(char *input) {
 
     if (strncmp(input, "fill", 4) == 0) {
         if (length > 5) {
-            print_memory(fill_memory(input+5));
+            fill_memory(&addrs, input+5);
+            print_memory(addrs);
+
+            if (addrs) {
+                free(addrs);
+            }
         }
 
         goto cleanup;
@@ -448,7 +458,7 @@ void load_flags(char *input) {
     }
 }
 
-char *fill_memory(char *input) {
+void fill_memory(char **output, char *input) {
     unsigned int i = 0, l = 0, addr_start = 0, addr_end = 0;
     size_t length = 0;
     char *addrs = NULL;
@@ -479,7 +489,7 @@ char *fill_memory(char *input) {
     }
 
 cleanup:
-    return addrs;
+    *output = addrs;
 }
 
 unsigned int print_instruction(unsigned int address) {

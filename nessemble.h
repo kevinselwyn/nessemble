@@ -290,7 +290,7 @@ int repl(char *input);
 void print_registers();
 void load_registers(char *input);
 void load_flags(char *input);
-char *fill_memory(char *input);
+void fill_memory(char **output, char *input);
 unsigned int print_instruction(unsigned int address);
 void print_instructions(char *input);
 int step();

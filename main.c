@@ -368,6 +368,10 @@ cleanup:
         free(outfilename);
     }
 
+    if (cwd_path) {
+        free(cwd_path);
+    }
+
     if (file) {
         (void)fclose(file);
     }
