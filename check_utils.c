@@ -67,6 +67,14 @@ START_TEST(test_utils_dec2int) {
 }
 END_TEST
 
+START_TEST(test_utils_get_fullpath) {
+    char *path = NULL, *string = "test";
+
+    ck_assert_int_eq(get_fullpath(&path, string), 0);
+    ck_assert_str_eq(string, "test");
+}
+END_TEST
+
 START_TEST(test_utils_load_file) {
     size_t length = 0;
     char *data = NULL;
