@@ -68,6 +68,12 @@ int disassemble(char *input, char *output) {
         opcode_id = (unsigned int)indata[i] & 0xFF;
 
         if ((opcodes[opcode_id].meta & META_UNDOCUMENTED) == 0) {
+            if (i + (opcodes[opcode_id].length - 1) >= insize) {
+                fprintf(outfile, "%04X | %02X       | .db $%02X\n", i, opcode_id, opcode_id);
+                i += 1;
+                continue;
+            }
+
             switch (opcodes[opcode_id].mode) {
             case MODE_IMPLIED:
                 fprintf(outfile, "%04X | %02X       | %s\n", i, opcode_id, opcodes[opcode_id].mnemonic);
