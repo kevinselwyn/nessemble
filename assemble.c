@@ -134,8 +134,6 @@ void write_byte(unsigned int byte) {
  * @param {unsigned int} type - Symbol type
  */
 void add_symbol(char *name, unsigned int value, unsigned int type) {
-    size_t length = 0;
-
     if (pass == 1) {
         if (if_active == TRUE) {
             switch (if_type) {
@@ -157,18 +155,7 @@ void add_symbol(char *name, unsigned int value, unsigned int type) {
             }
         }
 
-        length = strlen(name);
-
-        symbols[symbol_index].name = (char *)malloc(sizeof(char) * (length + 1));
-
-        if (!symbols[symbol_index].name) {
-            yyerror("Memory error");
-            goto cleanup;
-        }
-
-        strcpy(symbols[symbol_index].name, name);
-
-cleanup:
+        symbols[symbol_index].name = strdup(name);
         symbols[symbol_index].value = value;
         symbols[symbol_index++].type = type;
     }
