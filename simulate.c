@@ -44,6 +44,7 @@ void usage_simulate() {
     printf("  .registers [register=XXXX,...]  Print registers (sets registers w/ options)\n");
     printf("  .flags [flag=X,...]             Print flags (sets flags w/ options)\n");
     printf("  .fill XXXX NN ...               Fill memory address with NN byte(s)\n");
+    printf("  .disassemble XXXX:XXXX          Disassemble instructions between addresses\n");
     printf("  .instruction                    Print next instruction\n");
     printf("  .memory XXXX[:XXXX]             Print memory in address range\n");
     printf("  .cycles                         Print count of CPU cycles\n");
@@ -52,8 +53,9 @@ void usage_simulate() {
     printf("  .run                            Run program\n");
     printf("  .record XXXX <filename>         Record writes to address XXXX\n");
     printf("  .breakpoints                    List all breakpoints\n");
-    printf("  .addbreakpoint XXXX <name>      Add breakpoint at address XXXX with optional name\n");
-    printf("  .removebreakpoint <name>        Remove breakpoint(s) at address XXXX or with name\n");
+    printf("  .add_breakpoint XXXX <name>     Add breakpoint at address XXXX with optional name\n");
+    printf("  .remove_breakpoint <name>       Remove breakpoint(s) at address XXXX or with name\n");
+    printf("  .quit                           Quit\n");
     printf("  .help                           Print this message\n\n");
 }
 
@@ -215,9 +217,17 @@ int repl(char *input) {
     }
 
     if (strncmp(input, "instruction", 11) == 0) {
-        print_instruction();
+        (void)print_instruction((unsigned int)get_register(REGISTER_PC));
+
+        printf("\n");
 
         goto cleanup;
+    }
+
+    if (strncmp(input, "disassemble", 11) == 0) {
+        if (length == 22) {
+            print_instructions(input+12);
+        }
     }
 
     if (strncmp(input, "memory", 6) == 0) {
@@ -280,17 +290,17 @@ int repl(char *input) {
         goto cleanup;
     }
 
-    if (strncmp(input, "addbreakpoint", 13) == 0) {
-        if (length > 14) {
-            add_breakpoint(input+14);
+    if (strncmp(input, "add_breakpoint", 14) == 0) {
+        if (length > 15) {
+            add_breakpoint(input+15);
         }
 
         goto cleanup;
     }
 
-    if (strncmp(input, "removebreakpoint", 16) == 0) {
-        if (length > 17) {
-            remove_breakpoint(input+17);
+    if (strncmp(input, "remove_breakpoint", 17) == 0) {
+        if (length > 18) {
+            remove_breakpoint(input+18);
         }
 
         goto cleanup;
@@ -472,75 +482,90 @@ cleanup:
     return addrs;
 }
 
-void print_instruction() {
+unsigned int print_instruction(unsigned int address) {
     unsigned int opcode_index = 0, mode = 0, arg0 = 0, arg1 = 0;
     char *mnemonic = NULL;
 
-    opcode_index = (unsigned int)rom_data[registers.pc] & 0xFF;
+    opcode_index = (unsigned int)rom_data[address] & 0xFF;
     mode = opcodes[opcode_index].mode;
     mnemonic = opcodes[opcode_index].mnemonic;
 
     switch (mode) {
     case MODE_IMPLIED:
-        printf("%s\n\n", mnemonic);
+        printf("%s\n", mnemonic);
         break;
     case MODE_ACCUMULATOR:
-        printf("%s A\n\n", mnemonic);
+        printf("%s A\n", mnemonic);
         break;
     case MODE_RELATIVE:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
         if (arg0 >= 0x80) {
-            printf("%s $%04X\n\n", mnemonic, (unsigned int)(registers.pc - (0xFF - arg0 - 1)));
+            printf("%s $%04X\n", mnemonic, (unsigned int)(address - (0xFF - arg0 - 1)));
         } else {
-            printf("%s $%04X\n\n", mnemonic, (unsigned int)(registers.pc + arg0));
+            printf("%s $%04X\n", mnemonic, (unsigned int)(address + arg0));
         }
         break;
     case MODE_IMMEDIATE:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        printf("%s #$%02X\n\n", mnemonic, arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        printf("%s #$%02X\n", mnemonic, arg0);
         break;
     case MODE_ZEROPAGE:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        printf("%s <$%02X\n\n", mnemonic, arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        printf("%s <$%02X\n", mnemonic, arg0);
         break;
     case MODE_ZEROPAGE_X:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        printf("%s <$%02X, X\n\n", mnemonic, arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        printf("%s <$%02X, X\n", mnemonic, arg0);
         break;
     case MODE_ZEROPAGE_Y:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        printf("%s <$%02X, Y\n\n", mnemonic, arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        printf("%s <$%02X, Y\n", mnemonic, arg0);
         break;
     case MODE_ABSOLUTE:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        arg1 = (unsigned int)rom_data[registers.pc+2] & 0xFF;
-        printf("%s $%04X\n\n", mnemonic, (arg1 << 8) | arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        arg1 = (unsigned int)rom_data[address+2] & 0xFF;
+        printf("%s $%04X\n", mnemonic, (arg1 << 8) | arg0);
         break;
     case MODE_ABSOLUTE_X:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        arg1 = (unsigned int)rom_data[registers.pc+2] & 0xFF;
-        printf("%s $%04X, X\n\n", mnemonic, (arg1 << 8) | arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        arg1 = (unsigned int)rom_data[address+2] & 0xFF;
+        printf("%s $%04X, X\n", mnemonic, (arg1 << 8) | arg0);
         break;
     case MODE_ABSOLUTE_Y:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        arg1 = (unsigned int)rom_data[registers.pc+2] & 0xFF;
-        printf("%s $%04X, Y\n\n", mnemonic, (arg1 << 8) | arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        arg1 = (unsigned int)rom_data[address+2] & 0xFF;
+        printf("%s $%04X, Y\n", mnemonic, (arg1 << 8) | arg0);
         break;
     case MODE_INDIRECT:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        arg1 = (unsigned int)rom_data[registers.pc+2] & 0xFF;
-        printf("%s ($%04X)\n\n", mnemonic, (arg1 << 8) | arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        arg1 = (unsigned int)rom_data[address+2] & 0xFF;
+        printf("%s ($%04X)\n", mnemonic, (arg1 << 8) | arg0);
         break;
     case MODE_INDIRECT_X:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        printf("%s ($%02X, X)\n\n", mnemonic, arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        printf("%s ($%02X, X)\n", mnemonic, arg0);
         break;
     case MODE_INDIRECT_Y:
-        arg0 = (unsigned int)rom_data[registers.pc+1] & 0xFF;
-        printf("%s ($%02X), Y\n\n", mnemonic, arg0);
+        arg0 = (unsigned int)rom_data[address+1] & 0xFF;
+        printf("%s ($%02X), Y\n", mnemonic, arg0);
         break;
     default:
         break;
+    }
+
+    return opcodes[opcode_index].length;
+}
+
+void print_instructions(char *input) {
+    unsigned int addr_start = 0, addr_end = 0;
+
+    input[4] = '\0';
+    addr_start = (unsigned int)hex2int(input);
+    addr_end = (unsigned int)hex2int(input+5);
+
+    while (addr_start < addr_end) {
+        fprintf(stderr, "%04X  ", addr_start);
+        addr_start += print_instruction(addr_start);
     }
 }
 
@@ -580,7 +605,9 @@ int steps(char *input) {
     count = (unsigned int)dec2int(input);
 
     for (i = 0, l = count; i < l; i++) {
-        print_instruction();
+        (void)print_instruction((unsigned int)get_register(REGISTER_PC));
+
+        printf("\n");
 
         if (step() == TRUE) {
             rc = RETURN_EPERM;
