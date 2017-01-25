@@ -1,7 +1,7 @@
 #include "../nessemble.h"
 
 void do_aac(unsigned int opcode_index, unsigned int value) {
-
+    // TODO: Undocumented
 }
 
 void do_aax(unsigned int opcode_index, unsigned int value) {
@@ -113,7 +113,20 @@ void do_beq(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_bit(unsigned int opcode_index, unsigned int value) {
+    unsigned int address = 0, tmp = 0;
 
+    address = get_address(opcode_index, value);
+    tmp = get_byte(address);
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_OVERFLOW, (tmp >> 6) & 1);
+
+    tmp &= get_register(REGISTER_A);
+
+    set_flag(FLG_ZERO, (tmp == 0 ? TRUE : FALSE));
+
+    inc_cycles(opcodes[opcode_index].timing);
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
 }
 
 void do_bmi(unsigned int opcode_index, unsigned int value) {
