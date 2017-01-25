@@ -490,6 +490,12 @@ unsigned int print_instruction(unsigned int address) {
     mode = opcodes[opcode_index].mode;
     mnemonic = opcodes[opcode_index].mnemonic;
 
+    if (is_flag_undocumented() == FALSE && (opcodes[opcode_index].meta & META_UNDOCUMENTED) != 0) {
+        arg0 = (unsigned int)rom_data[address] & 0xFF;
+        printf(".db $%02X\n", arg0);
+        return 1;
+    }
+
     switch (mode) {
     case MODE_IMPLIED:
         printf("%s\n", mnemonic);
@@ -577,6 +583,8 @@ int step() {
     length = opcodes[opcode_index].length;
 
     if (is_flag_undocumented() == FALSE && (opcodes[opcode_index].meta & META_UNDOCUMENTED) != 0) {
+        inc_register(REGISTER_PC, 1);
+
         rc = RETURN_EPERM;
         goto cleanup;
     }

@@ -28,7 +28,21 @@ void do_branch(unsigned int opcode_index, unsigned int value, unsigned int flag,
 }
 
 void do_aac(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    unsigned int tmp = 0;
+
+    if (is_flag_undocumented() == FALSE) {
+        inc_register(REGISTER_PC, 1);
+        return;
+    }
+
+    tmp = (value & get_register(REGISTER_A)) & 0xFF;
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_CARRY, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_aax(unsigned int opcode_index, unsigned int value) {
