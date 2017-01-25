@@ -360,6 +360,12 @@ int main(int argc, char *argv[]) {
     }
 
 cleanup:
+    for (i = 0, l = symbol_index; i < l; i++) {
+        if (symbols[i].name) {
+            free(symbols[i].name);
+        }
+    }
+
     if (rom) {
         free(rom);
     }
