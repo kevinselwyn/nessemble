@@ -1,6 +1,6 @@
 #!/bin/bash
 
-files="y.tab.c lex.yy.c assemble.c pseudo.c opcodes.c instructions.c disassemble.c simulate.c png.c utils.c usage.c"
+files="y.tab.c lex.yy.c assemble.c disassemble.c instructions.c macro.c opcodes.c png.c `ls pseudo/*.c` simulate.c `ls simulate/*.c` usage.c utils.c wav.c"
 flags="-ll -lpng"
 
 for file in check_*.c

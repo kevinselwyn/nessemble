@@ -44,7 +44,7 @@ $(NAME): $(OBJS) $(NAME).h
 $(TEST): all
 	@./$(TEST).sh
 
-check: $(LEX_OUT).c $(YACC_OUT).c $(OPCODES).c
+check: all
 	@./check.sh
 
 install: all

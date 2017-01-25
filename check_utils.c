@@ -25,6 +25,27 @@ START_TEST(test_utils_power) {
 }
 END_TEST
 
+START_TEST(test_utils_root) {
+    ck_assert_int_eq(root(16, 2), 4);
+    ck_assert_int_eq(root(9, 2), 3);
+    ck_assert_int_eq(root(4, 2), 2);
+    ck_assert_int_eq(root(1, 1), 1);
+}
+END_TEST
+
+START_TEST(test_utils_crc_32) {
+    unsigned int test1[5] = { 0x54, 0x68, 0x65 };
+    unsigned int test2[5] = { 0x71, 0x75, 0x69, 0x63, 0x6B };
+    unsigned int test3[5] = { 0x62, 0x72, 0x6F, 0x77, 0x6E };
+    unsigned int test4[5] = { 0x66, 0x6F, 0x78 };
+
+    ck_assert_uint_eq(crc_32(test1, 3), 0x04082B06);
+    ck_assert_uint_eq(crc_32(test2, 5), 0x8DC71ED7);
+    ck_assert_uint_eq(crc_32(test3, 5), 0x6D199454);
+    ck_assert_uint_eq(crc_32(test4, 3), 0x0FA0E0E6);
+}
+END_TEST
+
 START_TEST(test_utils_hex2int) {
     ck_assert_int_eq(hex2int("01"), 1);
     ck_assert_int_eq(hex2int("A5"), 165);
@@ -162,6 +183,8 @@ Suite * utils_suite(void) {
     tc_core = tcase_create("Core");
 
     tcase_add_test(tc_core, test_utils_power);
+    tcase_add_test(tc_core, test_utils_root);
+    tcase_add_test(tc_core, test_utils_crc_32);
     tcase_add_test(tc_core, test_utils_hex2int);
     tcase_add_test(tc_core, test_utils_bin2int);
     tcase_add_test(tc_core, test_utils_dec2int);
