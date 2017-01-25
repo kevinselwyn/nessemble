@@ -36,7 +36,27 @@ void do_aax(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_adc(unsigned int opcode_index, unsigned int value) {
+    int tmp = 0;
+    unsigned int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0;
 
+    if (mode == MODE_IMMEDIATE) {
+        tmp = (int)(get_register(REGISTER_A) + value + get_flag(FLG_CARRY));
+        set_flag(FLG_NEGATIVE, ((unsigned int)tmp >> 7) & 1);
+        set_flag(FLG_OVERFLOW, (unsigned int)((((get_register(REGISTER_A) ^ tmp) & 0x80) != 0 && ((get_register(REGISTER_A) ^ value) & 0x80) != 0) ? TRUE : FALSE));
+    } else {
+        address = get_address(opcode_index, value);
+        tmp = (int)(get_register(REGISTER_A) + get_byte(address) + get_flag(FLG_CARRY));
+        set_flag(FLG_NEGATIVE, ((unsigned int)tmp >> 7) & 1);
+        set_flag(FLG_OVERFLOW, (unsigned int)((((get_register(REGISTER_A) ^ tmp) & 0x80) != 0 && ((get_register(REGISTER_A) ^ get_byte(address)) & 0x80) != 0) ? TRUE : FALSE));
+    }
+
+    set_register(REGISTER_A, (unsigned int)(tmp & 0xFF));
+    set_flag(FLG_ZERO, (unsigned int)((tmp & 0xFF) == 0 ? TRUE : FALSE));
+    set_flag(FLG_CARRY, (unsigned int)(tmp > 0xFF ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_and(unsigned int opcode_index, unsigned int value) {
