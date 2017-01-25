@@ -201,7 +201,24 @@ void do_dop(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_eor(unsigned int opcode_index, unsigned int value) {
+    unsigned int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0, tmp = 0;
 
+    if (mode == MODE_IMMEDIATE) {
+        tmp = value;
+    } else {
+        address = get_address(opcode_index, value);
+        tmp = get_byte(address);
+    }
+
+    tmp = (tmp ^ get_register(REGISTER_A)) & 0xFF;
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+    set_register(REGISTER_A, tmp);
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_inc(unsigned int opcode_index, unsigned int value) {
@@ -374,7 +391,7 @@ void do_ora(unsigned int opcode_index, unsigned int value) {
         tmp = get_byte(address);
     }
 
-    tmp = (tmp & get_register(REGISTER_A)) & 0xFF;
+    tmp = (tmp | get_register(REGISTER_A)) & 0xFF;
 
     set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
     set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
