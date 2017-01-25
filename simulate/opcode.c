@@ -1,5 +1,32 @@
 #include "../nessemble.h"
 
+void do_branch(unsigned int opcode_index, unsigned int value, unsigned int flag, unsigned int boolean) {
+    unsigned int address = 0, tmp = 0, timing = 0;
+
+    tmp = (unsigned int)get_register(REGISTER_PC);
+    timing = opcodes[opcode_index].timing;
+
+    if (value >= 0x80) {
+        address = tmp - (0xFF - value - 1);
+    } else {
+        address = tmp + value;
+    }
+
+    if (get_flag(flag) == boolean) {
+        if ((tmp & 0xFF00) != (address & 0xFF00)) {
+            timing += 2;
+        } else {
+            timing += 1;
+        }
+
+        set_register(REGISTER_PC, address);
+    } else {
+        inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    }
+
+    inc_cycles(timing);
+}
+
 void do_aac(unsigned int opcode_index, unsigned int value) {
     // TODO: Undocumented
 }
@@ -78,38 +105,15 @@ void do_axs(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_bcc(unsigned int opcode_index, unsigned int value) {
-
+    do_branch(opcode_index, value, FLG_CARRY, FALSE);
 }
 
 void do_bcs(unsigned int opcode_index, unsigned int value) {
-
+    do_branch(opcode_index, value, FLG_CARRY, TRUE);
 }
 
 void do_beq(unsigned int opcode_index, unsigned int value) {
-    unsigned int address = 0, tmp = 0, timing = 0;
-
-    tmp = (unsigned int)get_register(REGISTER_PC);
-    timing = opcodes[opcode_index].timing;
-
-    if (value >= 0x80) {
-        address = tmp - (0xFF - value - 1);
-    } else {
-        address = tmp + value;
-    }
-
-    if (get_flag(FLG_ZERO) != 0) {
-        if ((tmp & 0xFF00) != (address & 0xFF00)) {
-            timing += 2;
-        } else {
-            timing += 1;
-        }
-
-        set_register(REGISTER_PC, address);
-    } else {
-        inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
-    }
-
-    inc_cycles(timing);
+    do_branch(opcode_index, value, FLG_ZERO, TRUE);
 }
 
 void do_bit(unsigned int opcode_index, unsigned int value) {
@@ -130,38 +134,15 @@ void do_bit(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_bmi(unsigned int opcode_index, unsigned int value) {
-
+    do_branch(opcode_index, value, FLG_NEGATIVE, TRUE);
 }
 
 void do_bne(unsigned int opcode_index, unsigned int value) {
-    unsigned int address = 0, tmp = 0, timing = 0;
-
-    tmp = (unsigned int)get_register(REGISTER_PC);
-    timing = opcodes[opcode_index].timing;
-
-    if (value >= 0x80) {
-        address = tmp - (0xFF - value - 1);
-    } else {
-        address = tmp + value;
-    }
-
-    if (get_flag(FLG_ZERO) == 0) {
-        if ((tmp & 0xFF00) != (address& 0xFF00)) {
-            timing += 2;
-        } else {
-            timing += 1;
-        }
-
-        set_register(REGISTER_PC, address);
-    } else {
-        inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
-    }
-
-    inc_cycles(timing);
+    do_branch(opcode_index, value, FLG_ZERO, FALSE);
 }
 
 void do_bpl(unsigned int opcode_index, unsigned int value) {
-
+    do_branch(opcode_index, value, FLG_NEGATIVE, FALSE);
 }
 
 void do_brk(unsigned int opcode_index, unsigned int value) {
@@ -169,11 +150,11 @@ void do_brk(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_bvc(unsigned int opcode_index, unsigned int value) {
-
+    do_branch(opcode_index, value, FLG_OVERFLOW, FALSE);
 }
 
 void do_bvs(unsigned int opcode_index, unsigned int value) {
-
+    do_branch(opcode_index, value, FLG_OVERFLOW, TRUE);
 }
 
 void do_clc(unsigned int opcode_index, unsigned int value) {
