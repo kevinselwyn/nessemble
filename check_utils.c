@@ -71,7 +71,7 @@ START_TEST(test_utils_get_fullpath) {
     char *path = NULL, *string = "test";
 
     ck_assert_int_eq(get_fullpath(&path, string), 0);
-    ck_assert_str_eq(string, "test");
+    ck_assert_str_eq(path, "test");
 }
 END_TEST
 
