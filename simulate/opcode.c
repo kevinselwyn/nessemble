@@ -146,7 +146,29 @@ void do_bpl(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_brk(unsigned int opcode_index, unsigned int value) {
+    unsigned int tmp = 0;
 
+    inc_register(REGISTER_PC, 2);
+    stack_push((get_register(REGISTER_PC) >> 8) & 0xFF);
+    stack_push(get_register(REGISTER_PC) & 0xFF);
+    set_flag(FLG_BREAK, 1);
+
+    tmp |= get_flag(FLG_CARRY);
+    tmp |= get_flag(FLG_ZERO) << 1;
+    tmp |= get_flag(FLG_INTERRUPT) << 2;
+    tmp |= get_flag(FLG_DECIMAL) << 3;
+    tmp |= get_flag(FLG_BREAK) << 4;
+    tmp |= get_flag(FLG_OVERFLOW) << 6;
+    tmp |= get_flag(FLG_NEGATIVE) << 7;
+
+    stack_push(tmp);
+
+    set_flag(FLG_INTERRUPT, 1);
+
+    tmp = get_byte(0xFFFE);
+    tmp |= get_byte(0xFFFF) << 8;
+
+    set_register(REGISTER_PC, tmp);
 }
 
 void do_bvc(unsigned int opcode_index, unsigned int value) {

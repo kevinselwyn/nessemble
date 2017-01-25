@@ -1,0 +1,3 @@
+.fill FFFE 34 12
+.step
+.memory 01FD:01FF
