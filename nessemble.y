@@ -47,6 +47,7 @@
 %token PSEUDO_ASCII
 %token PSEUDO_BYTE
 %token PSEUDO_CHECKSUM
+%token PSEUDO_CHR
 %token PSEUDO_DB
 %token PSEUDO_DEFCHR
 %token PSEUDO_DW
@@ -73,6 +74,7 @@
 %token PSEUDO_MACRO_END
 %token PSEUDO_ORG
 %token PSEUDO_OUT
+%token PSEUDO_PRG
 %token PSEUDO_RSSET
 %token PSEUDO_RS
 %token PSEUDO_SEGMENT
@@ -84,8 +86,6 @@
 %token <ival> NUMBER_DEC
 %token <ival> NUMBER_CHAR
 %token <ival> NUMBER_ARG
-%token <ival> PSEUDO_CHR
-%token <ival> PSEUDO_PRG
 
 %token <sval> TEXT
 %token <sval> QUOT_STRING
@@ -248,7 +248,7 @@ pseudo_checksum
     ;
 
 pseudo_chr
-    : PSEUDO_CHR { $$ = $1; }
+    : PSEUDO_CHR number { $$ = $2; }
     ;
 
 pseudo_db_alias
@@ -380,7 +380,7 @@ pseudo_out
     ;
 
 pseudo_prg
-    : PSEUDO_PRG { $$ = $1; }
+    : PSEUDO_PRG number { $$ = $2; }
     ;
 
 pseudo_rsset

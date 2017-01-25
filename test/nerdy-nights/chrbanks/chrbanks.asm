@@ -5,7 +5,7 @@
 
 ;;;;;;;;;;;;;;;;
 
-.prg0
+.prg 0
 
 RESET:
     SEI
@@ -185,12 +185,12 @@ sprites:
 
 ;;;;;;;;;;;;;;;;
 
-.chr0
+.chr 0
 
   .incpng "chrbanks0.png"
 
 ;;;;;;;;;;;;;;;;
 
-.chr1
+.chr 1
 
   .incpng "chrbanks1.png"

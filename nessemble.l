@@ -61,7 +61,7 @@ int include_stack_ptr = 0;
 ".ascii"                 { return PSEUDO_ASCII; }
 ".byte"                  { return PSEUDO_BYTE; }
 ".checksum"              { return PSEUDO_CHECKSUM; }
-\.chr[0-9]+              { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_CHR; }
+".chr"                   { return PSEUDO_CHR; }
 ".db"                    { return PSEUDO_DB; }
 ".defchr"                { return PSEUDO_DEFCHR; }
 ".dw"                    { return PSEUDO_DW; }
@@ -88,7 +88,7 @@ int include_stack_ptr = 0;
 \.macrodef.+             { BEGIN(macro); yylval.sval = strdup(yytext+10); return PSEUDO_MACRO_DEF; }
 ".org"                   { return PSEUDO_ORG; }
 ".out"                   { return PSEUDO_OUT; }
-\.prg[0-9]+              { yylval.uval = (unsigned int)dec2int(yytext+4); return PSEUDO_PRG; }
+".prg"                   { return PSEUDO_PRG; }
 ".rsset"                 { return PSEUDO_RSSET; }
 ".rs"                    { return PSEUDO_RS; }
 ".segment"               { return PSEUDO_SEGMENT; }

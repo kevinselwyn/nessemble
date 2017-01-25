@@ -5,7 +5,7 @@
 
 ;;;;;;;;;;;;;;;;
 
-.prg0
+.prg 0
 
 RESET:
     SEI
@@ -72,6 +72,6 @@ NMI:
 
 ;;;;;;;;;;;;;;;;
 
-.chr0
+.chr 0
 
     .incpng "background.png"

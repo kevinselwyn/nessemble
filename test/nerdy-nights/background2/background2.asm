@@ -5,7 +5,7 @@
 
 ;;;;;;;;;;;;;;;;
 
-.prg0
+.prg 0
 
 RESET:
     SEI
@@ -213,6 +213,6 @@ attribute:
 
 ;;;;;;;;;;;;;;;;
 
-.chr0
+.chr 0
 
     .incpng "background2.png"
