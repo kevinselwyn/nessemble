@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
             if (i + 1 < l) {
-                outfilename = argv[i + 1];
+                outfilename = strdup(argv[i + 1]);
             } else {
                 rc = usage(exec);
                 goto cleanup;
@@ -360,6 +360,14 @@ int main(int argc, char *argv[]) {
     }
 
 cleanup:
+    if (rom) {
+        free(rom);
+    }
+
+    if (outfilename) {
+        free(outfilename);
+    }
+
     if (file) {
         (void)fclose(file);
     }
