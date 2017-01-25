@@ -52,7 +52,9 @@
 %token PSEUDO_DEFCHR
 %token PSEUDO_DW
 %token PSEUDO_ELSE
+%token PSEUDO_ENDENUM
 %token PSEUDO_ENDIF
+%token PSEUDO_ENUM
 %token PSEUDO_FILL
 %token PSEUDO_HIBYTES
 %token PSEUDO_IF
@@ -119,6 +121,7 @@
 
 %type <uval> pseudo_checksum
 %type <uval> pseudo_chr
+%type <uval> pseudo_enum
 %type <uval> pseudo_if
 %type <uval> pseudo_ineschr
 %type <uval> pseudo_inesmap
@@ -209,7 +212,9 @@ pseudo
     | pseudo_defchr    { pseudo_defchr(); }
     | pseudo_dw        { pseudo_dw(); }
     | pseudo_else      { pseudo_else(); }
+    | pseudo_endenum   { pseudo_endenum(); }
     | pseudo_endif     { pseudo_endif(); }
+    | pseudo_enum      { pseudo_enum($1); }
     | pseudo_fill      { /* NOTHING */ }
     | pseudo_hibytes   { pseudo_hibytes(); }
     | pseudo_if        { pseudo_if($1); }
@@ -280,8 +285,16 @@ pseudo_else
     : PSEUDO_ELSE
     ;
 
+pseudo_endenum
+    : PSEUDO_ENDENUM
+    ;
+
 pseudo_endif
     : PSEUDO_ENDIF
+    ;
+
+pseudo_enum
+    : PSEUDO_ENUM number { $$ = $2; }
     ;
 
 pseudo_fill

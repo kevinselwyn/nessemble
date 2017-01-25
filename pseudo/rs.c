@@ -6,7 +6,13 @@
  * @param {int} size - Variable size
  */
 void pseudo_rs(char *label, int size) {
-    add_symbol(label, rsset, SYMBOL_RS);
+    if (enum_active == TRUE) {
+        add_symbol(label, enum_value, SYMBOL_ENUM);
 
-    rsset += size;
+        enum_value += size;
+    } else {
+        add_symbol(label, rsset, SYMBOL_RS);
+
+        rsset += size;
+    }
 }
