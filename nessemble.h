@@ -80,6 +80,7 @@ FILE *yyin;
 #define SYMBOL_LABEL    0x00
 #define SYMBOL_CONSTANT 0x01
 #define SYMBOL_RS       0x02
+#define SYMBOL_ENUM     0x03
 
 struct symbol {
     char *name;
@@ -89,6 +90,9 @@ struct symbol {
 struct symbol symbols[MAX_SYMBOLS];
 unsigned int symbol_index;
 unsigned int rsset;
+
+/* ENUM */
+unsigned int enum_active, enum_value;
 
 /* MACROS */
 struct macro {
@@ -233,7 +237,9 @@ void pseudo_db();
 void pseudo_defchr();
 void pseudo_dw();
 void pseudo_else();
+void pseudo_endenum();
 void pseudo_endif();
+void pseudo_enum(unsigned int value);
 void pseudo_fill(unsigned int count, unsigned int value);
 void pseudo_hibytes();
 void pseudo_if(unsigned int cond);
