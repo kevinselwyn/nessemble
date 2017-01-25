@@ -1,0 +1,13 @@
+.registers Y=44
+.fill 0044 45
+.fill 4400 46
+.step
+.step
+.step
+.fill 0007 45
+.step
+.step
+.step
+.step
+.step
+.step

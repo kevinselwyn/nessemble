@@ -38,7 +38,27 @@ void do_arr(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_asl(unsigned int opcode_index, unsigned int value) {
+    unsigned int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0, tmp = 0;
 
+    if (mode == MODE_ACCUMULATOR) {
+        tmp = get_register(REGISTER_A) & 0xFF;
+        set_flag(FLG_CARRY, (tmp << 7) & 1);
+        tmp = (tmp << 1) & 0xFF;
+        set_register(REGISTER_A, tmp);
+    } else {
+        address = get_address(opcode_index, value);
+        tmp = get_byte(address);
+        set_flag(FLG_CARRY, (tmp << 7) & 1);
+        tmp = (tmp << 1) & 0xFF;
+        set_byte(address, tmp);
+    }
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_asr(unsigned int opcode_index, unsigned int value) {
@@ -168,15 +188,69 @@ void do_clv(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_cmp(unsigned int opcode_index, unsigned int value) {
+    unsigned int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0;
+    int tmp = 0;
 
+    if (mode == MODE_IMMEDIATE) {
+        tmp = (int)value;
+    } else {
+        address = get_address(opcode_index, value);
+        tmp = (int)get_byte(address);
+    }
+
+    tmp = get_register(REGISTER_A) - tmp;
+
+    set_flag(FLG_CARRY, (unsigned int)(tmp >= 0 ? TRUE : FALSE));
+    set_flag(FLG_NEGATIVE, (unsigned int)((tmp >> 7) & 1));
+    set_flag(FLG_ZERO, (unsigned int)((tmp & 0xFF) == 0 ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_cpx(unsigned int opcode_index, unsigned int value) {
+    unsigned int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0;
+    int tmp = 0;
 
+    if (mode == MODE_IMMEDIATE) {
+        tmp = (int)value;
+    } else {
+        address = get_address(opcode_index, value);
+        tmp = (int)get_byte(address);
+    }
+
+    tmp = get_register(REGISTER_X) - tmp;
+
+    set_flag(FLG_CARRY, (unsigned int)(tmp >= 0 ? TRUE : FALSE));
+    set_flag(FLG_NEGATIVE, (unsigned int)((tmp >> 7) & 1));
+    set_flag(FLG_ZERO, (unsigned int)((tmp & 0xFF) == 0 ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_cpy(unsigned int opcode_index, unsigned int value) {
+    unsigned int mode = opcodes[opcode_index].mode;
+    unsigned int address = 0;
+    int tmp = 0;
 
+    if (mode == MODE_IMMEDIATE) {
+        tmp = (int)value;
+    } else {
+        address = get_address(opcode_index, value);
+        tmp = (int)get_byte(address);
+    }
+
+    tmp = get_register(REGISTER_Y) - tmp;
+
+    set_flag(FLG_CARRY, (unsigned int)(tmp >= 0 ? TRUE : FALSE));
+    set_flag(FLG_NEGATIVE, (unsigned int)((tmp >> 7) & 1));
+    set_flag(FLG_ZERO, (unsigned int)((tmp & 0xFF) == 0 ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_dcp(unsigned int opcode_index, unsigned int value) {
