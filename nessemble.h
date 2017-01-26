@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 
+/*
+ * DEFINES
+ */
+
 /* UNUSED */
 #define UNUSED(x) (void)(x)
 
@@ -27,6 +31,7 @@
 #define MAX_ARGS          10
 #define TRAINER_MAX       512
 
+/* PATH */
 #ifndef PATH_MAX
 #define PATH_MAX          4096
 #endif
@@ -37,8 +42,6 @@
 #define FLAG_DISASSEMBLE  0x04
 #define FLAG_SIMULATE     0x08
 #define FLAG_CHECK        0x10
-
-unsigned int flags;
 
 /* SEGMENTS */
 #define SEGMENT_CHR 1
@@ -65,12 +68,80 @@ unsigned int flags;
 #define META_BOUNDARY     0x01
 #define META_UNDOCUMENTED 0x02
 
+/* SYMBOLS */
+#define SYMBOL_LABEL    0x00
+#define SYMBOL_CONSTANT 0x01
+#define SYMBOL_RS       0x02
+#define SYMBOL_ENUM     0x03
+
+/* INCLUDE */
+#define INCLUDE_NONE   0
+#define INCLUDE_FILE   1
+#define INCLUDE_STRING 2
+
+/* IF */
+#define IF_IF     0
+#define IF_IFDEF  1
+#define IF_IFNDEF 2
+
+/* SIMULATE */
+#define REGISTER_A  1
+#define REGISTER_X  2
+#define REGISTER_Y  3
+#define REGISTER_PC 4
+#define REGISTER_SP 5
+#define FLG_NEGATIVE  1
+#define FLG_OVERFLOW  2
+#define FLG_BREAK     3
+#define FLG_DECIMAL   4
+#define FLG_INTERRUPT 5
+#define FLG_ZERO      6
+#define FLG_CARRY     7
+
+/* USAGE */
+#define USAGE_FLAG_COUNT            9
+#define SIMULATION_USAGE_FLAG_COUNT 16
+
+/*
+ * STRUCTS
+ */
+
+/* OPCODES */
 struct opcode {
     char mnemonic[4];
     unsigned int mode, opcode, length, timing, meta;
     void (*func)(unsigned int, unsigned int);
 };
 
+/* SYMBOLS */
+struct symbol {
+    char *name;
+    unsigned int value, type;
+};
+
+/* MACROS */
+struct macro {
+    char *name, *text;
+};
+
+/* INES */
+struct ines_header {
+    unsigned int chr, map, mir, prg, trn;
+};
+
+/* USAGE */
+struct usage_flag {
+    char *invocation, *description;
+};
+
+/*
+ * VARIABLES
+ */
+
+/* FLAGS */
+unsigned int flags;
+
+/* OPCODES */
 struct opcode opcodes[OPCODE_COUNT];
 
 /* BISON */
@@ -80,16 +151,6 @@ int yyparse();
 FILE *yyin;
 
 /* SYMBOLS */
-#define SYMBOL_LABEL    0x00
-#define SYMBOL_CONSTANT 0x01
-#define SYMBOL_RS       0x02
-#define SYMBOL_ENUM     0x03
-
-struct symbol {
-    char *name;
-    unsigned int value, type;
-};
-
 struct symbol symbols[MAX_SYMBOLS];
 unsigned int symbol_index;
 unsigned int rsset;
@@ -98,47 +159,20 @@ unsigned int rsset;
 unsigned int enum_active, enum_value, enum_inc;
 
 /* MACROS */
-struct macro {
-    char *name, *text;
-};
-
 struct macro macros[MAX_MACROS];
 unsigned int macro_index;
 unsigned int length_args;
 unsigned int args[MAX_ARGS];
 
 /* INCLUDE */
-#define INCLUDE_NONE   0
-#define INCLUDE_FILE   1
-#define INCLUDE_STRING 2
-
 unsigned int include_type;
 
 /* IF */
-#define IF_IF     0
-#define IF_IFDEF  1
-#define IF_IFNDEF 2
-
 unsigned int if_depth;
 unsigned int if_active;
 unsigned int if_type;
 unsigned int if_cond;
 char *if_label;
-
-/* SIMULATE */
-#define REGISTER_A  1
-#define REGISTER_X  2
-#define REGISTER_Y  3
-#define REGISTER_PC 4
-#define REGISTER_SP 5
-
-#define FLG_NEGATIVE  1
-#define FLG_OVERFLOW  2
-#define FLG_BREAK     3
-#define FLG_DECIMAL   4
-#define FLG_INTERRUPT 5
-#define FLG_ZERO      6
-#define FLG_CARRY     7
 
 /* SEGMENTS */
 char segment[8];
@@ -155,11 +189,6 @@ unsigned int ints[MAX_INTS];
 /* ERROR REPORTING */
 char linebuf[512];
 char yycolno;
-
-/* INES HEADER */
-struct ines_header {
-    unsigned int chr, map, mir, prg, trn;
-};
 
 /* INES */
 extern struct ines_header ines;
@@ -184,17 +213,14 @@ int include_stack_ptr;
 /* EOF VARS */
 unsigned int pass;
 
+/*
+ * FUNCTIONS
+ */
+
 /* MAIN */
 int main(int argc, char *argv[]);
 
 /* USAGE */
-#define USAGE_FLAG_COUNT            9
-#define SIMULATION_USAGE_FLAG_COUNT 16
-
-struct usage_flag {
-    char *invocation, *description;
-};
-
 int usage(char *exec);
 void usage_simulate();
 
@@ -328,6 +354,7 @@ void set_flag(unsigned int flag, unsigned int value);
 void stack_push(unsigned int value);
 unsigned int stack_pull();
 
+/* SIMULATE INSTRUCTIONS */
 void do_aac(unsigned int opcode_index, unsigned int value);
 void do_aax(unsigned int opcode_index, unsigned int value);
 void do_adc(unsigned int opcode_index, unsigned int value);
@@ -416,6 +443,6 @@ int bin2int(char *bin);
 int oct2int(char *oct);
 int dec2int(char *dec);
 int get_fullpath(char **path, char *string);
-size_t load_file(char **data, char *filename);
+unsigned int load_file(char **data, char *filename);
 
 #endif /* _NESSEMBLE_H */
