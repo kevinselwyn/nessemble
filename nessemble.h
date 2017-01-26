@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 
+/* UNUSED */
+#define UNUSED(x) (void)(x)
+
 /* BOOLEAN */
 #define TRUE  1
 #define FALSE 0

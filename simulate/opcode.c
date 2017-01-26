@@ -27,28 +27,6 @@ void do_branch(unsigned int opcode_index, unsigned int value, unsigned int flag,
     inc_cycles(timing);
 }
 
-void do_aac(unsigned int opcode_index, unsigned int value) {
-    unsigned int tmp = 0;
-
-    if (is_flag_undocumented() == FALSE) {
-        inc_register(REGISTER_PC, 1);
-        return;
-    }
-
-    tmp = (value & get_register(REGISTER_A)) & 0xFF;
-
-    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
-    set_flag(FLG_CARRY, (tmp >> 7) & 1);
-    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
-
-    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
-    inc_cycles(opcodes[opcode_index].timing);
-}
-
-void do_aax(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
 void do_adc(unsigned int opcode_index, unsigned int value) {
     int tmp = 0;
     unsigned int mode = opcodes[opcode_index].mode;
@@ -94,10 +72,6 @@ void do_and(unsigned int opcode_index, unsigned int value) {
     inc_cycles(opcodes[opcode_index].timing);
 }
 
-void do_arr(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
 void do_asl(unsigned int opcode_index, unsigned int value) {
     unsigned int mode = opcodes[opcode_index].mode;
     unsigned int address = 0, tmp = 0;
@@ -120,22 +94,6 @@ void do_asl(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
-}
-
-void do_asr(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
-void do_atx(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
-void do_axa(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
-void do_axs(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
 }
 
 void do_bcc(unsigned int opcode_index, unsigned int value) {
@@ -185,7 +143,7 @@ void do_brk(unsigned int opcode_index, unsigned int value) {
     inc_register(REGISTER_PC, 2);
     stack_push((get_register(REGISTER_PC) >> 8) & 0xFF);
     stack_push(get_register(REGISTER_PC) & 0xFF);
-    set_flag(FLG_BREAK, 1);
+    set_flag(FLG_BREAK, TRUE);
 
     tmp |= get_flag(FLG_CARRY);
     tmp |= get_flag(FLG_ZERO) << 1;
@@ -197,12 +155,15 @@ void do_brk(unsigned int opcode_index, unsigned int value) {
 
     stack_push(tmp);
 
-    set_flag(FLG_INTERRUPT, 1);
+    set_flag(FLG_INTERRUPT, TRUE);
 
     tmp = get_byte(0xFFFE);
     tmp |= get_byte(0xFFFF) << 8;
 
     set_register(REGISTER_PC, tmp);
+
+    UNUSED(opcode_index);
+    UNUSED(value);
 }
 
 void do_bvc(unsigned int opcode_index, unsigned int value) {
@@ -214,27 +175,35 @@ void do_bvs(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_clc(unsigned int opcode_index, unsigned int value) {
-    set_flag(FLG_CARRY, 0);
+    set_flag(FLG_CARRY, FALSE);
     inc_cycles(opcodes[opcode_index].timing);
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+
+    UNUSED(value);
 }
 
 void do_cld(unsigned int opcode_index, unsigned int value) {
-    set_flag(FLG_DECIMAL, 0);
+    set_flag(FLG_DECIMAL, FALSE);
     inc_cycles(opcodes[opcode_index].timing);
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+
+    UNUSED(value);
 }
 
 void do_cli(unsigned int opcode_index, unsigned int value) {
-    set_flag(FLG_INTERRUPT, 0);
+    set_flag(FLG_INTERRUPT, FALSE);
     inc_cycles(opcodes[opcode_index].timing);
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+
+    UNUSED(value);
 }
 
 void do_clv(unsigned int opcode_index, unsigned int value) {
-    set_flag(FLG_OVERFLOW, 0);
+    set_flag(FLG_OVERFLOW, FALSE);
     inc_cycles(opcodes[opcode_index].timing);
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+
+    UNUSED(value);
 }
 
 void do_cmp(unsigned int opcode_index, unsigned int value) {
@@ -303,10 +272,6 @@ void do_cpy(unsigned int opcode_index, unsigned int value) {
     inc_cycles(opcodes[opcode_index].timing);
 }
 
-void do_dcp(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
 void do_dec(unsigned int opcode_index, unsigned int value) {
     unsigned int address = get_address(opcode_index, value), tmp = 0;
 
@@ -331,6 +296,8 @@ void do_dex(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_dey(unsigned int opcode_index, unsigned int value) {
@@ -344,10 +311,8 @@ void do_dey(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
-}
 
-void do_dop(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    UNUSED(value);
 }
 
 void do_eor(unsigned int opcode_index, unsigned int value) {
@@ -395,6 +360,8 @@ void do_inx(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_iny(unsigned int opcode_index, unsigned int value) {
@@ -408,10 +375,8 @@ void do_iny(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
-}
 
-void do_isc(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    UNUSED(value);
 }
 
 void do_jmp(unsigned int opcode_index, unsigned int value) {
@@ -430,18 +395,6 @@ void do_jsr(unsigned int opcode_index, unsigned int value) {
     set_register(REGISTER_PC, address);
 
     inc_cycles(opcodes[opcode_index].timing);
-}
-
-void do_kil(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
-void do_lar(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
-void do_lax(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
 }
 
 void do_lda(unsigned int opcode_index, unsigned int value) {
@@ -518,7 +471,7 @@ void do_lsr(unsigned int opcode_index, unsigned int value) {
         set_byte(address, tmp);
     }
 
-    set_flag(FLG_NEGATIVE, 0);
+    set_flag(FLG_NEGATIVE, FALSE);
     set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
@@ -528,6 +481,8 @@ void do_lsr(unsigned int opcode_index, unsigned int value) {
 void do_nop(unsigned int opcode_index, unsigned int value) {
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_ora(unsigned int opcode_index, unsigned int value) {
@@ -556,12 +511,14 @@ void do_pha(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_php(unsigned int opcode_index, unsigned int value) {
     unsigned int tmp = 0;
 
-    set_flag(FLG_BREAK, 1);
+    set_flag(FLG_BREAK, TRUE);
 
     tmp |= get_flag(FLG_CARRY);
     tmp |= get_flag(FLG_ZERO) << 1;
@@ -575,6 +532,8 @@ void do_php(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_pla(unsigned int opcode_index, unsigned int value) {
@@ -588,6 +547,8 @@ void do_pla(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_plp(unsigned int opcode_index, unsigned int value) {
@@ -605,10 +566,8 @@ void do_plp(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
-}
 
-void do_rla(unsigned int opcode_index, unsigned int value) {
-
+    UNUSED(value);
 }
 
 void do_rol(unsigned int opcode_index, unsigned int value) {
@@ -662,10 +621,6 @@ void do_ror(unsigned int opcode_index, unsigned int value) {
     inc_cycles(opcodes[opcode_index].timing);
 }
 
-void do_rra(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
 void do_rti(unsigned int opcode_index, unsigned int value) {
     unsigned int tmp = 0;
 
@@ -684,6 +639,8 @@ void do_rti(unsigned int opcode_index, unsigned int value) {
     set_register(REGISTER_PC, tmp);
 
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_rts(unsigned int opcode_index, unsigned int value) {
@@ -693,6 +650,8 @@ void do_rts(unsigned int opcode_index, unsigned int value) {
 
     set_register(REGISTER_PC, tmp);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_sbc(unsigned int opcode_index, unsigned int value) {
@@ -720,29 +679,27 @@ void do_sbc(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_sec(unsigned int opcode_index, unsigned int value) {
-    set_flag(FLG_CARRY, 1);
+    set_flag(FLG_CARRY, TRUE);
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_sed(unsigned int opcode_index, unsigned int value) {
-    set_flag(FLG_DECIMAL, 1);
+    set_flag(FLG_DECIMAL, TRUE);
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_sei(unsigned int opcode_index, unsigned int value) {
-    set_flag(FLG_INTERRUPT, 1);
+    set_flag(FLG_INTERRUPT, TRUE);
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
-}
 
-void do_slo(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
-void do_sre(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    UNUSED(value);
 }
 
 void do_sta(unsigned int opcode_index, unsigned int value) {
@@ -772,14 +729,6 @@ void do_sty(unsigned int opcode_index, unsigned int value) {
     inc_cycles(opcodes[opcode_index].timing);
 }
 
-void do_sxa(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
-void do_sya(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
 void do_tax(unsigned int opcode_index, unsigned int value) {
     unsigned int tmp = 0;
 
@@ -791,6 +740,8 @@ void do_tax(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_tay(unsigned int opcode_index, unsigned int value) {
@@ -804,16 +755,16 @@ void do_tay(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
-}
 
-void do_top(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    UNUSED(value);
 }
 
 void do_tsx(unsigned int opcode_index, unsigned int value) {
     set_register(REGISTER_X, get_register(REGISTER_SP));
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_txa(unsigned int opcode_index, unsigned int value) {
@@ -827,12 +778,16 @@ void do_txa(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_txs(unsigned int opcode_index, unsigned int value) {
     set_register(REGISTER_SP, get_register(REGISTER_X));
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
+
+    UNUSED(value);
 }
 
 void do_tya(unsigned int opcode_index, unsigned int value) {
@@ -846,12 +801,6 @@ void do_tya(unsigned int opcode_index, unsigned int value) {
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);
-}
 
-void do_xaa(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
-}
-
-void do_xas(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    UNUSED(value);
 }
