@@ -1,7 +1,7 @@
 #include <check.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "nessemble.h"
+#include "../nessemble.h"
 
 int saved_stdout = 0;
 char buffer[4096] = { 0 };
