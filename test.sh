@@ -47,6 +47,9 @@ start=$(python -c 'import time; print time.time()')
 # loop through .asm files
 for asm in `find ./test -name '*.asm' | sort`
 do
+    # test start
+    test_start=$(python -c 'import time; print time.time()')
+
     rom="${asm%.*}"
     dir=$(dirname $rom)
 
@@ -169,9 +172,12 @@ do
                 printf " *"
             fi
 
-            printf "\n"
-
             pass=$(echo "$pass + 1" | bc)
+
+            test_end=$(python -c 'import time; print time.time()')
+            test_duration=$(printf "%s - %s\n" $test_end $test_start | bc)
+
+            printf " \033[1;30m(%ss)\033[0m\n" $test_duration
         fi
     else
         printf "\033[0;31m✗\033[0m %s" $asm
