@@ -9,7 +9,7 @@ void pseudo_rs(char *label, int size) {
     if (enum_active == TRUE) {
         add_symbol(label, enum_value, SYMBOL_ENUM);
 
-        enum_value += size;
+        enum_value += size * enum_inc;
     } else {
         add_symbol(label, rsset, SYMBOL_RS);
 

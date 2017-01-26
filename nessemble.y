@@ -214,7 +214,7 @@ pseudo
     | pseudo_else      { pseudo_else(); }
     | pseudo_endenum   { pseudo_endenum(); }
     | pseudo_endif     { pseudo_endif(); }
-    | pseudo_enum      { pseudo_enum($1); }
+    | pseudo_enum      { /* NOTHING */ }
     | pseudo_fill      { /* NOTHING */ }
     | pseudo_hibytes   { pseudo_hibytes(); }
     | pseudo_if        { pseudo_if($1); }
@@ -294,7 +294,8 @@ pseudo_endif
     ;
 
 pseudo_enum
-    : PSEUDO_ENUM number { $$ = $2; }
+    : PSEUDO_ENUM number { pseudo_enum($2, 1); $$ = $2; }
+    | pseudo_enum number { pseudo_enum($1, $2); }
     ;
 
 pseudo_fill

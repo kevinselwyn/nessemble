@@ -95,7 +95,7 @@ unsigned int symbol_index;
 unsigned int rsset;
 
 /* ENUM */
-unsigned int enum_active, enum_value;
+unsigned int enum_active, enum_value, enum_inc;
 
 /* MACROS */
 struct macro {
@@ -242,7 +242,7 @@ void pseudo_dw();
 void pseudo_else();
 void pseudo_endenum();
 void pseudo_endif();
-void pseudo_enum(unsigned int value);
+void pseudo_enum(unsigned int value, unsigned int inc);
 void pseudo_fill(unsigned int count, unsigned int value);
 void pseudo_hibytes();
 void pseudo_if(unsigned int cond);
