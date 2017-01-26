@@ -1,6 +1,6 @@
 #include <check.h>
 #include <stdlib.h>
-#include "nessemble.h"
+#include "../nessemble.h"
 
 START_TEST(test_instructions_get_opcode_brk) {
     int opcode_id = get_opcode("BRK", MODE_IMPLIED);

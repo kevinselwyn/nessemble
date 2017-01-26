@@ -55,4 +55,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) suite_*
+	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) check/suite_*
