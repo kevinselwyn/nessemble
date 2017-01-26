@@ -190,8 +190,8 @@ cleanup:
 /**
  * Load file
  */
-size_t load_file(char **data, char *filename) {
-    size_t insize = 0;
+unsigned int load_file(char **data, char *filename) {
+    unsigned int insize = 0;
     char *indata = NULL;
     FILE *infile = NULL;
 
@@ -207,7 +207,7 @@ size_t load_file(char **data, char *filename) {
         goto cleanup;
     }
 
-    insize = (size_t)ftell(infile);
+    insize = (unsigned int)ftell(infile);
 
     if (fseek(infile, 0, SEEK_SET) != 0) {
         fprintf(stderr, "Seek error\n");
@@ -232,7 +232,7 @@ size_t load_file(char **data, char *filename) {
         goto cleanup;
     }
 
-    if (fread(indata, 1, insize, infile) != insize) {
+    if (fread(indata, 1, (size_t)insize, infile) != (size_t)insize) {
         fprintf(stderr, "Could not read %s\n", filename);
 
         insize = 0;
