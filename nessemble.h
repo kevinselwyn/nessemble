@@ -165,6 +165,7 @@ unsigned int length_args;
 unsigned int args[MAX_ARGS];
 
 /* INCLUDE */
+char filename_stack[MAX_INCLUDE_DEPTH][PATH_MAX];
 unsigned int include_type;
 
 /* IF */

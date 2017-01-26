@@ -9,6 +9,7 @@
 
 // include
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
+int line_number_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ptr = 0;
 
 %}
@@ -132,6 +133,10 @@ int include_stack_ptr = 0;
 void include_file_push(char *filename) {
     include_type = INCLUDE_FILE;
 
+    // save line number
+    line_number_stack[include_stack_ptr] = yylineno;
+    yylineno = 0;
+
     // push to include stack
     include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 
@@ -143,6 +148,9 @@ void include_file_push(char *filename) {
         fprintf(stderr, "Could not include %s\n", filename);
         return;
     }
+
+    // save filename
+    strcpy(filename_stack[include_stack_ptr], filename);
 
     // switch to buffer
     yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
@@ -166,6 +174,9 @@ void include_file_pop() {
 
     // switch to next buffer
     yy_switch_to_buffer(include_stack[include_stack_ptr]);
+
+    // restore line number
+    yylineno = line_number_stack[include_stack_ptr];
 }
 
 /**

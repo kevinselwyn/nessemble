@@ -176,6 +176,9 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
+    // save filename
+    strcpy(filename_stack[include_stack_ptr], cwd);
+
     yyin = file;
 
     // segment

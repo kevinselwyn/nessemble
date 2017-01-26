@@ -181,6 +181,10 @@ int get_fullpath(char **path, char *string) {
     strcat(fullpath, "/");
     strncat(fullpath, string + 1, string_length - 2);
 
+    if (fullpath[path_length-1] == '"') {
+        fullpath[path_length-1] = '\0';
+    }
+
     *path = fullpath;
 
 cleanup:
@@ -316,7 +320,7 @@ void yyerror(const char *fmt, ...) {
     va_list argptr;
     va_start(argptr, fmt);
 
-    fprintf(stderr, "Error on line %d: ", yylineno);
+    fprintf(stderr, "Error in `%s` on line %d: ", filename_stack[include_stack_ptr], yylineno);
     (void)vfprintf(stderr, fmt, argptr);
     fprintf(stderr, "\n");
 
