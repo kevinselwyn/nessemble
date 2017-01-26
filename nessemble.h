@@ -188,7 +188,8 @@ unsigned int pass;
 int main(int argc, char *argv[]);
 
 /* USAGE */
-#define USAGE_FLAG_COUNT 9
+#define USAGE_FLAG_COUNT            9
+#define SIMULATION_USAGE_FLAG_COUNT 16
 
 struct usage_flag {
     char *invocation, *description;

@@ -14,19 +14,35 @@ static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-h, --help", "print this message" }
 };
 
+static struct usage_flag simulation_usage_flags[SIMULATION_USAGE_FLAG_COUNT] = {
+    { ".registers [register=XXXX,...]", "Print registers (sets registers w/ options)" },
+    { ".flags [flag=X,...]", "Print flags (sets flags w/ options)" },
+    { ".fill XXXX NN ...", "Fill memory address with NN byte(s)" },
+    { ".disassemble XXXX:XXXX", "Disassemble instructions between addresses" },
+    { ".instruction", "Print next instruction" },
+    { ".memory XXXX[:XXXX]", "Print memory in address range" },
+    { ".cycles", "Print count of CPU cycles" },
+    { ".goto XXXX", "Set program counter to XXXX" },
+    { ".step X", "Step program counter by 1 or X" },
+    { ".run", "Run program" },
+    { ".record XXXX <filename>", "Record writes to address XXXX" },
+    { ".breakpoints", "List all breakpoints" },
+    { ".add_breakpoint XXXX <name>", "Add breakpoint at address XXXX with optional name" },
+    { ".remove_breakpoint <name>", "Remove breakpoint(s) at address XXXX or with name" },
+    { ".quit", "Quit" },
+    { ".help", "Print this message" }
+};
+
 /**
- * Program usage
- * @param {string *} exec - Executable name
- * @param {int} Return code
+ * Usage printer
+ * @param {struct usage_flag *} usage_flags - Usage flag struct
+ * @param {unsigned int} size - Flag count
  */
-int usage(char *exec) {
+static void print_usage(struct usage_flag *usage_flags, unsigned int size) {
     unsigned int i = 0, l = 0;
     size_t length = 0, max_length = 0;
 
-    printf("Usage: %s [options] <infile.asm>\n\n", exec);
-    printf("Options:\n");
-
-    for (i = 0, l = USAGE_FLAG_COUNT; i < l; i++) {
+    for (i = 0, l = size; i < l; i++) {
         length = strlen(usage_flags[i].invocation);
 
         if (length > max_length) {
@@ -34,11 +50,34 @@ int usage(char *exec) {
         }
     }
 
-    for (i = 0, l = USAGE_FLAG_COUNT; i < l; i++) {
+    for (i = 0, l = size; i < l; i++) {
         length = strlen(usage_flags[i].invocation);
 
         printf("  %s%*s%s\n", usage_flags[i].invocation, (int)(max_length - length + 2), " ", usage_flags[i].description);
     }
+}
+
+/**
+ * Program usage
+ * @param {string *} exec - Executable name
+ * @param {int} Return code
+ */
+int usage(char *exec) {
+    printf("Usage: %s [options] <infile.asm>\n\n", exec);
+    printf("Options:\n");
+
+    print_usage(usage_flags, USAGE_FLAG_COUNT);
 
     return RETURN_USAGE;
+}
+
+/**
+ * Simulation usage
+ */
+void usage_simulate() {
+    printf("Options:\n\n");
+
+    print_usage(simulation_usage_flags, SIMULATION_USAGE_FLAG_COUNT);
+
+    printf("\n");
 }
