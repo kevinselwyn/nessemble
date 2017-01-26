@@ -37,29 +37,6 @@ static struct breakpoint breakpoints[100];
 static unsigned int breakpoint_index = 0;
 
 /**
- * Simulate usage
- */
-void usage_simulate() {
-    printf("Options:\n\n");
-    printf("  .registers [register=XXXX,...]  Print registers (sets registers w/ options)\n");
-    printf("  .flags [flag=X,...]             Print flags (sets flags w/ options)\n");
-    printf("  .fill XXXX NN ...               Fill memory address with NN byte(s)\n");
-    printf("  .disassemble XXXX:XXXX          Disassemble instructions between addresses\n");
-    printf("  .instruction                    Print next instruction\n");
-    printf("  .memory XXXX[:XXXX]             Print memory in address range\n");
-    printf("  .cycles                         Print count of CPU cycles\n");
-    printf("  .goto XXXX                      Set program counter to XXXX\n");
-    printf("  .step [X]                       Step program counter by 1 or X\n");
-    printf("  .run                            Run program\n");
-    printf("  .record XXXX <filename>         Record writes to address XXXX\n");
-    printf("  .breakpoints                    List all breakpoints\n");
-    printf("  .add_breakpoint XXXX <name>     Add breakpoint at address XXXX with optional name\n");
-    printf("  .remove_breakpoint <name>       Remove breakpoint(s) at address XXXX or with name\n");
-    printf("  .quit                           Quit\n");
-    printf("  .help                           Print this message\n\n");
-}
-
-/**
  * Simulate 6502
  * @param {char *} input - Input filename
  */
