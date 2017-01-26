@@ -196,6 +196,7 @@ struct usage_flag {
 };
 
 int usage(char *exec);
+void usage_simulate();
 
 /* INCLUDE UTILS */
 void include_file_pop();
