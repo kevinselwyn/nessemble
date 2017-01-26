@@ -18,7 +18,12 @@ old_dir=""
 OLDIFS=$IFS
 
 # valgrind
-valgrind_rc=0
+has_valgrind=0
+type valgrind &>/dev/null
+if [ $? -eq 0 ]
+then
+    has_valgrind=1
+fi
 
 # parse arguments
 while [[ $# -gt 0 ]]
@@ -44,6 +49,9 @@ for asm in `find ./test -name '*.asm' | sort`
 do
     rom="${asm%.*}"
     dir=$(dirname $rom)
+
+    # valgrind
+    valgrind_fail=0
 
     # display directory
     if [ "$flag_silent" != "1" ]
@@ -90,13 +98,16 @@ do
         diff "$rom-disassembled.txt" <(./nessemble $rom.rom --disassemble) &>/dev/null
         disassembly_fail=$?
 
-        valgrind --leak-check=full --show-reachable=yes --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble $rom.rom --disassemble &>/dev/null
-        valgrind_fail_disassembly=$?
-
-        if [ $valgrind_fail_disassembly -eq 1 ]
+        if [ $has_valgrind -eq 1 ]
         then
-            valgrind_type="disassembly"
-            valgrind_rc=1
+            valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble $rom.rom --disassemble &>/dev/null
+            valgrind_fail_disassembly=$?
+
+            if [ $valgrind_fail_disassembly -eq 1 ]
+            then
+                valgrind_type="disassembly"
+                valgrind_fail=1
+            fi
         fi
     fi
 
@@ -110,13 +121,16 @@ do
         diff "$rom-simulated.txt" <(./nessemble --simulate $rom.rom --recipe $rom-recipe.txt) &>/dev/null
         simulation_fail=$?
 
-        valgrind --leak-check=full --show-reachable=yes --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble --simulate $rom.rom --recipe $rom-recipe.txt &>/dev/null
-        valgrind_fail_simulation=$?
-
-        if [ $valgrind_fail_simulation -eq 1 ]
+        if [ $has_valgrind -eq 1 ]
         then
-            valgrind_type="simulation"
-            valgrind_rc=1
+            valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble --simulate $rom.rom --recipe $rom-recipe.txt &>/dev/null
+            valgrind_fail_simulation=$?
+
+            if [ $valgrind_fail_simulation -eq 1 ]
+            then
+                valgrind_type="simulation"
+                valgrind_fail=1
+            fi
         fi
     fi
 
@@ -126,17 +140,20 @@ do
     diff "$rom.rom" <(./nessemble $asm --output - $flags) &>/dev/null
     diff_rc=$?
 
-    valgrind --leak-check=full --show-reachable=yes --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble $asm --output - $flags &>/dev/null
-    valgrind_fail_assembly=$?
-
-    if [ $valgrind_fail_assembly -eq 1 ]
+    if [ $has_valgrind -eq 1 ]
     then
-        valgrind_type="assembly"
-        valgrind_rc=1
+        valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble $asm --output - $flags &>/dev/null
+        valgrind_fail_assembly=$?
+
+        if [ $valgrind_fail_assembly -eq 1 ]
+        then
+            valgrind_type="assembly"
+            valgrind_fail=1
+        fi
     fi
 
     # if no assembly diff and no disassembly diff
-    if [ $diff_rc -eq 0 ] && [ $disassembly_fail -eq 0 ] && [ $simulation_fail -eq 0 ] && [ $valgrind_rc -eq 0 ]
+    if [ $diff_rc -eq 0 ] && [ $disassembly_fail -eq 0 ] && [ $simulation_fail -eq 0 ] && [ $valgrind_fail -eq 0 ]
     then
         if [ "$flag_silent" != "1" ]
         then
@@ -172,12 +189,12 @@ do
         fi
 
         # if valgrind fail
-        if [ $valgrind_rc -ne 0 ]
+        if [ $valgrind_fail -ne 0 ]
         then
             printf " [valgrind fail: %s]" $valgrind_type
         fi
 
-        if [ $disassembly_fail -ne 0 ] || [ $simulation_fail -ne 0 ] || [ $valgrind_rc -ne 0 ]
+        if [ $disassembly_fail -ne 0 ] || [ $simulation_fail -ne 0 ] || [ $valgrind_fail -ne 0 ]
         then
             printf "\n"
         fi

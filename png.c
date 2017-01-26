@@ -87,6 +87,14 @@ void free_png(struct png_data png) {
     if (png.row_pointers) {
         free(png.row_pointers);
     }
+
+    if (png.png_ptr) {
+        free(png.png_ptr);
+    }
+
+    if (png.info_ptr) {
+        free(png.info_ptr);
+    }
 }
 
 int png_color_mode(int color_type) {

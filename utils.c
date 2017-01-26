@@ -155,7 +155,7 @@ int dec2int(char *dec) {
         dec[length - 1] = '\0';
     }
 
-    return atoi(dec);
+    return (int)strtol(dec, NULL, 10);
 }
 
 /**

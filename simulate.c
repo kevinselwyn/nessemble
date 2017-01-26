@@ -351,7 +351,7 @@ void load_registers(char *input) {
     unsigned int starts[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     unsigned int ends[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     size_t length = 0;
-    char text[8];
+    char *text = NULL;
 
     length = strlen(input);
 
@@ -370,6 +370,15 @@ void load_registers(char *input) {
             ends[index++] = i - 1;
         }
     }
+
+    text = (char *)malloc(sizeof(char) * 8);
+
+    if (!text) {
+        fprintf(stderr, "Memory error\n");
+        goto cleanup;
+    }
+
+    strcpy(text, "0");
 
     for (i = 0, l = index; i < l; i++) {
         if (strncmp(input+starts[i], "A=", 2) == 0) {
@@ -396,6 +405,11 @@ void load_registers(char *input) {
             continue;
         }
     }
+
+cleanup:
+    if (text) {
+        free(text);
+    }
 }
 
 void load_flags(char *input) {
@@ -403,7 +417,7 @@ void load_flags(char *input) {
     unsigned int starts[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     unsigned int ends[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     size_t length = 0;
-    char text[13];
+    char *text = NULL;
 
     length = strlen(input);
 
@@ -422,6 +436,15 @@ void load_flags(char *input) {
             ends[index++] = i - 1;
         }
     }
+
+    text = (char *)malloc(sizeof(char) * 13);
+
+    if (!text) {
+        fprintf(stderr, "Memory error\n");
+        goto cleanup;
+    }
+
+    strcpy(text, "0");
 
     for (i = 0, l = index; i < l; i++) {
         if (strncmp(input+starts[i], "negative=", 9) == 0) {
@@ -455,6 +478,11 @@ void load_flags(char *input) {
         } else {
             continue;
         }
+    }
+
+cleanup:
+    if (text) {
+        free(text);
     }
 }
 
