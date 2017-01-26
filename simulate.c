@@ -399,8 +399,8 @@ void load_registers(char *input) {
             registers.pc = (int)hex2int(text) & 0xFFFF;
         } else if (strncmp(input+starts[i], "SP=", 3) == 0) {
             strncpy(text, input+starts[i]+3, (size_t)(ends[i] - starts[i] - 3));
-            text[4] = '\0';
-            registers.sp = (unsigned int)hex2int(text) & 0xFFFF;
+            text[2] = '\0';
+            registers.sp = (unsigned int)hex2int(text) & 0xFF;
         } else {
             continue;
         }
