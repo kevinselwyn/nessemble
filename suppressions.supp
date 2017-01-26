@@ -1,0 +1,29 @@
+{
+   <yyensure_buffer_stack>
+   Memcheck:Leak
+   fun:malloc
+   fun:yyalloc
+   fun:yyensure_buffer_stack
+   fun:yylex
+   fun:yyparse
+   fun:main
+}
+{
+   <yylex>
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:yylex
+   fun:yyparse
+   fun:main
+}
+{
+   <yy_create_buffer>
+   Memcheck:Leak
+   fun:malloc
+   fun:yyalloc
+   fun:yy_create_buffer
+   fun:yylex
+   fun:yyparse
+   fun:main
+}

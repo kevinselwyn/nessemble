@@ -146,6 +146,10 @@ int main(int argc, char *argv[]) {
 
     // output
     if (!outfilename || strcmp(outfilename, "-") == 0) {
+        if (outfilename) {
+            free(outfilename);
+        }
+
         outfilename = strdup("/dev/stdout");
     }
 
