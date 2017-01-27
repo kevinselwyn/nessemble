@@ -1,7 +1,11 @@
 DEFINED = $01
+NESTED  = $01
 
 .ifdef UNDEFINED
 .db $12, $34
+.ifdef NESTED
+.db $00, $00
+.endif
 .else
 .db $56, $78
 .endif

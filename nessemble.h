@@ -173,7 +173,6 @@ unsigned int if_depth;
 unsigned int if_active;
 unsigned int if_type;
 unsigned int if_cond;
-char *if_label;
 
 /* SEGMENTS */
 char segment[8];
