@@ -252,6 +252,7 @@ int main(int argc, char *argv[]) {
 
     // reset lineno
     yylineno = 1;
+    include_stack_ptr = 0;
 
     do {
         (void)yyparse();
