@@ -79,6 +79,7 @@ int include_stack_ptr = 0;
 ".include"                 { BEGIN(include); return PSEUDO_INCLUDE; }
 ".incpal"                  { return PSEUDO_INCPAL; }
 ".incpng"                  { return PSEUDO_INCPNG; }
+".incrle"                  { return PSEUDO_INCRLE; }
 ".incscreen"               { return PSEUDO_INCSCREEN; }
 ".incwav"                  { return PSEUDO_INCWAV; }
 ".ineschr"                 { return PSEUDO_INESCHR; }

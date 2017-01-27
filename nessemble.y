@@ -64,6 +64,7 @@
 %token PSEUDO_INCLUDE
 %token PSEUDO_INCPAL
 %token PSEUDO_INCPNG
+%token PSEUDO_INCRLE
 %token PSEUDO_INCSCREEN
 %token PSEUDO_INCWAV
 %token PSEUDO_INESCHR
@@ -108,6 +109,7 @@
 %type <sval> pseudo_include
 %type <sval> pseudo_incpal
 %type <sval> pseudo_incpng
+%type <sval> pseudo_incrle
 %type <sval> pseudo_incwav
 %type <sval> pseudo_inestrn
 %type <sval> pseudo_macro
@@ -237,6 +239,7 @@ pseudo
     | pseudo_org       { pseudo_org($1); }
     | pseudo_out       { pseudo_out($1); }
     | pseudo_prg       { pseudo_prg($1); }
+    | pseudo_incrle    { /* NOTHING */ }
     | pseudo_rsset     { pseudo_rsset($1); }
     | pseudo_rs        { /* NOTHING */ }
     | pseudo_segment   { pseudo_segment($1); }
@@ -395,6 +398,10 @@ pseudo_out
 
 pseudo_prg
     : PSEUDO_PRG number { $$ = $2; }
+    ;
+
+pseudo_incrle
+    : PSEUDO_INCRLE QUOT_STRING { pseudo_incrle($2); }
     ;
 
 pseudo_rsset

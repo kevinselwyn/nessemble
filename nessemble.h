@@ -292,6 +292,7 @@ void pseudo_macro(char *string);
 void pseudo_org(unsigned int address);
 void pseudo_out(char *string);
 void pseudo_prg(unsigned int index);
+void pseudo_incrle(char *string);
 void pseudo_rsset(unsigned int address);
 void pseudo_rs(char *label, int size);
 void pseudo_segment(char *string);
