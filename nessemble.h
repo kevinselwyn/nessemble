@@ -29,6 +29,7 @@
 #define MAX_BANKS         256
 #define MAX_INTS          256
 #define MAX_ARGS          10
+#define MAX_NESTED_IFS    10
 #define TRAINER_MAX       512
 
 /* PATH */
@@ -171,8 +172,7 @@ unsigned int include_type;
 /* IF */
 unsigned int if_depth;
 unsigned int if_active;
-unsigned int if_type;
-unsigned int if_cond;
+unsigned int if_cond[MAX_NESTED_IFS];
 
 /* SEGMENTS */
 char segment[8];

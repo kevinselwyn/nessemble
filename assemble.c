@@ -80,8 +80,14 @@ unsigned int get_address_offset() {
 void write_byte(unsigned int byte) {
     unsigned int offset = get_rom_index();
 
-    if (if_active == TRUE && if_cond == FALSE) {
-        return;
+    if (if_active == TRUE) {
+        if (if_cond[if_depth] == FALSE) {
+            return;
+        } else {
+            if (if_depth - 1 != 0 && if_cond[if_depth - 1] == FALSE) {
+                return;
+            }
+        }
     }
 
     if (ines.trn == 1) {
@@ -119,8 +125,14 @@ void write_byte(unsigned int byte) {
  */
 void add_symbol(char *name, unsigned int value, unsigned int type) {
     if (pass == 1) {
-        if (if_active == TRUE && if_cond == FALSE) {
-            return;
+        if (if_active == TRUE) {
+            if (if_cond[if_depth] == FALSE) {
+                return;
+            } else {
+                if (if_depth - 1 != 0 && if_cond[if_depth - 1] == FALSE) {
+                    return;
+                }
+            }
         }
 
         symbols[symbol_index].name = strdup(name);
