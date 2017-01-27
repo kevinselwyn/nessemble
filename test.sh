@@ -5,9 +5,6 @@ total=0
 pass=0
 fail=0
 
-# flags
-flag_silent="0"
-
 # test flags
 flags=""
 
@@ -25,21 +22,8 @@ then
     has_valgrind=1
 fi
 
-# parse arguments
-while [[ $# -gt 0 ]]
-do
-    key="$1"
-
-    case $key in
-        -s|--silent)
-        flag_silent="1"
-        shift
-        ;;
-        *)
-        ;;
-    esac
-    shift
-done
+# test case
+test_case=$1
 
 # timer start
 start=$(python -c 'import time; print time.time()')
@@ -47,6 +31,14 @@ start=$(python -c 'import time; print time.time()')
 # loop through .asm files
 for asm in `find ./test -name '*.asm' | sort`
 do
+    if [ "$test_case" != "" ]
+    then
+        if [ "$test_case" != $(basename $asm) ]
+        then
+            continue
+        fi
+    fi
+
     # test start
     test_start=$(python -c 'import time; print time.time()')
 
@@ -57,24 +49,16 @@ do
     valgrind_fail=0
 
     # display directory
-    if [ "$flag_silent" != "1" ]
+    if [[ "$dir" != "$old_dir" ]]
     then
-        if [[ "$dir" != "$old_dir" ]]
-        then
-            printf "\n\033[0;4m%s/\033[0;0m (%d)\n" $dir $(find ./test -name '*.asm' | grep -i "$dir" | wc -l)
-            old_dir=$dir
-        fi
+        printf "\n\033[0;4m%s/\033[0;0m (%d)\n" $dir $(find ./test -name '*.asm' | grep -i "$dir" | wc -l)
+        old_dir=$dir
     fi
 
     # if no rom
     if [ ! -e "$rom.rom" ]
     then
-        if [ "$flag_silent" != "1" ]
-        then
-            printf "  \033[0;31m✗\033[0m %s \033[1;30m[missing ROM file]\033[0m\n" $(basename $asm)
-        else
-            printf "\033[0;31m✗\033[0m %s \033[1;30m[missing ROM file]\033[0m\n" $asm
-        fi
+        printf "  \033[0;31m✗\033[0m %s \033[1;30m[missing ROM file]\033[0m\n" $(basename $asm)
 
         fail=$(echo "$fail + 1" | bc)
         total=$(echo "$total + 1" | bc)
@@ -158,27 +142,24 @@ do
     # if no assembly diff and no disassembly diff
     if [ $diff_rc -eq 0 ] && [ $disassembly_fail -eq 0 ] && [ $simulation_fail -eq 0 ] && [ $valgrind_fail -eq 0 ]
     then
-        if [ "$flag_silent" != "1" ]
+        printf "  \033[0;32m✔\033[0m %s" $(basename $asm)
+
+        if [ $disassembly_nonexist -eq 0 ]
         then
-            printf "  \033[0;32m✔\033[0m %s" $(basename $asm)
-
-            if [ $disassembly_nonexist -eq 0 ]
-            then
-                printf " *"
-            fi
-
-            if [ $simulation_nonexist -eq 0 ]
-            then
-                printf " *"
-            fi
-
-            pass=$(echo "$pass + 1" | bc)
-
-            test_end=$(python -c 'import time; print time.time()')
-            test_duration=$(printf "%s - %s\n" $test_end $test_start | bc)
-
-            printf " \033[1;30m(%ss)\033[0m\n" $test_duration
+            printf " *"
         fi
+
+        if [ $simulation_nonexist -eq 0 ]
+        then
+            printf " *"
+        fi
+
+        pass=$(echo "$pass + 1" | bc)
+
+        test_end=$(python -c 'import time; print time.time()')
+        test_duration=$(printf "%s - %s\n" $test_end $test_start | bc)
+
+        printf " \033[1;30m(%ss)\033[0m\n" $test_duration
     else
         printf "\033[0;31m✗\033[0m %s" $asm
 
