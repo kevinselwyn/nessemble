@@ -6,15 +6,6 @@
 struct ines_header ines = { 1, 0, 0, 1, 0 };
 
 /**
- * Handle EOF
- */
-void assemble_feof() {
-    if (--include_stack_ptr >= 0) {
-        include_file_pop();
-    }
-}
-
-/**
  * End parser pass
  */
 void end_pass() {
