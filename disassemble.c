@@ -98,7 +98,7 @@ int disassemble(char *input, char *output) {
         i = 16;
     }
 
-    ines_header = inesprg != 0 && ineschr != 0 ? TRUE : FALSE;
+    ines_header = inesprg != 0 || ineschr != 0 ? TRUE : FALSE;
 
     for (l = (unsigned int)insize; i < l; i++) {
         opcode_id = (unsigned int)indata[i] & 0xFF;
@@ -236,9 +236,9 @@ int disassemble(char *input, char *output) {
                 arg1 = (unsigned int)indata[i+2] & 0xFF;
 
                 if (ines_header == TRUE) {
-                    fprintf(outfile, "%04X | %04X | %02X %02X %02X | %s ($%04X)\n", i, offset, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+                    fprintf(outfile, "%04X | %04X | %02X %02X %02X | %s [$%04X]\n", i, offset, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
                 } else {
-                    fprintf(outfile, "%04X | %02X %02X %02X | %s ($%04X)\n", offset, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+                    fprintf(outfile, "%04X | %02X %02X %02X | %s [$%04X]\n", offset, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
                 }
 
                 i += 2;
@@ -247,9 +247,9 @@ int disassemble(char *input, char *output) {
                 arg0 = (unsigned int)indata[i+1] & 0xFF;
 
                 if (ines_header == TRUE) {
-                    fprintf(outfile, "%04X | %04X | %02X %02X    | %s ($%02X, X)\n", i, offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+                    fprintf(outfile, "%04X | %04X | %02X %02X    | %s [$%02X, X]\n", i, offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
                 } else {
-                    fprintf(outfile, "%04X | %02X %02X    | %s ($%02X, X)\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+                    fprintf(outfile, "%04X | %02X %02X    | %s [$%02X, X]\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
                 }
 
                 i++;
@@ -258,9 +258,9 @@ int disassemble(char *input, char *output) {
                 arg0 = (unsigned int)indata[i+1] & 0xFF;
 
                 if (ines_header == TRUE) {
-                    fprintf(outfile, "%04X | %04X | %02X %02X    | %s ($%02X), Y\n", i, offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+                    fprintf(outfile, "%04X | %04X | %02X %02X    | %s [$%02X], Y\n", i, offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
                 } else {
-                    fprintf(outfile, "%04X | %02X %02X    | %s ($%02X), Y\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+                    fprintf(outfile, "%04X | %02X %02X    | %s [$%02X], Y\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
                 }
 
                 i++;

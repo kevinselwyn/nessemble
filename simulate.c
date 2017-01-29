@@ -560,15 +560,15 @@ unsigned int print_instruction(unsigned int address) {
     case MODE_INDIRECT:
         arg0 = (unsigned int)rom_data[address+1] & 0xFF;
         arg1 = (unsigned int)rom_data[address+2] & 0xFF;
-        printf("%s ($%04X)\n", mnemonic, (arg1 << 8) | arg0);
+        printf("%s [$%04X]\n", mnemonic, (arg1 << 8) | arg0);
         break;
     case MODE_INDIRECT_X:
         arg0 = (unsigned int)rom_data[address+1] & 0xFF;
-        printf("%s ($%02X, X)\n", mnemonic, arg0);
+        printf("%s [$%02X, X]\n", mnemonic, arg0);
         break;
     case MODE_INDIRECT_Y:
         arg0 = (unsigned int)rom_data[address+1] & 0xFF;
-        printf("%s ($%02X), Y\n", mnemonic, arg0);
+        printf("%s [$%02X], Y\n", mnemonic, arg0);
         break;
     default:
         break;
