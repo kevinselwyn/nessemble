@@ -115,6 +115,8 @@ void write_byte(unsigned int byte) {
  * @param {unsigned int} type - Symbol type
  */
 void add_symbol(char *name, unsigned int value, unsigned int type) {
+    int symbol_id = -1;
+
     if (pass == 1) {
         if (if_active == TRUE) {
             if (if_cond[if_depth] == FALSE) {
@@ -126,9 +128,16 @@ void add_symbol(char *name, unsigned int value, unsigned int type) {
             }
         }
 
-        symbols[symbol_index].name = strdup(name);
-        symbols[symbol_index].value = value;
-        symbols[symbol_index++].type = type;
+        symbol_id = get_symbol(name);
+
+        if (symbol_id != -1) {
+            symbols[symbol_id].value = value;
+            symbols[symbol_id].type = type;
+        } else {
+            symbols[symbol_index].name = strdup(name);
+            symbols[symbol_index].value = value;
+            symbols[symbol_index++].type = type;
+        }
     }
 }
 
@@ -147,7 +156,7 @@ int get_symbol(char *name) {
         }
     }
 
-    if (symbols[symbol_id].type == SYMBOL_UNDEFINED) {
+    if (pass == 2 && symbol_id != -1 && symbols[symbol_id].type == SYMBOL_UNDEFINED) {
         yyerror("Symbol `%s` was not defined", symbols[symbol_id].name);
     }
 
