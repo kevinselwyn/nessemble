@@ -113,23 +113,26 @@ int png_color_mode(int color_type) {
 
 struct png_data read_png(char *filename) {
     int y = 0;
+    size_t length = 0;
 	FILE *file = NULL;
 	struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
 
 	file = fopen(filename, "rb");
 
+    length = strlen(cwd_path) + 1;
+
 	if (!file) {
-		yyerror("Could not open %s\n", filename);
+		yyerror("Could not open `%s`", filename+length);
         goto cleanup;
 	}
 
 	if (fread(png.header, 1, 8, file) != 8) {
-		yyerror("Could not read %s\n", filename);
+		yyerror("Could not read `%s`", filename+length);
         goto cleanup;
 	}
 
 	if (png_sig_cmp((unsigned char *)png.header, 0, 8)) {
-		yyerror("%s is not a PNG\n", filename);
+		yyerror("`%s` is not a PNG", filename+length);
         goto cleanup;
 	}
 

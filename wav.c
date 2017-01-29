@@ -86,26 +86,29 @@ static int wav_sample(wave_src *wav) {
 
 static unsigned int open_wav(wave_src *wav, char *filename) {
     unsigned int rc = RETURN_OK, got_fmt = FALSE;
+    size_t length = 0;
     char buffer[256];
 
     wav->fp = fopen(filename, "rb");
 
+    length = strlen(cwd_path) + 1;
+
     if (!wav->fp) {
-        yyerror("Could not open %s", filename);
+        yyerror("Could not open `%s`", filename+length);
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     if (fread(buffer, 1, 12, wav->fp) != 12) {
-        yyerror("Could not read %s", filename);
+        yyerror("Could not read `%s`", filename+length);
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     if (memcmp("RIFF", buffer, 4) != FALSE || memcmp("WAVE", buffer + 8, 4) != FALSE) {
-        yyerror("Could not find RIFF/WAVE in %s", filename);
+        yyerror("`%s` is not a WAV", filename+length);
 
         rc = RETURN_EPERM;
         goto cleanup;

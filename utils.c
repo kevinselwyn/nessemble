@@ -316,11 +316,14 @@ unsigned int is_segment_prg() {
  */
 void yyerror(const char *fmt, ...) {
     int rc = RETURN_EPERM;
+    size_t length = 0;
 
     va_list argptr;
     va_start(argptr, fmt);
 
-    fprintf(stderr, "Error in `%s` on line %d: ", filename_stack[include_stack_ptr], yylineno);
+    length = strlen(cwd_path) + 1;
+
+    fprintf(stderr, "Error in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, yylineno);
     (void)vfprintf(stderr, fmt, argptr);
     fprintf(stderr, "\n");
 

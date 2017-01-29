@@ -1,9 +1,6 @@
 #include <string.h>
 #include "nessemble.h"
 
-#define ERROR_OPCODE   "Unknown opcode `%s`"
-#define ERROR_REGISTER "Unknown register `%c`"
-
 /**
  * Get opcode
  * @param {char *} mnemonic - Mnemonic
@@ -31,6 +28,48 @@ int get_opcode(char *mnemonic, unsigned int mode) {
 }
 
 /**
+ * Check if mnemonic exists
+ * @param {char *} mnemonic - Mnemonic
+ * @return {unsigned int} True if mnemonic exists, false if not
+ */
+unsigned int mnemonic_exists(char *mnemonic) {
+    unsigned int exists = FALSE, i = 0, l = 0;
+
+    for (i = 0, l = OPCODE_COUNT; i < l; i++) {
+        if (strcmp(opcodes[i].mnemonic, mnemonic) == 0) {
+            exists = TRUE;
+        }
+    }
+
+    if (exists == TRUE) {
+        yyerror("Invalid addressing mode", mnemonic);
+    } else {
+        yyerror("Unknown opcode `%s`", mnemonic);
+    }
+
+    return exists;
+}
+
+/**
+ * Check if register exists
+ * @param {char *} reg - Register
+ * @return {unsigned int} True if register exists, false if not
+ */
+unsigned int register_exists(char reg) {
+    unsigned int exists = FALSE;
+
+    if (reg == 'X' || reg == 'Y') {
+        exists = TRUE;
+    }
+
+    if (exists != TRUE) {
+        yyerror("Unknown register `%c`", reg);
+    }
+
+    return exists;
+}
+
+/**
  * Assemble absolute addressing mode
  * @param {char *} mnemonic - Mnemonic
  * @param {unsigned int} address - Address
@@ -48,7 +87,9 @@ void assemble_absolute(char *mnemonic, unsigned int address) {
     }
 
     if (opcode_index == -1) {
-        yyerror(ERROR_OPCODE, mnemonic);
+        if (mnemonic_exists(mnemonic) != TRUE) {
+            return;
+        }
     }
 
     write_byte((unsigned int)opcode_index);
@@ -65,16 +106,20 @@ void assemble_absolute(char *mnemonic, unsigned int address) {
 void assemble_absolute_xy(char *mnemonic, unsigned int address, char reg) {
     int opcode_index = -1;
 
+    if (register_exists(reg) != TRUE) {
+        return;
+    }
+
     if (reg == 'X') {
         opcode_index = get_opcode(mnemonic, MODE_ABSOLUTE_X);
     } else if (reg == 'Y') {
         opcode_index = get_opcode(mnemonic, MODE_ABSOLUTE_Y);
-    } else {
-        yyerror(ERROR_REGISTER, reg);
     }
 
     if (opcode_index == -1) {
-        yyerror(ERROR_OPCODE, mnemonic);
+        if (mnemonic_exists(mnemonic) != TRUE) {
+            return;
+        }
     }
 
     write_byte((unsigned int)opcode_index);
@@ -90,7 +135,9 @@ void assemble_accumulator(char *mnemonic) {
     int opcode_index = get_opcode(mnemonic, MODE_ACCUMULATOR);
 
     if (opcode_index == -1) {
-        yyerror(ERROR_OPCODE, mnemonic);
+        if (mnemonic_exists(mnemonic) != TRUE) {
+            return;
+        }
     }
 
     write_byte((unsigned int)opcode_index);
@@ -104,7 +151,9 @@ void assemble_implied(char *mnemonic) {
     int opcode_index = get_opcode(mnemonic, MODE_IMPLIED);
 
     if (opcode_index == -1) {
-        yyerror(ERROR_OPCODE, mnemonic);
+        if (mnemonic_exists(mnemonic) != TRUE) {
+            return;
+        }
     }
 
     write_byte((unsigned int)opcode_index);
@@ -119,7 +168,9 @@ void assemble_immediate(char *mnemonic, unsigned int value) {
     int opcode_index = get_opcode(mnemonic, MODE_IMMEDIATE);
 
     if (opcode_index == -1) {
-        yyerror(ERROR_OPCODE, mnemonic);
+        if (mnemonic_exists(mnemonic) != TRUE) {
+            return;
+        }
     }
 
     write_byte((unsigned int)opcode_index);
@@ -135,7 +186,9 @@ void assemble_indirect(char *mnemonic, unsigned int address) {
     int opcode_index = get_opcode(mnemonic, MODE_INDIRECT);
 
     if (opcode_index == -1) {
-        yyerror(ERROR_OPCODE, mnemonic);
+        if (mnemonic_exists(mnemonic) != TRUE) {
+            return;
+        }
     }
 
     write_byte((unsigned int)opcode_index);
@@ -152,16 +205,20 @@ void assemble_indirect(char *mnemonic, unsigned int address) {
 void assemble_indirect_xy(char *mnemonic, unsigned int address, char reg) {
     int opcode_index = -1;
 
+    if (register_exists(reg) != TRUE) {
+        return;
+    }
+
     if (reg == 'X') {
         opcode_index = get_opcode(mnemonic, MODE_INDIRECT_X);
     } else if (reg == 'Y') {
         opcode_index = get_opcode(mnemonic, MODE_INDIRECT_Y);
-    } else {
-        yyerror(ERROR_REGISTER, reg);
     }
 
     if (opcode_index == -1) {
-        yyerror(ERROR_OPCODE, mnemonic);
+        if (mnemonic_exists(mnemonic) != TRUE) {
+            return;
+        }
     }
 
     write_byte((unsigned int)opcode_index);
@@ -211,16 +268,20 @@ void assemble_zeropage(char *mnemonic, unsigned int address) {
 void assemble_zeropage_xy(char *mnemonic, unsigned int address, char reg) {
     int opcode_index = -1;
 
+    if (register_exists(reg) != TRUE) {
+        return;
+    }
+
     if (reg == 'X') {
         opcode_index = get_opcode(mnemonic, MODE_ZEROPAGE_X);
     } else if (reg == 'Y') {
         opcode_index = get_opcode(mnemonic, MODE_ZEROPAGE_Y);
-    } else {
-        yyerror(ERROR_REGISTER, reg);
     }
 
     if (opcode_index == -1) {
-        yyerror(ERROR_OPCODE, mnemonic);
+        if (mnemonic_exists(mnemonic) != TRUE) {
+            return;
+        }
     }
 
     write_byte((unsigned int)opcode_index);
