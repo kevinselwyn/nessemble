@@ -147,6 +147,10 @@ int get_symbol(char *name) {
         }
     }
 
+    if (symbols[symbol_id].type == SYMBOL_UNDEFINED) {
+        yyerror("Symbol `%s` was not defined", symbols[symbol_id].name);
+    }
+
     return symbol_id;
 }
 

@@ -70,10 +70,11 @@
 #define META_UNDOCUMENTED 0x02
 
 /* SYMBOLS */
-#define SYMBOL_LABEL    0x00
-#define SYMBOL_CONSTANT 0x01
-#define SYMBOL_RS       0x02
-#define SYMBOL_ENUM     0x03
+#define SYMBOL_UNDEFINED 0x00
+#define SYMBOL_LABEL     0x01
+#define SYMBOL_CONSTANT  0x02
+#define SYMBOL_RS        0x03
+#define SYMBOL_ENUM      0x04
 
 /* INCLUDE */
 #define INCLUDE_NONE   0
