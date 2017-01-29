@@ -144,9 +144,9 @@ int disassemble(char *input, char *output) {
                     }
                 } else {
                     if (ines_header == TRUE) {
-                        fprintf(outfile, "%04X | %04X | %02X %02X    | %s $%04X\n", i, offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, offset + arg0);
+                        fprintf(outfile, "%04X | %04X | %02X %02X    | %s $%04X\n", i, offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, offset + arg0 + 2);
                     } else {
-                        fprintf(outfile, "%04X | %02X %02X    | %s $%04X\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, offset + arg0);
+                        fprintf(outfile, "%04X | %02X %02X    | %s $%04X\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, offset + arg0 + 2);
                     }
                 }
                 i++;
