@@ -3,7 +3,7 @@
 #include <string.h>
 #include "nessemble.h"
 
-unsigned int disassemble_offset(unsigned int offset, unsigned int inesprg, unsigned int ineschr, unsigned int inestrn) {
+static unsigned int disassemble_offset(unsigned int offset, unsigned int inesprg, unsigned int ineschr, unsigned int inestrn) {
     if (inesprg == 0 && ineschr == 0) {
         return offset;
     }
@@ -39,7 +39,7 @@ int disassemble(char *input, char *output) {
     int rc = RETURN_OK;
     unsigned int i = 0, l = 0, opcode_id = 0, arg0 = 0, arg1 = 0;
     unsigned int offset = 0, inesprg = 0, ineschr = 0, inestrn = FALSE, ines_header = FALSE;
-    size_t insize = 0;
+    unsigned int insize = 0;
     char *indata = NULL;
     FILE *outfile = NULL;
 
@@ -78,7 +78,7 @@ int disassemble(char *input, char *output) {
 
         arg0 = (unsigned int)indata[6] & 0xFF;
         arg1 = (unsigned int)indata[7] & 0xFF;
-        inestrn = (arg0 & 0x04) != 0 ? TRUE : FALSE;
+        inestrn = (unsigned int)((arg0 & 0x04) != 0 ? TRUE : FALSE);
         fprintf(outfile, "0006 | XXXX | %02X       | .db $%02X ; .inesmir %u\n", arg0, arg0, arg0 & 0x01);
         fprintf(outfile, "0007 | XXXX | %02X       | .db $%02X ; .inesmap %u\n", arg1, arg1, (arg0 >> 4) | (arg1 & 0xF0));
 
@@ -98,7 +98,7 @@ int disassemble(char *input, char *output) {
         i = 16;
     }
 
-    ines_header = inesprg != 0 || ineschr != 0 ? TRUE : FALSE;
+    ines_header = (unsigned int)(inesprg != 0 || ineschr != 0 ? TRUE : FALSE);
 
     for (l = (unsigned int)insize; i < l; i++) {
         opcode_id = (unsigned int)indata[i] & 0xFF;

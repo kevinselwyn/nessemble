@@ -49,7 +49,7 @@ int simulate(char *input, char *recipe) {
     char *indata = NULL;
     FILE *recipe_file = NULL;
 
-    insize = load_file(&indata, input);
+    insize = (size_t)load_file(&indata, input);
 
     if (!indata) {
         rc = RETURN_EPERM;

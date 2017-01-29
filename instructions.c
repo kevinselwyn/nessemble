@@ -2,6 +2,48 @@
 #include "nessemble.h"
 
 /**
+ * Check if mnemonic exists
+ * @param {char *} mnemonic - Mnemonic
+ * @return {unsigned int} True if mnemonic exists, false if not
+ */
+static unsigned int mnemonic_exists(char *mnemonic) {
+    unsigned int exists = FALSE, i = 0, l = 0;
+
+    for (i = 0, l = OPCODE_COUNT; i < l; i++) {
+        if (strcmp(opcodes[i].mnemonic, mnemonic) == 0) {
+            exists = TRUE;
+        }
+    }
+
+    if (exists == TRUE) {
+        yyerror("Invalid addressing mode", mnemonic);
+    } else {
+        yyerror("Unknown opcode `%s`", mnemonic);
+    }
+
+    return exists;
+}
+
+/**
+ * Check if register exists
+ * @param {char *} reg - Register
+ * @return {unsigned int} True if register exists, false if not
+ */
+static unsigned int register_exists(char reg) {
+    unsigned int exists = FALSE;
+
+    if (reg == 'X' || reg == 'Y') {
+        exists = TRUE;
+    }
+
+    if (exists != TRUE) {
+        yyerror("Unknown register `%c`", reg);
+    }
+
+    return exists;
+}
+
+/**
  * Get opcode
  * @param {char *} mnemonic - Mnemonic
  * @param {unsigned int} mode - Addressing mode
@@ -25,48 +67,6 @@ int get_opcode(char *mnemonic, unsigned int mode) {
     }
 
     return opcode_index;
-}
-
-/**
- * Check if mnemonic exists
- * @param {char *} mnemonic - Mnemonic
- * @return {unsigned int} True if mnemonic exists, false if not
- */
-unsigned int mnemonic_exists(char *mnemonic) {
-    unsigned int exists = FALSE, i = 0, l = 0;
-
-    for (i = 0, l = OPCODE_COUNT; i < l; i++) {
-        if (strcmp(opcodes[i].mnemonic, mnemonic) == 0) {
-            exists = TRUE;
-        }
-    }
-
-    if (exists == TRUE) {
-        yyerror("Invalid addressing mode", mnemonic);
-    } else {
-        yyerror("Unknown opcode `%s`", mnemonic);
-    }
-
-    return exists;
-}
-
-/**
- * Check if register exists
- * @param {char *} reg - Register
- * @return {unsigned int} True if register exists, false if not
- */
-unsigned int register_exists(char reg) {
-    unsigned int exists = FALSE;
-
-    if (reg == 'X' || reg == 'Y') {
-        exists = TRUE;
-    }
-
-    if (exists != TRUE) {
-        yyerror("Unknown register `%c`", reg);
-    }
-
-    return exists;
 }
 
 /**
