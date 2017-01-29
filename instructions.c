@@ -16,7 +16,7 @@ static unsigned int mnemonic_exists(char *mnemonic) {
     }
 
     if (exists == TRUE) {
-        yyerror("Invalid addressing mode", mnemonic);
+        yyerror("Invalid addressing mode");
     } else {
         yyerror("Unknown opcode `%s`", mnemonic);
     }
@@ -93,8 +93,8 @@ void assemble_absolute(char *mnemonic, unsigned int address) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte((unsigned int)address & 0xFF);
-    write_byte(((unsigned int)address >> 8) & 0xFF);
+    write_byte(address & 0xFF);
+    write_byte((address >> 8) & 0xFF);
 }
 
 /**
@@ -123,8 +123,8 @@ void assemble_absolute_xy(char *mnemonic, unsigned int address, char reg) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte((unsigned int)address & 0xFF);
-    write_byte(((unsigned int)address >> 8) & 0xFF);
+    write_byte(address & 0xFF);
+    write_byte((address >> 8) & 0xFF);
 }
 
 /**
@@ -174,7 +174,7 @@ void assemble_immediate(char *mnemonic, unsigned int value) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte((unsigned int)value & 0xFF);
+    write_byte(value & 0xFF);
 }
 
 /**
@@ -192,8 +192,8 @@ void assemble_indirect(char *mnemonic, unsigned int address) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte((unsigned int)address & 0xFF);
-    write_byte(((unsigned int)address >> 8) & 0xFF);
+    write_byte(address & 0xFF);
+    write_byte((address >> 8) & 0xFF);
 }
 
 /**
@@ -222,7 +222,7 @@ void assemble_indirect_xy(char *mnemonic, unsigned int address, char reg) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte((unsigned int)address & 0xFF);
+    write_byte(address & 0xFF);
 }
 
 /**
@@ -235,16 +235,21 @@ void assemble_relative(char *mnemonic, unsigned int address) {
     unsigned int offset = get_address_offset() + 1;
 
     if (offset > address) {
-        address = 0xFF - (offset - address);
+        address = (0xFF - (offset - address)) & 0xFF;
+
+        if (address <= 0x7F) {
+            yyerror("Branch address out of range");
+        }
     } else {
-        address = address - offset - 1;
+        address = (address - offset - 1) & 0xFF;
+
+        if (address >= 0x80) {
+            yyerror("Branch address out of range");
+        }
     }
 
-    // TODO: throw error if jump is too large
-    address &= 0xFF;
-
     write_byte((unsigned int)opcode_id);
-    write_byte((unsigned int)address);
+    write_byte(address);
 }
 
 /**
@@ -256,7 +261,7 @@ void assemble_zeropage(char *mnemonic, unsigned int address) {
     int opcode_id = get_opcode(mnemonic, MODE_ZEROPAGE);
 
     write_byte((unsigned int)opcode_id);
-    write_byte((unsigned int)address & 0XFF);
+    write_byte(address & 0XFF);
 }
 
 /**
@@ -285,5 +290,5 @@ void assemble_zeropage_xy(char *mnemonic, unsigned int address, char reg) {
     }
 
     write_byte((unsigned int)opcode_index);
-    write_byte((unsigned int)address & 0xFF);
+    write_byte(address & 0xFF);
 }
