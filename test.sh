@@ -82,7 +82,7 @@ do
 
     if [ $disassembly_nonexist -eq 0 ]
     then
-        diff "$rom-disassembled.txt" <(./nessemble $rom.rom --disassemble) &>/dev/null
+        diff "$rom-disassembled.txt" <(./nessemble $rom.rom --disassemble 2>&1) &>/dev/null
         disassembly_fail=$?
 
         if [ $has_valgrind -eq 1 ]
@@ -105,7 +105,7 @@ do
 
     if [ $simulation_nonexist -eq 0 ]
     then
-        diff "$rom-simulated.txt" <(./nessemble --simulate $rom.rom --recipe $rom-recipe.txt) &>/dev/null
+        diff "$rom-simulated.txt" <(./nessemble --simulate $rom.rom --recipe $rom-recipe.txt 2>&1) &>/dev/null
         simulation_fail=$?
 
         if [ $has_valgrind -eq 1 ]
@@ -124,7 +124,7 @@ do
     IFS=$OLDIFS
 
     # assembly
-    diff "$rom.rom" <(./nessemble $asm --output - $flags) &>/dev/null
+    diff "$rom.rom" <(./nessemble $asm --output - $flags 2>&1) &>/dev/null
     diff_rc=$?
 
     if [ $has_valgrind -eq 1 ]

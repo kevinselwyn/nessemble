@@ -132,23 +132,35 @@ int include_stack_ptr = 0;
  * @param {char *} filename - Filename to include
  */
 void include_file_push(char *filename) {
+    size_t length = strlen(cwd_path) + 1;
+
     include_type = INCLUDE_FILE;
 
     // save line number
     line_number_stack[include_stack_ptr] = yylineno;
-    yylineno = 0;
 
     // push to include stack
     include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
+
+    // error on too big include depth
+    if (include_stack_ptr >= MAX_INCLUDE_DEPTH) {
+        include_stack_ptr--;
+        yyerror("Too many nested includes");
+        return;
+    }
 
     // open file
     yyin = fopen(filename, "r");
 
     // check if opened
     if (!yyin) {
-        fprintf(stderr, "Could not include %s\n", filename);
+        include_stack_ptr--;
+        yyerror("Could not include `%s`", filename+length);
         return;
     }
+
+    // reset line number
+    yylineno = 0;
 
     // save filename
     strcpy(filename_stack[include_stack_ptr], filename);
