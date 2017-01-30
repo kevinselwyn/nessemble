@@ -16,9 +16,9 @@ static unsigned int mnemonic_exists(char *mnemonic) {
     }
 
     if (exists == TRUE) {
-        yyerror("Invalid addressing mode");
+        error_add("Invalid addressing mode");
     } else {
-        yyerror("Unknown opcode `%s`", mnemonic);
+        error_add("Unknown opcode `%s`", mnemonic);
     }
 
     return exists;
@@ -37,7 +37,7 @@ static unsigned int register_exists(char reg) {
     }
 
     if (exists != TRUE) {
-        yyerror("Unknown register `%c`", reg);
+        error_add("Unknown register `%c`", reg);
     }
 
     return exists;
@@ -239,7 +239,7 @@ void assemble_relative(char *mnemonic, unsigned int address) {
 
         if (pass == 2) {
             if (address <= 0x7F) {
-                yyerror("Branch address out of range");
+                error_add("Branch address out of range");
             }
         }
     } else {
@@ -247,7 +247,7 @@ void assemble_relative(char *mnemonic, unsigned int address) {
 
         if (pass == 2) {
             if (address >= 0x80) {
-                yyerror("Branch address out of range");
+                error_add("Branch address out of range");
             }
         }
     }

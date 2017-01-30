@@ -15,6 +15,11 @@ void pseudo_incscreen(char *string, char *type) {
     }
 
     png = read_png(path);
+
+    if (error_exists() != RETURN_OK) {
+        goto cleanup;
+    }
+
     color_mode = png_color_mode(png.color_type);
 
     // validate width/height

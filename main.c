@@ -197,7 +197,11 @@ int main(int argc, char *argv[]) {
 
     do {
         (void)yyparse();
-    } while (feof(yyin) == 0 && pass == 1);
+    } while ((yyin && feof(yyin) == 0) && pass == 1);
+
+    if (error() != RETURN_OK) {
+        goto cleanup;
+    }
 
     /* PASS 2 */
 
@@ -256,7 +260,11 @@ int main(int argc, char *argv[]) {
 
     do {
         (void)yyparse();
-    } while (feof(yyin) == 0 && pass == 2);
+    } while ((yyin && feof(yyin) == 0) && pass == 2);
+
+    if (error() != RETURN_OK) {
+        goto cleanup;
+    }
 
     /* DONE */
 
@@ -397,6 +405,8 @@ cleanup:
     if (listfile) {
         (void)fclose(listfile);
     }
+
+    error_free();
 
     return rc;
 }

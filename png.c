@@ -122,17 +122,17 @@ struct png_data read_png(char *filename) {
     length = strlen(cwd_path) + 1;
 
 	if (!file) {
-		yyerror("Could not open `%s`", filename+length);
+		error_add("Could not open `%s`", filename+length);
         goto cleanup;
 	}
 
 	if (fread(png.header, 1, 8, file) != 8) {
-		yyerror("Could not read `%s`", filename+length);
+		error_add("Could not read `%s`", filename+length);
         goto cleanup;
 	}
 
 	if (png_sig_cmp((unsigned char *)png.header, 0, 8)) {
-		yyerror("`%s` is not a PNG", filename+length);
+		error_add("`%s` is not a PNG", filename+length);
         goto cleanup;
 	}
 
@@ -180,7 +180,9 @@ struct png_data read_png(char *filename) {
 	png_read_image(png.png_ptr, png.row_pointers);
 
 cleanup:
-	fclose(file);
+    if (file) {
+        fclose(file);
+    }
 
 	return png;
 }
