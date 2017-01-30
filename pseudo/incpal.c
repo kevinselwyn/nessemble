@@ -13,6 +13,11 @@ void pseudo_incpal(char *string) {
     }
 
     png = read_png(path);
+
+    if (error_exists() != RETURN_OK) {
+        goto cleanup;
+    }
+
     color_mode = png_color_mode(png.color_type);
 
     png_byte *row = png.row_pointers[0];

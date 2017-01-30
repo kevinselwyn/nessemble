@@ -52,7 +52,7 @@ void pseudo_macro(char *string) {
     int index = get_macro(string);
 
     if (index == -1) {
-        yyerror("Macro `%s` was not defined", string);
+        error_add("Macro `%s` was not defined", string);
         goto cleanup;
     }
 

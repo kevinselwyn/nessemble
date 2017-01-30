@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <float.h>
 #include "nessemble.h"
@@ -307,27 +306,4 @@ unsigned int is_segment_chr() {
  */
 unsigned int is_segment_prg() {
     return (unsigned int)(segment_type == SEGMENT_PRG ? TRUE : FALSE);
-}
-
-/**
- * Parser error
- * @param {const char *} fmt - Format string
- * @param {...} ... - Variable arguments
- */
-void yyerror(const char *fmt, ...) {
-    int rc = RETURN_EPERM;
-    size_t length = 0;
-
-    va_list argptr;
-    va_start(argptr, fmt);
-
-    length = strlen(cwd_path) + 1;
-
-    fprintf(stderr, "Error in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, yylineno);
-    (void)vfprintf(stderr, fmt, argptr);
-    fprintf(stderr, "\n");
-
-    va_end(argptr);
-
-    exit(rc);
 }

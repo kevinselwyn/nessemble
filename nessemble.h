@@ -242,9 +242,6 @@ unsigned int is_flag_check();
 unsigned int is_segment_chr();
 unsigned int is_segment_prg();
 
-/* ERROR REPORTING */
-void yyerror(const char *fmt, ...);
-
 /* EOF UTILS */
 void assemble_feof();
 void end_pass();
@@ -446,5 +443,12 @@ int oct2int(char *oct);
 int dec2int(char *dec);
 int get_fullpath(char **path, char *string);
 unsigned int load_file(char **data, char *filename);
+
+/* ERRORS */
+void error_add(const char *fmt, ...);
+unsigned int error_exists();
+unsigned int error();
+void error_free();
+void yyerror(const char *fmt, ...);
 
 #endif /* _NESSEMBLE_H */

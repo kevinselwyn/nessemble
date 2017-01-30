@@ -183,7 +183,7 @@ number_highlow
     ;
 
 label
-    : TEXT { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { if (get_symbol($1) != -1) { $$ = symbols[get_symbol($1)].value; } else { add_symbol($1, 1, SYMBOL_UNDEFINED); $$ = 1; } } }
+    : TEXT { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { if (get_symbol($1) != -1) { $$ = symbols[get_symbol($1)].value; } else { add_symbol($1, 1, SYMBOL_UNDEFINED); $$ = 1; } } if (error_exists() == TRUE) { YYABORT; } }
     ;
 
 comma
@@ -223,18 +223,18 @@ pseudo
     | pseudo_ifdef     { pseudo_ifdef($1); }
     | pseudo_ifndef    { pseudo_ifndef($1); }
     | pseudo_incbin    { /* NOTHING */ }
-    | pseudo_include   { pseudo_include($1); }
-    | pseudo_incpal    { /* NOTHING */ }
-    | pseudo_incpng    { /* NOTHING */ }
-    | pseudo_incscreen { /* NOTHING */ }
-    | pseudo_incwav    { /* NOTHING */ }
+    | pseudo_include   { pseudo_include($1); if (error_exists() == TRUE) { YYABORT; } }
+    | pseudo_incpal    { if (error_exists() == TRUE) { YYABORT; } }
+    | pseudo_incpng    { if (error_exists() == TRUE) { YYABORT; } }
+    | pseudo_incscreen { if (error_exists() == TRUE) { YYABORT; } }
+    | pseudo_incwav    { if (error_exists() == TRUE) { YYABORT; } }
     | pseudo_ineschr   { pseudo_ineschr($1); }
     | pseudo_inesmap   { pseudo_inesmap($1); }
     | pseudo_inesmir   { pseudo_inesmir($1); }
     | pseudo_inesprg   { pseudo_inesprg($1); }
     | pseudo_inestrn   { pseudo_inestrn($1); }
     | pseudo_lobytes   { pseudo_lobytes(); }
-    | pseudo_macro     { pseudo_macro($1); }
+    | pseudo_macro     { pseudo_macro($1); if (error_exists() == TRUE) { YYABORT; } }
     | pseudo_macro_def { /* NOTHING */ }
     | pseudo_org       { pseudo_org($1); }
     | pseudo_out       { pseudo_out($1); }

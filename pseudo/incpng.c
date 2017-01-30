@@ -14,6 +14,11 @@ void pseudo_incpng(char *string, int offset, int limit) {
     }
 
     png = read_png(path);
+
+    if (error_exists() != RETURN_OK) {
+        goto cleanup;
+    }
+
     color_mode = png_color_mode(png.color_type);
 
     for (h = 0; h < png.height; h += 8) {
