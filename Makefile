@@ -2,7 +2,7 @@ NAME         := nessemble
 BIN_DIR      := /usr/local/bin
 RM           := rm -f
 CC           := gcc
-CC_FLAGS     := -g -Wall -Wextra
+CC_FLAGS     := -Wall -Wextra
 CC_LIB_FLAGS := -ll -lpng
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
@@ -19,6 +19,12 @@ UNAME        := $(shell uname -s)
 
 SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c instructions.c macro.c opcodes.c png.c $(shell ls pseudo/*.c) simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
 OBJS         := ${SRCS:c=o}
+
+ifeq ($(ENV), debug)
+	CC_FLAGS += -g
+else
+	CC_FLAGS += -s -O1
+endif
 
 ifeq ($(UNAME), Darwin)
 	CC_FLAGS += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments
