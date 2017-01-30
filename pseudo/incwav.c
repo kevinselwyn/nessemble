@@ -24,7 +24,7 @@ void pseudo_incwav(char *string, int amplitude) {
     }
 
     if (wav.fmt.channels != 1) {
-        yyerror("%s is not mono", string);
+        error_add("WAV is not mono");
         goto cleanup;
     }
 
