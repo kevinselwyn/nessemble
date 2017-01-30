@@ -118,9 +118,7 @@ int include_stack_ptr = 0;
 
 [\.\@a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = strdup(yytext); return TEXT; }
 \"[^"]*\"                  { yylval.sval = strdup(yytext); return QUOT_STRING; }
-[aA]                       { yylval.cval = toupper(yytext[0]); return CHAR_A; }
-[xX]                       { yylval.cval = toupper(yytext[0]); return CHAR_X; }
-[yY]                       { yylval.cval = toupper(yytext[0]); return CHAR_Y; }
+[a-zA-Z]                   { yylval.cval = toupper(yytext[0]); return CHAR_REG; }
 
 <<EOF>>                    { return FEOF; }
 .                          { if (strdup(yytext)[0] == 13) { return ENDL; } else { return UNKNOWN; } }

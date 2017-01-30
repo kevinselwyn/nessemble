@@ -307,7 +307,7 @@ int get_macro(char *name);
 /* ASSEMBLY UTILS */
 void assemble_absolute(char *mnemonic, unsigned int address);
 void assemble_absolute_xy(char *mnemonic, unsigned int address, char reg);
-void assemble_accumulator(char *mnemonic);
+void assemble_accumulator(char *mnemonic, char reg);
 void assemble_implied(char *mnemonic);
 void assemble_immediate(char *mnemonic, unsigned int value);
 void assemble_indirect(char *mnemonic, unsigned int address);

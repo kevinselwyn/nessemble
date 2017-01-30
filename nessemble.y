@@ -95,9 +95,7 @@
 %token <sval> PSEUDO_MACRO_DEF
 %token <sval> PSEUDO_MACRO_APPEND
 
-%token <cval> CHAR_A
-%token <cval> CHAR_X
-%token <cval> CHAR_Y
+%token <cval> CHAR_REG
 
 %token FEOF
 %token UNKNOWN
@@ -432,18 +430,16 @@ label_decl
 /* Instruction */
 
 instruction
-    : TEXT CHAR_A                                     { assemble_accumulator($1); }
-    | TEXT HASH number                                { assemble_immediate($1, $3); }
-    | TEXT OPEN_BRACK number CLOSE_BRACK              { assemble_indirect($1, $3); }
-    | TEXT OPEN_BRACK number COMMA CHAR_X CLOSE_BRACK { assemble_indirect_xy($1, $3, $5); }
-    | TEXT OPEN_BRACK number CLOSE_BRACK COMMA CHAR_Y { assemble_indirect_xy($1, $3, $6); }
-    | TEXT LT number COMMA CHAR_X                     { assemble_zeropage_xy($1, $3, $5); }
-    | TEXT LT number COMMA CHAR_Y                     { assemble_zeropage_xy($1, $3, $5); }
-    | TEXT number COMMA CHAR_X                        { assemble_absolute_xy($1, $2, $4); }
-    | TEXT number COMMA CHAR_Y                        { assemble_absolute_xy($1, $2, $4); }
-    | TEXT LT number ENDL                             { assemble_zeropage($1, $3); }
-    | TEXT number ENDL                                { assemble_absolute($1, $2); }
-    | TEXT ENDL                                       { assemble_implied($1); }
+    : TEXT CHAR_REG                                     { assemble_accumulator($1, $2); }
+    | TEXT HASH number                                  { assemble_immediate($1, $3); }
+    | TEXT OPEN_BRACK number CLOSE_BRACK                { assemble_indirect($1, $3); }
+    | TEXT OPEN_BRACK number COMMA CHAR_REG CLOSE_BRACK { assemble_indirect_xy($1, $3, $5); }
+    | TEXT OPEN_BRACK number CLOSE_BRACK COMMA CHAR_REG { assemble_indirect_xy($1, $3, $6); }
+    | TEXT LT number COMMA CHAR_REG                     { assemble_zeropage_xy($1, $3, $5); }
+    | TEXT number COMMA CHAR_REG                        { assemble_absolute_xy($1, $2, $4); }
+    | TEXT LT number ENDL                               { assemble_zeropage($1, $3); }
+    | TEXT number ENDL                                  { assemble_absolute($1, $2); }
+    | TEXT ENDL                                         { assemble_implied($1); }
     ;
 
 %%

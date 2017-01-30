@@ -26,14 +26,20 @@ static unsigned int mnemonic_exists(char *mnemonic) {
 
 /**
  * Check if register exists
- * @param {char *} reg - Register
+ * @param {char} reg - Register
+ * @param {char *} regs - Allowed registers
  * @return {unsigned int} True if register exists, false if not
  */
-static unsigned int register_exists(char reg) {
-    unsigned int exists = FALSE;
+static unsigned int register_exists(char reg, char *regs) {
+    unsigned int exists = FALSE, i = 0, l = 0;
+    size_t length = 0;
 
-    if (reg == 'X' || reg == 'Y') {
-        exists = TRUE;
+    length = strlen(regs);
+
+    for (i = 0, l = (unsigned int)length; i < l; i++) {
+        if (reg == regs[i]) {
+            exists = TRUE;
+        }
     }
 
     if (exists != TRUE) {
@@ -106,7 +112,7 @@ void assemble_absolute(char *mnemonic, unsigned int address) {
 void assemble_absolute_xy(char *mnemonic, unsigned int address, char reg) {
     int opcode_index = -1;
 
-    if (register_exists(reg) != TRUE) {
+    if (register_exists(reg, "XY") != TRUE) {
         return;
     }
 
@@ -131,8 +137,12 @@ void assemble_absolute_xy(char *mnemonic, unsigned int address, char reg) {
  * Assemble accumulator addressing mode
  * @param {char *} mnemonic - Mnemonic
  */
-void assemble_accumulator(char *mnemonic) {
+void assemble_accumulator(char *mnemonic, char reg) {
     int opcode_index = get_opcode(mnemonic, MODE_ACCUMULATOR);
+
+    if (register_exists(reg, "A") != TRUE) {
+        return;
+    }
 
     if (opcode_index == -1) {
         if (mnemonic_exists(mnemonic) != TRUE) {
@@ -205,7 +215,7 @@ void assemble_indirect(char *mnemonic, unsigned int address) {
 void assemble_indirect_xy(char *mnemonic, unsigned int address, char reg) {
     int opcode_index = -1;
 
-    if (register_exists(reg) != TRUE) {
+    if (register_exists(reg, "XY") != TRUE) {
         return;
     }
 
@@ -279,7 +289,7 @@ void assemble_zeropage(char *mnemonic, unsigned int address) {
 void assemble_zeropage_xy(char *mnemonic, unsigned int address, char reg) {
     int opcode_index = -1;
 
-    if (register_exists(reg) != TRUE) {
+    if (register_exists(reg, "XY") != TRUE) {
         return;
     }
 
