@@ -85,7 +85,7 @@ do
         diff "$rom-disassembled.txt" <(./nessemble $rom.rom --disassemble 2>&1) &>/dev/null
         disassembly_fail=$?
 
-        if [ $has_valgrind -eq 1 ]
+        if [ $has_valgrind -eq 1 ] && [[ ${dir} != *"errors"* ]]
         then
             valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble $rom.rom --disassemble &>/dev/null
             valgrind_fail_disassembly=$?
@@ -108,7 +108,7 @@ do
         diff "$rom-simulated.txt" <(./nessemble --simulate $rom.rom --recipe $rom-recipe.txt 2>&1) &>/dev/null
         simulation_fail=$?
 
-        if [ $has_valgrind -eq 1 ]
+        if [ $has_valgrind -eq 1 ] && [[ ${dir} != *"errors"* ]]
         then
             valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble --simulate $rom.rom --recipe $rom-recipe.txt &>/dev/null
             valgrind_fail_simulation=$?
@@ -127,7 +127,7 @@ do
     diff "$rom.rom" <(./nessemble $asm --output - $flags 2>&1) &>/dev/null
     diff_rc=$?
 
-    if [ $has_valgrind -eq 1 ]
+    if [ $has_valgrind -eq 1 ] && [[ ${dir} != *"errors"* ]]
     then
         valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble $asm --output - $flags &>/dev/null
         valgrind_fail_assembly=$?
