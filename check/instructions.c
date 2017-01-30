@@ -93,7 +93,7 @@ START_TEST(test_instructions_assemble_accumulator) {
 
     pass = 2;
     segment_type |= SEGMENT_PRG;
-    assemble_accumulator("ROL");
+    assemble_accumulator("ROL", 'A');
 
     ck_assert_uint_eq(rom[0], 0x2A);
 
