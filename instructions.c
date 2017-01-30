@@ -236,9 +236,23 @@ void assemble_relative(char *mnemonic, unsigned int address) {
 
     if (offset > address) {
         address = 0xFF - (offset - address);
+
+        if (pass == 2) {
+            if (address <= 0x7F) {
+                yyerror("Branch address out of range");
+            }
+        }
     } else {
         address = address - offset - 1;
+
+        if (pass == 2) {
+            if (address >= 0x80) {
+                yyerror("Branch address out of range");
+            }
+        }
     }
+
+    address &= 0xFF;
 
     write_byte((unsigned int)opcode_id);
     write_byte(address);
