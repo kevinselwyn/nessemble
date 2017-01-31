@@ -22,8 +22,6 @@ OBJS         := ${SRCS:c=o}
 
 ifeq ($(ENV), debug)
 	CC_FLAGS += -g
-else
-	CC_FLAGS += -s -O1
 endif
 
 ifeq ($(UNAME), Darwin)
@@ -54,6 +52,7 @@ check: all
 	@./check.sh
 
 install: all
+	strip $(NAME)
 	install -m 0755 $(NAME) $(BIN_DIR)
 
 uninstall:
