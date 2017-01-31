@@ -228,6 +228,7 @@ void usage_simulate();
 /* INCLUDE UTILS */
 void include_file_pop();
 void include_file_push(char *filename);
+void include_file_original();
 void include_string_push(char *string);
 void include_string_pop();
 
