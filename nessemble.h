@@ -446,9 +446,9 @@ int get_fullpath(char **path, char *string);
 unsigned int load_file(char **data, char *filename);
 
 /* ERRORS */
-void error_add(const char *fmt, ...);
+void error(const char *fmt, ...);
 unsigned int error_exists();
-unsigned int error();
+unsigned int error_exit();
 void error_free();
 void yyerror(const char *fmt, ...);
 

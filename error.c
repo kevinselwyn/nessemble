@@ -10,7 +10,7 @@
  * @param {const char *} fmt - Format string
  * @param {...} ... - Variable arguments
  */
-void error_add(const char *fmt, ...) {
+void error(const char *fmt, ...) {
     va_list argptr;
     va_start(argptr, fmt);
 
@@ -27,7 +27,7 @@ void error_add(const char *fmt, ...) {
     (void)vsprintf(errors[error_index++].message, fmt, argptr);
 
     if (error_index >= MAX_ERROR_COUNT) {
-        error();
+        error_exit();
     }
 }
 
@@ -47,17 +47,19 @@ unsigned int error_exists() {
  * Exit with error
  * @return {unsigned int} Error return code
  */
-unsigned int error() {
-    unsigned int rc = RETURN_OK;
+unsigned int error_exit() {
+    unsigned int rc = RETURN_OK, i = 0, l = 0;
     size_t length = 0;
 
     if (error_exists() == TRUE) {
         length = strlen(cwd_path) + 1;
 
-        include_stack_ptr = errors[error_index-1].stack;
-        yylineno = errors[error_index-1].line;
+        for (i = 0, l = error_index; i < l; i++) {
+            include_stack_ptr = errors[i].stack;
+            yylineno = errors[i].line;
 
-        fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, yylineno, errors[error_index-1].message);
+            fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, yylineno, errors[i].message);
+        }
 
         rc = RETURN_EPERM;
     }

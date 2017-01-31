@@ -199,7 +199,7 @@ int main(int argc, char *argv[]) {
         (void)yyparse();
     } while ((yyin && feof(yyin) == 0) && pass == 1);
 
-    if (error() != RETURN_OK) {
+    if (error_exit() != RETURN_OK) {
         goto cleanup;
     }
 
@@ -262,7 +262,7 @@ int main(int argc, char *argv[]) {
         (void)yyparse();
     } while ((yyin && feof(yyin) == 0) && pass == 2);
 
-    if (error() != RETURN_OK) {
+    if (error_exit() != RETURN_OK) {
         goto cleanup;
     }
 

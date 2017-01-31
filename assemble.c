@@ -157,7 +157,7 @@ int get_symbol(char *name) {
     }
 
     if (pass == 2 && symbol_id != -1 && symbols[symbol_id].type == SYMBOL_UNDEFINED) {
-        error_add("Symbol `%s` was not defined", symbols[symbol_id].name);
+        error("Symbol `%s` was not defined", symbols[symbol_id].name);
     }
 
     return symbol_id;

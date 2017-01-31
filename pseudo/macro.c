@@ -8,7 +8,7 @@
      int index = get_macro(string);
 
      if (index == -1) {
-         error_add("Macro `%s` was not defined", string);
+         error("Macro `%s` was not defined", string);
          goto cleanup;
      }
 
