@@ -122,17 +122,17 @@ struct png_data read_png(char *filename) {
     length = strlen(cwd_path) + 1;
 
 	if (!file) {
-		error_add("Could not open `%s`", filename+length);
+		error("Could not open `%s`", filename+length);
         goto cleanup;
 	}
 
 	if (fread(png.header, 1, 8, file) != 8) {
-		error_add("Could not read `%s`", filename+length);
+		error("Could not read `%s`", filename+length);
         goto cleanup;
 	}
 
 	if (png_sig_cmp((unsigned char *)png.header, 0, 8)) {
-		error_add("`%s` is not a PNG", filename+length);
+		error("`%s` is not a PNG", filename+length);
         goto cleanup;
 	}
 
