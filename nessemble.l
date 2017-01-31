@@ -191,6 +191,17 @@ void include_file_pop() {
 }
 
 /**
+ * Return to original buffer
+ */
+void include_file_original() {
+    if (include_stack_ptr > 0) {
+        while (include_stack_ptr >= 0) {
+            include_file_pop();
+        }
+    }
+}
+
+/**
  * Pushes a string to the buffer
  * @param {char *} string - String to parse
  */
