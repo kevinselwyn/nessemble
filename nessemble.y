@@ -102,15 +102,8 @@
 %token FEOF
 %token UNKNOWN
 
-%type <sval> pseudo_ascii
 %type <sval> pseudo_ifdef
 %type <sval> pseudo_ifndef
-%type <sval> pseudo_incbin
-%type <sval> pseudo_include
-%type <sval> pseudo_incpal
-%type <sval> pseudo_incpng
-%type <sval> pseudo_incrle
-%type <sval> pseudo_incwav
 %type <sval> pseudo_inestrn
 %type <sval> pseudo_macro
 %type <sval> pseudo_out
@@ -223,7 +216,7 @@ pseudo
     | pseudo_ifdef     { pseudo_ifdef($1); }
     | pseudo_ifndef    { pseudo_ifndef($1); }
     | pseudo_incbin    { /* NOTHING */ }
-    | pseudo_include   { pseudo_include($1); if (error_exists() == TRUE) { YYBAIL; } }
+    | pseudo_include   { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incpal    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incpng    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incscreen { if (error_exists() == TRUE) { YYBAIL; } }
@@ -246,9 +239,9 @@ pseudo
     ;
 
 pseudo_ascii
-    : PSEUDO_ASCII QUOT_STRING                   { pseudo_ascii($2, 0); }
-    | PSEUDO_ASCII QUOT_STRING PLUS number_base  { pseudo_ascii($2, $4); }
-    | PSEUDO_ASCII QUOT_STRING MINUS number_base { pseudo_ascii($2, $4 * -1); }
+    : PSEUDO_ASCII QUOT_STRING              { pseudo_ascii($2, 0); }
+    | PSEUDO_ASCII QUOT_STRING PLUS number  { pseudo_ascii($2, $4); }
+    | PSEUDO_ASCII QUOT_STRING MINUS number { pseudo_ascii($2, $4 * -1); }
     ;
 
 pseudo_checksum
@@ -330,7 +323,7 @@ pseudo_incbin
     ;
 
 pseudo_include
-    : PSEUDO_INCLUDE QUOT_STRING ENDL { $$ = $2; }
+    : PSEUDO_INCLUDE QUOT_STRING ENDL { pseudo_include($2); }
     ;
 
 pseudo_incpal
