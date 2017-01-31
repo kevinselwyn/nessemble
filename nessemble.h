@@ -24,7 +24,7 @@
 #define BANK_PRG          0x4000
 #define BANK_CHR          0x2000
 #define BANK_SIZE         0x4000
-#define MAX_SYMBOLS       1024
+#define MAX_SYMBOLS       65536
 #define MAX_MACROS        1024
 #define MAX_BANKS         256
 #define MAX_INTS          256
@@ -444,6 +444,9 @@ int oct2int(char *oct);
 int dec2int(char *dec);
 int get_fullpath(char **path, char *string);
 unsigned int load_file(char **data, char *filename);
+
+/* LIST */
+unsigned int output_list(char *filename);
 
 /* ERRORS */
 void error(const char *fmt, ...);
