@@ -3,25 +3,9 @@
 #include "nessemble.h"
 #include "wav.h"
 
-static unsigned int fgetu16(FILE *fp) {
-    unsigned int a = (unsigned int)fgetc(fp);
-    unsigned int b = (unsigned int)fgetc(fp);
-
-    return a | (b << 8);
-}
-
-static long int fgetu32(FILE *fp) {
-    unsigned int a = (unsigned int)fgetc(fp);
-    unsigned int b = (unsigned int)fgetc(fp);
-    unsigned int c = (unsigned int)fgetc(fp);
-    unsigned int d = (unsigned int)fgetc(fp);
-
-    return (long int)(a | (b << 8) | (c << 16) | (d << 24));
-}
-
 static int wav_format(wave_fmt *format, FILE *fp) {
     int rc = RETURN_OK;
-    long int fmt_len = fgetu32(fp);
+    long int fmt_len = (long int)fgetu32(fp);
 
     if (fmt_len < 16) {
         rc = RETURN_EPERM;
@@ -30,8 +14,8 @@ static int wav_format(wave_fmt *format, FILE *fp) {
 
     format->format = fgetu16(fp);
     format->channels = fgetu16(fp);
-    format->sample_rate = fgetu32(fp);
-    format->bytes_sec = fgetu32(fp);
+    format->sample_rate = (long int)fgetu32(fp);
+    format->bytes_sec = (long int)fgetu32(fp);
     format->frame_size = fgetu16(fp);
     format->bits_sample = fgetu16(fp);
 
@@ -114,7 +98,7 @@ unsigned int open_wav(wave_src *wav, char *filename) {
                 goto cleanup;
             }
 
-            wav->chunk_left = fgetu32(wav->fp);
+            wav->chunk_left = (long int)fgetu32(wav->fp);
 
             if (wav->chunk_left == 0) {
                 rc = RETURN_EPERM;
@@ -126,7 +110,7 @@ unsigned int open_wav(wave_src *wav, char *filename) {
             rc = RETURN_OK;
             goto cleanup;
         } else {
-            long int chunk_size = fgetu32(wav->fp);
+            long int chunk_size = (long int)fgetu32(wav->fp);
 
             (void)fseek(wav->fp, chunk_size, SEEK_CUR);
         }
