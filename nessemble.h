@@ -442,8 +442,10 @@ int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);
 int dec2int(char *dec);
-unsigned int fgetu16(FILE *fp);
-unsigned int fgetu32(FILE *fp);
+unsigned int fgetu16_little(FILE *fp);
+unsigned int fgetu16_big(FILE *fp);
+unsigned int fgetu32_little(FILE *fp);
+unsigned int fgetu32_big(FILE *fp);
 int get_fullpath(char **path, char *string);
 unsigned int load_file(char **data, char *filename);
 
