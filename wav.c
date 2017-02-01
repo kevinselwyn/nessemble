@@ -5,19 +5,19 @@
 
 static int wav_format(wave_fmt *format, FILE *fp) {
     int rc = RETURN_OK;
-    long int fmt_len = (long int)fgetu32(fp);
+    long int fmt_len = (long int)fgetu32_little(fp);
 
     if (fmt_len < 16) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    format->format = fgetu16(fp);
-    format->channels = fgetu16(fp);
-    format->sample_rate = (long int)fgetu32(fp);
-    format->bytes_sec = (long int)fgetu32(fp);
-    format->frame_size = fgetu16(fp);
-    format->bits_sample = fgetu16(fp);
+    format->format = fgetu16_little(fp);
+    format->channels = fgetu16_little(fp);
+    format->sample_rate = (long int)fgetu32_little(fp);
+    format->bytes_sec = (long int)fgetu32_little(fp);
+    format->frame_size = fgetu16_little(fp);
+    format->bits_sample = fgetu16_little(fp);
 
     (void)fseek(fp, fmt_len - 16, SEEK_CUR);
 
@@ -98,7 +98,7 @@ unsigned int open_wav(wave_src *wav, char *filename) {
                 goto cleanup;
             }
 
-            wav->chunk_left = (long int)fgetu32(wav->fp);
+            wav->chunk_left = (long int)fgetu32_little(wav->fp);
 
             if (wav->chunk_left == 0) {
                 rc = RETURN_EPERM;
@@ -110,7 +110,7 @@ unsigned int open_wav(wave_src *wav, char *filename) {
             rc = RETURN_OK;
             goto cleanup;
         } else {
-            long int chunk_size = (long int)fgetu32(wav->fp);
+            long int chunk_size = (long int)fgetu32_little(wav->fp);
 
             (void)fseek(wav->fp, chunk_size, SEEK_CUR);
         }

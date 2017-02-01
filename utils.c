@@ -157,20 +157,36 @@ int dec2int(char *dec) {
     return (int)strtol(dec, NULL, 10);
 }
 
-unsigned int fgetu16(FILE *fp) {
+unsigned int fgetu16_little(FILE *fp) {
     unsigned int a = (unsigned int)fgetc(fp);
     unsigned int b = (unsigned int)fgetc(fp);
 
     return a | (b << 8);
 }
 
-unsigned int fgetu32(FILE *fp) {
+unsigned int fgetu16_big(FILE *fp) {
+    unsigned int a = (unsigned int)fgetc(fp);
+    unsigned int b = (unsigned int)fgetc(fp);
+
+    return (a << 8) | b;
+}
+
+unsigned int fgetu32_little(FILE *fp) {
     unsigned int a = (unsigned int)fgetc(fp);
     unsigned int b = (unsigned int)fgetc(fp);
     unsigned int c = (unsigned int)fgetc(fp);
     unsigned int d = (unsigned int)fgetc(fp);
 
     return a | (b << 8) | (c << 16) | (d << 24);
+}
+
+unsigned int fgetu32_big(FILE *fp) {
+    unsigned int a = (unsigned int)fgetc(fp);
+    unsigned int b = (unsigned int)fgetc(fp);
+    unsigned int c = (unsigned int)fgetc(fp);
+    unsigned int d = (unsigned int)fgetc(fp);
+
+    return (a << 24) | (b << 16) | (c << 8) | d;
 }
 
 /**
