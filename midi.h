@@ -7,15 +7,25 @@ enum {
     MIDI_FORMAT_2
 };
 
+enum {
+    MIDI_EVENT_END,
+    MIDI_EVENT_TITLE,
+    MIDI_EVENT_TIME_SIGNATURE,
+    MIDI_EVENT_TEMPO,
+    MIDI_EVENT_NOTE_OFF,
+    MIDI_EVENT_NOTE_ON,
+    MIDI_EVENT_INSTRUMENT
+};
+
 struct midi_data read_midi(char *filename);
 
 struct midi_event {
-    unsigned int type;
+    unsigned int type, beat, data[3], data_index;
 };
 
 struct midi_track {
     char *header[4], *data;
-    unsigned int length;
+    unsigned int length, event_count;
     struct midi_event *events;
 };
 
