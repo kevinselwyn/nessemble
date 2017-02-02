@@ -14,6 +14,9 @@
 #define TRUE  1
 #define FALSE 0
 
+/* MATH */
+#define PI 3.14159265358979323846
+
 /* RETURN CODES */
 #define RETURN_OK    0
 #define RETURN_EPERM 1
@@ -76,6 +79,9 @@
 #define SYMBOL_RS        0x03
 #define SYMBOL_ENUM      0x04
 
+/* EASING */
+#define EASING_COUNT 9
+
 /* INCLUDE */
 #define INCLUDE_NONE   0
 #define INCLUDE_FILE   1
@@ -136,6 +142,12 @@ struct usage_flag {
     char *invocation, *description;
 };
 
+/* EASING */
+struct easing {
+    char *type;
+    float (*func)(float t, float b, float c, float d);
+};
+
 /*
  * VARIABLES
  */
@@ -193,6 +205,9 @@ char yycolno;
 
 /* INES */
 extern struct ines_header ines;
+
+/* EASING */
+struct easing easings[EASING_COUNT];
 
 /* IO */
 unsigned int *rom;
@@ -266,6 +281,7 @@ void pseudo_chr(unsigned int index);
 void pseudo_db();
 void pseudo_defchr();
 void pseudo_dw();
+void pseudo_ease(char *type, unsigned int start, unsigned int end, unsigned int steps);
 void pseudo_else();
 void pseudo_endenum();
 void pseudo_endif();
@@ -435,10 +451,24 @@ void do_tya(unsigned int opcode_index, unsigned int value);
 void do_xaa(unsigned int opcode_index, unsigned int value);
 void do_xas(unsigned int opcode_index, unsigned int value);
 
-/* UTILS */
+/* MATH */
 int power(int x, int y);
 int root(int x, int y);
 unsigned int crc_32(unsigned int *buffer, unsigned int length);
+float easeInQuad(float t, float b, float c, float d);
+float easeOutQuad(float t, float b, float c, float d);
+float easeInOutQuad(float t, float b, float c, float d);
+float easeInCubic(float t, float b, float c, float d);
+float easeOutCubic(float t, float b, float c, float d);
+float easeInOutCubic(float t, float b, float c, float d);
+float easeInQuint(float t, float b, float c, float d);
+float easeOutQuint(float t, float b, float c, float d);
+float easeInOutQuint(float t, float b, float c, float d);
+float easeInExpo(float t, float b, float c, float d);
+float easeOutExpo(float t, float b, float c, float d);
+float easeInOutExpo(float t, float b, float c, float d);
+
+/* UTILS */
 int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);
