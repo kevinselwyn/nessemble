@@ -252,8 +252,6 @@ struct midi_data read_midi(char *filename) {
     midi.tracks = (struct midi_track *)malloc(sizeof(struct midi_track) * midi.track_count);
 
     for (track = 0; track < midi.track_count; track++) {
-        index = (unsigned int)ftell(file);
-
         if (fread(midi.tracks[track].header, 1, 4, file) != 4) {
     		error("Could not read track %d in `%s`", track, filename+length);
             continue;
@@ -292,7 +290,7 @@ struct midi_data read_midi(char *filename) {
                 fprintf(stderr, "Track title\n");
                 break;
             case MIDI_EVENT_TIME_SIGNATURE:
-                fprintf(stderr, "Track time signature\n");
+                fprintf(stderr, "Track time signature: %d/%d\n", midi.tracks[track].events[i].data[0], midi.tracks[track].events[i].data[1]);
                 break;
             case MIDI_EVENT_TEMPO:
                 fprintf(stderr, "Track tempo\n");
