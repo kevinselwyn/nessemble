@@ -3,13 +3,13 @@
 #include "nessemble.h"
 #include "midi.h"
 
-char notes[12] = { 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' };
+char *notes[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
 static unsigned int parse_events(struct midi_track *track, unsigned int quarter) {
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, index = 0, length = 0;
-    unsigned int offset = 0, beat = 0, byte[3];
-    unsigned int event_count = 0, event_ready = FALSE;
+    unsigned int offset = 0, beat = 0, byte[4];
+    unsigned int event_count = 0;
     char *data = NULL;
     struct midi_event *events = NULL;
 
@@ -117,7 +117,12 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
             }
 
             if (byte[1] == 0x58) {
+                byte[2] = (unsigned int)data[i+3] & 0xFF;
+                byte[3] = (unsigned int)data[i+4] & 0xFF;
+
                 events[index].type = MIDI_EVENT_TIME_SIGNATURE;
+                events[index].data[events[index].data_index++] = byte[2];
+                events[index].data[events[index].data_index++] = (unsigned int)power(2, byte[3]);
 
                 index++;
                 i += 7;
@@ -146,6 +151,7 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
 
         if ((byte[0] >> 4) == 0x8) {
             byte[1] = (unsigned int)data[i+1] & 0xFF;
+            byte[2] = (unsigned int)data[i+1] & 0xFF;
 
             events[index].type = MIDI_EVENT_NOTE_OFF;
             events[index].data[events[index].data_index++] = byte[0] & 0xF;
@@ -160,6 +166,7 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
 
         if ((byte[0] >> 4) == 0x9) {
             byte[1] = (unsigned int)data[i+1] & 0xFF;
+            byte[2] = (unsigned int)data[i+1] & 0xFF;
 
             events[index].type = MIDI_EVENT_NOTE_ON;
             events[index].data[events[index].data_index++] = byte[0] & 0xF;
@@ -193,7 +200,7 @@ cleanup:
 
 struct midi_data read_midi(char *filename) {
     unsigned int i = 0, l = 0;
-    unsigned int track = 0, index = 0;
+    unsigned int track = 0;
     size_t length = 0;
 	FILE *file = NULL;
 	struct midi_data midi = { { }, 0, 0, 0, 0, NULL };
