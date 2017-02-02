@@ -32,6 +32,7 @@ static void list_sort() {
 unsigned int output_list(char *filename) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
     unsigned int has_constants = FALSE, has_labels = FALSE;
+    size_t length = 0;
     FILE *listfile = NULL;
 
     if (!filename) {
@@ -68,7 +69,9 @@ unsigned int output_list(char *filename) {
                     list_strings[list_index] = (char *)malloc(sizeof(char) * MAX_LIST_LENGTH);
                 }
 
-                sprintf(list_strings[list_index++], "%04X = %s", symbols[i].value, symbols[i].name);
+                length = strlen(symbols[i].name) + 7;
+
+                (void)snprintf(list_strings[list_index++], length, "%04X = %s", symbols[i].value, symbols[i].name);
             }
         }
 
@@ -94,7 +97,9 @@ unsigned int output_list(char *filename) {
                     list_strings[list_index] = (char *)malloc(sizeof(char) * MAX_LIST_LENGTH);
                 }
 
-                sprintf(list_strings[list_index++], "%04X = %s", symbols[i].value, symbols[i].name);
+                length = strlen(symbols[i].name) + 7;
+
+                (void)snprintf(list_strings[list_index++], length, "%04X = %s", symbols[i].value, symbols[i].name);
             }
         }
 
