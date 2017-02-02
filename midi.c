@@ -6,7 +6,7 @@
 struct midi_data read_midi(char *filename) {
     size_t length = 0;
 	FILE *file = NULL;
-	struct midi_data midi = { { }, 0 };
+	struct midi_data midi = { { }, 0, 0, 0, 0 };
 
 	file = fopen(filename, "rb");
 
