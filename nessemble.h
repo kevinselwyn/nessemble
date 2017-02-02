@@ -207,7 +207,7 @@ char yycolno;
 extern struct ines_header ines;
 
 /* EASING */
-struct easing easings[EASING_COUNT];
+extern struct easing easings[EASING_COUNT];
 
 /* IO */
 unsigned int *rom;
