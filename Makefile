@@ -17,7 +17,7 @@ OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c instructions.c list.c macro.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c instructions.c list.c macro.c math.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
 OBJS         := ${SRCS:c=o}
 
 ifeq ($(ENV), debug)
@@ -26,6 +26,8 @@ endif
 
 ifeq ($(UNAME), Darwin)
 	CC_FLAGS += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments
+else
+	CC_FLAGS += -lrt
 endif
 
 all: $(NAME)
