@@ -81,6 +81,7 @@
 %token PSEUDO_ORG
 %token PSEUDO_OUT
 %token PSEUDO_PRG
+%token PSEUDO_RANDOM
 %token PSEUDO_RSSET
 %token PSEUDO_RS
 %token PSEUDO_SEGMENT
@@ -221,6 +222,7 @@ pseudo
     | pseudo_incmid    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incpal    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incpng    { if (error_exists() == TRUE) { YYBAIL; } }
+    | pseudo_incrle    { /* NOTHING */ }
     | pseudo_incscreen { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incwav    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_ineschr   { pseudo_ineschr($1); }
@@ -234,7 +236,7 @@ pseudo
     | pseudo_org       { pseudo_org($1); }
     | pseudo_out       { pseudo_out($1); }
     | pseudo_prg       { pseudo_prg($1); }
-    | pseudo_incrle    { /* NOTHING */ }
+    | pseudo_random    { /* NOTHING */ }
     | pseudo_rsset     { pseudo_rsset($1); }
     | pseudo_rs        { /* NOTHING */ }
     | pseudo_segment   { pseudo_segment($1); }
@@ -367,6 +369,10 @@ pseudo_inesprg
     : PSEUDO_INESPRG number { $$ = $2; }
     ;
 
+pseudo_incrle
+    : PSEUDO_INCRLE QUOT_STRING { pseudo_incrle($2); }
+    ;
+
 pseudo_inestrn
     : PSEUDO_INESTRN QUOT_STRING { $$ = $2; }
     ;
@@ -399,8 +405,12 @@ pseudo_prg
     : PSEUDO_PRG number { $$ = $2; }
     ;
 
-pseudo_incrle
-    : PSEUDO_INCRLE QUOT_STRING { pseudo_incrle($2); }
+pseudo_random
+    : PSEUDO_RANDOM number number      { pseudo_random($2, $3); }
+    | PSEUDO_RANDOM number             { pseudo_random($2, 1); }
+    | PSEUDO_RANDOM QUOT_STRING number { pseudo_random(str2hash($2), $3); }
+    | PSEUDO_RANDOM QUOT_STRING        { pseudo_random(str2hash($2), 1); }
+    | PSEUDO_RANDOM                    { pseudo_random(0, 1); }
     ;
 
 pseudo_rsset

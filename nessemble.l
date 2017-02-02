@@ -94,6 +94,7 @@ int include_stack_ptr = 0;
 ".org"                     { return PSEUDO_ORG; }
 ".out"                     { return PSEUDO_OUT; }
 ".prg"                     { return PSEUDO_PRG; }
+".random"                  { return PSEUDO_RANDOM; }
 ".rsset"                   { return PSEUDO_RSSET; }
 ".rs"                      { return PSEUDO_RS; }
 ".segment"                 { return PSEUDO_SEGMENT; }
