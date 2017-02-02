@@ -80,7 +80,7 @@
 #define SYMBOL_ENUM      0x04
 
 /* EASING */
-#define EASING_COUNT 9
+#define EASING_COUNT 12
 
 /* INCLUDE */
 #define INCLUDE_NONE   0
@@ -467,6 +467,9 @@ float easeInOutQuint(float t, float b, float c, float d);
 float easeInExpo(float t, float b, float c, float d);
 float easeOutExpo(float t, float b, float c, float d);
 float easeInOutExpo(float t, float b, float c, float d);
+float easeInBounce(float t, float b, float c, float d);
+float easeOutBounce(float t, float b, float c, float d);
+float easeInOutBounce(float t, float b, float c, float d);
 
 /* UTILS */
 int hex2int(char *hex);

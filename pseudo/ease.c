@@ -23,8 +23,13 @@ void pseudo_ease(char *type, unsigned int start, unsigned int end, unsigned int 
     for (i = 0, j = EASING_COUNT; i < j; i++) {
         if (strcmp(type+1, easings[i].type) == 0) {
             for (k = 0, l = steps; k < l; k++) {
-                value = (*easings[i].func)((float)k / ((float)l - 1), 0, 1, 1) * (end - start);
-                write_byte(((unsigned int)value + start) & 0xFF);
+                if (end > start) {
+                    value = (*easings[i].func)((float)k / ((float)l - 1), 0, 1, 1) * (end - start);
+                    write_byte(((unsigned int)value + start) & 0xFF);
+                } else {
+                    value = (*easings[i].func)((float)(l - k - 1) / ((float)l - 1), 0, 1, 1) * (start - end);
+                    write_byte(((unsigned int)value + end) & 0xFF);
+                }
             }
 
             found = TRUE;

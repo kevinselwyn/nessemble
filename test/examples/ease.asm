@@ -7,3 +7,6 @@
 .ease "easeInQuint"
 .ease "easeOutQuint"
 .ease "easeInOutQuint"
+.ease "easeInBounce"
+.ease "easeOutBounce"
+.ease "easeInOutBounce"

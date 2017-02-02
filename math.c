@@ -95,15 +95,18 @@ unsigned int crc_32(unsigned int *buffer, unsigned int length) {
 }
 
 struct easing easings[EASING_COUNT] = {
-    { "easeInQuad",     &easeInQuad },
-    { "easeOutQuad",    &easeOutQuad },
-    { "easeInOutQuad",  &easeInOutQuad },
-    { "easeInCubic",    &easeInCubic },
-    { "easeOutCubic",   &easeOutCubic },
-    { "easeInOutCubic", &easeInOutCubic },
-    { "easeInQuint",    &easeInQuint },
-    { "easeOutQuint",   &easeOutQuint },
-    { "easeInOutQuint", &easeInOutQuint }
+    { "easeInQuad",      &easeInQuad },
+    { "easeOutQuad",     &easeOutQuad },
+    { "easeInOutQuad",   &easeInOutQuad },
+    { "easeInCubic",     &easeInCubic },
+    { "easeOutCubic",    &easeOutCubic },
+    { "easeInOutCubic",  &easeInOutCubic },
+    { "easeInQuint",     &easeInQuint },
+    { "easeOutQuint",    &easeOutQuint },
+    { "easeInOutQuint",  &easeInOutQuint },
+    { "easeInBounce",    &easeInBounce },
+    { "easeOutBounce",   &easeOutBounce },
+    { "easeInOutBounce", &easeInOutBounce }
 };
 
 /*
@@ -248,4 +251,58 @@ float easeInOutQuint(float t, float b, float c, float d) {
     lower_t = new_t - 2;
 
 	return c / 2 * (lower_t * lower_t * lower_t * lower_t * lower_t + 2) + b;
+}
+
+/*
+ * Ease In Bounce
+ * @param {float} t - Current time
+ * @param {float} b - Beginning value
+ * @param {float} c - Change in value
+ * @param {float} d - Duration
+ * @return {float} Eased value
+ */
+float easeInBounce(float t, float b, float c, float d) {
+    return c - easeOutBounce(d - t, 0, c, d) + b;
+}
+
+/*
+ * Ease Out Bounce
+ * @param {float} t - Current time
+ * @param {float} b - Beginning value
+ * @param {float} c - Change in value
+ * @param {float} d - Duration
+ * @return {float} Eased value
+ */
+float easeOutBounce(float t, float b, float c, float d) {
+    float new_t = t / d, lower_t = 0.0;
+    float magic = 7.5625;
+
+    if (new_t < (1 / 2.75)) {
+        return c * (magic * new_t * new_t) + b;
+    } else if (new_t < (2/2.75)) {
+        lower_t = new_t - (1.5 / 2.75);
+        return c * (magic * lower_t * lower_t + .75) + b;
+    } else if (new_t < (2.5/2.75)) {
+        lower_t = new_t - (2.25 / 2.75);
+        return c * (magic * lower_t * lower_t + .9375) + b;
+    } else {
+        lower_t = new_t - (2.625/2.75);
+        return c * (magic * lower_t * lower_t + .984375) + b;
+    }
+}
+
+/*
+ * Ease In Out Bounce
+ * @param {float} t - Current time
+ * @param {float} b - Beginning value
+ * @param {float} c - Change in value
+ * @param {float} d - Duration
+ * @return {float} Eased value
+ */
+float easeInOutBounce(float t, float b, float c, float d) {
+    if (t < d / 2) {
+        return easeInBounce(t * 2, 0, c, d) * .5 + b;
+    }
+
+    return easeOutBounce(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
 }
