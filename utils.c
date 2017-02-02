@@ -190,6 +190,22 @@ unsigned int fgetu32_big(FILE *fp) {
 }
 
 /**
+ * Hash string
+ * @param {char *} string - String to hash
+ * @return {unsigned int} Hash
+ */
+unsigned int str2hash(char *string) {
+    unsigned int hash = 5381, i = 0, l = 0;
+    size_t length = strlen(string);
+
+    for (i = 1, l = (unsigned int)length - 1; i < l; i++) {
+        hash = ((hash << 5) + hash) + (unsigned int)string[i];
+    }
+
+    return hash;
+}
+
+/**
  * Get fullpath
  */
 int get_fullpath(char **path, char *string) {
