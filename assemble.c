@@ -96,10 +96,22 @@ void write_byte(unsigned int byte) {
     }
 
     if (is_segment_prg() == TRUE) {
+        if (pass == 1) {
+            if (prg_offsets[prg_index] >= BANK_PRG) {
+                warning("Overflowing PRG Bank %d", prg_index);
+            }
+        }
+
         prg_offsets[prg_index]++;
     }
 
     if (is_segment_chr() == TRUE) {
+        if (pass == 1) {
+            if (chr_offsets[chr_index] >= BANK_CHR) {
+                warning("Overflowing CHR Bank %d", prg_index);
+            }
+        }
+
         chr_offsets[chr_index]++;
     }
 

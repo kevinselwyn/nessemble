@@ -6,6 +6,26 @@
 #include "error.h"
 
 /**
+ * Issue a warning
+ * @param {const char *} fmt - Format string
+ * @param {...} ... - Variable arguments
+ */
+void warning(const char *fmt, ...) {
+    size_t length = 0;
+
+    va_list argptr;
+    va_start(argptr, fmt);
+
+    length = strlen(cwd_path) + 1;
+
+    fprintf(stderr, "Warning in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, yylineno);
+    (void)vfprintf(stderr, fmt, argptr);
+    fprintf(stderr, "\n");
+
+    va_end(argptr);
+}
+
+/**
  * Add to error bus
  * @param {const char *} fmt - Format string
  * @param {...} ... - Variable arguments
