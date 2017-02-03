@@ -105,6 +105,7 @@
 %token FEOF
 %token UNKNOWN
 
+%type <sval> pseudo_ease
 %type <sval> pseudo_ifdef
 %type <sval> pseudo_ifndef
 %type <sval> pseudo_inestrn
@@ -209,7 +210,7 @@ pseudo
     | pseudo_db        { pseudo_db(); }
     | pseudo_defchr    { pseudo_defchr(); }
     | pseudo_dw        { pseudo_dw(); }
-    | pseudo_ease      { /* NOTHING */ }
+    | pseudo_ease      { pseudo_ease($1); }
     | pseudo_else      { pseudo_else(); }
     | pseudo_endenum   { pseudo_endenum(); }
     | pseudo_endif     { pseudo_endif(); }
@@ -284,10 +285,8 @@ pseudo_dw
     ;
 
 pseudo_ease
-    : PSEUDO_EASE QUOT_STRING number number number { pseudo_ease($2, $3, $4, $5); }
-    | PSEUDO_EASE QUOT_STRING number number        { pseudo_ease($2, $3, $4, 0x10); }
-    | PSEUDO_EASE QUOT_STRING number               { pseudo_ease($2, $3, ($3 + 0x10) & 0xFF, 0x10); }
-    | PSEUDO_EASE QUOT_STRING                      { pseudo_ease($2, 0, 0x10, 0x10); }
+    : PSEUDO_EASE QUOT_STRING { $$ = $2; }
+    | pseudo_ease number      { ints[length_ints++] = $2; $$ = $1; }
     ;
 
 pseudo_else

@@ -281,7 +281,7 @@ void pseudo_chr(unsigned int index);
 void pseudo_db();
 void pseudo_defchr();
 void pseudo_dw();
-void pseudo_ease(char *type, unsigned int start, unsigned int end, unsigned int steps);
+void pseudo_ease(char *type);
 void pseudo_else();
 void pseudo_endenum();
 void pseudo_endif();

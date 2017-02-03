@@ -4,17 +4,28 @@
 /**
  * .ease pseudo instruction
  * @param {char *} type - Ease type
- * @param {unsigned int} start - Ease start value
- * @param {unsigned int} steps - Ease step count
  */
-void pseudo_ease(char *type, unsigned int start, unsigned int end, unsigned int steps) {
+void pseudo_ease(char *type) {
     unsigned int i = 0, j = 0, k = 0, l = 0;
+    unsigned int start = 0, end = 0x10, steps = 0x10;
     unsigned int found = FALSE;
     float value = 0.0;
     size_t length = 0;
 
     length = strlen(type);
     type[length - 1] = '\0';
+
+    if (length_ints >= 1) {
+        start = ints[0];
+    }
+
+    if (length_ints >= 2) {
+        end = ints[1];
+    }
+
+    if (length_ints >= 3) {
+        steps = ints[2];
+    }
 
     if (end > 0xFF) {
         end = 0xFF;
@@ -39,4 +50,6 @@ void pseudo_ease(char *type, unsigned int start, unsigned int end, unsigned int 
     if (found != TRUE) {
         error("Invalid easing type `%s`", type+1);
     }
+
+    length_ints = 0;
 }
