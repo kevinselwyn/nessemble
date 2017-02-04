@@ -184,9 +184,9 @@ label
     ;
 
 comma
-    : COMMA                  { /* NOTHING */ }
-    | COMMA ENDL             { /* NOTHING */ }
-    | COMMA ENDL INDENTATION { /* NOTHING */ }
+    : COMMA             { /* NOTHING */ }
+    | comma ENDL        { /* NOTHING */ }
+    | comma INDENTATION { /* NOTHING */ }
     ;
 
 /* Lines */
