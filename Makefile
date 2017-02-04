@@ -17,7 +17,8 @@ OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c instructions.c list.c macro.c math.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c init.c instructions.c list.c macro.c math.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
+HDRS         := $(NAME).h init.h
 OBJS         := ${SRCS:c=o}
 
 ifeq ($(ENV), debug)
@@ -44,7 +45,12 @@ $(OPCODES).c: $(OPCODES).csv
 %.o: %.c
 	$(CC) -O -c $< $(CC_FLAGS) -o $@
 
-$(NAME): $(OBJS) $(NAME).h
+init.c: init.h
+
+init.h:
+	xxd -i init.asm > $@
+
+$(NAME): $(OBJS) $(HDRS)
 	$(CC) -o $@ $(OBJS) $(CC_FLAGS) $(CC_LIB_FLAGS)
 
 $(TEST): all
@@ -62,4 +68,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) check/suite_*
+	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) init.h check/suite_*
