@@ -26,6 +26,14 @@ int main(int argc, char *argv[]) {
 
     // parse args
     for (i = 1, l = (unsigned int)argc; i < l; i++) {
+        if (strcmp(argv[i], "init") == 0) {
+            if (init() != RETURN_OK) {
+                rc = RETURN_EPERM;
+            }
+
+            goto cleanup;
+        }
+
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             rc = usage(exec);
             goto cleanup;

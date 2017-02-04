@@ -4,8 +4,6 @@
 
 // https://github.com/bfirsh/jsnes/blob/master/source/cpu.js
 
-#define BUF_SIZE 256
-
 struct flgs {
     unsigned int negative, overflow, brk, decimal, interrupt, zero, carry;
 };

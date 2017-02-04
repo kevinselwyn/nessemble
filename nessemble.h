@@ -34,6 +34,7 @@
 #define MAX_ARGS          10
 #define MAX_NESTED_IFS    10
 #define TRAINER_MAX       512
+#define BUF_SIZE          256
 
 /* PATH */
 #ifndef PATH_MAX
@@ -494,5 +495,8 @@ unsigned int error_exists();
 unsigned int error_exit();
 void error_free();
 void yyerror(const char *fmt, ...);
+
+/* INIT */
+unsigned int init();
 
 #endif /* _NESSEMBLE_H */
