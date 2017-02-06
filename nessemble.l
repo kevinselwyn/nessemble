@@ -55,6 +55,7 @@ int include_stack_ptr = 0;
 ">"                        { return GT; }
 "<="                       { return LTE; }
 ">="                       { return GTE; }
+"->"                       { return ARROW; }
 
 "HIGH"                     { return HIGH; }
 "LOW"                      { return LOW; }

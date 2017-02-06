@@ -42,6 +42,7 @@
 %token GT
 %token LTE
 %token GTE
+%token ARROW
 
 %token HIGH
 %token LOW
@@ -116,6 +117,7 @@
 %type <ival> number
 %type <ival> number_base
 %type <ival> number_highlow
+%type <ival> label_text
 %type <ival> label
 
 %type <uval> pseudo_checksum
@@ -179,8 +181,12 @@ number_highlow
     | HIGH OPEN_PAREN number CLOSE_PAREN { $$ = ($3 >> 8) & 255; }
     ;
 
-label
+label_text
     : TEXT { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { if (get_symbol($1) != -1) { $$ = symbols[get_symbol($1)].value; } else { add_symbol($1, 1, SYMBOL_UNDEFINED); $$ = 1; } } if (error_exists() == TRUE) { YYBAIL; } }
+
+label
+    : label_text             { $$ = $1; }
+    | label ARROW label_text { $$ = $1 + $3; }
     ;
 
 comma
