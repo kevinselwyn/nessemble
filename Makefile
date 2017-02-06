@@ -48,7 +48,9 @@ $(OPCODES).c: $(OPCODES).csv
 init.c: init.h
 
 init.h:
-	xxd -i init.asm > $@
+	printf "#ifndef _INIT_H\n#define _INIT_H\n\n" > $@
+	xxd -i init.asm >> $@
+	printf "\n#endif /* _INIT_H */\n" >> $@
 
 $(NAME): $(OBJS) $(HDRS)
 	$(CC) -o $@ $(OBJS) $(CC_FLAGS) $(CC_LIB_FLAGS)
