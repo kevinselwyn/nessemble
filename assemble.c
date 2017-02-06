@@ -97,8 +97,22 @@ void write_byte(unsigned int byte) {
 
     if (is_segment_prg() == TRUE) {
         if (pass == 1) {
-            if (prg_offsets[prg_index] >= BANK_PRG) {
-                warning("Overflowing PRG Bank %d", prg_index);
+            if (ines.prg < 2) {
+                if (prg_offsets[prg_index] >= (BANK_PRG * 2)) {
+                    warning("Overflowing PRG Bank %d", prg_index);
+                }
+            } else {
+                if (prg_offsets[prg_index] >= BANK_PRG) {
+                    if (prg_index == 0) {
+                        if (prg_offsets[prg_index] >= (BANK_PRG * 2)) {
+                            warning("Overflowing PRG Bank %d", prg_index);
+                        }
+                    } else {
+                        if (prg_offsets[prg_index] >= BANK_PRG) {
+                            warning("Overflowing PRG Bank %d", prg_index);
+                        }
+                    }
+                }
             }
         }
 
