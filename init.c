@@ -11,7 +11,7 @@ static char *get_line(char **buffer, char *prompt) {
 
 unsigned int init() {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
-    unsigned int input_prg = 0, input_chr = 0, input_mapper = 0, input_mirroring = 0;
+    int input_prg = 0, input_chr = 0, input_mapper = 0, input_mirroring = 0;
     size_t length = 0;
     char *buffer = NULL, *input_filename = NULL;
     FILE *output = NULL;
@@ -46,7 +46,12 @@ unsigned int init() {
 
         buffer[length - 1] = '\0';
 
-        if (sscanf(buffer, "%u", &input_prg) != 1) {
+        if (sscanf(buffer, "%d", &input_prg) != 1) {
+            continue;
+        }
+
+        if (input_prg < 0) {
+            printf("Choose a positive number of CHR banks\n");
             continue;
         }
 
@@ -62,7 +67,12 @@ unsigned int init() {
 
         buffer[length - 1] = '\0';
 
-        if (sscanf(buffer, "%u", &input_chr) != 1) {
+        if (sscanf(buffer, "%d", &input_chr) != 1) {
+            continue;
+        }
+
+        if (input_chr < 0) {
+            printf("Choose a positive number of CHR banks\n");
             continue;
         }
 
@@ -79,7 +89,12 @@ unsigned int init() {
 
         buffer[length - 1] = '\0';
 
-        if (sscanf(buffer, "%u", &input_mapper) != 1) {
+        if (sscanf(buffer, "%d", &input_mapper) != 1) {
+            continue;
+        }
+
+        if (input_mapper < 0 || input_mapper > 0xFF) {
+            printf("Choose a mapper between 0-255\n");
             continue;
         }
 
@@ -95,7 +110,12 @@ unsigned int init() {
 
         buffer[length - 1] = '\0';
 
-        if (sscanf(buffer, "%u", &input_mirroring) != 1) {
+        if (sscanf(buffer, "%d", &input_mirroring) != 1) {
+            continue;
+        }
+
+        if (input_mirroring < 0 || input_mirroring > 0x0F) {
+            printf("Choose a mirroring between 0-15\n");
             continue;
         }
 
@@ -116,10 +136,10 @@ unsigned int init() {
         goto cleanup;
     }
 
-    fprintf(output, ".inesprg %u\n.ineschr %u\n.inesmap %u\n.inesmir %u\n", input_prg, input_chr, input_mapper % 0xFF, input_mirroring % 0x0F);
+    fprintf(output, ".inesprg %d\n.ineschr %d\n.inesmap %d\n.inesmir %d\n", input_prg, input_chr, input_mapper % 0xFF, input_mirroring % 0x0F);
 
     for (i = 0, l = input_prg; i < l; i++) {
-        fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.prg %u\n", i);
+        fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.prg %d\n", i);
 
         if (i == 0) {
             init_asm[init_asm_len-1] = '\0';
@@ -128,7 +148,7 @@ unsigned int init() {
     }
 
     for (i = 0, l = input_chr; i < l; i++) {
-        fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.chr %u\n", i);
+        fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.chr %d\n", i);
     }
 
     printf("Created `%s`\n", input_filename);
