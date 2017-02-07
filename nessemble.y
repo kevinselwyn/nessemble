@@ -89,6 +89,7 @@
 %token PSEUDO_SEGMENT
 %token PSEUDO_WORD
 
+%token <ival> NUMBER_DEFCHR
 %token <ival> NUMBER_HEX
 %token <ival> NUMBER_BIN
 %token <ival> NUMBER_OCT
@@ -116,6 +117,7 @@
 
 %type <ival> number
 %type <ival> number_base
+%type <ival> number_defchr
 %type <ival> number_highlow
 %type <ival> label_text
 %type <ival> label
@@ -174,6 +176,11 @@ number_base
     | NUMBER_CHAR    { $$ = $1; }
     | NUMBER_ARG     { $$ = args[$1 - 1]; }
     | number_highlow { $$ = $1; }
+    ;
+
+number_defchr
+    : NUMBER_DEFCHR { $$ = $1; }
+    | NUMBER_DEC    { $$ = $1; }
     ;
 
 number_highlow
@@ -276,8 +283,8 @@ pseudo_db
     ;
 
 pseudo_defchr
-    : PSEUDO_DEFCHR number       { ints[length_ints++] = $2; }
-    | pseudo_defchr comma number { ints[length_ints++] = $3; }
+    : PSEUDO_DEFCHR number_defchr       { ints[length_ints++] = $2; }
+    | pseudo_defchr comma number_defchr { ints[length_ints++] = $3; }
     ;
 
 pseudo_dw_alias

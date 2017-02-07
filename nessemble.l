@@ -119,6 +119,7 @@ int include_stack_ptr = 0;
 [0-9]+d                    { yylval.ival = dec2int(yytext); return NUMBER_DEC; }
 '.'                        { yylval.ival = (int)yytext[1]; return NUMBER_CHAR; }
 \\[0-9]+                   { yylval.ival = dec2int(yytext+1); return NUMBER_ARG; }
+[\.0-3]{8}                 { yylval.ival = defchr2int(yytext); return NUMBER_DEFCHR; }
 
 [\.\@a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = strdup(yytext); return TEXT; }
 \"[^"]*\"                  { yylval.sval = strdup(yytext); return QUOT_STRING; }
