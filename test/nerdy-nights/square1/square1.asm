@@ -34,6 +34,7 @@ NMI:
 
 ;;;;;;;;
 
+.prg 1
 .org $FFFA
 
     .dw NMI
