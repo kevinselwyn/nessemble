@@ -63,6 +63,24 @@ int dec2int(char *dec) {
     return (int)strtol(dec, NULL, 10);
 }
 
+/**
+ * Convert defchr string to int
+ * @param {char *} dec - defchr string (ex: 123..321)
+ * @return {int} Base-10 integer
+ */
+int defchr2int(char *defchr) {
+    unsigned int i = 0, l = 0;
+    size_t length = strlen(defchr);
+
+    for (i = 0, l = (unsigned int)length; i < l; i++) {
+        if (defchr[i] == '.') {
+            defchr[i] = '0';
+        }
+    }
+
+    return dec2int(defchr);
+}
+
 unsigned int fgetu16_little(FILE *fp) {
     unsigned int a = (unsigned int)fgetc(fp);
     unsigned int b = (unsigned int)fgetc(fp);

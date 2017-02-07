@@ -477,6 +477,7 @@ int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);
 int dec2int(char *dec);
+int defchr2int(char *defchr);
 unsigned int str2hash(char *string);
 unsigned int fgetu16_little(FILE *fp);
 unsigned int fgetu16_big(FILE *fp);
