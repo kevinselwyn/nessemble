@@ -108,6 +108,11 @@ struct png_data read_png(char *filename) {
 	png.color_type = png_get_color_type(png.png_ptr, png.info_ptr);
 	png.bit_depth = png_get_bit_depth(png.png_ptr, png.info_ptr);
 
+    if (png.bit_depth != 8) {
+        yyerror("Image bit depth must be 8");
+        goto cleanup;
+    }
+
 	png_read_update_info(png.png_ptr, png.info_ptr);
 
 	if (setjmp(png_jmpbuf(png.png_ptr))) {
