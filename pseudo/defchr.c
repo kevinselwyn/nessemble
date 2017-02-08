@@ -1,3 +1,4 @@
+#include <math.h>
 #include "../nessemble.h"
 
 /**
@@ -16,7 +17,7 @@ void pseudo_defchr() {
             byte = 0;
 
             for (k = 7, l = 0; k >= l; k--) {
-                digit = (int)(ints[i] / power(10, k)) % 10;
+                digit = (int)(ints[i] / pow(10, k)) % 10;
                 byte |= ((digit >> bit) & 1) << k;
             }
 

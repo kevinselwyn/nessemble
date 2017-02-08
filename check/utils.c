@@ -17,22 +17,6 @@ void stderr_real() {
     dup2(saved_stderr, STDERR_FILENO);
 }
 
-START_TEST(test_utils_power) {
-    ck_assert_int_eq(power(1, 1), 1);
-    ck_assert_int_eq(power(2, 2), 4);
-    ck_assert_int_eq(power(3, 3), 27);
-    ck_assert_int_eq(power(4, 4), 256);
-}
-END_TEST
-
-START_TEST(test_utils_root) {
-    ck_assert_int_eq(root(16, 2), 4);
-    ck_assert_int_eq(root(9, 2), 3);
-    ck_assert_int_eq(root(4, 2), 2);
-    ck_assert_int_eq(root(1, 1), 1);
-}
-END_TEST
-
 START_TEST(test_utils_crc_32) {
     unsigned int test1[5] = { 0x54, 0x68, 0x65 };
     unsigned int test2[5] = { 0x71, 0x75, 0x69, 0x63, 0x6B };
@@ -190,8 +174,6 @@ Suite * utils_suite(void) {
 
     tc_core = tcase_create("Core");
 
-    tcase_add_test(tc_core, test_utils_power);
-    tcase_add_test(tc_core, test_utils_root);
     tcase_add_test(tc_core, test_utils_crc_32);
     tcase_add_test(tc_core, test_utils_hex2int);
     tcase_add_test(tc_core, test_utils_bin2int);

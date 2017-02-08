@@ -454,8 +454,6 @@ void do_xaa(unsigned int opcode_index, unsigned int value);
 void do_xas(unsigned int opcode_index, unsigned int value);
 
 /* MATH */
-int power(int x, int y);
-int root(int x, int y);
 unsigned int crc_32(unsigned int *buffer, unsigned int length);
 float easeInQuad(float t, float b, float c, float d);
 float easeOutQuad(float t, float b, float c, float d);
