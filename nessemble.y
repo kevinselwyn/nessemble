@@ -228,7 +228,7 @@ pseudo
     | pseudo_endenum   { pseudo_endenum(); }
     | pseudo_endif     { pseudo_endif(); }
     | pseudo_enum      { /* NOTHING */ }
-    | pseudo_fill      { /* NOTHING */ }
+    | pseudo_fill      { pseudo_fill(); }
     | pseudo_hibytes   { pseudo_hibytes(); }
     | pseudo_if        { pseudo_if($1); }
     | pseudo_ifdef     { pseudo_ifdef($1); }
@@ -320,8 +320,8 @@ pseudo_enum
     ;
 
 pseudo_fill
-    : PSEUDO_FILL number number { pseudo_fill($2, $3); }
-    | PSEUDO_FILL number        { pseudo_fill($2, 0xFF); }
+    : PSEUDO_FILL number       { ints[length_ints++] = $2; }
+    | pseudo_fill COMMA number { ints[length_ints++] = $3; }
     ;
 
 pseudo_hibytes
