@@ -1,1 +1,1 @@
-.incwav "incwav.wav"
+.incwav "incwav.wav", 24

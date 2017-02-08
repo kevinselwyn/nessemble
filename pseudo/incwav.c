@@ -2,9 +2,9 @@
 #include "../nessemble.h"
 #include "../wav.h"
 
-void pseudo_incwav(char *string, int amplitude) {
+void pseudo_incwav(char *string) {
     int x = 0, y = 0;
-    int subsample = 99, oversample = 100;
+    int amplitude = 0, subsample = 99, oversample = 100;
     long filelen = 0;
     char *path = NULL;
     wave_src wav = { { 0, 0, 0, 0, 0, 0 } , NULL, 0, 0 };
@@ -30,6 +30,12 @@ void pseudo_incwav(char *string, int amplitude) {
 
     if (error_exists() == TRUE) {
         goto cleanup;
+    }
+
+    if (length_ints < 1) {
+        amplitude = (int)ints[0];
+    } else {
+        amplitude = 24;
     }
 
     if (amplitude < 2) {
@@ -78,4 +84,6 @@ cleanup:
     }
 
     close_wav(&wav);
+
+    length_ints = 0;
 }

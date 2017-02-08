@@ -303,7 +303,7 @@ void pseudo_incpal(char *string);
 void pseudo_incpng(char *string, int offset, int limit);
 void pseudo_incrle(char *string);
 void pseudo_incscreen(char *string, char *type);
-void pseudo_incwav(char *string, int amplitude);
+void pseudo_incwav(char *string);
 void pseudo_lobytes();
 void pseudo_macro(char *string);
 void pseudo_org(unsigned int address);
