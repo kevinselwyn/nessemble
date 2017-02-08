@@ -1,2 +1,11 @@
 .registers A=80
 .step
+.registers A=C0,X=90,Y=01
+.step
+.memory 0044
+.step
+.memory 0045
+.step
+.memory FFFF
+.step
+.memory 4400
