@@ -109,6 +109,16 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
+        if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
+            rc = version();
+            goto cleanup;
+        }
+
+        if (strcmp(argv[i], "-L") == 0 || strcmp(argv[i], "--license") == 0) {
+            rc = license();
+            goto cleanup;
+        }
+
         if (filename != NULL) {
             rc = usage(exec);
             goto cleanup;

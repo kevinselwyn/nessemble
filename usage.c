@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "nessemble.h"
+#include "license.h"
 
 static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-o, --output <outfile.rom>", "output file" },
@@ -11,6 +12,8 @@ static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-d, --disassemble", "disassemble infile" },
     { "-s, --simulate <infile.rom>", "start the simulator" },
     { "-r, --recipe <recipe.txt>", "recipe file for the simulator" },
+    { "-v, --version", "display program version"},
+    { "-L, --license", "display program license"},
     { "-h, --help", "print this message" }
 };
 
@@ -80,4 +83,24 @@ void usage_simulate() {
     print_usage(simulation_usage_flags, SIMULATION_USAGE_FLAG_COUNT);
 
     printf("\n");
+}
+
+/**
+ * Program version
+ */
+int version() {
+    printf("%s v%s\n\nCopyright %s %s\n", PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_COPYRIGHT, PROGRAM_AUTHOR);
+
+    return RETURN_USAGE;
+}
+
+/**
+ * Program license
+ */
+int license() {
+    int rc = version();
+
+    printf("\n%s", license_txt);
+
+    return rc;
 }

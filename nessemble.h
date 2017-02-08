@@ -10,6 +10,12 @@
 /* UNUSED */
 #define UNUSED(x) (void)(x)
 
+/* PROGRAM */
+#define PROGRAM_NAME      "nessemble"
+#define PROGRAM_VERSION   "1.0.1"
+#define PROGRAM_COPYRIGHT "2017"
+#define PROGRAM_AUTHOR    "Kevin Selwyn"
+
 /* BOOLEAN */
 #define TRUE  1
 #define FALSE 0
@@ -108,7 +114,7 @@
 #define FLG_CARRY     7
 
 /* USAGE */
-#define USAGE_FLAG_COUNT            9
+#define USAGE_FLAG_COUNT            11
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
 /*
@@ -240,6 +246,8 @@ int main(int argc, char *argv[]);
 /* USAGE */
 int usage(char *exec);
 void usage_simulate();
+int version();
+int license();
 
 /* INCLUDE UTILS */
 void include_file_pop();
