@@ -404,8 +404,8 @@ pseudo_lobytes
     ;
 
 pseudo_macro
-    : PSEUDO_MACRO TEXT   { length_args = 0; $$ = $2; }
-    | pseudo_macro number { args[length_args++] = $2; $$ = $1; }
+    : PSEUDO_MACRO TEXT         { length_args = 0; $$ = $2; }
+    | pseudo_macro COMMA number { args[length_args++] = $3; $$ = $1; }
     ;
 
 pseudo_macro_def

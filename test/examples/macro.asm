@@ -8,7 +8,7 @@
 .endm
 
 label:
-    .macro TEST_MACRO $01 $02
-    .macro TEST_MACRO $03 $04
+    .macro TEST_MACRO, $01, $02
+    .macro TEST_MACRO, $03, $04
 
-    .macro TEST_MACRO_2 label
+    .macro TEST_MACRO_2, label
