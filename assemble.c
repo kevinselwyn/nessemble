@@ -91,7 +91,11 @@ void write_byte(unsigned int byte) {
         return;
     }
 
-    if (pass == 2) {
+    if (is_flag_nes() == FALSE && (int)offset + 1 > offset_max) {
+        offset_max = (int)offset + 1;
+    }
+
+    if (pass == 2 && offset < (unsigned int)offset_max) {
         rom[offset] = byte;
     }
 
@@ -113,10 +117,6 @@ void write_byte(unsigned int byte) {
         }
 
         chr_offsets[chr_index]++;
-    }
-
-    if ((int)offset + 1 > offset_max) {
-        offset_max = (int)offset + 1;
     }
 }
 
