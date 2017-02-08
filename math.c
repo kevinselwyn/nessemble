@@ -2,57 +2,6 @@
 #include "nessemble.h"
 
 /**
- * Exponent math function
- * @param {int} x - Base
- * @param {int} y - Power
- * @return {int} Result
- */
-int power(int x, int y) {
-    int temp = 0;
-
-    if (y == 0) {
-        return 1;
-    }
-
-    temp = power(x, (int)(y / 2));
-
-    if ((y % 2) == 0) {
-        return temp * temp;
-    } else {
-        if (y > 0) {
-            return x * temp * temp;
-        } else {
-            return (int)((temp * temp) / x);
-        }
-    }
-}
-
-/**
- * Square root math function
- * @param {int} x - Base
- * @param {int} y - Power
- * @return {int} Result
- */
-int root(int x, int y) {
-    int d = 0, r = 1;
-
-    if (x == 0) {
-        return 0;
-    }
-
-    if (y < 1 || (x < 0 && (y & 1) == 0)) {
-        return 0;
-    }
-
-    do {
-        d = (x / power(r, y - 1) - r) / y;
-        r += d;
-    } while ((double)d >= (DBL_EPSILON * 10) || (double)d <= (-DBL_EPSILON * 10));
-
-    return r;
-}
-
-/**
  * Calculate CRC-32
  * @param {unsigned int *} buffer - Data buffer
  * @param {unsigned int} length - Data length

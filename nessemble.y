@@ -1,5 +1,6 @@
 %{
 
+#include <math.h>
 #include "nessemble.h"
 
 #define YYBAIL { include_file_original(); YYABORT; }
@@ -149,7 +150,7 @@ program
 number
     : number_base                   { $$ = $1; }
     | label                         { $$ = $1; }
-    | number POW number             { $$ = power($1, $3); }
+    | number POW number             { $$ = pow($1, $3); }
     | number MULT number            { $$ = $1 * $3; }
     | number DIV number             { $$ = (int)($1 / $3); }
     | number PLUS number            { $$ = $1 + $3; }

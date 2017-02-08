@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <png.h>
 #include "nessemble.h"
 #include "png.h"
@@ -173,7 +174,7 @@ int match_color(unsigned char *rgb, int color_mode) {
         g2 = (colors_full[i] >> 8) & 0xFF;
         b2 = colors_full[i] & 0xFF;
 
-        next_diff = root(power(r2 - r1, 2) + power(g2 - g1, 2) + power(b2 - b1, 2), 2);
+        next_diff = sqrt(pow(r2 - r1, 2) + pow(g2 - g1, 2) + pow(b2 - b1, 2));
 
         if (next_diff < diff) {
             diff = next_diff;
