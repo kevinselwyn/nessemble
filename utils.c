@@ -142,7 +142,7 @@ int get_fullpath(char **path, char *string) {
     fullpath = (char *)malloc(sizeof(char) * (path_length + 1));
 
     if (!fullpath) {
-        yyerror("Memory error");
+        fatal("Memory error");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -201,7 +201,7 @@ unsigned int load_file(char **data, char *filename) {
     indata = (char *)malloc(sizeof(char) * (insize + 1));
 
     if (!indata) {
-        fprintf(stderr, "Memory error\n");
+        fatal("Memory error");
 
         insize = 0;
         goto cleanup;

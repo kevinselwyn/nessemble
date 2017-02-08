@@ -6,6 +6,26 @@
 #include "error.h"
 
 /**
+ * Trigger fatal error
+ * @param {const char *} fmt - Format string
+ * @param {...} ... - Variable arguments
+ */
+void fatal(const char *fmt, ...) {
+    unsigned int rc = RETURN_EPERM;
+
+    va_list argptr;
+    va_start(argptr, fmt);
+
+    fprintf(stderr, "Fatal error: ");
+    (void)vfprintf(stderr, fmt, argptr);
+    fprintf(stderr, "\n");
+
+    va_end(argptr);
+
+    exit(rc);
+}
+
+/**
  * Issue a warning
  * @param {const char *} fmt - Format string
  * @param {...} ... - Variable arguments

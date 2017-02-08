@@ -68,7 +68,7 @@ int simulate(char *input, char *recipe) {
     rom_data = (char *)malloc(sizeof(char) * 0x10000);
 
     if (!rom_data) {
-        fprintf(stderr, "Memory error\n");
+        fatal("Memory error");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -349,7 +349,7 @@ void load_registers(char *input) {
     text = (char *)malloc(sizeof(char) * 8);
 
     if (!text) {
-        fprintf(stderr, "Memory error\n");
+        fatal("Memory error");
         goto cleanup;
     }
 
@@ -415,7 +415,7 @@ void load_flags(char *input) {
     text = (char *)malloc(sizeof(char) * 13);
 
     if (!text) {
-        fprintf(stderr, "Memory error\n");
+        fatal("Memory error");
         goto cleanup;
     }
 
@@ -469,7 +469,7 @@ void fill_memory(char **output, char *input) {
     addrs = malloc(sizeof(char) * 10);
 
     if (!addrs) {
-        fprintf(stderr, "Memory error\n");
+        fatal("Memory error");
         goto cleanup;
     }
 

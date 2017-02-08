@@ -235,7 +235,7 @@ int main(int argc, char *argv[]) {
     rom = (unsigned int *)malloc(sizeof(unsigned int) * offset_max);
 
     if (!rom) {
-        fprintf(stderr, "Memory error\n");
+        fatal("Memory error");
 
         rc = RETURN_EPERM;
         goto cleanup;

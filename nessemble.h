@@ -490,6 +490,7 @@ unsigned int load_file(char **data, char *filename);
 unsigned int output_list(char *filename);
 
 /* ERRORS */
+void fatal(const char *fmt, ...);
 void warning(const char *fmt, ...);
 void error(const char *fmt, ...);
 unsigned int error_exists();
