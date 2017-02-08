@@ -1,6 +1,7 @@
 .DS_Store
 .vagrant
 init.h
+license.h
 lex.yy.c
 nessemble
 opcodes.c
