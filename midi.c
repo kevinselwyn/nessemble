@@ -13,12 +13,12 @@ struct midi_data read_midi(char *filename) {
     length = strlen(cwd_path) + 1;
 
 	if (!file) {
-		error("Could not open `%s`", filename+length);
+		yyerror("Could not open `%s`", filename+length);
         goto cleanup;
 	}
 
 	if (fread(midi.header, 1, 4, file) != 4) {
-		error("Could not read `%s`", filename+length);
+		yyerror("Could not read `%s`", filename+length);
         goto cleanup;
 	}
 
@@ -30,22 +30,22 @@ struct midi_data read_midi(char *filename) {
     midi.quarter = fgetu16_big(file);
 
     if (strncmp((const char *)midi.header, "MThd", 4) != 0) {
-        error("`%s` is not a MIDI file", filename+length);
+        yyerror("`%s` is not a MIDI file", filename+length);
         goto cleanup;
     }
 
     if (midi.format != MIDI_FORMAT_1) {
-        error("Invalid MIDI format");
+        yyerror("Invalid MIDI format");
         goto cleanup;
     }
 
     if (midi.tracks <= 0) {
-        error("Could not find any MIDI tracks");
+        yyerror("Could not find any MIDI tracks");
         goto cleanup;
     }
 
     if (midi.quarter <= 0) {
-        error("Invalid tempo");
+        yyerror("Invalid tempo");
         goto cleanup;
     }
 
