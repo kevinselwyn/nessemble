@@ -26,7 +26,7 @@ void do_aax(unsigned int opcode_index, unsigned int value) {
         return;
     }
 
-    tmp = get_register(REGISTER_X) & get_register(REGISTER_A);
+    tmp = (get_register(REGISTER_X) & get_register(REGISTER_A)) & 0xFF;
     address = get_address(opcode_index, value);
 
     set_byte(address, tmp);
@@ -39,7 +39,34 @@ void do_aax(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_arr(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    unsigned int tmp = 0;
+
+    if (is_flag_undocumented() == FALSE) {
+        inc_register(REGISTER_PC, 1);
+        return;
+    }
+
+    tmp = ((value & get_register(REGISTER_A)) >> 1) & 0xFF;
+
+    if (((tmp >> 5) & 0x03) == 0x03) {
+        set_flag(FLG_CARRY, TRUE);
+        set_flag(FLG_OVERFLOW, FALSE);
+    } else if (((tmp >> 5) & 0x03) == 0) {
+        set_flag(FLG_CARRY, FALSE);
+        set_flag(FLG_OVERFLOW, FALSE);
+    } else if (((tmp >> 5) & 1) == 1) {
+        set_flag(FLG_CARRY, FALSE);
+        set_flag(FLG_OVERFLOW, TRUE);
+    } else if (((tmp >> 6) & 1) == 1) {
+        set_flag(FLG_CARRY, TRUE);
+        set_flag(FLG_OVERFLOW, TRUE);
+    }
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_asr(unsigned int opcode_index, unsigned int value) {
