@@ -2,10 +2,13 @@
 #include "../nessemble.h"
 #include "../png.h"
 
+#define SCREEN_WIDTH  256
+#define SCREEN_HEIGHT 240
+
 void pseudo_incscreen(char *string, char *type) {
-    int color_mode = 0, color = 0, byte = 0, tile_index = -1;
-    int h = 0, w = 0, x = 0, y = 0;
-    int i = 0, j = 0, k = 0, l = 0;
+    int color_mode = 0, color = 0;
+    unsigned int x = 0, y = 0, pixel_index = 0;
+    unsigned int pixels[SCREEN_WIDTH * SCREEN_HEIGHT];
     char *path = NULL;
     struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
 
@@ -20,25 +23,26 @@ void pseudo_incscreen(char *string, char *type) {
         goto cleanup;
     }
 
+    // validate width/height
+    if (png.width != SCREEN_WIDTH) {
+        yyerror("Incorrect screen width (must be %d)", SCREEN_WIDTH);
+    }
+
+    if (png.height != SCREEN_HEIGHT) {
+        yyerror("Incorrect screen height (must be %d)", SCREEN_HEIGHT);
+    }
+
     color_mode = png_color_mode(png.color_type);
 
-    // validate width/height
-    if (png.width != 256) {
-        yyerror("Incorrect screen width (must be %d)", 256);
-    }
+    // get pixels
+    for (y = 0; y < png.height; y++) {
+        png_byte *row = png.row_pointers[y];
 
-    if (png.height != 240) {
-        yyerror("Incorrect screen height (must be %d)", 240);
-    }
+        for (x = 0; x < png.width; x++) {
+            png_byte *rgb = &(row[x * color_mode]);
+            color = match_color(rgb, color_mode);
 
-    // validate colors
-    for (i = 0, j = 16; i < j; i += 16) {
-        for (k = 0, l = 16; k < l; k += 16) {
-            for (y = i; y < i + 16; y++) {
-                for (x = k; x < k + 16; x++) {
-                    //fprintf(stderr, "%d %d\n", x, y);
-                }
-            }
+            pixels[pixel_index++] = (unsigned int)color;
         }
     }
 
