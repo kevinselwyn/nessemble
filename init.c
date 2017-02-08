@@ -19,7 +19,7 @@ unsigned int init() {
     buffer = malloc(sizeof(char) * BUF_SIZE);
 
     if (!buffer) {
-        fprintf(stderr, "Memory error\n");
+        fatal("Memory error");
 
         rc = RETURN_EPERM;
         goto cleanup;

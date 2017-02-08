@@ -47,7 +47,7 @@ void pseudo_incbin(char *string, int offset, int limit) {
     bin_data = (char *)malloc(sizeof(char) * (bin_length + 1));
 
     if (!bin_data) {
-        yyerror("Memory error");
+        fatal("Memory error");
         goto cleanup;
     }
 

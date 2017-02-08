@@ -7,7 +7,7 @@ void add_macro(char *name) {
     macros[macro_index].name = (char *)malloc(sizeof(char) * 1024);
 
     if (!macros[macro_index].name) {
-        yyerror("Memory error");
+        fatal("Memory error");
     }
 
     strcpy(macros[macro_index].name, name);
@@ -15,7 +15,7 @@ void add_macro(char *name) {
     macros[macro_index].text = (char *)malloc(sizeof(char) * (1024 * 1024));
 
     if (!macros[macro_index].text) {
-        yyerror("Memory error");
+        fatal("Memory error");
     }
 
     strcpy(macros[macro_index].text, "");
