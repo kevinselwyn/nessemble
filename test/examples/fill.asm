@@ -1,2 +1,2 @@
 .fill 16
-.fill 16 $0A
+.fill 16, $0A
