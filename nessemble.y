@@ -252,7 +252,7 @@ pseudo
     | pseudo_org       { pseudo_org($1); }
     | pseudo_out       { pseudo_out($1); }
     | pseudo_prg       { pseudo_prg($1); }
-    | pseudo_random    { /* NOTHING */ }
+    | pseudo_random    { pseudo_random(); }
     | pseudo_rsset     { pseudo_rsset($1); }
     | pseudo_rs        { /* NOTHING */ }
     | pseudo_segment   { pseudo_segment($1); }
@@ -427,11 +427,10 @@ pseudo_prg
     ;
 
 pseudo_random
-    : PSEUDO_RANDOM number number      { pseudo_random($2, $3); }
-    | PSEUDO_RANDOM number             { pseudo_random($2, 1); }
-    | PSEUDO_RANDOM QUOT_STRING number { pseudo_random(str2hash($2), $3); }
-    | PSEUDO_RANDOM QUOT_STRING        { pseudo_random(str2hash($2), 1); }
-    | PSEUDO_RANDOM                    { pseudo_random(0, 1); }
+    : PSEUDO_RANDOM QUOT_STRING  { ints[length_ints++] = str2hash($2); }
+    | PSEUDO_RANDOM number       { ints[length_ints++] = $2; }
+    | pseudo_random COMMA number { ints[length_ints++] = $3; }
+    | PSEUDO_RANDOM              { /* NOTHING */ }
     ;
 
 pseudo_rsset
