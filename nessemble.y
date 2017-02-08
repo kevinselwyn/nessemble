@@ -110,6 +110,7 @@
 %type <sval> pseudo_ease
 %type <sval> pseudo_ifdef
 %type <sval> pseudo_ifndef
+%type <sval> pseudo_incwav
 %type <sval> pseudo_inestrn
 %type <sval> pseudo_macro
 %type <sval> pseudo_out
@@ -240,7 +241,7 @@ pseudo
     | pseudo_incpng    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incrle    { /* NOTHING */ }
     | pseudo_incscreen { if (error_exists() == TRUE) { YYBAIL; } }
-    | pseudo_incwav    { if (error_exists() == TRUE) { YYBAIL; } }
+    | pseudo_incwav    { pseudo_incwav($1); if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_ineschr   { pseudo_ineschr($1); }
     | pseudo_inesmap   { pseudo_inesmap($1); }
     | pseudo_inesmir   { pseudo_inesmir($1); }
@@ -370,8 +371,8 @@ pseudo_incscreen
     ;
 
 pseudo_incwav
-    : PSEUDO_INCWAV QUOT_STRING number { pseudo_incwav($2, $3); }
-    | PSEUDO_INCWAV QUOT_STRING        { pseudo_incwav($2, 24); }
+    : PSEUDO_INCWAV QUOT_STRING  { $$ = $2; }
+    | pseudo_incwav COMMA number { ints[length_ints++] = $3; $$ = $1; }
     ;
 
 pseudo_ineschr
