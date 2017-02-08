@@ -1,1 +1,1 @@
-.random "Test" $10
+.random "Test", $10
