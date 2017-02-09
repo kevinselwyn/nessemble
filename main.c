@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <unistd.h>
 #include "nessemble.h"
 
 /**
@@ -11,18 +12,12 @@
  */
 int main(int argc, char *argv[]) {
     int rc = RETURN_OK;
-    unsigned int i = 0, l = 0, byte = 0;
+    unsigned int i = 0, l = 0, byte = 0, piped = FALSE;
     char *exec = NULL, *filename = NULL, *outfilename = NULL, *list_out = NULL, *recipe = NULL;
     FILE *file = NULL, *outfile = NULL;
 
     // exec
     exec = argv[0];
-
-    // usage
-    if (argc < 2) {
-        rc = usage(exec);
-        goto cleanup;
-    }
 
     // parse args
     for (i = 1, l = (unsigned int)argc; i < l; i++) {
@@ -128,31 +123,43 @@ int main(int argc, char *argv[]) {
     }
 
     if (!filename) {
-        rc = usage(exec);
-        goto cleanup;
-    }
+        if (isatty(fileno(stdin)) == FALSE) {
+            piped = TRUE;
+            filename = "stdin";
+            strcpy(cwd, "/tmp/nessemble-stdin");
+            cwd_path = strdup("/tmp/nessemble");
 
-    // get cwd
-    if (!realpath(filename, cwd)) {
-        fprintf(stderr, "Could not find real path of %s\n", filename);
+            if (tmp_save(stdin, cwd) == RETURN_EPERM) {
+                rc = usage(exec);
+                goto cleanup;
+            }
+        } else {
+            rc = usage(exec);
+            goto cleanup;
+        }
+    } else {
+        // get cwd
+        if (!realpath(filename, cwd)) {
+            fprintf(stderr, "Could not find real path of %s\n", filename);
 
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
 
-    cwd_path = strdup(cwd);
+        cwd_path = strdup(cwd);
 
-    if (!cwd_path) {
-        fprintf(stderr, "Could not find path of %s\n", filename);
+        if (!cwd_path) {
+            fprintf(stderr, "Could not find path of %s\n", filename);
 
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
 
-    for (i = (unsigned int)strlen(cwd_path), l = 0; i >= l; i--) {
-        if (cwd_path[i] == '/') {
-            cwd_path[i] = '\0';
-            break;
+        for (i = (unsigned int)strlen(cwd_path), l = 0; i >= l; i--) {
+            if (cwd_path[i] == '/') {
+                cwd_path[i] = '\0';
+                break;
+            }
         }
     }
 
@@ -390,6 +397,10 @@ cleanup:
 
     if (outfile) {
         (void)fclose(outfile);
+    }
+
+    if (piped == TRUE) {
+        tmp_delete(cwd);
     }
 
     error_free();
