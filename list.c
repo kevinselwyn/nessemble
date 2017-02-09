@@ -6,8 +6,8 @@
 #define MAX_LIST_COUNT  65536
 #define MAX_LIST_LENGTH 256
 
-unsigned int list_index = 0;
-char *list_strings[MAX_LIST_COUNT];
+static unsigned int list_index = 0;
+static char *list_strings[MAX_LIST_COUNT];
 
 static void list_sort() {
     unsigned int i = 0, l = 0, sorted = FALSE;

@@ -138,8 +138,8 @@ unsigned int init() {
 
     fprintf(output, ".inesprg %d\n.ineschr %d\n.inesmap %d\n.inesmir %d\n", input_prg, input_chr, input_mapper % 0xFF, input_mirroring % 0x0F);
 
-    for (i = 0, l = input_prg; i < l; i++) {
-        fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.prg %d\n", i);
+    for (i = 0, l = (unsigned int)input_prg; i < l; i++) {
+        fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.prg %u\n", i);
 
         if (i == 0) {
             init_asm[init_asm_len-1] = '\0';
@@ -147,8 +147,8 @@ unsigned int init() {
         }
     }
 
-    for (i = 0, l = input_chr; i < l; i++) {
-        fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.chr %d\n", i);
+    for (i = 0, l = (unsigned int)input_chr; i < l; i++) {
+        fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.chr %u\n", i);
     }
 
     printf("Created `%s`\n", input_filename);

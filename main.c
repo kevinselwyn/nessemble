@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
 
     do {
         (void)yyparse();
-    } while ((yyin && feof(yyin) == 0) && pass == 1);
+    } while ((yyin != NULL && feof(yyin) == 0) && pass == 1);
 
     if (error_exit() != RETURN_OK) {
         goto cleanup;
@@ -290,7 +290,7 @@ int main(int argc, char *argv[]) {
 
     do {
         (void)yyparse();
-    } while ((yyin && feof(yyin) == 0) && pass == 2);
+    } while ((yyin != NULL && feof(yyin) == 0) && pass == 2);
 
     if (error_exit() != RETURN_OK) {
         goto cleanup;
