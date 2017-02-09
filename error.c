@@ -31,6 +31,7 @@ void fatal(const char *fmt, ...) {
  * @param {...} ... - Variable arguments
  */
 void warning(const char *fmt, ...) {
+    int line = 0;
     size_t length = 0;
 
     va_list argptr;
@@ -38,7 +39,13 @@ void warning(const char *fmt, ...) {
 
     length = strlen(cwd_path) + 1;
 
-    fprintf(stderr, "Warning in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, yylineno);
+    line = yylineno - 1;
+
+    if (line <= 0) {
+        line = 1;
+    }
+
+    fprintf(stderr, "Warning in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, line);
     (void)vfprintf(stderr, fmt, argptr);
     fprintf(stderr, "\n");
 
@@ -89,6 +96,7 @@ unsigned int error_exists() {
  */
 unsigned int error_exit() {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
+    int line = 0;
     size_t length = 0;
 
     if (error_exists() == TRUE) {
@@ -98,7 +106,13 @@ unsigned int error_exit() {
             include_stack_ptr = (int)errors[i].stack;
             yylineno = errors[i].line;
 
-            fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, yylineno, errors[i].message);
+            line = yylineno - 1;
+
+            if (line <= 0) {
+                line = 1;
+            }
+
+            fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, line, errors[i].message);
         }
 
         rc = RETURN_EPERM;
@@ -126,7 +140,7 @@ void error_free() {
  * @param {...} ... - Variable arguments
  */
 void yyerror(const char *fmt, ...) {
-    int rc = RETURN_EPERM;
+    int rc = RETURN_EPERM, line = 0;
     size_t length = 0;
 
     va_list argptr;
@@ -134,7 +148,13 @@ void yyerror(const char *fmt, ...) {
 
     length = strlen(cwd_path) + 1;
 
-    fprintf(stderr, "Error in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, yylineno);
+    line = yylineno - 1;
+
+    if (line <= 0) {
+        line = 1;
+    }
+
+    fprintf(stderr, "Error in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, line);
     (void)vfprintf(stderr, fmt, argptr);
     fprintf(stderr, "\n");
 
