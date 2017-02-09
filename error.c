@@ -11,7 +11,7 @@
  * @param {...} ... - Variable arguments
  */
 void fatal(const char *fmt, ...) {
-    unsigned int rc = RETURN_EPERM;
+    int rc = RETURN_EPERM;
 
     va_list argptr;
     va_start(argptr, fmt);
@@ -54,7 +54,7 @@ void error(const char *fmt, ...) {
     va_list argptr;
     va_start(argptr, fmt);
 
-    errors[error_index].stack = include_stack_ptr;
+    errors[error_index].stack = (unsigned int)include_stack_ptr;
     errors[error_index].line = yylineno;
 
     errors[error_index].message = (char *)malloc(sizeof(char) * MAX_ERROR_LENGTH);
@@ -67,7 +67,7 @@ void error(const char *fmt, ...) {
     (void)vsprintf(errors[error_index++].message, fmt, argptr);
 
     if (error_index >= MAX_ERROR_COUNT) {
-        error_exit();
+        (void)error_exit();
     }
 }
 
@@ -95,7 +95,7 @@ unsigned int error_exit() {
         length = strlen(cwd_path) + 1;
 
         for (i = 0, l = error_index; i < l; i++) {
-            include_stack_ptr = errors[i].stack;
+            include_stack_ptr = (int)errors[i].stack;
             yylineno = errors[i].line;
 
             fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, yylineno, errors[i].message);

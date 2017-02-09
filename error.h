@@ -10,8 +10,8 @@ struct error {
     char *message;
 };
 
-struct error errors[MAX_ERROR_COUNT];
+static struct error errors[MAX_ERROR_COUNT];
 
-unsigned int error_index = 0;
+static unsigned int error_index = 0;
 
 #endif /* _ERROR_H */

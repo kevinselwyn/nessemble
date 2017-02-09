@@ -240,6 +240,9 @@ unsigned int pass;
  * FUNCTIONS
  */
 
+/* STRING */
+char *strdup(const char *s);
+
 /* MAIN */
 int main(int argc, char *argv[]);
 
