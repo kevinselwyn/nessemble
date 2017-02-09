@@ -100,7 +100,9 @@ int version() {
 int license() {
     int rc = version();
 
-    printf("\n%s", license_txt);
+    license_txt[license_txt_len-1] = '\0';
+
+    printf("\n%s\n", license_txt);
 
     return rc;
 }
