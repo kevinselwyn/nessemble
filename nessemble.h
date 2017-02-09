@@ -492,6 +492,8 @@ unsigned int fgetu32_little(FILE *fp);
 unsigned int fgetu32_big(FILE *fp);
 int get_fullpath(char **path, char *string);
 unsigned int load_file(char **data, char *filename);
+unsigned int tmp_save(FILE *file, char *filename);
+void tmp_delete(char *filename);
 
 /* LIST */
 unsigned int output_list(char *filename);

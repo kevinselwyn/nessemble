@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "nessemble.h"
 
 /**
@@ -222,6 +223,32 @@ cleanup:
     }
 
     return insize;
+}
+
+unsigned int tmp_save(FILE *file, char *filename) {
+    int rc = RETURN_OK;
+    char ch = '\0';
+    FILE *tmp = NULL;
+
+    tmp = fopen(filename, "w+");
+
+    if (!tmp) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    while (fread(&ch, 1, 1, file) > 0) {
+        fwrite(&ch, 1, sizeof(ch), tmp);
+    }
+
+    fclose(tmp);
+
+cleanup:
+    return rc;
+}
+
+void tmp_delete(char *filename) {
+    unlink(filename);
 }
 
 /**
