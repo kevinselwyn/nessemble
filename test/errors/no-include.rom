@@ -1,1 +1,1 @@
-Error in `no-include.asm` on line 2: Could not include `nothing.asm`
+Error in `no-include.asm` on line 1: Could not include `nothing.asm`
