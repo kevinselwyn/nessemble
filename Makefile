@@ -3,7 +3,7 @@ BIN_DIR      := /usr/local/bin
 RM           := rm -f
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra
-CC_LIB_FLAGS := -lfl -lm -lpng
+CC_LIB_FLAGS := -lm -lpng
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
 LEX          := flex
@@ -26,9 +26,9 @@ ifeq ($(ENV), debug)
 endif
 
 ifeq ($(UNAME), Darwin)
-	CC_FLAGS += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments
+	CC_FLAGS += -ll -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments
 else
-	CC_FLAGS += -lrt
+	CC_FLAGS += -lfl -lrt
 endif
 
 all: $(NAME)
@@ -39,8 +39,8 @@ $(LEX_OUT).c: $(NAME).l
 $(YACC_OUT).c: $(NAME).y
 	$(YACC) $(YACC_FLAGS) $<
 
-$(OPCODES).c: $(OPCODES).csv
-	./$(OPCODES).sh $< $@
+opcodes.c: opcodes.csv
+	./opcodes.sh $< $@
 
 %.o: %.c
 	$(CC) -O -c $< $(CC_FLAGS) -o $@
