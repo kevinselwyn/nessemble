@@ -298,7 +298,11 @@ int main(int argc, char *argv[]) {
     }
 
     // write output
-    outfile = fopen(outfilename, "w");
+    if (strcmp(outfilename, "/dev/stdout") == 0) {
+        outfile = stdout;
+    } else {
+        outfile = fopen(outfilename, "w");
+    }
 
     if (!outfile) {
         fprintf(stderr, "Could not open %s\n", outfilename);
