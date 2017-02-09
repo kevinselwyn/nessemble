@@ -1,1 +1,1 @@
-Error in `opcode.asm` on line 2: Unknown opcode `BLA`
+Error in `opcode.asm` on line 1: Unknown opcode `BLA`
