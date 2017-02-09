@@ -226,7 +226,7 @@ cleanup:
 }
 
 unsigned int tmp_save(FILE *file, char *filename) {
-    int rc = RETURN_OK;
+    unsigned int rc = RETURN_OK;
     char ch = '\0';
     FILE *tmp = NULL;
 
@@ -238,17 +238,17 @@ unsigned int tmp_save(FILE *file, char *filename) {
     }
 
     while (fread(&ch, 1, 1, file) > 0) {
-        fwrite(&ch, 1, sizeof(ch), tmp);
+        (void)fwrite(&ch, 1, sizeof(ch), tmp);
     }
 
-    fclose(tmp);
+    (void)fclose(tmp);
 
 cleanup:
     return rc;
 }
 
 void tmp_delete(char *filename) {
-    unlink(filename);
+    (void)unlink(filename);
 }
 
 /**
