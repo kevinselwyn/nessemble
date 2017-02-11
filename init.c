@@ -142,8 +142,8 @@ unsigned int init() {
         fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.prg %u\n", i);
 
         if (i == 0) {
-            init_asm[init_asm_len-1] = '\0';
-            fprintf(output, "\n%s\n", (char *)init_asm);
+            init_txt[init_txt_len-1] = '\0';
+            fprintf(output, "\n%s\n", (char *)init_txt);
         }
     }
 

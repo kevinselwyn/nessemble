@@ -249,6 +249,9 @@ void usage_simulate();
 int version();
 int license();
 
+/* REFERENCE */
+unsigned int reference(char *category, char *term);
+
 /* INCLUDE UTILS */
 void include_file_pop();
 void include_file_push(char *filename);

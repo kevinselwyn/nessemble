@@ -1,0 +1,6 @@
+PPUSCROLL ($2005)
+
+Description: PPU scrolling position register
+Access:      Write (x2)
+
+This register is used to change the scroll position, that is, to tell the PPU which pixel of the nametable selected through PPUCTRL should be at the top left corner of the rendered screen. Typically, this register is written to during vertical blanking, so that the next frame starts rendering from the desired location, but it can also be modified during rendering in order to split the screen. Changes made to the vertical scroll during rendering will only take effect on the next frame.

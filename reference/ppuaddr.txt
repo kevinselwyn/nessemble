@@ -1,0 +1,6 @@
+PPUADDR ($2006)
+
+Description: PPU address register
+Access:      Write (x2)
+
+Because the CPU and the PPU are on separate buses, neither has direct access to the other's memory. The CPU writes to VRAM through a pair of registers on the PPU. First it loads an address into PPUADDR, and then it writes repeatedly to PPUDATA to fill VRAM.
