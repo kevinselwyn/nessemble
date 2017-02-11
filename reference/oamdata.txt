@@ -1,0 +1,6 @@
+OAMDATA ($2004)
+
+Description: OAM data port
+Access:      Read, Write
+
+Write OAM data here. Writes will increment OAMADDR after the write; reads during vertical or forced blanking return the value from OAM at that address but do not increment.

@@ -29,6 +29,14 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
+        if (strcmp(argv[i], "reference") == 0) {
+            if (reference(argv[i+1], argv[i+2]) != RETURN_OK) {
+                rc = RETURN_EPERM;
+            }
+
+            goto cleanup;
+        }
+
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             rc = usage(exec);
             goto cleanup;

@@ -17,9 +17,11 @@ OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c init.c instructions.c list.c macro.c math.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c init.c instructions.c list.c macro.c math.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) reference.c simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
 HDRS         := $(NAME).h init.h license.h
 OBJS         := ${SRCS:c=o}
+
+REFERENCE    := reference/ppuctrl.h reference/ppumask.h reference/ppustatus.h reference/oamaddr.h reference/oamdata.h reference/ppuscroll.h reference/ppuaddr.h reference/ppudata.h
 
 ifeq ($(ENV), debug)
 	CC_FLAGS += -g
@@ -45,19 +47,21 @@ opcodes.c: opcodes.csv
 %.o: %.c
 	$(CC) -O -c $< $(CC_FLAGS) -o $@
 
+%.h: %.txt
+	$(eval STR := _$(shell echo "$@" | awk '{print toupper($$0)}' | sed "s/[^[:alpha:]]/_/g"))
+	printf "#ifndef %s\n#define %s\n\n" $(STR) $(STR) > $@
+	xxd -i $< >> $@
+	printf "\n#endif /* %s */\n" $(STR) >> $@
+
+reference.c: ${REFERENCE:txt=h} reference.h
+
 init.c: init.h
 
-init.h:
-	printf "#ifndef _INIT_H\n#define _INIT_H\n\n" > $@
-	xxd -i init.asm >> $@
-	printf "\n#endif /* _INIT_H */\n" >> $@
+init.h: ${init.txt:txt=h}
 
 usage.c: license.h
 
-license.h:
-	printf "#ifndef _LICENSE_H\n#define _LICENSE_H\n\n" > $@
-	xxd -i license.txt >> $@
-	printf "\n#endif /* _LICENSE_H */\n" >> $@
+license.h: ${licence.txt:txt=h}
 
 $(NAME): $(OBJS) $(HDRS)
 	$(CC) -o $@ $(OBJS) $(CC_FLAGS) $(CC_LIB_FLAGS)
@@ -77,4 +81,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) init.h license.h check/suite_*
+	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) init.h license.h reference/*.h check/suite_*
