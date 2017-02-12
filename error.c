@@ -95,25 +95,23 @@ unsigned int error_exists() {
  * @return {unsigned int} Error return code
  */
 unsigned int error_exit() {
-    unsigned int rc = RETURN_OK, i = 0, l = 0;
+    unsigned int rc = RETURN_OK;
     int line = 0;
     size_t length = 0;
 
     if (error_exists() == TRUE) {
         length = strlen(cwd_path) + 1;
 
-        for (i = 0, l = error_index; i < l; i++) {
-            include_stack_ptr = (int)errors[i].stack;
-            yylineno = errors[i].line;
+        include_stack_ptr = (int)errors[0].stack;
+        yylineno = errors[0].line;
 
-            line = yylineno - 1;
+        line = yylineno - 1;
 
-            if (line <= 0) {
-                line = 1;
-            }
-
-            fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, line, errors[i].message);
+        if (line <= 0) {
+            line = 1;
         }
+
+        fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, line, errors[0].message);
 
         rc = RETURN_EPERM;
     }
