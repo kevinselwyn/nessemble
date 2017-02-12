@@ -21,7 +21,8 @@ SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error
 HDRS         := $(NAME).h init.h license.h
 OBJS         := ${SRCS:c=o}
 
-REFERENCE    := reference/ppuctrl.h reference/ppumask.h reference/ppustatus.h reference/oamaddr.h reference/oamdata.h reference/ppuscroll.h reference/ppuaddr.h reference/ppudata.h
+REFERENCE    := reference/registers/ppuctrl.h reference/registers/ppumask.h reference/registers/ppustatus.h reference/registers/oamaddr.h reference/registers/oamdata.h reference/registers/ppuscroll.h reference/registers/ppuaddr.h reference/registers/ppudata.h
+REFERENCE    += reference/addressing/accumulator.h reference/addressing/implied.h reference/addressing/immediate.h reference/addressing/relative.h reference/addressing/zeropage.h reference/addressing/zeropage-x.h reference/addressing/zeropage-y.h reference/addressing/absolute.h reference/addressing/absolute-x.h reference/addressing/absolute-y.h reference/addressing/indirect.h reference/addressing/indirect-x.h reference/addressing/indirect-y.h
 
 ifeq ($(ENV), debug)
 	CC_FLAGS += -g
@@ -81,4 +82,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) init.h license.h reference/*.h check/suite_*
+	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) init.h license.h $(REFERENCE) check/suite_*

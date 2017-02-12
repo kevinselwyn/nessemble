@@ -5,7 +5,7 @@ license.h
 lex.yy.c
 nessemble
 opcodes.c
-reference/*.h
+reference/**/*.h
 y.tab.*
 *.o
 suite_*

@@ -1,0 +1,7 @@
+Accumulator
+
+The Accumulator is implied as the operand, so no address needs to be specified.
+
+Example:
+
+ASL A
