@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pwd.h>
 #include "nessemble.h"
 
 /**
@@ -138,6 +139,14 @@ int get_fullpath(char **path, char *string) {
     size_t string_length = 0, path_length = 0;
     char *fullpath = NULL;
 
+    if (string[0] == '<') {
+        if (get_libpath(path, string) != RETURN_OK) {
+            error("Could not include library `%s`", string);
+        }
+
+        goto cleanup;
+    }
+
     string_length = strlen(string);
     path_length = strlen(cwd_path) + string_length - 1;
     fullpath = (char *)malloc(sizeof(char) * (path_length + 1));
@@ -155,6 +164,44 @@ int get_fullpath(char **path, char *string) {
 
     if (fullpath[path_length-1] == '"') {
         fullpath[path_length-1] = '\0';
+    }
+
+    *path = fullpath;
+
+cleanup:
+    return rc;
+}
+
+/**
+ * Get libpath
+ */
+int get_libpath(char **path, char *string) {
+    int rc = RETURN_OK;
+    size_t string_length = 0, path_length = 0;
+    char *fullpath = NULL;
+    struct passwd *pw = getpwuid(getuid());
+
+    string_length = strlen(string);
+    path_length = strlen(pw->pw_dir) + 11 + string_length - 1;
+    fullpath = (char *)malloc(sizeof(char) * (path_length + 1));
+
+    if (!fullpath) {
+        fatal("Memory error");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    strcpy(fullpath, pw->pw_dir);
+    strcat(fullpath, "/.nessemble/");
+    strncat(fullpath, string + 1, string_length - 2);
+
+    if (fullpath[path_length-1] == '"') {
+        fullpath[path_length-1] = '\0';
+    }
+
+    if (access(fullpath, F_OK) == -1) {
+        rc = RETURN_EPERM;
     }
 
     *path = fullpath;
