@@ -1,0 +1,7 @@
+Zeropage, X
+
+The value in X is added to the specified zero page address for a sum address. The value at the sum address is used to perform the computation.
+
+Example:
+
+LDA <$01, X

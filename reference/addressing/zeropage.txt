@@ -1,0 +1,7 @@
+Zeropage
+
+A single byte specifies an address in the first page of memory ($00xx), also known as the zero page, and the byte at that address is used to perform the computation.
+
+Example:
+
+LDY <$02

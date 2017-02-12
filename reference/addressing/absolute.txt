@@ -1,0 +1,7 @@
+Absolute
+
+A full 16-bit address is specified and the byte at that address is used to perform the computation.
+
+Example:
+
+LDX $D010

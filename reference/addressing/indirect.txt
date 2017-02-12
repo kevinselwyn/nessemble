@@ -1,0 +1,7 @@
+[Indirect]
+
+The value at the specified zero page address is used. The little-endian address stored at the two-byte pair of sum address (LSB) and sum address plus one (MSB) is jumped to.
+
+Example:
+
+JMP [$02]
