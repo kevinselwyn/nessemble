@@ -16,7 +16,7 @@ unsigned int init() {
     char *buffer = NULL, *input_filename = NULL;
     FILE *output = NULL;
 
-    buffer = malloc(sizeof(char) * BUF_SIZE);
+    buffer = (char *)malloc(sizeof(char) * BUF_SIZE);
 
     if (!buffer) {
         fatal("Memory error");

@@ -33,13 +33,7 @@ void free_png(struct png_data png) {
         free(png.row_pointers);
     }
 
-    if (png.png_ptr) {
-        free(png.png_ptr);
-    }
-
-    if (png.info_ptr) {
-        free(png.info_ptr);
-    }
+    png_destroy_read_struct(&png.png_ptr, &png.info_ptr, NULL);
 }
 
 int png_color_mode(int color_type) {

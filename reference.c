@@ -3,7 +3,7 @@
 #include "nessemble.h"
 #include "reference.h"
 
-int get_category_id(char *category) {
+static int get_category_id(char *category) {
     int id = -1;
     unsigned int i = 0, l = 0;
 
@@ -21,7 +21,7 @@ int get_category_id(char *category) {
     return id;
 }
 
-int get_term_id(char *term, char *category) {
+static int get_term_id(char *term, char *category) {
     int id = -1, category_id = -1;
     unsigned int i = 0, l = 0;
 
@@ -99,7 +99,7 @@ unsigned int reference(char *category, char *term) {
     len = *categories[category_id].terms[term_id].len;
     categories[category_id].terms[term_id].description[len-1] = '\0';
 
-    printf("%s\n", categories[category_id].terms[term_id].description);
+    printf("%s\n", (char *)categories[category_id].terms[term_id].description);
 
 cleanup:
     return rc;

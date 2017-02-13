@@ -102,7 +102,7 @@ int license() {
 
     license_txt[license_txt_len-1] = '\0';
 
-    printf("\n%s\n", license_txt);
+    printf("\n%s\n", (char *)license_txt);
 
     return rc;
 }
