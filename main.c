@@ -13,7 +13,7 @@
 int main(int argc, char *argv[]) {
     int rc = RETURN_OK;
     unsigned int i = 0, l = 0, byte = 0, piped = FALSE;
-    char *exec = NULL, *filename = NULL, *outfilename = NULL, *list_out = NULL, *recipe = NULL;
+    char *exec = NULL, *filename = NULL, *outfilename = NULL, *list_out = NULL, *recipe = NULL, *registry = NULL;
     FILE *file = NULL, *outfile = NULL;
 
     // exec
@@ -32,6 +32,67 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "reference") == 0) {
             if (reference(argv[i+1], argv[i+2]) != RETURN_OK) {
                 rc = RETURN_EPERM;
+            }
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[i], "registry") == 0) {
+            if (i + 1 < l) {
+                if (set_registry(argv[i+1]) != RETURN_OK) {
+                    rc = RETURN_EPERM;
+                }
+            } else {
+                if (get_registry(&registry) != RETURN_OK) {
+                    rc = RETURN_EPERM;
+                }
+
+                if (registry) {
+                    printf("%s\n", registry);
+                }
+            }
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[i], "install") == 0) {
+            if (i + 1 < l) {
+                if (lib_install(argv[i+1]) != RETURN_OK) {
+                    rc = RETURN_EPERM;
+                    goto cleanup;
+                }
+
+                printf("Installed `%s`\n", argv[i+1]);
+            } else {
+                rc = usage(exec);
+            }
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[i], "uninstall") == 0) {
+            if (i + 1 < l) {
+                if (lib_uninstall(argv[i+1]) != RETURN_OK) {
+                    rc = RETURN_EPERM;
+                    goto cleanup;
+                }
+
+                printf("Uninstalled `%s`\n", argv[i+1]);
+            } else {
+                rc = usage(exec);
+            }
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[i], "search") == 0) {
+            if (i + 1 < l) {
+                if (lib_search(argv[i+1]) != RETURN_OK) {
+                    rc = RETURN_EPERM;
+                    goto cleanup;
+                }
+            } else {
+                rc = usage(exec);
             }
 
             goto cleanup;
