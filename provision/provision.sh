@@ -1,5 +1,19 @@
 #!/bin/bash
 
-# install programs
+# update
 sudo apt-get -y update
-sudo apt-get -y install make bison flex libpng-dev bc gdb splint valgrind
+
+# build tools
+sudo apt-get -y install make bison flex
+
+# libraries
+sudo apt-get -y install libpng-dev libjansson-dev libcurl4-gnutls-dev
+
+# debug tools
+sudo apt-get -y install bc gdb splint valgrind
+
+# python
+sudo apt-get -y install python-pip
+
+# python modules
+sudo pip install flask

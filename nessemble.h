@@ -514,4 +514,15 @@ void yyerror(const char *fmt, ...);
 /* INIT */
 unsigned int init();
 
+/* LIBS */
+unsigned int get_registry();
+unsigned int set_registry(char *regsitry);
+unsigned int lib_install(char *lib);
+unsigned int lib_uninstall(char *lib);
+unsigned int lib_search(char *term);
+
+/* JSON */
+unsigned int get_json(char **value, char *key, char *filename);
+unsigned int get_json_search(char *url);
+
 #endif /* _NESSEMBLE_H */
