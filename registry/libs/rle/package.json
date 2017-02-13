@@ -1,0 +1,11 @@
+{
+    "name": "rle",
+    "description": "Run-length encoding (RLE) decoder",
+    "version": "1.0.1",
+    "author": {
+        "name": "Kevin Selwyn",
+        "email": "kevinselwyn@gmail.com"
+    },
+    "license": "GPLv3",
+    "tags": ["rle", "encoding", "decoding", "compression"]
+}
