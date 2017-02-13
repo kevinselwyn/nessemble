@@ -3,7 +3,7 @@ BIN_DIR      := /usr/local/bin
 RM           := rm -f
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra
-CC_LIB_FLAGS := -lm -lpng
+CC_LIB_FLAGS := -lm -lpng -ljansson -lcurl
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
 LEX          := flex
@@ -17,7 +17,7 @@ OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c init.c instructions.c list.c macro.c math.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) reference.c simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c init.c instructions.c json.c libs.c list.c macro.c math.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) reference.c simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
 HDRS         := $(NAME).h init.h license.h
 OBJS         := ${SRCS:c=o}
 
