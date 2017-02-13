@@ -1,5 +1,6 @@
-"""Nessemble registry server"""
+# coding=utf-8
 # pylint: disable=C0103,C0301
+"""Nessemble registry server"""
 
 import json
 import os
@@ -7,12 +8,24 @@ import time
 import argparse
 from flask import Flask, abort, g, make_response, request
 
+#----------------#
+# Constants
+
+HOSTNAME = '0.0.0.0'
+PORT     = 5000
+
+#----------------#
+# Variables
+
 app = Flask(__name__)
+
+#----------------#
+# Utilities
 
 def registry_response(data, status=200, mimetype='application/json'):
     """Registry response"""
 
-    response = make_response(json.dumps(data), status)
+    response = make_response(json.dumps(data, indent=4), status)
 
     response.headers.add('Content-Type', mimetype)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -20,31 +33,6 @@ def registry_response(data, status=200, mimetype='application/json'):
     response.headers.add('X-Response-Time', g.request_time())
 
     return response
-
-@app.before_request
-def before_request():
-    """Before request"""
-
-    g.request_start_time = time.time()
-    g.request_time = lambda: '%.5s' % (time.time() - g.request_start_time)
-
-@app.errorhandler(404)
-def not_found(error):
-    """Not Found error handler"""
-
-    return registry_response({
-        'status': int(str(error)[:3]),
-        'error': 'Not Found'
-    }, status=404)
-
-@app.errorhandler(500)
-def internal_server_error(error):
-    """Internal Server Error error handler"""
-
-    return registry_response({
-        'status': int(str(error)[:3]),
-        'error': 'Internal Server Error'
-    }, status=500)
 
 def get_packages():
     """Get all packages"""
@@ -74,6 +62,37 @@ def get_packages():
         })
 
     return result
+
+@app.before_request
+def before_request():
+    """Before request"""
+
+    g.request_start_time = time.time()
+    g.request_time = lambda: '%.5s' % (time.time() - g.request_start_time)
+
+#----------------#
+# Errors
+
+@app.errorhandler(404)
+def not_found(error):
+    """Not Found error handler"""
+
+    return registry_response({
+        'status': int(str(error)[:3]),
+        'error': 'Not Found'
+    }, status=404)
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    """Internal Server Error error handler"""
+
+    return registry_response({
+        'status': int(str(error)[:3]),
+        'error': 'Internal Server Error'
+    }, status=500)
+
+#----------------#
+# Endpoints
 
 @app.route('/', methods=['GET'])
 def list_packages():
@@ -141,12 +160,15 @@ def get_package(package):
 
     return registry_response(result)
 
+#----------------#
+# Main
+
 def main():
     """Main function"""
 
     parser = argparse.ArgumentParser(description='Nessemble registry')
-    parser.add_argument('--host', '-H', dest='host', type=str, default='127.0.0.1', required=False, help='Host')
-    parser.add_argument('--port', '-P', dest='port', type=int, default=8000, required=False, help='Port')
+    parser.add_argument('--host', '-H', dest='host', type=str, default=HOSTNAME, required=False, help='Host')
+    parser.add_argument('--port', '-P', dest='port', type=int, default=PORT, required=False, help='Port')
     parser.add_argument('--debug', '-D', dest='debug', action='store_true', required=False, help='Debug mode')
 
     args = parser.parse_args()
