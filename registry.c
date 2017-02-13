@@ -10,13 +10,20 @@
 #define REGISTRY_LINE_COUNT  10
 #define REGISTRY_LINE_LENGTH 256
 
-unsigned int open_config(FILE **file, char **filename) {
+static unsigned int open_config(FILE **file, char **filename) {
     unsigned int rc = RETURN_OK;
     char *config_path = NULL;
     size_t length = 0;
     struct passwd *pw = getpwuid(getuid());
     FILE *config = NULL;
     DIR *dir = NULL;
+
+    if (!pw) {
+        fprintf(stderr, "Could not find home\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
 
     length = strlen(pw->pw_dir) + 18;
     config_path = (char *)malloc(sizeof(char) * length + 1);
@@ -33,10 +40,13 @@ unsigned int open_config(FILE **file, char **filename) {
     dir = opendir(config_path);
 
     if (!dir) {
-        mkdir(config_path, 0777);
+        if (mkdir(config_path, 0777) != 0) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+    } else {
+        closedir(dir);
     }
-
-    closedir(dir);
 
     strcat(config_path, "/config");
 
@@ -60,7 +70,7 @@ cleanup:
     return rc;
 }
 
-void close_config(FILE *file, char *filename) {
+static void close_config(FILE *file, char *filename) {
     if (file) {
         (void)fclose(file);
     }
@@ -82,7 +92,9 @@ unsigned int get_registry(char **registry) {
     }
 
     while (fgets(line, REGISTRY_LINE_LENGTH, config) != NULL) {
-        sscanf(line, "%s %s\n", key, val);
+        if (sscanf(line, "%s %s\n", key, val) != 2) {
+            continue;
+        }
 
         if (strcmp(key, "registry") == 0) {
             found = TRUE;
@@ -114,7 +126,9 @@ unsigned int set_registry(char *registry) {
     }
 
     while (fgets(lines[line_index], REGISTRY_LINE_LENGTH, config) != NULL) {
-        sscanf(lines[line_index++], "%s %s\n", key, val);
+        if (sscanf(lines[line_index++], "%s %s\n", key, val) != 2) {
+            continue;
+        }
 
         if (strcmp(key, "registry") == 0) {
             found = TRUE;
@@ -148,7 +162,9 @@ unsigned int set_registry(char *registry) {
     }
 
     for (i = 0, l = line_index; i < l; i++) {
-        sscanf(lines[i], "%s %s\n", key, val);
+        if (sscanf(lines[i], "%s %s\n", key, val) != 2) {
+            continue;
+        }
 
         if (strcmp(key, "registry") == 0) {
             fprintf(config, "%s\t%s\n", key, registry);
@@ -163,7 +179,7 @@ cleanup:
     return rc;
 }
 
-unsigned int get_lib_url(char **lib_url, char *lib) {
+static unsigned int get_lib_url(char **lib_url, char *lib) {
     unsigned int rc = RETURN_OK;
     size_t length_registry = 0, length_lib = 0;
     char *registry = NULL, *path = NULL;
@@ -196,7 +212,7 @@ cleanup:
     return rc;
 }
 
-unsigned int get_lib_search_url(char **lib_search_url, char *term) {
+static unsigned int get_lib_search_url(char **lib_search_url, char *term) {
     unsigned int rc = RETURN_OK;
     size_t length_registry = 0, length_lib = 0;
     char *registry = NULL, *path = NULL;
@@ -233,11 +249,18 @@ cleanup:
     return rc;
 }
 
-unsigned int get_lib_path(char **lib_path, char *lib) {
+static unsigned int get_lib_path(char **lib_path, char *lib) {
     unsigned int rc = RETURN_OK;
     size_t length = 0;
     char *path = NULL;
     struct passwd *pw = getpwuid(getuid());
+
+    if (!pw) {
+        fprintf(stderr, "Could not find home\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
 
     length = strlen(pw->pw_dir) + strlen(lib) + 16;
     path = (char *)malloc(sizeof(char) * length + 1);
@@ -324,7 +347,10 @@ unsigned int lib_uninstall(char *lib) {
         goto cleanup;
     }
 
-    unlink(lib_path);
+    if (unlink(lib_path) != 0) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
 
 cleanup:
     if (lib_path) {
@@ -336,9 +362,7 @@ cleanup:
 
 unsigned int lib_info(char *lib) {
     unsigned int rc = RETURN_OK;
-    size_t lib_len = 0;
-    char *lib_url = NULL, *lib_path = NULL, *val = NULL;
-    FILE *lib_file = NULL;
+    char *lib_url = NULL, *val = NULL;
 
     if (get_lib_url(&lib_url, lib) != RETURN_OK) {
         rc = RETURN_EPERM;
