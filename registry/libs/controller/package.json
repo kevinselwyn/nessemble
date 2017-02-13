@@ -1,0 +1,11 @@
+{
+    "name": "controller",
+    "description": "Read from the game controllers",
+    "version": "1.0.1",
+    "author": {
+        "name": "Kevin Selwyn",
+        "email": "kevinselwyn@gmail.com"
+    },
+    "license": "GPLv3",
+    "tags": ["controller", "keypad", "controls", "input"]
+}
