@@ -91,7 +91,7 @@ unsigned int get_registry(char **registry) {
     }
 
     if (found == FALSE) {
-        fprintf(stderr, "No regsitry set\n");
+        fprintf(stderr, "No registry set\n");
 
         rc = RETURN_EPERM;
     }
