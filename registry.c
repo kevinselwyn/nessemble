@@ -334,6 +334,28 @@ cleanup:
     return rc;
 }
 
+unsigned int lib_info(char *lib) {
+    unsigned int rc = RETURN_OK;
+    size_t lib_len = 0;
+    char *lib_url = NULL, *lib_path = NULL, *val = NULL;
+    FILE *lib_file = NULL;
+
+    if (get_lib_url(&lib_url, lib) != RETURN_OK) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (get_json(&val, "readme", lib_url) != RETURN_OK) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    printf("%s", val);
+
+cleanup:
+    return rc;
+}
+
 unsigned int lib_search(char *term) {
     unsigned int rc = RETURN_OK;
     char *lib_search_url = NULL;

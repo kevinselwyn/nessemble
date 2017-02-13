@@ -85,6 +85,19 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
+        if (strcmp(argv[i], "info") == 0) {
+            if (i + 1 < l) {
+                if (lib_info(argv[i+1]) != RETURN_OK) {
+                    rc = RETURN_EPERM;
+                    goto cleanup;
+                }
+            } else {
+                rc = usage(exec);
+            }
+
+            goto cleanup;
+        }
+
         if (strcmp(argv[i], "search") == 0) {
             if (i + 1 < l) {
                 if (lib_search(argv[i+1]) != RETURN_OK) {
