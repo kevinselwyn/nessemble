@@ -2,13 +2,7 @@
 #include <jansson.h>
 #include <curl/curl.h>
 #include "nessemble.h"
-
-#define BUFFER_SIZE 256 * 1024
-
-struct write_result {
-    char *data;
-    int pos;
-};
+#include "json.h"
 
 static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream) {
     struct write_result *result = (struct write_result *)stream;
@@ -31,7 +25,11 @@ unsigned int get_request(char **request, char *url) {
     CURL *curl = NULL;
     CURLcode status;
 
-    curl_global_init(CURL_GLOBAL_ALL);
+    if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     curl = curl_easy_init();
 
     if (!curl) {

@@ -67,11 +67,11 @@ void error(const char *fmt, ...) {
     errors[error_index].message = (char *)malloc(sizeof(char) * MAX_ERROR_LENGTH);
 
     if (!errors[error_index].message) {
-        error_index++;
+        strcpy(errors[error_index++].message, "");
         return;
     }
 
-    (void)vsprintf(errors[error_index++].message, fmt, argptr);
+    (void)vsnprintf(errors[error_index++].message, MAX_ERROR_LENGTH, fmt, argptr);
 
     if (error_index >= MAX_ERROR_COUNT) {
         (void)error_exit();

@@ -45,7 +45,7 @@ static unsigned int open_config(FILE **file, char **filename) {
             goto cleanup;
         }
     } else {
-        closedir(dir);
+        (void)closedir(dir);
     }
 
     strcat(config_path, "/config");
