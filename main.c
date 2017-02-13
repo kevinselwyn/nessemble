@@ -88,6 +88,8 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "info") == 0) {
             if (i + 1 < l) {
                 if (lib_info(argv[i+1]) != RETURN_OK) {
+                    fprintf(stderr, "Could not find info for `%s`\n", argv[i+1]);
+
                     rc = RETURN_EPERM;
                     goto cleanup;
                 }

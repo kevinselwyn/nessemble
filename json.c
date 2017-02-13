@@ -91,8 +91,8 @@ cleanup:
 
 unsigned int get_json(char **value, char *key, char *url) {
     unsigned int rc = RETURN_OK;
-    char *text = NULL;
-    json_t *root = NULL, *library = NULL;
+    char *text = NULL, *string_value = NULL;
+    json_t *root = NULL, *data = NULL;
     json_error_t error;
 
     if (get_request(&text, url) != RETURN_OK) {
@@ -107,14 +107,21 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    library = json_object_get(root, key);
+    data = json_object_get(root, key);
 
-    if (!json_is_string(library)) {
+    if (!json_is_string(data)) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    *value = (char *)json_string_value(library);
+    string_value = (char *)json_string_value(data);
+
+    if (strlen(string_value) == 0) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    *value = string_value;
 
 cleanup:
     if (text) {
