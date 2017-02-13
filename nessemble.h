@@ -514,11 +514,12 @@ void yyerror(const char *fmt, ...);
 /* INIT */
 unsigned int init();
 
-/* LIBS */
+/* REGISTRY */
 unsigned int get_registry();
 unsigned int set_registry(char *registry);
 unsigned int lib_install(char *lib);
 unsigned int lib_uninstall(char *lib);
+unsigned int lib_info(char *lib);
 unsigned int lib_search(char *term);
 
 /* JSON */
