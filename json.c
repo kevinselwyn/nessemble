@@ -91,6 +91,7 @@ cleanup:
 
 unsigned int get_json(char **value, char *key, char *url) {
     unsigned int rc = RETURN_OK;
+    size_t string_length = 0;
     char *text = NULL, *string_value = NULL;
     json_t *root = NULL, *data = NULL;
     json_error_t error;
@@ -115,13 +116,15 @@ unsigned int get_json(char **value, char *key, char *url) {
     }
 
     string_value = (char *)json_string_value(data);
+    string_length = strlen(string_value);
 
-    if (strlen(string_value) == 0) {
+    if (string_length == 0) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    *value = string_value;
+    *value = (char *)malloc(sizeof(char) * (string_length) + 1);
+    strcpy(*value, string_value);
 
 cleanup:
     if (text) {

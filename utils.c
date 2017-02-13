@@ -181,6 +181,13 @@ int get_libpath(char **path, char *string) {
     char *fullpath = NULL;
     struct passwd *pw = getpwuid(getuid());
 
+    if (!pw) {
+        fprintf(stderr, "Could not find home\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     string_length = strlen(string);
     path_length = strlen(pw->pw_dir) + 11 + string_length - 1;
     fullpath = (char *)malloc(sizeof(char) * (path_length + 1));
