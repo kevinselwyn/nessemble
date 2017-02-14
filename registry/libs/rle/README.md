@@ -20,6 +20,10 @@ Registers clobbered: none
 
 2 bytes in the zeropage should be assigned to `rle_pointer`
 
+## Methods
+
+`rle` - Perform RLE decode
+
 ## Example
 
 ```
@@ -33,11 +37,13 @@ rle_pointer .rs 2
 
 ;;;;;;;;
 
+    ; set rle_pointer to data's location
     LDA #LOW(data)
     STA rle_pointer
     LDA #HIGH(data)
     STA rle_pointer+1
 
+    ; perform RLE decode
     JSR rle
 
 ;;;;;;;;
