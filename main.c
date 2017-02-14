@@ -100,6 +100,15 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
+        if (strcmp(argv[i], "ls") == 0) {
+            if (lib_list() != RETURN_OK) {
+                rc = RETURN_EPERM;
+                goto cleanup;
+            }
+
+            goto cleanup;
+        }
+
         if (strcmp(argv[i], "search") == 0) {
             if (i + 1 < l) {
                 if (lib_search(argv[i+1]) != RETURN_OK) {
