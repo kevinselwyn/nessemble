@@ -393,7 +393,7 @@ unsigned int lib_search(char *term) {
         goto cleanup;
     }
 
-    if (get_json_search(lib_search_url) != RETURN_OK) {
+    if (get_json_search(lib_search_url, term) != RETURN_OK) {
         rc = RETURN_EPERM;
         goto cleanup;
     }

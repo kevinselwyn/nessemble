@@ -136,8 +136,8 @@ cleanup:
     return rc;
 }
 
-unsigned int get_json_search(char *url) {
-    unsigned int rc = RETURN_OK, i = 0, l = 0;
+unsigned int get_json_search(char *url, char *term) {
+    unsigned int rc = RETURN_OK, i = 0, j = 0, k = 0, l = 0;
     char *text = NULL;
     json_t *root = NULL, *results = NULL;
     json_error_t error;
@@ -165,7 +165,8 @@ unsigned int get_json_search(char *url) {
         }
     }
 
-    for (i = 0, l = json_array_size(results); i < l; i++) {
+    for (i = 0, j = json_array_size(results); i < j; i++) {
+        int name_index = 0, description_index = 0, term_length = 0;
         json_t *result = NULL, *name = NULL, *description = NULL;
         char *name_text = NULL, *description_text = NULL;
 
@@ -190,7 +191,45 @@ unsigned int get_json_search(char *url) {
         name_text = (char *)json_string_value(name);
         description_text = (char *)json_string_value(description);
 
-        printf("%s - %s\n", name_text, description_text);
+        term_length = (int)strlen(term);
+        name_index = strcasestr(name_text, term) - name_text;
+        description_index = strcasestr(description_text, term) - description_text;
+
+        if (name_index >= 0) {
+            for (k = 0, l = (unsigned int)strlen(name_text); k < l; k++) {
+                if (k == (unsigned int)name_index) {
+                    printf("\e[1m");
+                }
+
+                printf("%c", name_text[k]);
+
+                if (k + 1 == (unsigned int)(name_index + term_length)) {
+                    printf("\e[0m");
+                }
+            }
+        } else {
+            printf("%s", name_text);
+        }
+
+        printf(" - ");
+
+        if (description_index >= 0) {
+            for (k = 0, l = (unsigned int)strlen(description_text); k < l; k++) {
+                if (k == (unsigned int)description_index) {
+                    printf("\e[1m");
+                }
+
+                printf("%c", description_text[k]);
+
+                if (k + 1 == (unsigned int)(description_index + term_length)) {
+                    printf("\e[0m");
+                }
+            }
+        } else {
+            printf("%s", description_text);
+        }
+
+        printf("\n");
     }
 
 cleanup:

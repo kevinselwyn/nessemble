@@ -113,10 +113,12 @@ def search_packages(term):
         'results': []
     }
 
+    term = term.lower()
+
     for package in packages:
-        match_name = package['name'].find(term) != -1
-        match_description = package['description'].find(term) != -1
-        match_tags = any(tag.find(term) != -1 for tag in package['tags'])
+        match_name = package['name'].lower().find(term) != -1
+        match_description = package['description'].lower().find(term) != -1
+        match_tags = any(tag.lower().find(term) != -1 for tag in package['tags'])
 
         if match_name or match_description or match_tags:
             results['results'].append(package)
