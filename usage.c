@@ -17,6 +17,17 @@ static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-h, --help", "print this message" }
 };
 
+static struct usage_flag usage_commands[USAGE_COMMAND_COUNT] = {
+    { "init", "initialize new project" },
+    { "reference [<category>] [<term>]", "get reference info about assembly terms" },
+    { "registry [<url>]", "get/set registry url" },
+    { "install <package>", "install package" },
+    { "uninstall <package>", "uninstall package" },
+    { "info <package>", "get info about package" },
+    { "ls", "list all packages in registry" },
+    { "search <term>", "search for package in registry" }
+};
+
 static struct usage_flag simulation_usage_flags[SIMULATION_USAGE_FLAG_COUNT] = {
     { ".registers [register=XXXX,...]", "Print registers (sets registers w/ options)" },
     { ".flags [flag=X,...]", "Print flags (sets flags w/ options)" },
@@ -66,10 +77,17 @@ static void print_usage(struct usage_flag *usage_flags, unsigned int size) {
  * @param {int} Return code
  */
 int usage(char *exec) {
-    printf("Usage: %s [options] <infile.asm>\n\n", exec);
+    int length = (int)strlen(exec);
+
+    printf("Usage: %s [options] <infile.asm>\n", exec);
+    printf("%*s<command> [args]\n\n", length + 8, " ");
     printf("Options:\n");
 
     print_usage(usage_flags, USAGE_FLAG_COUNT);
+
+    printf("\nCommands:\n");
+
+    print_usage(usage_commands, USAGE_COMMAND_COUNT);
 
     return RETURN_USAGE;
 }
