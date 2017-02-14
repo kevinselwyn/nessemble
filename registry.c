@@ -80,7 +80,7 @@ static void close_config(FILE *file, char *filename) {
     }
 }
 
-unsigned int get_registry(char **registry) {
+static unsigned int get_config(char **result, char *item) {
     unsigned int rc = RETURN_OK, found = FALSE;
     char line[REGISTRY_LINE_LENGTH], key[REGISTRY_LINE_LENGTH], val[REGISTRY_LINE_LENGTH];
     char *config_path = NULL;
@@ -96,14 +96,14 @@ unsigned int get_registry(char **registry) {
             continue;
         }
 
-        if (strcmp(key, "registry") == 0) {
+        if (strcmp(key, item) == 0) {
             found = TRUE;
-            *registry = strdup(val);
+            *result = strdup(val);
         }
     }
 
     if (found == FALSE) {
-        fprintf(stderr, "No registry set\n");
+        fprintf(stderr, "No %s set\n", item);
 
         rc = RETURN_EPERM;
     }
@@ -112,6 +112,10 @@ cleanup:
     close_config(config, config_path);
 
     return rc;
+}
+
+unsigned int get_registry(char **registry) {
+    return get_config(&*registry, "registry");
 }
 
 unsigned int set_registry(char *registry) {
@@ -249,6 +253,37 @@ cleanup:
     return rc;
 }
 
+static unsigned int get_lib_dir(char **lib_dir) {
+    unsigned int rc = RETURN_OK;
+    size_t length = 0;
+    char *dir = NULL;
+    struct passwd *pw = getpwuid(getuid());
+
+    if (!pw) {
+        fprintf(stderr, "Could not find home\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    length = strlen(pw->pw_dir) + 11;
+    dir = (char *)malloc(sizeof(char) * length + 1);
+
+    if (!dir) {
+        fatal("Memory error");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    sprintf(dir, "%s/%s", pw->pw_dir, ".nessemble");
+
+    *lib_dir = dir;
+
+cleanup:
+    return rc;
+}
+
 static unsigned int get_lib_path(char **lib_path, char *lib) {
     unsigned int rc = RETURN_OK;
     size_t length = 0;
@@ -381,7 +416,46 @@ cleanup:
 }
 
 unsigned int lib_list() {
-    return lib_search(".");
+    unsigned int rc = RETURN_OK;
+    size_t length = 0;
+    char *lib_dir = NULL;
+    struct dirent *ep;
+    DIR *dp = NULL;
+
+    if (get_lib_dir(&lib_dir) != RETURN_OK) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    dp = opendir(lib_dir);
+
+    if (!dp) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    while ((ep = readdir(dp)) != NULL) {
+        if (ep->d_type == DT_REG) {
+            length = strlen(ep->d_name);
+
+            if (strcmp(ep->d_name + (length - 4), ".asm") != 0) {
+                continue;
+            }
+
+            ep->d_name[length - 4] = '\0';
+
+            printf("%s\n", ep->d_name);
+        }
+    }
+
+    (void)closedir(dp);
+
+cleanup:
+    if (lib_dir) {
+        free(lib_dir);
+    }
+
+    return rc;
 }
 
 unsigned int lib_search(char *term) {
