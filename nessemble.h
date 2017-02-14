@@ -115,6 +115,7 @@
 
 /* USAGE */
 #define USAGE_FLAG_COUNT            11
+#define USAGE_COMMAND_COUNT         8
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
 /*
@@ -520,10 +521,11 @@ unsigned int set_registry(char *registry);
 unsigned int lib_install(char *lib);
 unsigned int lib_uninstall(char *lib);
 unsigned int lib_info(char *lib);
+unsigned int lib_list();
 unsigned int lib_search(char *term);
 
 /* JSON */
 unsigned int get_json(char **value, char *key, char *filename);
-unsigned int get_json_search(char *url);
+unsigned int get_json_search(char *url, char *term);
 
 #endif /* _NESSEMBLE_H */
