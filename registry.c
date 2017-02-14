@@ -380,6 +380,10 @@ cleanup:
     return rc;
 }
 
+unsigned int lib_list() {
+    return lib_search(".");
+}
+
 unsigned int lib_search(char *term) {
     unsigned int rc = RETURN_OK;
     char *lib_search_url = NULL;
