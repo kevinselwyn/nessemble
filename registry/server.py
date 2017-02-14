@@ -3,6 +3,8 @@
 """Nessemble registry server"""
 
 import json
+import tarfile
+import tempfile
 import os
 import time
 import argparse
@@ -25,7 +27,10 @@ app = Flask(__name__)
 def registry_response(data, status=200, mimetype='application/json'):
     """Registry response"""
 
-    response = make_response(json.dumps(data, indent=4), status)
+    if mimetype == 'application/json':
+        response = make_response(json.dumps(data, indent=4), status)
+    else:
+        response = make_response(data, status)
 
     response.headers.add('Content-Type', mimetype)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -160,7 +165,30 @@ def get_package(package):
     except IOError:
         pass
 
+    result["resource"] = "%s%s.tar.gz" % (request.url_root, package)
+
     return registry_response(result)
+
+@app.route('/<string:package>.tar.gz', methods=['GET'])
+def get_gz(package):
+    """Get package zip endpoint"""
+
+    data = ''
+    path = '%s/libs/%s/' % (os.path.dirname(os.path.abspath(__file__)), package)
+    temp = tempfile.NamedTemporaryFile()
+
+    tar = tarfile.open(temp.name, 'w:gz')
+    tar.add("%s/lib.asm" % (path), arcname='lib.asm')
+    tar.add("%s/package.json" % (path), arcname='package.json')
+    tar.add("%s/README.md" % (path), arcname='README.md')
+    tar.close()
+
+    with open(temp.name, 'r') as f:
+        data = f.read()
+
+    temp.close()
+
+    return registry_response(data, mimetype='application/tar+gzip')
 
 #----------------#
 # Main
