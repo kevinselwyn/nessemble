@@ -1,8 +1,13 @@
-#include <string.h>
 #include <jansson.h>
 #include <curl/curl.h>
 #include "nessemble.h"
 #include "json.h"
+
+#include <string.h>
+char *strstr(const char *haystack, const char *needle);
+#define _GNU_SOURCE
+#include <string.h>
+char *strcasestr(const char *haystack, const char *needle);
 
 static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream) {
     struct write_result *result = (struct write_result *)stream;
