@@ -17,6 +17,11 @@ Optionally, an additional byte in the zeropage should be assigned to `controller
 
 To set the number of controllers to read, define the `CONTROLLER_COUNT` constant as 1 or 2
 
+## Methods
+
+`controller1_read` - Read controller 1
+`controller2_read` - Read controller 2
+
 ## Example
 
 ```
