@@ -5,7 +5,7 @@
 
 struct write_result {
     char *data;
-    int pos;
+    size_t pos;
 };
 
 #endif /* _DOWNLOAD_H */

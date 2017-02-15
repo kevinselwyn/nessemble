@@ -203,7 +203,7 @@ int get_libpath(char **path, char *string) {
     strcat(fullpath, "/.nessemble/");
     strncat(fullpath, string + 1, string_length - 2);
 
-    if (fullpath[path_length-1] == '"') {
+    if (fullpath[path_length-1] == '>') {
         fullpath[path_length-1] = '\0';
     }
 

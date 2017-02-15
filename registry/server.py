@@ -158,13 +158,6 @@ def get_package(package):
     except IOError:
         pass
 
-    # include lib.asm
-    try:
-        with open('%s/lib.asm' % (path), 'r') as f:
-            result['library'] = f.read()
-    except IOError:
-        pass
-
     result["resource"] = "%s%s.tar.gz" % (request.url_root, package)
 
     return registry_response(result)
@@ -178,9 +171,10 @@ def get_gz(package):
     temp = tempfile.NamedTemporaryFile()
 
     tar = tarfile.open(temp.name, 'w:gz')
-    tar.add("%s/lib.asm" % (path), arcname='lib.asm')
-    tar.add("%s/package.json" % (path), arcname='package.json')
-    tar.add("%s/README.md" % (path), arcname='README.md')
+
+    for filename in ['lib.asm', 'package.json', 'README.md']:
+        tar.add("%s/%s" % (path, filename), arcname=filename)
+
     tar.close()
 
     with open(temp.name, 'r') as f:
