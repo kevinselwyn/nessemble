@@ -317,6 +317,7 @@ cleanup:
 
 unsigned int lib_install(char *lib) {
     unsigned int rc = RETURN_OK;
+    size_t lib_length = 0;
     char *lib_url = NULL, *lib_path = NULL, *lib_zip_url = NULL, *lib_data = NULL;
     FILE *lib_file = NULL;
 
@@ -335,14 +336,11 @@ unsigned int lib_install(char *lib) {
         goto cleanup;
     }
 
-    if (get_unzipped(&lib_data, "lib.asm", lib_zip_url) != RETURN_OK) {
+    if (get_unzipped(&lib_data, &lib_length, "lib.asm", lib_zip_url) != RETURN_OK) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    fprintf(stderr, "%s\n", lib_data);
-
-/*
     lib_file = fopen(lib_path, "w+");
 
     if (!lib_file) {
@@ -350,13 +348,11 @@ unsigned int lib_install(char *lib) {
         goto cleanup;
     }
 
-    lib_len = strlen(lib_data);
-
-    if (fwrite(lib_data, 1, lib_len, lib_file) != lib_len) {
+    if (fwrite(lib_data, 1, lib_length, lib_file) != lib_length) {
         rc = RETURN_EPERM;
         goto cleanup;
     };
-*/
+
 cleanup:
     if (lib_url) {
         free(lib_url);
@@ -368,6 +364,10 @@ cleanup:
 
     if (lib_zip_url) {
         free(lib_zip_url);
+    }
+
+    if (lib_data) {
+        free(lib_data);
     }
 
     if (lib_file) {
