@@ -18,7 +18,7 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream)
     return size * nmemb;
 }
 
-unsigned int get_request(char **request, char *url, char *mime_type) {
+unsigned int get_request(char **request, size_t *request_length, char *url, char *mime_type) {
     unsigned int rc = RETURN_OK;
     long code = 0;
     char *data = NULL, *content_type = NULL;
@@ -90,6 +90,7 @@ unsigned int get_request(char **request, char *url, char *mime_type) {
     data[write_result.pos] = '\0';
 
     *request = data;
+    *request_length = write_result.pos;
 
 cleanup:
     if (content_type) {
