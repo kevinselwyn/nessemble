@@ -17,7 +17,7 @@ OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c error.c init.c instructions.c json.c list.c macro.c math.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) reference.c registry.c simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c download.c error.c init.c instructions.c json.c list.c macro.c math.c midi.c opcodes.c png.c $(shell ls pseudo/*.c) reference.c registry.c simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c
 HDRS         := $(NAME).h init.h license.h
 OBJS         := ${SRCS:c=o}
 
@@ -72,6 +72,9 @@ $(TEST): all
 
 check: all
 	@./check.sh
+
+registry: all
+	python ./registry/server.py --debug
 
 install: all
 	strip $(NAME)
