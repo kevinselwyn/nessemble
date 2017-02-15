@@ -524,6 +524,9 @@ unsigned int lib_info(char *lib);
 unsigned int lib_list();
 unsigned int lib_search(char *term);
 
+/* DOWNLOAD */
+unsigned int get_request(char **request, char *url, char *mime_type);
+
 /* JSON */
 unsigned int get_json(char **value, char *key, char *filename);
 unsigned int get_json_search(char *url, char *term);
