@@ -531,4 +531,7 @@ unsigned int get_request(char **request, char *url, char *mime_type);
 unsigned int get_json(char **value, char *key, char *filename);
 unsigned int get_json_search(char *url, char *term);
 
+/* ZIP */
+unsigned int get_unzipped(char **data, char *filename, char *url);
+
 #endif /* _NESSEMBLE_H */
