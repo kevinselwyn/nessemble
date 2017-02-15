@@ -35,10 +35,10 @@ void pseudo_incscreen(char *string, char *type) {
     color_mode = png_color_mode(png.color_type);
 
     // get pixels
-    for (y = 0; y < png.height; y++) {
+    for (y = 0; y < (unsigned int)png.height; y++) {
         png_byte *row = png.row_pointers[y];
 
-        for (x = 0; x < png.width; x++) {
+        for (x = 0; x < (unsigned int)png.width; x++) {
             png_byte *rgb = &(row[x * color_mode]);
             color = match_color(rgb, color_mode);
 
