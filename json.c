@@ -10,13 +10,15 @@ char *strcasestr(const char *haystack, const char *needle);
 #define MIMETYPE_JSON "application/json"
 
 unsigned int get_json(char **value, char *key, char *url) {
-    unsigned int rc = RETURN_OK;
+    unsigned int rc = RETURN_OK, http_code = 0;
     size_t text_length = 0, string_length = 0;
     char *text = NULL, *output = NULL, *string_value = NULL;
     json_t *root = NULL, *data = NULL;
     json_error_t error;
 
-    switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
+    http_code = get_request(&text, &text_length, url, MIMETYPE_JSON);
+
+    switch (http_code) {
     case 503:
         fprintf(stderr, "Could not reach the registry\n");
 

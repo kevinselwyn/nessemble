@@ -21,9 +21,8 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream)
 }
 
 unsigned int get_request(char **request, size_t *request_length, char *url, char *mime_type) {
-    unsigned int rc = RETURN_OK;
     unsigned int code = 0;
-    size_t mime_type_length = 0;
+    size_t mime_type_length = 0, length = 0;
     char *data = NULL, *content_type = NULL;
     struct curl_slist *headers = NULL;
     CURL *curl = NULL;
@@ -84,19 +83,26 @@ unsigned int get_request(char **request, size_t *request_length, char *url, char
         goto cleanup;
     }
 
-    curl_easy_cleanup(curl);
-    curl_slist_free_all(headers);
-    curl_global_cleanup();
-
     data[write_result.pos] = '\0';
-
-    *request = data;
-    *request_length = write_result.pos;
+    length = write_result.pos;
 
 cleanup:
+    *request = data;
+    *request_length = length;
+
     if (content_type) {
         free(content_type);
     }
+
+    if (curl) {
+        curl_easy_cleanup(curl);
+    }
+
+    if (headers) {
+        curl_slist_free_all(headers);
+    }
+
+    curl_global_cleanup();
 
     return code;
 }
