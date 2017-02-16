@@ -1,3 +1,5 @@
+    JMP rle_guard
+
 rle:
     ; save registers
     PHA
@@ -79,3 +81,5 @@ rle_done:
     PLA
 
     RTS
+
+rle_guard:

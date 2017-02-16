@@ -1,3 +1,5 @@
+    JMP prng_guard
+
 prng:
     ; save registers
     PHA
@@ -30,3 +32,5 @@ prng_byte:
     LDA <prng_seed
 
     RTS
+
+prng_guard:

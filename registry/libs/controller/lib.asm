@@ -2,6 +2,8 @@
 CONTROLLER_COUNT = 1
 .endif
 
+    JMP controller_guard
+
 .if CONTROLLER_COUNT >= 1 ; if 1 or more controllers
 
 controller1_read:
@@ -45,3 +47,5 @@ controller2_loop:
     RTS
 
 .endif
+
+controller_guard:
