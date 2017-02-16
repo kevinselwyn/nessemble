@@ -5,6 +5,8 @@
 #include "nessemble.h"
 #include "download.h"
 
+#define CONTENT_TYPE "Content-Type: "
+
 static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream) {
     struct write_result *result = (struct write_result *)stream;
 
@@ -21,6 +23,7 @@ static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream)
 unsigned int get_request(char **request, size_t *request_length, char *url, char *mime_type) {
     unsigned int rc = RETURN_OK;
     long code = 0;
+    size_t mime_type_length = 0;
     char *data = NULL, *content_type = NULL;
     struct curl_slist *headers = NULL;
     CURL *curl = NULL;
@@ -52,14 +55,15 @@ unsigned int get_request(char **request, size_t *request_length, char *url, char
 
     curl_easy_setopt(curl, CURLOPT_URL, url);
 
-    content_type = (char *)malloc(sizeof(char) * strlen(mime_type) + 15);
+    mime_type_length = strlen(mime_type);
+    content_type = (char *)malloc(sizeof(char) * (mime_type_length + 15));
 
     if (!content_type) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    sprintf(content_type, "Content-Type: %s", mime_type);
+    sprintf(content_type, CONTENT_TYPE "%s", mime_type);
 
     headers = curl_slist_append(headers, content_type);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);

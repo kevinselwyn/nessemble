@@ -10,6 +10,8 @@
 #define REGISTRY_LINE_COUNT  10
 #define REGISTRY_LINE_LENGTH 256
 
+#define REGISTRY_CONFIG "config"
+
 static unsigned int open_config(FILE **file, char **filename) {
     unsigned int rc = RETURN_OK;
     char *config_path = NULL;
@@ -35,7 +37,7 @@ static unsigned int open_config(FILE **file, char **filename) {
         goto cleanup;
     }
 
-    sprintf(config_path, "%s/%s", pw->pw_dir, ".nessemble");
+    sprintf(config_path, "%s/%s", pw->pw_dir, "." PROGRAM_NAME);
 
     dir = opendir(config_path);
 
@@ -48,7 +50,7 @@ static unsigned int open_config(FILE **file, char **filename) {
         (void)closedir(dir);
     }
 
-    strcat(config_path, "/config");
+    strcat(config_path, "/" REGISTRY_CONFIG);
 
     if (access(config_path, F_OK) == -1) {
         config = fopen(config_path, "w+");
@@ -57,7 +59,7 @@ static unsigned int open_config(FILE **file, char **filename) {
     }
 
     if (!config) {
-        fprintf(stderr, "Could not open config\n");
+        fprintf(stderr, "Could not open " REGISTRY_CONFIG "\n");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -144,7 +146,7 @@ unsigned int set_registry(char *registry) {
         config = fopen(config_path, "a");
 
         if (!config) {
-            fprintf(stderr, "Could not open config\n");
+            fprintf(stderr, "Could not open " REGISTRY_CONFIG "\n");
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -159,7 +161,7 @@ unsigned int set_registry(char *registry) {
     config = fopen(config_path, "w+");
 
     if (!config) {
-        fprintf(stderr, "Could not open config\n");
+        fprintf(stderr, "Could not open " REGISTRY_CONFIG "\n");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -276,7 +278,7 @@ static unsigned int get_lib_dir(char **lib_dir) {
         goto cleanup;
     }
 
-    sprintf(dir, "%s/%s", pw->pw_dir, ".nessemble");
+    sprintf(dir, "%s/%s", pw->pw_dir, "." PROGRAM_NAME);
 
     *lib_dir = dir;
 
@@ -307,7 +309,7 @@ static unsigned int get_lib_path(char **lib_path, char *lib) {
         goto cleanup;
     }
 
-    sprintf(path, "%s/%s/%s.asm", pw->pw_dir, ".nessemble", lib);
+    sprintf(path, "%s/%s/%s.asm", pw->pw_dir, "." PROGRAM_NAME, lib);
 
     *lib_path = path;
 

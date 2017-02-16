@@ -6,6 +6,9 @@
 #define MAX_LIST_COUNT  65536
 #define MAX_LIST_LENGTH 256
 
+#define CONSTANTS "[constants]"
+#define LABELS    "[labels]"
+
 static unsigned int list_index = 0;
 static char *list_strings[MAX_LIST_COUNT];
 
@@ -59,7 +62,7 @@ unsigned int output_list(char *filename) {
     }
 
     if (has_constants == TRUE) {
-        fprintf(listfile, "[constants]\n");
+        fprintf(listfile, CONSTANTS "\n");
 
         list_index = 0;
 
@@ -87,7 +90,7 @@ unsigned int output_list(char *filename) {
             fprintf(listfile, "\n");
         }
 
-        fprintf(listfile, "[labels]\n");
+        fprintf(listfile, LABELS "\n");
 
         list_index = 0;
 

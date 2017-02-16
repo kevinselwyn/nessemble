@@ -44,9 +44,9 @@ unsigned int get_address_offset() {
     if (is_flag_nes() == TRUE) {
         if (is_segment_prg() == TRUE) {
             if (ines.prg < 2) {
-                offset = prg_offsets[prg_index] + 0xC000;
+                offset = prg_offsets[prg_index] + (BANK_PRG * 3);
             } else {
-                offset = prg_offsets[prg_index] + (0x8000 + ((ines.prg % 2) * 0x4000));
+                offset = prg_offsets[prg_index] + ((BANK_PRG * 2) + ((ines.prg % 2) * BANK_PRG));
             }
         }
     } else {

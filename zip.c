@@ -6,6 +6,7 @@
 #include "nessemble.h"
 
 #define ZIP_BUF_SIZE 512 * 1024
+#define MIMETYPE_ZIP "application/tar+gzip"
 
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url) {
     unsigned int rc = RETURN_OK;
@@ -15,7 +16,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     struct archive *arch = archive_read_new();
     struct archive_entry *entry;
 
-    if (get_request(&content, &content_length, url, "application/tar+gzip") != RETURN_OK) {
+    if (get_request(&content, &content_length, url, MIMETYPE_ZIP) != RETURN_OK) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
