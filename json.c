@@ -7,16 +7,23 @@ char *strstr(const char *haystack, const char *needle);
 #include <string.h>
 char *strcasestr(const char *haystack, const char *needle);
 
+#define MIMETYPE_JSON "application/json"
+
 unsigned int get_json(char **value, char *key, char *url) {
     unsigned int rc = RETURN_OK;
     size_t text_length = 0, string_length = 0;
-    char *text = NULL, *string_value = NULL;
+    char *text = NULL, *output = NULL, *string_value = NULL;
     json_t *root = NULL, *data = NULL;
     json_error_t error;
 
-    if (get_request(&text, &text_length, url, "application/json") != RETURN_OK) {
+    if (get_request(&text, &text_length, url, MIMETYPE_JSON) != RETURN_OK) {
         fprintf(stderr, "Library does not exist\n");
 
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (!text) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
@@ -43,8 +50,16 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    *value = (char *)malloc(sizeof(char) * (string_length) + 1);
-    strcpy(*value, string_value);
+    output = (char *)malloc(sizeof(char) * (string_length) + 1);
+
+    if (!output) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    strcpy(output, string_value);
+
+    *value = output;
 
 cleanup:
     if (text) {
@@ -65,7 +80,12 @@ unsigned int get_json_search(char *url, char *term) {
     json_t *root = NULL, *results = NULL;
     json_error_t error;
 
-    if (get_request(&text, &text_length, url, "application/json") != RETURN_OK) {
+    if (get_request(&text, &text_length, url, MIMETYPE_JSON) != RETURN_OK) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (!text) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
@@ -88,12 +108,12 @@ unsigned int get_json_search(char *url, char *term) {
         }
     }
 
-    for (i = 0, j = json_array_size(results); i < j; i++) {
+    for (i = 0, j = (unsigned int)json_array_size(results); i < j; i++) {
         int name_index = 0, description_index = 0, term_length = 0;
         json_t *result = NULL, *name = NULL, *description = NULL;
         char *name_text = NULL, *description_text = NULL;
 
-        result = json_array_get(results, i);
+        result = json_array_get(results, (size_t)i);
 
         if (!json_is_object(result)) {
             continue;

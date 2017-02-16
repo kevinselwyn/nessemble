@@ -3,8 +3,11 @@
 #include <string.h>
 #include "nessemble.h"
 
+#define MAX_MACRO_NAME 1024
+#define MAX_MACRO_TEXT 1024 * 1024
+
 void add_macro(char *name) {
-    macros[macro_index].name = (char *)malloc(sizeof(char) * 1024);
+    macros[macro_index].name = (char *)malloc(sizeof(char) * MAX_MACRO_NAME);
 
     if (!macros[macro_index].name) {
         fatal("Memory error");
@@ -12,7 +15,7 @@ void add_macro(char *name) {
 
     strcpy(macros[macro_index].name, name);
 
-    macros[macro_index].text = (char *)malloc(sizeof(char) * (1024 * 1024));
+    macros[macro_index].text = (char *)malloc(sizeof(char) * MAX_MACRO_TEXT);
 
     if (!macros[macro_index].text) {
         fatal("Memory error");

@@ -1,5 +1,8 @@
+#include <string.h>
 #include <float.h>
 #include "nessemble.h"
+
+#define CRC_TABLE_SIZE 256
 
 /**
  * Calculate CRC-32
@@ -10,8 +13,10 @@
 unsigned int crc_32(unsigned int *buffer, unsigned int length) {
     unsigned int crc = 0;
     unsigned int has_table = FALSE, rem = 0, octet = 0, i = 0, j = 0;
-    unsigned int table[256];
+    unsigned int table[CRC_TABLE_SIZE];
     unsigned int *p, *q;
+
+    memset(table, 0, CRC_TABLE_SIZE);
 
     if (has_table == FALSE) {
         for (i = 0; i < 256; i++) {

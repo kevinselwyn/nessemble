@@ -4,9 +4,11 @@
 #include "nessemble.h"
 #include "init.h"
 
+#define INIT_BUF_SIZE 256
+
 static char *get_line(char **buffer, char *prompt) {
     printf("%s", prompt);
-    return fgets(*buffer, BUF_SIZE, stdin);
+    return fgets(*buffer, INIT_BUF_SIZE, stdin);
 }
 
 unsigned int init() {
@@ -16,7 +18,7 @@ unsigned int init() {
     char *buffer = NULL, *input_filename = NULL;
     FILE *output = NULL;
 
-    buffer = (char *)malloc(sizeof(char) * BUF_SIZE);
+    buffer = (char *)malloc(sizeof(char) * INIT_BUF_SIZE);
 
     if (!buffer) {
         fatal("Memory error");

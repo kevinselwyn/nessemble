@@ -107,7 +107,7 @@ void usage_simulate() {
  * Program version
  */
 int version() {
-    printf("%s v%s\n\nCopyright %s %s\n", PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_COPYRIGHT, PROGRAM_AUTHOR);
+    printf(PROGRAM_NAME " v" PROGRAM_VERSION "\n\nCopyright " PROGRAM_COPYRIGHT " " PROGRAM_AUTHOR "\n");
 
     return RETURN_USAGE;
 }

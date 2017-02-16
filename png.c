@@ -78,19 +78,19 @@ struct png_data read_png(char *filename) {
 	png.png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
 	if (!png.png_ptr) {
-		yyerror("png_create_read_struct failed\n");
+		yyerror("Could not parse PNG");
         goto cleanup;
 	}
 
 	png.info_ptr = png_create_info_struct(png.png_ptr);
 
 	if (!png.info_ptr) {
-		yyerror("png_create_info_struct failed\n");
+		yyerror("Could not parse PNG");
         goto cleanup;
 	}
 
 	if (setjmp(png_jmpbuf(png.png_ptr))) {
-		yyerror("Error initializing read\n");
+		yyerror("Could not parse PNG");
         goto cleanup;
 	}
 
@@ -111,7 +111,7 @@ struct png_data read_png(char *filename) {
 	png_read_update_info(png.png_ptr, png.info_ptr);
 
 	if (setjmp(png_jmpbuf(png.png_ptr))) {
-		yyerror("Could not read PNG\n");
+		yyerror("Could not read PNG");
         goto cleanup;
 	}
 
