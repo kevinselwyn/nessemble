@@ -9,6 +9,7 @@ CC_LIBRARIES := /usr/local/lib
 LEX          := flex
 LEX_OUT      := lex.yy
 LEX_FLAGS    := --outfile=$(LEX_OUT).c
+LEX_DEFINES  := -DYY_TYPEDEF_YY_SIZE_T -Dyy_size_t=ssize_t
 YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
@@ -38,6 +39,9 @@ all: $(NAME)
 
 $(LEX_OUT).c: $(NAME).l
 	$(LEX) $(LEX_FLAGS) $<
+
+$(LEX_OUT).o: $(LEX_OUT).c
+	$(CC) -O -c $< $(CC_FLAGS) $(LEX_DEFINES) -o $@
 
 $(YACC_OUT).c: $(NAME).y
 	$(YACC) $(YACC_FLAGS) $<
