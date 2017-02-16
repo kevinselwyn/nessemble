@@ -444,7 +444,10 @@ unsigned int lib_info(char *lib) {
         goto cleanup;
     }
 
-    printf("%s", info);
+    if (pager_buffer(info) != RETURN_OK) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
 
 cleanup:
     if (lib_url) {

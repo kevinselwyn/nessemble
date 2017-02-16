@@ -534,4 +534,7 @@ unsigned int get_json_search(char *url, char *term);
 /* ZIP */
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url);
 
+/* PAGER */
+unsigned int pager_buffer(char *buffer);
+
 #endif /* _NESSEMBLE_H */
