@@ -48,6 +48,8 @@ void do_arr(unsigned int opcode_index, unsigned int value) {
 
     tmp = ((value & get_register(REGISTER_A)) >> 1) & 0xFF;
 
+    set_register(REGISTER_A, tmp);
+
     if (((tmp >> 5) & 0x03) == 0x03) {
         set_flag(FLG_CARRY, TRUE);
         set_flag(FLG_OVERFLOW, FALSE);
@@ -70,7 +72,23 @@ void do_arr(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_asr(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    unsigned int tmp = 0;
+
+    if (is_flag_undocumented() == FALSE) {
+        inc_register(REGISTER_PC, 1);
+        return;
+    }
+
+    tmp = ((value & get_register(REGISTER_A)) >> 1);
+
+    set_register(REGISTER_A, tmp);
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+    set_flag(FLG_CARRY, FALSE);
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_atx(unsigned int opcode_index, unsigned int value) {

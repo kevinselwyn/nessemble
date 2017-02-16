@@ -10,3 +10,4 @@
 .step
 .memory 4400
 .step
+.step
