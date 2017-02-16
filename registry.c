@@ -317,6 +317,28 @@ cleanup:
     return rc;
 }
 
+unsigned int lib_is_installed(char *lib) {
+    unsigned int installed = FALSE;
+    char *lib_path = NULL;
+
+    if (get_lib_path(&lib_path, lib) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (access(lib_path, F_OK) == -1) {
+        goto cleanup;
+    }
+
+    installed = TRUE;
+
+cleanup:
+    if (lib_path) {
+        free(lib_path);
+    }
+
+    return installed;
+}
+
 unsigned int lib_install(char *lib) {
     unsigned int rc = RETURN_OK;
     size_t lib_length = 0;
@@ -388,7 +410,7 @@ unsigned int lib_uninstall(char *lib) {
         goto cleanup;
     }
 
-    if (access(lib_path, F_OK) == -1) {
+    if (lib_is_installed(lib) == FALSE) {
         fprintf(stderr, "`%s` is not installed\n", lib);
 
         rc = RETURN_EPERM;
