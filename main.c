@@ -484,6 +484,10 @@ cleanup:
         free(list_out);
     }
 
+    if (registry) {
+        free(registry);
+    }
+
     if (file) {
         (void)fclose(file);
     }

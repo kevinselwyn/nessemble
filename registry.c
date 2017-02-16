@@ -432,21 +432,29 @@ cleanup:
 
 unsigned int lib_info(char *lib) {
     unsigned int rc = RETURN_OK;
-    char *lib_url = NULL, *val = NULL;
+    char *lib_url = NULL, *info = NULL;
 
     if (get_lib_url(&lib_url, lib) != RETURN_OK) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (get_json(&val, "readme", lib_url) != RETURN_OK) {
+    if (get_json(&info, "readme", lib_url) != RETURN_OK) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    printf("%s", val);
+    printf("%s", info);
 
 cleanup:
+    if (lib_url) {
+        free(lib_url);
+    }
+
+    if (info) {
+        free(info);
+    }
+
     return rc;
 }
 
@@ -508,5 +516,9 @@ unsigned int lib_search(char *term) {
     }
 
 cleanup:
+    if (lib_search_url) {
+        free(lib_search_url);
+    }
+
     return rc;
 }

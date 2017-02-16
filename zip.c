@@ -9,14 +9,16 @@
 #define MIMETYPE_ZIP "application/tar+gzip"
 
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url) {
-    unsigned int rc = RETURN_OK;
+    unsigned int rc = RETURN_OK, http_code = 0;
     size_t content_length = 0, entry_length = 0;
     char buffer[ZIP_BUF_SIZE];
     char *content = NULL, *unzipped = NULL;
     struct archive *arch = archive_read_new();
     struct archive_entry *entry;
 
-    switch (get_request(&content, &content_length, url, MIMETYPE_ZIP)) {
+    http_code = get_request(&content, &content_length, url, MIMETYPE_ZIP);
+
+    switch (http_code) {
     case 503:
         fprintf(stderr, "Could not reach the registry\n");
 
@@ -64,14 +66,18 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
         goto cleanup;
     }
 
-    strcpy(unzipped, buffer);
+    memcpy(unzipped, buffer, entry_length + 1);
 
+cleanup:
     *data = unzipped;
     *data_length = entry_length;
 
-cleanup:
     if (arch) {
         archive_read_free(arch);
+    }
+
+    if (content) {
+        free(content);
     }
 
     return rc;
