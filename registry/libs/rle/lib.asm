@@ -1,3 +1,7 @@
+.ifndef rle_pointer
+    .out "Please reserve 2 bytes in the zeropage for a `rle_pointer` variable"
+.endif
+
     JMP rle_guard
 
 rle:

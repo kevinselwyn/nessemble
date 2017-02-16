@@ -6,6 +6,10 @@ CONTROLLER_COUNT = 1
 
 .if CONTROLLER_COUNT >= 1 ; if 1 or more controllers
 
+.ifndef controller1
+    .out "Please reserve 1 byte in the zeropage for a `controller1` variable"
+.endif
+
 controller1_read:
     ; latch controller
     LDA #$01
@@ -28,6 +32,10 @@ controller1_loop:
 ;;;;;;;;
 
 .if CONTROLLER_COUNT == 2 ; if 2 controllers
+
+.ifndef controller2
+    .out "Please reserve 1 byte in the zeropage for a `controller2` variable"
+.endif
 
 controller2_read:
     ; latch controller

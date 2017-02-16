@@ -1,3 +1,7 @@
+.ifndef prng_seed
+    .out "Please reserve 2 bytes in the zeropage for a `prng_seed` variable"
+.endif
+
     JMP prng_guard
 
 prng:
