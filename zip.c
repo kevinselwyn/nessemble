@@ -16,9 +16,22 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     struct archive *arch = archive_read_new();
     struct archive_entry *entry;
 
-    if (get_request(&content, &content_length, url, MIMETYPE_ZIP) != RETURN_OK) {
+    switch (get_request(&content, &content_length, url, MIMETYPE_ZIP)) {
+    case 503:
+        fprintf(stderr, "Could not reach the registry\n");
+
         rc = RETURN_EPERM;
         goto cleanup;
+        break;
+    case 404:
+        fprintf(stderr, "Library does not exist\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+        break;
+    case 200:
+    default:
+        break;
     }
 
     archive_read_support_filter_gzip(arch);

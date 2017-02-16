@@ -16,11 +16,22 @@ unsigned int get_json(char **value, char *key, char *url) {
     json_t *root = NULL, *data = NULL;
     json_error_t error;
 
-    if (get_request(&text, &text_length, url, MIMETYPE_JSON) != RETURN_OK) {
+    switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
+    case 503:
+        fprintf(stderr, "Could not reach the registry\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+        break;
+    case 404:
         fprintf(stderr, "Library does not exist\n");
 
         rc = RETURN_EPERM;
         goto cleanup;
+        break;
+    case 200:
+    default:
+        break;
     }
 
     if (!text) {
@@ -80,9 +91,22 @@ unsigned int get_json_search(char *url, char *term) {
     json_t *root = NULL, *results = NULL;
     json_error_t error;
 
-    if (get_request(&text, &text_length, url, MIMETYPE_JSON) != RETURN_OK) {
+    switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
+    case 503:
+        fprintf(stderr, "Could not reach the registry\n");
+
         rc = RETURN_EPERM;
         goto cleanup;
+        break;
+    case 404:
+        fprintf(stderr, "Library does not exist\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+        break;
+    case 200:
+    default:
+        break;
     }
 
     if (!text) {
