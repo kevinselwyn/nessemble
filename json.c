@@ -94,10 +94,6 @@ cleanup:
         free(text);
     }
 
-    if (tok) {
-        json_tokener_free(tok);
-    }
-
     return rc;
 }
 
@@ -156,7 +152,10 @@ unsigned int get_json_search(char *url, char *term) {
                 goto cleanup;
             }
 
-            results = json_object_object_get(jobj, k_val);
+            if (json_object_object_get_ex(jobj, k_val, &results) != TRUE) {
+                rc = RETURN_EPERM;
+                goto cleanup;
+            };
 
             for (i = 0, j = json_object_array_length(results); i < j; i++) {
                 int name_index = 0, description_index = 0, term_length = 0;
@@ -170,14 +169,20 @@ unsigned int get_json_search(char *url, char *term) {
                     continue;
                 }
 
-                name = json_object_object_get(result, "name");
+                if (json_object_object_get_ex(result, "name", &name) != TRUE) {
+                    continue;
+                }
+
                 type = json_object_get_type(name);
 
                 if (type != json_type_string) {
                     continue;
                 }
 
-                description = json_object_object_get(result, "description");
+                if (json_object_object_get_ex(result, "description", &description) != TRUE) {
+                    continue;
+                }
+
                 type = json_object_get_type(description);
 
                 if (type != json_type_string) {
@@ -229,75 +234,6 @@ unsigned int get_json_search(char *url, char *term) {
             }
         }
     }
-
-/*
-    for (i = 0, j = (unsigned int)json_array_size(results); i < j; i++) {
-        int name_index = 0, description_index = 0, term_length = 0;
-        json_t *result = NULL, *name = NULL, *description = NULL;
-        char *name_text = NULL, *description_text = NULL;
-
-        result = json_array_get(results, (size_t)i);
-
-        if (!json_is_object(result)) {
-            continue;
-        }
-
-        name = json_object_get(result, "name");
-
-        if (!json_is_string(name)) {
-            continue;
-        }
-
-        description = json_object_get(result, "description");
-
-        if (!json_is_string(description)) {
-            continue;
-        }
-
-        name_text = (char *)json_string_value(name);
-        description_text = (char *)json_string_value(description);
-
-        term_length = (int)strlen(term);
-        name_index = strcasestr(name_text, term) - name_text;
-        description_index = strcasestr(description_text, term) - description_text;
-
-        if (name_index >= 0) {
-            for (k = 0, l = (unsigned int)strlen(name_text); k < l; k++) {
-                if (k == (unsigned int)name_index) {
-                    printf("\e[1m");
-                }
-
-                printf("%c", name_text[k]);
-
-                if (k + 1 == (unsigned int)(name_index + term_length)) {
-                    printf("\e[0m");
-                }
-            }
-        } else {
-            printf("%s", name_text);
-        }
-
-        printf(" - ");
-
-        if (description_index >= 0) {
-            for (k = 0, l = (unsigned int)strlen(description_text); k < l; k++) {
-                if (k == (unsigned int)description_index) {
-                    printf("\e[1m");
-                }
-
-                printf("%c", description_text[k]);
-
-                if (k + 1 == (unsigned int)(description_index + term_length)) {
-                    printf("\e[0m");
-                }
-            }
-        } else {
-            printf("%s", description_text);
-        }
-
-        printf("\n");
-    }
-*/
 
 cleanup:
     if (text) {
