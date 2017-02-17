@@ -25,7 +25,8 @@ enum {
 struct midi_data read_midi(char *filename);
 
 struct midi_event {
-    unsigned int type, beat, data[3], data_index;
+    unsigned int type, beat, data_index;
+    unsigned int *data;
 };
 
 struct midi_track {
