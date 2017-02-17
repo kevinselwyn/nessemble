@@ -17,8 +17,12 @@
 #define PROGRAM_AUTHOR    "Kevin Selwyn"
 
 /* BOOLEAN */
+#ifndef TRUE
 #define TRUE  1
+#endif /* TRUE */
+#ifndef FALSE
 #define FALSE 0
+#endif /* FALSE */
 
 /* MATH */
 #define PI 3.14159265358979323846

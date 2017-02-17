@@ -1,4 +1,6 @@
-#include <jansson.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <json/json.h>
 #include "nessemble.h"
 
 #include <string.h>
@@ -12,9 +14,11 @@ char *strcasestr(const char *haystack, const char *needle);
 unsigned int get_json(char **value, char *key, char *url) {
     unsigned int rc = RETURN_OK, http_code = 0;
     size_t text_length = 0, string_length = 0;
-    char *text = NULL, *output = NULL, *string_value = NULL;
-    json_t *root = NULL, *data = NULL;
-    json_error_t error;
+    char *text = NULL, *output = NULL, *string_value = NULL, *k_val = NULL;
+    json_object *jobj;
+    enum json_type type;
+    struct json_tokener *tok;
+    struct json_object *v_val;
 
     http_code = get_request(&text, &text_length, url, MIMETYPE_JSON);
 
@@ -41,22 +45,33 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    root = json_loads(text, 0, &error);
+    tok = json_tokener_new();
 
-    if (!root) {
+    if (!tok) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    data = json_object_get(root, key);
+    jobj = json_tokener_parse_ex(tok, text, text_length);
 
-    if (!json_is_string(data)) {
+    if (!jobj) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    string_value = (char *)json_string_value(data);
-    string_length = strlen(string_value);
+    for (struct lh_entry *entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
+        if (strcmp(key, k_val) == 0) {
+            type = json_object_get_type(v_val);
+
+            if (type != json_type_string) {
+                rc = RETURN_EPERM;
+                goto cleanup;
+            }
+
+            string_value = (char *)json_object_get_string(v_val);
+            string_length = strlen(string_value);
+        }
+    }
 
     if (string_length == 0) {
         rc = RETURN_EPERM;
@@ -79,8 +94,8 @@ cleanup:
         free(text);
     }
 
-    if (root) {
-        json_decref(root);
+    if (tok) {
+        json_tokener_free(tok);
     }
 
     return rc;
@@ -89,9 +104,11 @@ cleanup:
 unsigned int get_json_search(char *url, char *term) {
     unsigned int rc = RETURN_OK, i = 0, j = 0, k = 0, l = 0;
     size_t text_length = 0;
-    char *text = NULL;
-    json_t *root = NULL, *results = NULL;
-    json_error_t error;
+    char *text = NULL, *k_val = NULL;
+    json_object *jobj;
+    enum json_type type;
+    struct json_tokener *tok;
+    struct json_object *v_val, *results;
 
     switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
     case 503:
@@ -116,24 +133,104 @@ unsigned int get_json_search(char *url, char *term) {
         goto cleanup;
     }
 
-    root = json_loads(text, 0, &error);
+    tok = json_tokener_new();
 
-    if (!root) {
+    if (!tok) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    results = json_object_get(root, "results");
+    jobj = json_tokener_parse_ex(tok, text, text_length);
 
-    if (!json_is_array(results)) {
-        results = json_object_get(root, "libraries");
+    if (!jobj) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
 
-        if (!json_is_array(results)) {
-            rc = RETURN_EPERM;
-            goto cleanup;
+    for (struct lh_entry *entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
+        if (strcmp("results", k_val) == 0 || strcmp("libraries", k_val) == 0) {
+            type = json_object_get_type(v_val);
+
+            if (type != json_type_array) {
+                rc = RETURN_EPERM;
+                goto cleanup;
+            }
+
+            results = json_object_object_get(jobj, k_val);
+
+            for (i = 0, j = json_object_array_length(results); i < j; i++) {
+                int name_index = 0, description_index = 0, term_length = 0;
+                json_object *result = NULL, *name = NULL, *description = NULL;
+                char *name_text = NULL, *description_text = NULL;
+
+                result = json_object_array_get_idx(results, (size_t)i);
+                type = json_object_get_type(result);
+
+                if (type != json_type_object) {
+                    continue;
+                }
+
+                name = json_object_object_get(result, "name");
+                type = json_object_get_type(name);
+
+                if (type != json_type_string) {
+                    continue;
+                }
+
+                description = json_object_object_get(result, "description");
+                type = json_object_get_type(description);
+
+                if (type != json_type_string) {
+                    continue;
+                }
+
+                name_text = (char *)json_object_get_string(name);
+                description_text = (char *)json_object_get_string(description);
+
+                term_length = (int)strlen(term);
+                name_index = strcasestr(name_text, term) - name_text;
+                description_index = strcasestr(description_text, term) - description_text;
+
+                if (name_index >= 0) {
+                    for (k = 0, l = (unsigned int)strlen(name_text); k < l; k++) {
+                        if (k == (unsigned int)name_index) {
+                            printf("\e[1m");
+                        }
+
+                        printf("%c", name_text[k]);
+
+                        if (k + 1 == (unsigned int)(name_index + term_length)) {
+                            printf("\e[0m");
+                        }
+                    }
+                } else {
+                    printf("%s", name_text);
+                }
+
+                printf(" - ");
+
+                if (description_index >= 0) {
+                    for (k = 0, l = (unsigned int)strlen(description_text); k < l; k++) {
+                        if (k == (unsigned int)description_index) {
+                            printf("\e[1m");
+                        }
+
+                        printf("%c", description_text[k]);
+
+                        if (k + 1 == (unsigned int)(description_index + term_length)) {
+                            printf("\e[0m");
+                        }
+                    }
+                } else {
+                    printf("%s", description_text);
+                }
+
+                printf("\n");
+            }
         }
     }
 
+/*
     for (i = 0, j = (unsigned int)json_array_size(results); i < j; i++) {
         int name_index = 0, description_index = 0, term_length = 0;
         json_t *result = NULL, *name = NULL, *description = NULL;
@@ -200,14 +297,11 @@ unsigned int get_json_search(char *url, char *term) {
 
         printf("\n");
     }
+*/
 
 cleanup:
     if (text) {
         free(text);
-    }
-
-    if (root) {
-        json_decref(root);
     }
 
     return rc;
