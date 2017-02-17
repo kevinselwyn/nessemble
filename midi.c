@@ -8,8 +8,8 @@ char *notes[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", 
 
 static unsigned int parse_events(struct midi_track *track, unsigned int quarter) {
     unsigned int rc = RETURN_OK;
-    unsigned int i = 0, length = 0;
-    unsigned int offset = 0, byte[4];
+    unsigned int i = 0, j = 0, k = 0, length = 0;
+    unsigned int offset = 0, status = 0, tempo = 0, byte[10];
     unsigned int event_count = 0;
     char *data = NULL;
     struct midi_event *events = NULL;
@@ -25,58 +25,126 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
             break;
         }
 
-        byte[0] = (unsigned int)data[i] & 0xFF;
+        status = (unsigned int)data[i] & 0xFF;
 
-        if (byte[0] == 0xFF) {
+        if (status == 0xFF) {
             byte[1] = (unsigned int)data[i+1] & 0xFF;
 
             if (byte[1] == MIDI_META_EVENT_TRACK_COPYRIGHT) {
-                fprintf(stderr, "MIDI_META_EVENT_TRACK_COPYRIGHT\n");
-                event_count++;
-                byte[2] = (unsigned int)data[i+2] & 0xFF;
-                i += 3 + byte[2];
-                continue;
+                //fprintf(stderr, "MIDI_META_EVENT_TRACK_COPYRIGHT\n");
+                //event_count++;
+                //byte[2] = (unsigned int)data[i+2] & 0xFF;
+                //i += 3 + byte[2];
+                //continue;
             }
 
             if (byte[1] == MIDI_META_EVENT_TRACK_NAME) {
                 fprintf(stderr, "MIDI_META_EVENT_TRACK_NAME\n");
-                event_count++;
+
                 byte[2] = (unsigned int)data[i+2] & 0xFF;
+
+                fprintf(stderr, "  Name: ");
+
+                for (j = 0, k = byte[2]; j < k; j++) {
+                    fprintf(stderr, "%c", (char)data[i+j+3]);
+                }
+
+                fprintf(stderr, "\n");
+
+                event_count++;
                 i += 3 + byte[2];
                 continue;
             }
 
             if (byte[1] == MIDI_META_EVENT_DEVICE_NAME) {
                 fprintf(stderr, "MIDI_META_EVENT_DEVICE_NAME\n");
-                event_count++;
+
                 byte[2] = (unsigned int)data[i+2] & 0xFF;
+
+                fprintf(stderr, "  Name: ");
+
+                for (j = 0, k = byte[2]; j < k; j++) {
+                    fprintf(stderr, "%c", (char)data[i+j+3]);
+                }
+
+                fprintf(stderr, "\n");
+
+                event_count++;
                 i += 3 + byte[2];
                 continue;
             }
 
             if (byte[1] == MIDI_META_EVENT_TEMPO) {
-                fprintf(stderr, "MIDI_META_EVENT_TEMPO\n");
+                fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_TEMPO\n", byte[1]);
+
+                byte[3] = (unsigned int)data[i+3] & 0xFF;
+                byte[4] = (unsigned int)data[i+4] & 0xFF;
+                byte[5] = (unsigned int)data[i+5] & 0xFF;
+
+                tempo = 0;
+                tempo |= byte[3] << 16;
+                tempo |= byte[4] << 8;
+                tempo |= byte[5];
+
+                fprintf(stderr, "  Tempo: %d\n", tempo);
+
                 event_count++;
                 i += 6;
                 continue;
             }
 
             if (byte[1] == MIDI_META_EVENT_SMPTE) {
-                fprintf(stderr, "MIDI_META_EVENT_SMPTE\n");
+                fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_SMPTE\n", byte[1]);
+
+                byte[3] = (unsigned int)data[i+3] & 0xFF;
+                fprintf(stderr, "  Hours:     %d\n", byte[3]);
+
+                byte[4] = (unsigned int)data[i+4] & 0xFF;
+                fprintf(stderr, "  Minutes:   %d\n", byte[4]);
+
+                byte[5] = (unsigned int)data[i+5] & 0xFF;
+                fprintf(stderr, "  Seconds:   %d\n", byte[5]);
+
+                byte[6] = (unsigned int)data[i+6] & 0xFF;
+                fprintf(stderr, "  Frames:    %d\n", byte[6]);
+
+                byte[7] = (unsigned int)data[i+7] & 0xFF;
+                fprintf(stderr, "  Subframes: %d\n", byte[7]);
+
                 event_count++;
                 i += 8;
                 continue;
             }
 
             if (byte[1] == MIDI_META_EVENT_TIME_SIGNATURE) {
-                fprintf(stderr, "MIDI_META_EVENT_TIME_SIGNATURE\n");
+                fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_TIME_SIGNATURE\n", byte[1]);
+
+                byte[3] = (unsigned int)data[i+3] & 0xFF;
+                fprintf(stderr, "  Numerator:   %d\n", byte[3]);
+
+                byte[4] = (unsigned int)data[i+4] & 0xFF;
+                fprintf(stderr, "  Denominator: %d\n", byte[4]);
+
+                byte[5] = (unsigned int)data[i+5] & 0xFF;
+                fprintf(stderr, "  Clocks:      %d\n", byte[5]);
+
+                byte[6] = (unsigned int)data[i+6] & 0xFF;
+                fprintf(stderr, "  32nds:       %d\n", byte[6]);
+
                 event_count++;
                 i += 7;
                 continue;
             }
 
             if (byte[1] == MIDI_META_EVENT_KEY_SIGNATURE) {
-                fprintf(stderr, "MIDI_META_EVENT_KEY_SIGNATURE\n");
+                fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_KEY_SIGNATURE\n", byte[1]);
+
+                byte[3] = (unsigned int)data[i+3] & 0xFF;
+                fprintf(stderr, "  Sharps/Flats: %d\n", byte[3]);
+
+                byte[4] = (unsigned int)data[i+4] & 0xFF;
+                fprintf(stderr, "  Minor:        %d\n", byte[4]);
+
                 event_count++;
                 i += 5;
                 continue;
@@ -93,28 +161,69 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
             break;
         }
 
-        if ((byte[0] >> 4) == 0x08) {
+        if ((status >> 4) == 0x08) {
             fprintf(stderr, "MIDI_EVENT_NOTE_OFF\n");
+
+            byte[1] = (unsigned int)data[i+1] & 0xFF;
+            byte[2] = (unsigned int)data[i+2] & 0xFF;
+
+            fprintf(stderr, "  Note Off Channel %d\n", status & 0x0F);
+            fprintf(stderr, "  Note Off Key %d\n", byte[1]);
+            fprintf(stderr, "  Note Off Velocity %d\n", byte[2]);
+
             event_count++;
             i += 3;
             continue;
         }
 
-        if ((byte[0] >> 4) == 0x09) {
+        if ((status >> 4) == 0x09) {
             fprintf(stderr, "MIDI_EVENT_NOTE_ON\n");
+
+            byte[1] = (unsigned int)data[i+1] & 0xFF;
+            byte[2] = (unsigned int)data[i+2] & 0xFF;
+
+            fprintf(stderr, "  Note On Channel %d\n", status & 0x0F);
+            fprintf(stderr, "  Note On Key %d\n", byte[1]);
+            fprintf(stderr, "  Note On Velocity %d\n", byte[2]);
+
             event_count++;
             i += 3;
             continue;
         }
 
-        if ((byte[0] >> 4) == 0x0C) {
-            fprintf(stderr, "MIDI_EVENT_INSTRUMENT\n");
+        if ((status >> 4) == 0x0B) {
+            fprintf(stderr, "MIDI_EVENT_PRESSURE\n");
+
+            byte[1] = (unsigned int)data[i+1] & 0xFF;
+            byte[2] = (unsigned int)data[i+2] & 0xFF;
+
+            fprintf(stderr, "  Pressure Channel %d\n", status & 0x0F);
+            fprintf(stderr, "  Pressure Value 1 %d\n", byte[1]);
+            fprintf(stderr, "  Pressure Value 2 %d\n", byte[2]);
+
             event_count++;
             i += 2;
             continue;
         }
 
-        fprintf(stderr, "Unknown event 0x%02X\n", byte[0]);
+        if ((status >> 4) == 0x0C) {
+            fprintf(stderr, "MIDI_EVENT_INSTRUMENT\n");
+
+            byte[1] = (unsigned int)data[i+1] & 0xFF;
+
+            fprintf(stderr, "  Instrument Channel %d\n", status & 0x0F);
+            fprintf(stderr, "  Instrument Number %d\n", byte[1]);
+
+            event_count++;
+            i += 2;
+            continue;
+        }
+
+        if ((status & 0x80) == 0) {
+            continue;
+        }
+
+        fprintf(stderr, "Unknown event 0x%02X\n", status);
         break;
     }
 
