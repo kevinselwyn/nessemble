@@ -18,8 +18,6 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
     http_code = get_request(&content, &content_length, url, MIMETYPE_ZIP);
 
-    fprintf(stderr, "%d\n", content_length);
-
     switch (http_code) {
     case 503:
         fprintf(stderr, "Could not reach the registry\n");

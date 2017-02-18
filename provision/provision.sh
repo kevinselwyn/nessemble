@@ -7,7 +7,7 @@ sudo apt-get -y update
 sudo apt-get -y install make bison flex
 
 # libraries
-sudo apt-get -y install libpng-dev libjson-c-dev libarchive-dev
+sudo apt-get -y install libpng12-dev libjson0-dev libarchive-dev
 
 # debug tools
 sudo apt-get -y install bc gdb splint valgrind

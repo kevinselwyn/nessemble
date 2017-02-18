@@ -3,7 +3,7 @@ BIN_DIR      := /usr/local/bin
 RM           := rm -f
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra
-CC_LIB_FLAGS := -lm -lpng -ljson-c -larchive
+CC_LIB_FLAGS := -lm -lpng -larchive
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
 LEX          := flex
@@ -33,6 +33,12 @@ ifeq ($(UNAME), Darwin)
 	CC_FLAGS += -ll -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments
 else
 	CC_FLAGS += -lfl -lrt
+endif
+
+ifeq ($(UNAME), Linux)
+	CC_LIB_FLAGS += -ljson
+else
+	CC_LIB_FLAGS += -ljson-c
 endif
 
 all: $(NAME)
