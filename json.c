@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <json-c/json.h>
 #include "nessemble.h"
+
+#ifdef linux
+#include <json/json.h>
+#else
+#include <json-c/json.h>
+#endif
 
 #include <string.h>
 char *strstr(const char *haystack, const char *needle);
@@ -19,6 +24,7 @@ unsigned int get_json(char **value, char *key, char *url) {
     enum json_type type;
     struct json_tokener *tok;
     struct json_object *v_val;
+    struct lh_entry *entry;
 
     http_code = get_request(&text, &text_length, url, MIMETYPE_JSON);
 
@@ -59,7 +65,7 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    for (struct lh_entry *entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
+    for (entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
         if (strcmp(key, k_val) == 0) {
             type = json_object_get_type(v_val);
 
@@ -104,6 +110,7 @@ unsigned int get_json_search(char *url, char *term) {
     enum json_type type;
     struct json_tokener *tok;
     struct json_object *v_val, *results;
+    struct lh_entry *entry;
 
     switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
     case 503:
@@ -142,7 +149,7 @@ unsigned int get_json_search(char *url, char *term) {
         goto cleanup;
     }
 
-    for (struct lh_entry *entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
+    for (entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
         if (strcmp("results", k_val) == 0 || strcmp("libraries", k_val) == 0) {
             type = json_object_get_type(v_val);
 
@@ -151,10 +158,19 @@ unsigned int get_json_search(char *url, char *term) {
                 goto cleanup;
             }
 
+#ifdef linux
+            results = json_object_object_get(jobj, k_val);
+
+            if (!results) {
+                rc = RETURN_EPERM;
+                goto cleanup;
+            }
+#else
             if (json_object_object_get_ex(jobj, k_val, &results) != TRUE) {
                 rc = RETURN_EPERM;
                 goto cleanup;
             };
+#endif
 
             for (i = 0, j = json_object_array_length(results); i < j; i++) {
                 int name_index = 0, description_index = 0, term_length = 0;
@@ -168,9 +184,17 @@ unsigned int get_json_search(char *url, char *term) {
                     continue;
                 }
 
+#ifdef linux
+                name = json_object_object_get(result, "name");
+
+                if (!name) {
+                    continue;
+                }
+#else
                 if (json_object_object_get_ex(result, "name", &name) != TRUE) {
                     continue;
                 }
+#endif
 
                 type = json_object_get_type(name);
 
@@ -178,9 +202,17 @@ unsigned int get_json_search(char *url, char *term) {
                     continue;
                 }
 
+#ifdef linux
+                description = json_object_object_get(result, "description");
+
+                if (!name) {
+                    continue;
+                }
+#else
                 if (json_object_object_get_ex(result, "description", &description) != TRUE) {
                     continue;
                 }
+#endif
 
                 type = json_object_get_type(description);
 
