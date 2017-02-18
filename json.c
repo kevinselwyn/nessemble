@@ -12,8 +12,8 @@ char *strcasestr(const char *haystack, const char *needle);
 #define MIMETYPE_JSON "application/json"
 
 unsigned int get_json(char **value, char *key, char *url) {
-    unsigned int rc = RETURN_OK, http_code = 0;
-    size_t text_length = 0, string_length = 0;
+    unsigned int rc = RETURN_OK, http_code = 0, text_length = 0;
+    size_t string_length = 0;
     char *text = NULL, *output = NULL, *string_value = NULL, *k_val = NULL;
     json_object *jobj;
     enum json_type type;
@@ -98,8 +98,7 @@ cleanup:
 }
 
 unsigned int get_json_search(char *url, char *term) {
-    unsigned int rc = RETURN_OK, i = 0, j = 0, k = 0, l = 0;
-    size_t text_length = 0;
+    unsigned int rc = RETURN_OK, text_length = 0, i = 0, j = 0, k = 0, l = 0;
     char *text = NULL, *k_val = NULL;
     json_object *jobj;
     enum json_type type;

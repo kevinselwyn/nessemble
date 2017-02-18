@@ -1,108 +1,196 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <curl/curl.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include "nessemble.h"
 #include "download.h"
 
-#define CONTENT_TYPE "Content-Type: "
+#include <string.h>
+char *strstr(const char *haystack, const char *needle);
+#define _GNU_SOURCE
+#include <string.h>
+char *strcasestr(const char *haystack, const char *needle);
 
-static size_t write_response(void *ptr, size_t size, size_t nmemb, void *stream) {
-    struct write_result *result = (struct write_result *)stream;
+unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type) {
+    unsigned int port = 80, protocol = PROTOCOL_HTTP;
+    unsigned int i = 0, l = 0, index = 0;
+    unsigned int code = 0, length = 0;
+    int sockfd = 0, bytes = 0, sent = 0, received = 0, total = 0;
+    int content_type_index = 0, response_index = 0, content_length_index = 0;
+    char message[1024], response[4096], code_str[4];
+    char *host = NULL, *uri = NULL;
+    char *data = NULL;
+    struct hostent *server;
+    struct sockaddr_in serv_addr;
 
-    if (result->pos + size * nmemb >= BUFFER_SIZE - 1) {
-        return 0;
-    }
-
-    memcpy(result->data + result->pos, ptr, size * nmemb);
-    result->pos += size * nmemb;
-
-    return size * nmemb;
-}
-
-unsigned int get_request(char **request, size_t *request_length, char *url, char *mime_type) {
-    unsigned int code = 0;
-    size_t mime_type_length = 0, length = 0;
-    char *data = NULL, *content_type = NULL;
-    struct curl_slist *headers = NULL;
-    CURL *curl = NULL;
-    CURLcode status;
-
-    if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
-        code = 503;
+    if (strncmp(url, "http:", 5) == 0) {
+        protocol = PROTOCOL_HTTP;
+    } else if (strncmp(url, "https:", 6) == 0) {
+        protocol = PROTOCOL_HTTPS;
+    } else {
+        code = 500;
         goto cleanup;
     }
 
-    curl = curl_easy_init();
+    host = strdup(url+(protocol == PROTOCOL_HTTP ? 7 : 8));
 
-    if (!curl) {
-        code = 503;
+    for (i = 0, l = (unsigned int)strlen(host); i < l; i++) {
+        if (host[i] == '/') {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == 0) {
+        uri = strdup("");
+    } else {
+        uri = strdup(host+index);
+    }
+
+    host[index] = '\0';
+
+    for (i = 0, l = (unsigned int)strlen(host); i < l; i++) {
+        if (host[i] == ':') {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == 0) {
+        port = 80;
+    } else {
+        port = (unsigned int)atoi(host+(index+1));
+        host[index] = '\0';
+    }
+
+    sprintf(message, "GET %s HTTP/1.0\r\nContent-Type: %s\r\n\r\n", uri, mime_type);
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (sockfd < 0) {
+        code = 500;
         goto cleanup;
     }
 
-    data = (char *)malloc(sizeof(char) * BUFFER_SIZE);
+    server = gethostbyname(host);
+
+    if (!server) {
+        code = 404;
+        goto cleanup;
+    }
+
+    memset(&serv_addr, 0, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(port);
+    memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+
+    if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        code = 500;
+        goto cleanup;
+    }
+
+    total = (int)strlen(message);
+    sent = 0;
+
+    do {
+        bytes = (int)write(sockfd, message+sent, (size_t)(total - sent));
+
+        if (bytes < 0) {
+            code = 500;
+            goto cleanup;
+        }
+
+        if (bytes == 0) {
+            break;
+        }
+
+        sent += bytes;
+    } while (sent < total);
+
+    memset(response, 0, sizeof(response));
+    total = sizeof(response) - 1;
+    received = 0;
+
+    do {
+        bytes = (int)read(sockfd, response+received, (size_t)(total - received));
+
+        if (bytes < 0) {
+            code = 500;
+            goto cleanup;
+        }
+
+        if (bytes == 0) {
+            break;
+        }
+
+        received += bytes;
+    } while (received < total);
+
+    if (received == total) {
+        code = 500;
+        goto cleanup;
+    }
+
+    (void)close(sockfd);
+
+    strncpy(code_str, response+9, 3);
+    code_str[3] = '\0';
+
+    code = (unsigned int)atoi(code_str);
+
+    content_type_index = strcasestr(response, "Content-Type") - response;
+
+    if (content_type_index == 0) {
+        code = 500;
+        goto cleanup;
+    }
+
+    content_type_index += 14;
+
+    if (strncmp(response+content_type_index, mime_type, strlen(mime_type)) != 0) {
+        code = 500;
+        goto cleanup;
+    }
+
+    content_length_index = strcasestr(response, "Content-Length") - response;
+
+    if (content_length_index == 0) {
+        code = 500;
+        goto cleanup;
+    }
+
+    length = (unsigned int)atoi(response+(content_length_index+16));
+
+    response_index = strstr(response, "\r\n\r\n") - response;
+
+    if (response_index == 0) {
+        code = 500;
+        goto cleanup;
+    }
+
+    data = (char *)malloc(sizeof(char) * (length + 1));
 
     if (!data) {
-        code = 503;
+        code = 500;
         goto cleanup;
     }
 
-    struct write_result write_result = {
-        .data = data,
-        .pos = 0
-    };
-
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-
-    mime_type_length = strlen(mime_type);
-    content_type = (char *)malloc(sizeof(char) * (mime_type_length + 15));
-
-    if (!content_type) {
-        code = 503;
-        goto cleanup;
-    }
-
-    sprintf(content_type, CONTENT_TYPE "%s", mime_type);
-
-    headers = curl_slist_append(headers, content_type);
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &write_result);
-
-    status = curl_easy_perform(curl);
-
-    if (status != 0) {
-        code = 503;
-        goto cleanup;
-    }
-
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &code);
-
-    if (code != 200) {
-        goto cleanup;
-    }
-
-    data[write_result.pos] = '\0';
-    length = write_result.pos;
+    memcpy(data, response+(response_index+4), (size_t)length);
+    data[length] = '\0';
 
 cleanup:
     *request = data;
     *request_length = length;
 
-    if (content_type) {
-        free(content_type);
+    if (host) {
+        free(host);
     }
 
-    if (curl) {
-        curl_easy_cleanup(curl);
+    if (uri) {
+        free(uri);
     }
-
-    if (headers) {
-        curl_slist_free_all(headers);
-    }
-
-    curl_global_cleanup();
 
     return code;
 }

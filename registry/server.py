@@ -32,6 +32,8 @@ def registry_response(data, status=200, mimetype='application/json'):
     else:
         response = make_response(data, status)
 
+    response.headers.remove('Content-Type')
+
     response.headers.add('Content-Type', mimetype)
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Server', 'Nessemble')
