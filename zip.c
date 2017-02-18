@@ -9,14 +9,16 @@
 #define MIMETYPE_ZIP "application/tar+gzip"
 
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url) {
-    unsigned int rc = RETURN_OK, http_code = 0;
-    size_t content_length = 0, entry_length = 0;
+    unsigned int rc = RETURN_OK, http_code = 0, content_length = 0;
+    size_t entry_length = 0;
     char buffer[ZIP_BUF_SIZE];
     char *content = NULL, *unzipped = NULL;
     struct archive *arch = archive_read_new();
     struct archive_entry *entry;
 
     http_code = get_request(&content, &content_length, url, MIMETYPE_ZIP);
+
+    fprintf(stderr, "%d\n", content_length);
 
     switch (http_code) {
     case 503:
@@ -40,6 +42,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     archive_read_support_format_tar(arch);
 
     if (archive_read_open_memory(arch, content, content_length) != RETURN_OK) {
+        fprintf(stderr, "ERR\n");
         rc = RETURN_EPERM;
         goto cleanup;
     }
