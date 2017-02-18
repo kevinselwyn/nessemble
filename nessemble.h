@@ -529,7 +529,7 @@ unsigned int lib_list();
 unsigned int lib_search(char *term);
 
 /* DOWNLOAD */
-unsigned int get_request(char **request, size_t *request_length, char *url, char *mime_type);
+unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type);
 
 /* JSON */
 unsigned int get_json(char **value, char *key, char *filename);
