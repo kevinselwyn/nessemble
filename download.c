@@ -24,6 +24,8 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     char *data = NULL;
     struct hostent *server;
     struct sockaddr_in serv_addr;
+    struct timeval timeout;
+    fd_set set;
 
     if (strncmp(url, "http:", 5) == 0) {
         protocol = PROTOCOL_HTTP;
@@ -120,7 +122,17 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     total = sizeof(response) - 1;
     received = 0;
 
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+
+    FD_ZERO(&set);
+    FD_SET(sockfd, &set);
+
     do {
+        if (select(sockfd+1, &set, NULL, NULL, &timeout) <= 0) {
+            break;
+        }
+
         bytes = (int)read(sockfd, response+received, (size_t)(total - received));
 
         if (bytes < 0) {
