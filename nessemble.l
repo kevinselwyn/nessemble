@@ -59,6 +59,7 @@ int include_stack_ptr = 0;
 
 "HIGH"                     { return HIGH; }
 "LOW"                      { return LOW; }
+"BANK"                     { return BANK; }
 
 ".ascii"                   { return PSEUDO_ASCII; }
 ".byte"                    { return PSEUDO_BYTE; }
