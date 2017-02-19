@@ -74,7 +74,13 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
         host[index] = '\0';
     }
 
-    sprintf(message, "GET %s HTTP/1.1\r\nHost: %s\r\nContent-Type: %s\r\n\r\n", uri, host, mime_type);
+    sprintf(message, "GET %s HTTP/1.1\r\nHost: %s", uri, host);
+
+    if (port != 80) {
+        sprintf(message+strlen(message), ":%d", port);
+    }
+
+    sprintf(message+strlen(message), "\r\nContent-Type: %s\r\n\r\n", mime_type);
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
