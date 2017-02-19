@@ -136,7 +136,7 @@ struct opcode {
 /* SYMBOLS */
 struct symbol {
     char *name;
-    unsigned int value, type;
+    unsigned int value, type, bank;
 };
 
 /* MACROS */
