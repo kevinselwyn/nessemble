@@ -35,12 +35,6 @@ else
 	CC_FLAGS += -lfl -lrt
 endif
 
-ifeq ($(UNAME), Linux)
-	CC_LIB_FLAGS += -ljson
-else
-	CC_LIB_FLAGS += -ljson-c
-endif
-
 all: $(NAME)
 
 $(LEX_OUT).c: $(NAME).l

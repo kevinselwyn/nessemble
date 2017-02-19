@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "nessemble.h"
-
-#ifdef linux
-#include <json/json.h>
-#else
-#include <json-c/json.h>
-#endif
+#include "json.h"
 
 #include <string.h>
 char *strstr(const char *haystack, const char *needle);
@@ -16,15 +11,182 @@ char *strcasestr(const char *haystack, const char *needle);
 
 #define MIMETYPE_JSON "application/json"
 
+static unsigned int parse_json(struct json_token **json_tokens, char *json, unsigned int json_token_count) {
+    unsigned int key = 0, type = 0, start = 0, end = 0, size = 0;
+    int token_index = 0, i = 0, l = 0;
+    struct json_token *tokens = NULL;
+
+    tokens = (struct json_token *)malloc(sizeof(struct json_token) * (json_token_count));
+
+    if (!tokens) {
+        goto cleanup;
+    }
+
+    l = (int)strlen(json);
+
+    if (json[i++] != '{') {
+        goto cleanup;
+    }
+
+    type = JSON_UNDEFINED;
+
+    while (i < l) {
+        if (i >= l) {
+            break;
+        }
+
+        while (1 == TRUE) {
+            if (i >= l) {
+                break;
+            }
+
+            if (json[i] == '"') {
+                type = JSON_STRING;
+                break;
+            }
+
+            if ((int)json[i] >= 48 && (int)json[i] <= 57) {
+                type = JSON_NUMBER;
+                break;
+            }
+
+            if (json[i] == 't' || json[i] == 'f') {
+                type = JSON_BOOLEAN;
+                break;
+            }
+
+            if (json[i] == 'n') {
+                type = JSON_NULL;
+                break;
+            }
+
+            i++;
+        }
+
+        if (type == JSON_STRING) {
+            i++;
+        }
+
+        start = (unsigned int)i;
+
+        while (1 == TRUE) {
+            if (i >= l) {
+                break;
+            }
+
+            if (type == JSON_STRING) {
+                if (json[i] == '"' && json[i-1] != '\\') {
+                    break;
+                }
+            }
+
+            if (type == JSON_NUMBER || type == JSON_BOOLEAN || type == JSON_NULL) {
+                if (json[i] == ',' || json[i] == '}' || json[i] == '\n' || json[i] == ' ') {
+                    break;
+                }
+            }
+
+            i++;
+        }
+
+        end = (unsigned int)i;
+
+        key = FALSE;
+
+        while (1 == TRUE) {
+            if (i >= l) {
+                break;
+            }
+
+            if (json[i] == ':') {
+                key = TRUE;
+                break;
+            }
+
+            if (json[i] == '}') {
+                key = FALSE;
+                break;
+            }
+
+            if (json[i] == ',') {
+                break;
+            }
+
+            i++;
+        }
+
+        tokens[token_index].key = key;
+        tokens[token_index].type = type;
+        tokens[token_index].start = start;
+        tokens[token_index].end = end;
+        tokens[token_index].size = 0;
+
+        token_index++;
+        i++;
+    }
+
+    size = 0;
+
+    for (i = token_index - 1, l = 0; i >= l; --i) {
+        if (tokens[i].key == FALSE) {
+            size++;
+        } else {
+            tokens[i].size = size;
+            size = 0;
+        }
+    }
+
+cleanup:
+    *json_tokens = tokens;
+
+    return (unsigned int)token_index;
+}
+
+static unsigned int parse_text(char **output, char *text) {
+    unsigned int rc = RETURN_OK;
+    unsigned int length = 0, index = 0, i = 0, l = 0;
+    char *parsed = NULL;
+
+    length = (unsigned int)strlen(text);
+
+    parsed = (char *)malloc(sizeof(char) * (length + 1));
+
+    if (!parsed) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    for (i = 0, l = length; i < l; i++) {
+        if (text[i] == '\\') {
+            if (text[i+1] == 'n') {
+                parsed[index++] = '\n';
+                i++;
+                continue;
+            } else if (text[i+1] == 't') {
+                parsed[index++] = '\t';
+                i++;
+                continue;
+            }
+
+            parsed[index++] = '\\';
+        } else {
+            parsed[index++] = text[i];
+        }
+    }
+
+    parsed[index] = '\0';
+
+cleanup:
+    *output = parsed;
+
+    return rc;
+}
+
 unsigned int get_json(char **value, char *key, char *url) {
-    unsigned int rc = RETURN_OK, http_code = 0, text_length = 0;
-    size_t string_length = 0;
-    char *text = NULL, *output = NULL, *string_value = NULL, *k_val = NULL;
-    json_object *jobj;
-    enum json_type type;
-    struct json_tokener *tok;
-    struct json_object *v_val;
-    struct lh_entry *entry;
+    unsigned int rc = RETURN_OK, http_code = 0, text_length = 0, token_count = 0;
+    unsigned int i = 0, l = 0, string_length = 0;
+    char *text = NULL, *string_value = NULL;
+    struct json_token *tokens = NULL;
 
     http_code = get_request(&text, &text_length, url, MIMETYPE_JSON);
 
@@ -34,13 +196,11 @@ unsigned int get_json(char **value, char *key, char *url) {
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 404:
         fprintf(stderr, "Library does not exist\n");
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 200:
     default:
         break;
@@ -51,32 +211,40 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    tok = json_tokener_new();
+    token_count = parse_json(&tokens, text, 22);
 
-    if (!tok) {
+    if (token_count == 0) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    jobj = json_tokener_parse_ex(tok, text, text_length);
-
-    if (!jobj) {
+    if (!tokens) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    for (entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
-        if (strcmp(key, k_val) == 0) {
-            type = json_object_get_type(v_val);
+    for (i = 0, l = token_count; i < l; i++) {
+        if (tokens[i].key == TRUE) {
+            if (strncmp(text+tokens[i].start, key, strlen(key)) == 0) {
+                string_length = tokens[i+1].end - tokens[i+1].start;
+                string_value = (char *)malloc(sizeof(char) * (string_length + 1));
 
-            if (type != json_type_string) {
-                rc = RETURN_EPERM;
-                goto cleanup;
+                if (!string_value) {
+                    rc = RETURN_EPERM;
+                    goto cleanup;
+                }
+
+                strncpy(string_value, text+tokens[i+1].start, (size_t)string_length);
+                string_value[string_length] = '\0';
+
+                break;
             }
-
-            string_value = (char *)json_object_get_string(v_val);
-            string_length = strlen(string_value);
         }
+    }
+
+    if (!string_value) {
+        rc = RETURN_EPERM;
+        goto cleanup;
     }
 
     if (string_length == 0) {
@@ -84,33 +252,30 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    output = (char *)malloc(sizeof(char) * (string_length) + 1);
-
-    if (!output) {
+    if (parse_text(&*value, string_value) != RETURN_OK) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
-
-    strcpy(output, string_value);
-
-    *value = output;
 
 cleanup:
     if (text) {
         free(text);
     }
 
+    if (tokens) {
+        free(tokens);
+    }
+
     return rc;
 }
 
 unsigned int get_json_search(char *url, char *term) {
-    unsigned int rc = RETURN_OK, text_length = 0, i = 0, j = 0, k = 0, l = 0;
-    char *text = NULL, *k_val = NULL;
-    json_object *jobj;
-    enum json_type type;
-    struct json_tokener *tok;
-    struct json_object *v_val, *results;
-    struct lh_entry *entry;
+    unsigned int rc = RETURN_OK, text_length = 0;
+    unsigned int i = 0, k = 0, l = 0;
+    unsigned int token_count = 0, string_length = 0, results_index = 0;
+    char *text = NULL;
+    char *results[200];
+    struct json_token *tokens = NULL;
 
     switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
     case 503:
@@ -118,13 +283,11 @@ unsigned int get_json_search(char *url, char *term) {
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 404:
         fprintf(stderr, "Library does not exist\n");
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 200:
     default:
         break;
@@ -135,140 +298,123 @@ unsigned int get_json_search(char *url, char *term) {
         goto cleanup;
     }
 
-    tok = json_tokener_new();
+    token_count = parse_json(&tokens, text, 100);
 
-    if (!tok) {
+    if (token_count == 0) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    jobj = json_tokener_parse_ex(tok, text, text_length);
-
-    if (!jobj) {
+    if (!tokens) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    for (entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
-        if (strcmp("results", k_val) == 0 || strcmp("libraries", k_val) == 0) {
-            type = json_object_get_type(v_val);
+    char line[5000];
 
-            if (type != json_type_array) {
-                rc = RETURN_EPERM;
-                goto cleanup;
+    for (i = 0, l = token_count; i < l; i++) {
+        if (tokens[i].key == TRUE) {
+            string_length = tokens[i].end - tokens[i].start;
+
+            if (string_length == 4 && strncmp(text+tokens[i].start, "name", 4) == 0) {
+                string_length = tokens[i+1].end - tokens[i+1].start;
+                results[results_index] = (char *)malloc(sizeof(char) * (string_length + 1));
+
+                if (!results[results_index]) {
+                    rc = RETURN_EPERM;
+                    goto cleanup;
+                }
+
+                memset(results[results_index], 0, (size_t)string_length);
+                strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
+                results[results_index][string_length] = '\0';
+
+                results_index++;
             }
 
-#ifdef linux
-            results = json_object_object_get(jobj, k_val);
+            string_length = tokens[i].end - tokens[i].start;
 
-            if (!results) {
-                rc = RETURN_EPERM;
-                goto cleanup;
-            }
-#else
-            if (json_object_object_get_ex(jobj, k_val, &results) != TRUE) {
-                rc = RETURN_EPERM;
-                goto cleanup;
-            };
-#endif
+            if (string_length == 11 && strncmp(text+tokens[i].start, "description", 11) == 0) {
+                string_length = tokens[i+1].end - tokens[i+1].start;
+                results[results_index] = (char *)malloc(sizeof(char) * (string_length + 1));
 
-            for (i = 0, j = json_object_array_length(results); i < j; i++) {
-                int name_index = 0, description_index = 0, term_length = 0;
-                json_object *result = NULL, *name = NULL, *description = NULL;
-                char *name_text = NULL, *description_text = NULL;
-
-                result = json_object_array_get_idx(results, (size_t)i);
-                type = json_object_get_type(result);
-
-                if (type != json_type_object) {
-                    continue;
+                if (!results[results_index]) {
+                    rc = RETURN_EPERM;
+                    goto cleanup;
                 }
 
-#ifdef linux
-                name = json_object_object_get(result, "name");
+                memset(results[results_index], 0, (size_t)string_length);
+                strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
+                results[results_index][string_length] = '\0';
 
-                if (!name) {
-                    continue;
-                }
-#else
-                if (json_object_object_get_ex(result, "name", &name) != TRUE) {
-                    continue;
-                }
-#endif
-
-                type = json_object_get_type(name);
-
-                if (type != json_type_string) {
-                    continue;
-                }
-
-#ifdef linux
-                description = json_object_object_get(result, "description");
-
-                if (!name) {
-                    continue;
-                }
-#else
-                if (json_object_object_get_ex(result, "description", &description) != TRUE) {
-                    continue;
-                }
-#endif
-
-                type = json_object_get_type(description);
-
-                if (type != json_type_string) {
-                    continue;
-                }
-
-                name_text = (char *)json_object_get_string(name);
-                description_text = (char *)json_object_get_string(description);
-
-                term_length = (int)strlen(term);
-                name_index = strcasestr(name_text, term) - name_text;
-                description_index = strcasestr(description_text, term) - description_text;
-
-                if (name_index >= 0) {
-                    for (k = 0, l = (unsigned int)strlen(name_text); k < l; k++) {
-                        if (k == (unsigned int)name_index) {
-                            printf("\e[1m");
-                        }
-
-                        printf("%c", name_text[k]);
-
-                        if (k + 1 == (unsigned int)(name_index + term_length)) {
-                            printf("\e[0m");
-                        }
-                    }
-                } else {
-                    printf("%s", name_text);
-                }
-
-                printf(" - ");
-
-                if (description_index >= 0) {
-                    for (k = 0, l = (unsigned int)strlen(description_text); k < l; k++) {
-                        if (k == (unsigned int)description_index) {
-                            printf("\e[1m");
-                        }
-
-                        printf("%c", description_text[k]);
-
-                        if (k + 1 == (unsigned int)(description_index + term_length)) {
-                            printf("\e[0m");
-                        }
-                    }
-                } else {
-                    printf("%s", description_text);
-                }
-
-                printf("\n");
+                results_index++;
             }
         }
+    }
+
+    i = 0;
+
+    while (i < results_index) {
+        int name_index = 0, description_index = 0, term_length = 0;
+        char *name_text = NULL, *description_text = NULL;
+
+        name_text = results[i++];
+        description_text = results[i++];
+
+        term_length = (int)strlen(term);
+        name_index = strcasestr(name_text, term) - name_text;
+        description_index = strcasestr(description_text, term) - description_text;
+
+        if (name_index >= 0) {
+            for (k = 0, l = (unsigned int)strlen(name_text); k < l; k++) {
+                if (k == (unsigned int)name_index) {
+                    printf("\e[1m");
+                }
+
+                printf("%c", name_text[k]);
+
+                if (k + 1 == (unsigned int)(name_index + term_length)) {
+                    printf("\e[0m");
+                }
+            }
+        } else {
+            printf("%s", name_text);
+        }
+
+        printf(" - ");
+
+        if (description_index >= 0) {
+            for (k = 0, l = (unsigned int)strlen(description_text); k < l; k++) {
+                if (k == (unsigned int)description_index) {
+                    printf("\e[1m");
+                }
+
+                printf("%c", description_text[k]);
+
+                if (k + 1 == (unsigned int)(description_index + term_length)) {
+                    printf("\e[0m");
+                }
+            }
+        } else {
+            printf("%s", description_text);
+        }
+
+        printf("\n");
     }
 
 cleanup:
     if (text) {
         free(text);
+    }
+
+    if (tokens) {
+        free(tokens);
+    }
+
+    for (i = 0, l = results_index; i < l; i++) {
+        if (results[i]) {
+            free(results[i]);
+        }
     }
 
     return rc;
