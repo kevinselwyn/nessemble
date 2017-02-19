@@ -310,8 +310,6 @@ unsigned int get_json_search(char *url, char *term) {
         goto cleanup;
     }
 
-    char line[5000];
-
     for (i = 0, l = token_count; i < l; i++) {
         if (tokens[i].key == TRUE) {
             string_length = tokens[i].end - tokens[i].start;
