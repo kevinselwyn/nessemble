@@ -47,6 +47,7 @@
 
 %token HIGH
 %token LOW
+%token BANK
 
 %token PSEUDO_ASCII
 %token PSEUDO_BYTE
@@ -118,6 +119,7 @@
 %type <sval> pseudo_segment
 
 %type <ival> number
+%type <ival> number_bank
 %type <ival> number_base
 %type <ival> number_defchr
 %type <ival> number_highlow
@@ -177,12 +179,17 @@ number_base
     | NUMBER_DEC     { $$ = $1; }
     | NUMBER_CHAR    { $$ = $1; }
     | NUMBER_ARG     { $$ = args[$1 - 1]; }
+    | number_bank    { $$ = $1; }
     | number_highlow { $$ = $1; }
     ;
 
 number_defchr
     : NUMBER_DEFCHR { $$ = $1; }
     | NUMBER_DEC    { $$ = $1; }
+    ;
+
+number_bank
+    : BANK OPEN_PAREN TEXT CLOSE_PAREN { if (pass == 2) { $$ = symbols[get_symbol($3)].bank; } else { if (get_symbol($3) != -1) { $$ = symbols[get_symbol($3)].bank; } else { $$ = 1; } } if (error_exists() == TRUE) { YYBAIL; } }
     ;
 
 number_highlow
