@@ -34,6 +34,11 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
         goto cleanup;
     }
 
+    if (protocol == PROTOCOL_HTTPS) {
+        fprintf(stderr, "HTTPS is not supported\n");
+        code = 500;
+    }
+
     host = strdup(url+(protocol == PROTOCOL_HTTP ? 7 : 8));
 
     for (i = 0, l = (unsigned int)strlen(host); i < l; i++) {
@@ -51,6 +56,8 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
 
     host[index] = '\0';
 
+    index = 0;
+
     for (i = 0, l = (unsigned int)strlen(host); i < l; i++) {
         if (host[i] == ':') {
             index = i;
@@ -65,7 +72,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
         host[index] = '\0';
     }
 
-    sprintf(message, "GET %s HTTP/1.0\r\nContent-Type: %s\r\n\r\n", uri, mime_type);
+    sprintf(message, "GET %s HTTP/1.1\r\nHost: %s\r\nContent-Type: %s\r\n\r\n", uri, host, mime_type);
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -139,6 +146,10 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     code_str[3] = '\0';
 
     code = (unsigned int)atoi(code_str);
+
+    if (code != 200) {
+        goto cleanup;
+    }
 
     content_type_index = strcasestr(response, "Content-Type") - response;
 
