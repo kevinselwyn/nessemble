@@ -1,0 +1,17 @@
+ANROM (Mapper 007)
+
+Company:             Nintendo, Rare, others
+Games:               34 in NesCartDB
+Complexity:          Discrete logic
+Boards:              AMROM, ANROM, AN1ROM, AOROM, others
+PRG ROM capacity:    256K
+PRG ROM window:      32K
+PRG RAM capacity:    None
+PRG RAM window:      n/a
+CHR capacity:        8K
+CHR window:          n/a
+Nametable mirroring: 1 page switchable
+Bus conflicts:       AMROM/AOROM only
+IRQ:                 No
+Audio:               No
+iNES mappers:        007
