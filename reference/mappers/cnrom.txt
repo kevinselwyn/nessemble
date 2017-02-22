@@ -1,0 +1,15 @@
+CNROM (Mapper 003)
+
+Company:             Nintendo, others
+Games:               104 in NesCartDB
+Boards:              CNROM "and similar"
+PRG ROM capacity:    16K or 32K
+PRG ROM window:      n/a
+PRG RAM capacity:    None
+CHR capacity:        32K (2M oversize version)
+CHR window:          8K
+Nametable mirroring: Fixed H or V
+Bus conflicts:       Yes(CNROM, some others)
+IRQ:                 No
+Audio:               One case
+iNES mappers:        003

@@ -1,0 +1,14 @@
+MHROM (Mapper 066)
+
+Company:             Nintendo, others
+Boards:              GNROM,MHROM
+PRG ROM capacity:    128KiB (512KiB oversize)
+PRG ROM window:      32KiB
+PRG RAM capacity:    None
+CHR capacity:        32KiB (128KiB oversize)
+CHR window:          8KiB
+Nametable mirroring: Fixed H or V, controlled by solder pads
+Bus conflicts:       Yes
+IRQ:                 No
+Audio:               No
+iNES mappers:        066
