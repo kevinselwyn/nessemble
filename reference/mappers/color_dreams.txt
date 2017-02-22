@@ -1,0 +1,14 @@
+Color Dreams (Mapper 011)
+
+Company:             Color Dreams/Wisdom Tree
+Boards:              COLORDREAMS
+PRG ROM capacity:    128K
+PRG ROM window:      32K
+PRG RAM capacity:    None
+CHR capacity:        32K
+CHR window:          8k
+Nametable mirroring: Fixed H or V, controlled by solder pads
+Bus conflicts:       Yes
+IRQ:                 No
+Audio:               No
+iNES mappers:        011

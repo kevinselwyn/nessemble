@@ -1,0 +1,17 @@
+MMC4 (Mapper 010)
+
+Company:             Nintendo
+Games:               3 in NesCartDB
+Complexity:          ASIC
+Boards:              FJROM, FKROM
+PRG ROM capacity:    256K
+PRG ROM window:      16K + 16K fixed
+PRG RAM capacity:    8K
+PRG RAM window:      8K
+CHR capacity:        128K
+CHR window:          4K + 4K (triggered)
+Nametable mirroring: H or V, switchable
+Bus conflicts:       No
+IRQ:                 No
+Audio:               No
+iNES mappers:        010

@@ -1,0 +1,14 @@
+AVE/C&E/TXC BOARD (Mapper 079)
+
+Company:             American Video Entertainment
+Boards:              NINA-03, NINA-06
+PRG ROM capacity:    64K
+PRG ROM window:      32K
+PRG RAM capacity:    None
+CHR capacity:        64K
+CHR window:          8k
+Nametable mirroring: Fixed H or V, controlled by solder pads
+Bus conflicts:       No
+IRQ:                 No
+Audio:               No
+iNES mappers:        079

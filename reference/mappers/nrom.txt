@@ -1,0 +1,15 @@
+NROM (Mapper 000)
+
+Company:             Nintendo, others
+Boards:              NROM, HROM*, RROM, RTROM, SROM, STROM
+PRG ROM capacity:    16K or 32K
+PRG ROM window:      n/a
+PRG RAM capacity:    2K or 4K in Family Basic only
+PRG RAM window:      n/a
+CHR capacity:        8K
+CHR window:          n/a
+Nametable mirroring: Fixed H or V, controlled by solder pads (*V only)
+Bus conflicts:       Yes
+IRQ:                 No
+Audio:               No
+iNES mappers:        000

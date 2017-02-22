@@ -1,0 +1,17 @@
+MMC2 (Mapper 009)
+
+Company:             Nintendo
+Games:               1 in NesCartDB
+Complexity:          ASIC
+Boards:              PNROM, PEEOROM
+PRG ROM capacity:    128K
+PRG ROM window:      8K + 24K fixed
+PRG RAM capacity:    8K (PC10 ver.)
+PRG RAM window:      Fixed
+CHR capacity:        128K
+CHR window:          4K + 4K (triggered)
+Nametable mirroring: H or V, switchable
+Bus conflicts:       No
+IRQ:                 No
+Audio:               No
+iNES mappers:        009
