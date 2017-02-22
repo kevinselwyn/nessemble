@@ -53,10 +53,7 @@ opcodes.c: opcodes.csv
 	$(CC) -O -c $< $(CC_FLAGS) -o $@
 
 %.h: %.txt
-	$(eval STR := _$(shell echo "$@" | awk '{print toupper($$0)}' | sed "s/[^[:alpha:][:digit:]]/_/g"))
-	printf "#ifndef %s\n#define %s\n\n" $(STR) $(STR) > $@
-	xxd -i $< >> $@
-	printf "\n#endif /* %s */\n" $(STR) >> $@
+	./utils/xxd.py -i $< >> $@
 
 reference.c: ${REFERENCE:txt=h} reference.h
 
