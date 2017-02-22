@@ -57,12 +57,14 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "install") == 0) {
             if (i + 1 < l) {
-                if (lib_install(argv[i+1]) != RETURN_OK) {
-                    rc = RETURN_EPERM;
-                    goto cleanup;
-                }
+                while (++argv && argv[i] != NULL) {
+                    if (lib_install(argv[i]) != RETURN_OK) {
+                        rc = RETURN_EPERM;
+                        goto cleanup;
+                    }
 
-                printf("Installed `%s`\n", argv[i+1]);
+                    printf("Installed `%s`\n", argv[i]);
+                }
             } else {
                 rc = usage(exec);
             }
@@ -72,12 +74,14 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "uninstall") == 0) {
             if (i + 1 < l) {
-                if (lib_uninstall(argv[i+1]) != RETURN_OK) {
-                    rc = RETURN_EPERM;
-                    goto cleanup;
-                }
+                while (++argv && argv[i] != NULL) {
+                    if (lib_uninstall(argv[i]) != RETURN_OK) {
+                        rc = RETURN_EPERM;
+                        goto cleanup;
+                    }
 
-                printf("Uninstalled `%s`\n", argv[i+1]);
+                    printf("Uninstalled `%s`\n", argv[i]);
+                }
             } else {
                 rc = usage(exec);
             }
