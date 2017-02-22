@@ -14,7 +14,6 @@ YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 
-OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
 
@@ -22,8 +21,9 @@ SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c downl
 HDRS         := $(NAME).h init.h license.h
 OBJS         := ${SRCS:c=o}
 
-REFERENCE    := reference/registers/ppuctrl.h reference/registers/ppumask.h reference/registers/ppustatus.h reference/registers/oamaddr.h reference/registers/oamdata.h reference/registers/ppuscroll.h reference/registers/ppuaddr.h reference/registers/ppudata.h
-REFERENCE    += reference/addressing/accumulator.h reference/addressing/implied.h reference/addressing/immediate.h reference/addressing/relative.h reference/addressing/zeropage.h reference/addressing/zeropage-x.h reference/addressing/zeropage-y.h reference/addressing/absolute.h reference/addressing/absolute-x.h reference/addressing/absolute-y.h reference/addressing/indirect.h reference/addressing/indirect-x.h reference/addressing/indirect-y.h
+REFERENCE    := $(shell ls reference/registers/*.txt | sed 's/.txt/.h/g')
+REFERENCE    += $(shell ls reference/addressing/*.txt | sed 's/.txt/.h/g')
+REFERENCE    += $(shell ls reference/mappers/*.txt | sed 's/.txt/.h/g')
 
 ifeq ($(ENV), debug)
 	CC_FLAGS += -g
@@ -53,7 +53,7 @@ opcodes.c: opcodes.csv
 	$(CC) -O -c $< $(CC_FLAGS) -o $@
 
 %.h: %.txt
-	$(eval STR := _$(shell echo "$@" | awk '{print toupper($$0)}' | sed "s/[^[:alpha:]]/_/g"))
+	$(eval STR := _$(shell echo "$@" | awk '{print toupper($$0)}' | sed "s/[^[:alpha:][:digit:]]/_/g"))
 	printf "#ifndef %s\n#define %s\n\n" $(STR) $(STR) > $@
 	xxd -i $< >> $@
 	printf "\n#endif /* %s */\n" $(STR) >> $@
@@ -89,4 +89,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) init.h license.h $(REFERENCE) check/suite_*
+	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h $(REFERENCE) check/suite_*

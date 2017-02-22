@@ -1,0 +1,16 @@
+UNROM (Mapper 002)
+
+Company:             Nintendo, others
+Games:               155 in NesCartDB
+Complexity:          Discrete logic
+Boards:              UNROM, UOROM
+PRG ROM capacity:    256K/4096K
+PRG ROM window:      16K + 16K fixed
+PRG RAM capacity:    None
+CHR capacity:        8K
+CHR window:          n/a
+Nametable mirroring: Fixed H or V, controlled by solder pads
+Bus conflicts:       Yes/No
+IRQ:                 No
+Audio:               No
+iNES mappers:        002, 094, 180

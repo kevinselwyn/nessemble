@@ -1,0 +1,16 @@
+NAMCOT 108 Rev. C (Mapper 206)
+
+Company:             Namco, Tengen, others
+Games:               39 in NesCartDB
+Complexity:          ASIC
+Boards:              34xx, DxROM
+PRG ROM capacity:    128K
+PRG ROM window:      8K + 8K + 16K fixed
+PRG RAM capacity:    None
+CHR capacity:        64K
+CHR window:          2Kx2 + 1Kx4
+Nametable mirroring: Fixed H/V, or 4
+Bus conflicts:       No
+IRQ:                 No
+Audio:               No
+iNES mappers:        206, 76, 88, 154, 95
