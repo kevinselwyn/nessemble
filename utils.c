@@ -218,7 +218,7 @@ int get_libpath(char **path, char *string) {
     fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
     strcpy(fullpath, pw->pw_dir);
-    strcat(fullpath, "/.nessemble/");
+    strcat(fullpath, "/." PROGRAM_NAME "/");
     strncat(fullpath, string + 1, string_length - 2);
 
     if (fullpath[path_length-1] == '>') {
