@@ -65,14 +65,7 @@ int simulate(char *input, char *recipe) {
     }
 
     // load rom
-    rom_data = (char *)malloc(sizeof(char) * 0x10000);
-
-    if (!rom_data) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    rom_data = (char *)nessemble_malloc(sizeof(char) * 0x10000);
 
     for (i = 0, l = 0x10000; i < l; i++) {
         set_byte(i, 0xFF);
@@ -134,11 +127,11 @@ int simulate(char *input, char *recipe) {
 
 cleanup:
     if (indata) {
-        free(indata);
+        nessemble_free(indata);
     }
 
     if (rom_data) {
-        free(rom_data);
+        nessemble_free(rom_data);
     }
 
     if (recipe_file) {
@@ -193,9 +186,7 @@ int repl(char *input) {
             fill_memory(&addrs, input+5);
             print_memory(addrs);
 
-            if (addrs) {
-                free(addrs);
-            }
+            nessemble_free(addrs);
         }
 
         goto cleanup;
@@ -346,12 +337,7 @@ void load_registers(char *input) {
         }
     }
 
-    text = (char *)malloc(sizeof(char) * 8);
-
-    if (!text) {
-        fatal("Memory error");
-        goto cleanup;
-    }
+    text = (char *)nessemble_malloc(sizeof(char) * 8);
 
     strcpy(text, "0");
 
@@ -382,9 +368,7 @@ void load_registers(char *input) {
     }
 
 cleanup:
-    if (text) {
-        free(text);
-    }
+    nessemble_free(text);
 }
 
 void load_flags(char *input) {
@@ -412,12 +396,7 @@ void load_flags(char *input) {
         }
     }
 
-    text = (char *)malloc(sizeof(char) * 13);
-
-    if (!text) {
-        fatal("Memory error");
-        goto cleanup;
-    }
+    text = (char *)nessemble_malloc(sizeof(char) * 13);
 
     strcpy(text, "0");
 
@@ -456,9 +435,7 @@ void load_flags(char *input) {
     }
 
 cleanup:
-    if (text) {
-        free(text);
-    }
+    nessemble_free(text);
 }
 
 void fill_memory(char **output, char *input) {
@@ -466,12 +443,7 @@ void fill_memory(char **output, char *input) {
     size_t length = 0;
     char *addrs = NULL;
 
-    addrs = malloc(sizeof(char) * 10);
-
-    if (!addrs) {
-        fatal("Memory error");
-        goto cleanup;
-    }
+    addrs = nessemble_malloc(sizeof(char) * 10);
 
     input[4] = '\0';
     addr_start = (unsigned int)hex2int(input);
@@ -734,11 +706,9 @@ void add_breakpoint(char *input) {
     breakpoints[breakpoint_index].address = address;
 
     if (length > 5) {
-        if (breakpoints[breakpoint_index].name) {
-            free(breakpoints[breakpoint_index].name);
-        }
+        nessemble_free(breakpoints[breakpoint_index].name);
 
-        breakpoints[breakpoint_index].name = (char *)malloc(sizeof(char) * (length - 4));
+        breakpoints[breakpoint_index].name = (char *)nessemble_malloc(sizeof(char) * (length - 4));
 
         if (breakpoints[breakpoint_index].name) {
             strcpy(breakpoints[breakpoint_index].name, input+5);

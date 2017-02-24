@@ -79,9 +79,7 @@ void pseudo_incwav(char *string) {
     }
 
 cleanup:
-    if (path) {
-        free(path);
-    }
+    nessemble_free(path);
 
     close_wav(&wav);
 

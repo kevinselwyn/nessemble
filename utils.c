@@ -5,6 +5,38 @@
 #include <pwd.h>
 #include "nessemble.h"
 
+void *nessemble_malloc(size_t size) {
+    void *mem = NULL;
+
+    mem = malloc(sizeof(char) * size);
+
+    if (!mem) {
+        fatal("Memory error");
+    }
+
+    memset(mem, 0, size);
+
+    return mem;
+}
+
+void nessemble_free(void *ptr) {
+    if (ptr) {
+        free(ptr);
+    }
+}
+
+char *nessemble_strdup(char *str) {
+    char *dup = NULL;
+    size_t length = 0;
+
+    length = strlen(str);
+    dup = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+
+    strcpy(dup, str);
+
+    return dup;
+}
+
 /**
  * Convert hex string to int
  * @param {char *} hex - Hexadecimal string (ex: $12)
@@ -149,14 +181,7 @@ int get_fullpath(char **path, char *string) {
 
     string_length = strlen(string);
     path_length = strlen(cwd_path) + string_length - 1;
-    fullpath = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!fullpath) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
     strcpy(fullpath, cwd_path);
     strcat(fullpath, "/");
@@ -190,14 +215,7 @@ int get_libpath(char **path, char *string) {
 
     string_length = strlen(string);
     path_length = strlen(pw->pw_dir) + 11 + string_length - 1;
-    fullpath = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!fullpath) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
     strcpy(fullpath, pw->pw_dir);
     strcat(fullpath, "/.nessemble/");
@@ -253,14 +271,7 @@ unsigned int load_file(char **data, char *filename) {
         goto cleanup;
     }
 
-    indata = (char *)malloc(sizeof(char) * (insize + 1));
-
-    if (!indata) {
-        fatal("Memory error");
-
-        insize = 0;
-        goto cleanup;
-    }
+    indata = (char *)nessemble_malloc(sizeof(char) * (insize + 1));
 
     if (fread(indata, 1, (size_t)insize, infile) != (size_t)insize) {
         fprintf(stderr, "Could not read %s\n", filename);

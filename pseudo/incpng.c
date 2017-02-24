@@ -64,9 +64,7 @@ void pseudo_incpng(char *string, int offset, int limit) {
     }
 
 cleanup:
-    if (path) {
-        free(path);
-    }
+    nessemble_free(path);
 
     free_png(png);
 }

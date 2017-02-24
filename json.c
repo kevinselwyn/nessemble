@@ -14,11 +14,7 @@ static unsigned int parse_json(struct json_token **json_tokens, char *json, unsi
     int token_index = 0, i = 0, l = 0;
     struct json_token *tokens = NULL;
 
-    tokens = (struct json_token *)malloc(sizeof(struct json_token) * (json_token_count));
-
-    if (!tokens) {
-        goto cleanup;
-    }
+    tokens = (struct json_token *)nessemble_malloc(sizeof(struct json_token) * (json_token_count));
 
     l = (int)strlen(json);
 
@@ -147,12 +143,7 @@ static unsigned int parse_text(char **output, char *text) {
 
     length = (unsigned int)strlen(text);
 
-    parsed = (char *)malloc(sizeof(char) * (length + 1));
-
-    if (!parsed) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    parsed = (char *)nessemble_malloc(sizeof(char) * (length + 1));
 
     for (i = 0, l = length; i < l; i++) {
         if (text[i] == '\\') {
@@ -225,12 +216,7 @@ unsigned int get_json(char **value, char *key, char *url) {
         if (tokens[i].key == TRUE) {
             if (strncmp(text+tokens[i].start, key, strlen(key)) == 0) {
                 string_length = tokens[i+1].end - tokens[i+1].start;
-                string_value = (char *)malloc(sizeof(char) * (string_length + 1));
-
-                if (!string_value) {
-                    rc = RETURN_EPERM;
-                    goto cleanup;
-                }
+                string_value = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
                 strncpy(string_value, text+tokens[i+1].start, (size_t)string_length);
                 string_value[string_length] = '\0';
@@ -256,13 +242,8 @@ unsigned int get_json(char **value, char *key, char *url) {
     }
 
 cleanup:
-    if (text) {
-        free(text);
-    }
-
-    if (tokens) {
-        free(tokens);
-    }
+    nessemble_free(text);
+    nessemble_free(tokens);
 
     return rc;
 }
@@ -314,12 +295,7 @@ unsigned int get_json_search(char *url, char *term) {
 
             if (string_length == 4 && strncmp(text+tokens[i].start, "name", 4) == 0) {
                 string_length = tokens[i+1].end - tokens[i+1].start;
-                results[results_index] = (char *)malloc(sizeof(char) * (string_length + 1));
-
-                if (!results[results_index]) {
-                    rc = RETURN_EPERM;
-                    goto cleanup;
-                }
+                results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
                 memset(results[results_index], 0, (size_t)string_length);
                 strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
@@ -332,12 +308,7 @@ unsigned int get_json_search(char *url, char *term) {
 
             if (string_length == 11 && strncmp(text+tokens[i].start, "description", 11) == 0) {
                 string_length = tokens[i+1].end - tokens[i+1].start;
-                results[results_index] = (char *)malloc(sizeof(char) * (string_length + 1));
-
-                if (!results[results_index]) {
-                    rc = RETURN_EPERM;
-                    goto cleanup;
-                }
+                results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
                 memset(results[results_index], 0, (size_t)string_length);
                 strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
@@ -399,18 +370,11 @@ unsigned int get_json_search(char *url, char *term) {
     }
 
 cleanup:
-    if (text) {
-        free(text);
-    }
-
-    if (tokens) {
-        free(tokens);
-    }
+    nessemble_free(text);
+    nessemble_free(tokens);
 
     for (i = 0, l = results_index; i < l; i++) {
-        if (results[i]) {
-            free(results[i]);
-        }
+        nessemble_free(results[i]);
     }
 
     return rc;

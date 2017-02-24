@@ -41,7 +41,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
         code = 500;
     }
 
-    host = strdup(url+(protocol == PROTOCOL_HTTP ? 7 : 8));
+    host = nessemble_strdup(url+(protocol == PROTOCOL_HTTP ? 7 : 8));
 
     for (i = 0, l = (unsigned int)strlen(host); i < l; i++) {
         if (host[i] == '/') {
@@ -51,9 +51,9 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     }
 
     if (index == 0) {
-        uri = strdup("");
+        uri = nessemble_strdup("");
     } else {
-        uri = strdup(host+index);
+        uri = nessemble_strdup(host+index);
     }
 
     host[index] = '\0';
@@ -199,12 +199,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
         goto cleanup;
     }
 
-    data = (char *)malloc(sizeof(char) * (length + 1));
-
-    if (!data) {
-        code = 500;
-        goto cleanup;
-    }
+    data = (char *)nessemble_malloc(sizeof(char) * (length + 1));
 
     memcpy(data, response+(response_index+4), (size_t)length);
     data[length] = '\0';
@@ -213,13 +208,8 @@ cleanup:
     *request = data;
     *request_length = length;
 
-    if (host) {
-        free(host);
-    }
-
-    if (uri) {
-        free(uri);
-    }
+    nessemble_free(host);
+    nessemble_free(uri);
 
     return code;
 }

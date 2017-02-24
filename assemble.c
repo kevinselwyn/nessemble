@@ -127,8 +127,8 @@ void write_byte(unsigned int byte) {
  * @param {unsigned int} type - Symbol type
  */
 void add_symbol(char *name, unsigned int value, unsigned int type) {
-    int symbol_id = -1,
-        bank = 0;
+    int symbol_id = -1;
+    unsigned int bank = 0;
 
     if (pass == 1) {
         if (if_active == TRUE) {
@@ -154,7 +154,7 @@ void add_symbol(char *name, unsigned int value, unsigned int type) {
             symbols[symbol_id].bank = bank;
             symbols[symbol_id].type = type;
         } else {
-            symbols[symbol_index].name = strdup(name);
+            symbols[symbol_index].name = nessemble_strdup(name);
             symbols[symbol_index].value = value;
             symbols[symbol_index].bank = bank;
             symbols[symbol_index++].type = type;

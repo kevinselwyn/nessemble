@@ -24,14 +24,10 @@ void free_png(struct png_data png) {
 	int y = 0;
 
 	for (y = 0; y < png.height; y++) {
-        if (png.row_pointers[y]) {
-            free(png.row_pointers[y]);
-        }
+        nessemble_free(png.row_pointers[y]);
 	}
 
-    if (png.row_pointers) {
-        free(png.row_pointers);
-    }
+    nessemble_free(png.row_pointers);
 
     png_destroy_read_struct(&png.png_ptr, &png.info_ptr, NULL);
 }
@@ -115,10 +111,10 @@ struct png_data read_png(char *filename) {
         goto cleanup;
 	}
 
-	png.row_pointers = (unsigned char **) malloc(sizeof(unsigned char *) * png.height);
+	png.row_pointers = (unsigned char **)nessemble_malloc(sizeof(unsigned char *) * png.height);
 
 	for (y = 0; y < png.height; y++) {
-		png.row_pointers[y] = (unsigned char *) malloc(png_get_rowbytes(png.png_ptr, png.info_ptr));
+		png.row_pointers[y] = (unsigned char *)nessemble_malloc(png_get_rowbytes(png.png_ptr, png.info_ptr));
 	}
 
 	png_read_image(png.png_ptr, png.row_pointers);

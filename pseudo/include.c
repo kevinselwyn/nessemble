@@ -21,7 +21,5 @@ void pseudo_include(char *string) {
     include_file_push(path);
 
 cleanup:
-    if (path) {
-        free(path);
-    }
+    nessemble_free(path);
 }

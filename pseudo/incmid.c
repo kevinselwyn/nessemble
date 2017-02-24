@@ -22,7 +22,5 @@ void pseudo_incmid(char *string) {
     }
 
 cleanup:
-    if (path) {
-        free(path);
-    }
+    nessemble_free(path);
 }

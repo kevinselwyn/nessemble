@@ -64,12 +64,7 @@ void error(const char *fmt, ...) {
     errors[error_index].stack = (unsigned int)include_stack_ptr;
     errors[error_index].line = yylineno;
 
-    errors[error_index].message = (char *)malloc(sizeof(char) * MAX_ERROR_LENGTH);
-
-    if (!errors[error_index].message) {
-        strcpy(errors[error_index++].message, "");
-        return;
-    }
+    errors[error_index].message = (char *)nessemble_malloc(sizeof(char) * MAX_ERROR_LENGTH);
 
     (void)vsnprintf(errors[error_index++].message, MAX_ERROR_LENGTH, fmt, argptr);
 
@@ -126,9 +121,7 @@ void error_free() {
     unsigned int i = 0, l = 0;
 
     for (i = 0, l = error_index; i < l; i++) {
-        if (errors[i].message) {
-            free(errors[i].message);
-        }
+        nessemble_free(errors[i].message);
     }
 }
 
