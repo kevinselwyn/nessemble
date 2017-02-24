@@ -12,3 +12,13 @@ Bus conflicts:       Yes
 IRQ:                 No
 Audio:               No
 iNES mappers:        066
+
+Games:
+
+Bio Senshi Dan
+Dragon Power
+Dragonball
+Family Block
+Gumshoe
+Super Mario Bros / Duck Hunt
+Youkai Club

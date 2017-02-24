@@ -15,3 +15,7 @@ Bus conflicts:       No
 IRQ:                 Yes
 Audio:               Yes
 iNES mappers:        024, 026
+
+Games:
+
+Akumajo Dracula 3

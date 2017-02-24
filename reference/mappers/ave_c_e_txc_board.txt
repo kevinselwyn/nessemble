@@ -12,3 +12,13 @@ Bus conflicts:       No
 IRQ:                 No
 Audio:               No
 iNES mappers:        079
+
+Games:
+
+Double Strike
+Dudes With Attitudes
+F15 City War
+Krazy Kreatures
+Trolls on Treasure Island
+Ultimate League Soccer
+Venice Beach Volleyball

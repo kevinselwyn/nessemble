@@ -15,3 +15,8 @@ Bus conflicts:       No
 IRQ:                 No
 Audio:               No
 iNES mappers:        010
+
+Games:
+
+Famicom Wars
+Fire Emblem

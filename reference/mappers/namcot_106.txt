@@ -15,3 +15,22 @@ Bus conflicts:       No
 IRQ:                 CPU cycle counter
 Audio:               Yes
 iNES mappers:        019
+
+Games:
+
+Dream Master
+Family Circuit '91
+Family Stadium '90
+Final Lap
+Hydlide 3
+Jovei Quest
+Mappy Kids
+Megami Tensei 2
+Mindseeker
+Namco Classic
+Rolling Thunder (J)
+Sangokusi Chugen no Hasya
+Splatterhouse
+Wagyan Land 2
+Wagyan Land 3
+Youkai Douchuki

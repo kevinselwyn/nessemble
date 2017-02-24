@@ -53,7 +53,7 @@ opcodes.c: opcodes.csv
 	$(CC) -O -c $< $(CC_FLAGS) -o $@
 
 %.h: %.txt
-	./utils/xxd.py -i $< >> $@
+	./utils/xxd.py -i $< > $@
 
 reference.c: ${REFERENCE:txt=h} reference.h
 

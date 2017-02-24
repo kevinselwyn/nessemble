@@ -15,3 +15,17 @@ Bus conflicts:       No
 IRQ:                 Yes
 Audio:               Yes
 iNES mappers:        005
+
+Games:
+
+Bandit Kings of Ancient China
+Castlevania 3
+Gemfire
+Gunsight
+Just Breed
+L'Emperuer
+Laser Invasion
+Metal Slader Glory
+Nobunaga's Ambition 2
+Romance of the Three Kingdoms 2
+Uncharted Waters

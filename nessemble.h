@@ -32,6 +32,11 @@
 #define RETURN_EPERM 1
 #define RETURN_USAGE 129
 
+/* MIMETYPES */
+#define MIMETYPE_JSON "application/json"
+#define MIMETYPE_ZIP  "application/tar+gzip"
+#define MIMETYPE_TEXT "text/plain"
+
 /* VARS */
 #define MAX_INCLUDE_DEPTH 10
 #define BANK_PRG          0x4000

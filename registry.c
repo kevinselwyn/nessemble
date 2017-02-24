@@ -431,20 +431,32 @@ cleanup:
 }
 
 unsigned int lib_info(char *lib) {
-    unsigned int rc = RETURN_OK;
-    char *lib_url = NULL, *info = NULL;
+    unsigned int rc = RETURN_OK, readme_length = 0, http_code = 0;
+    char *lib_url = NULL, *readme = NULL, *readme_url = NULL;
 
     if (get_lib_url(&lib_url, lib) != RETURN_OK) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (get_json(&info, "readme", lib_url) != RETURN_OK) {
+    if (get_json(&readme_url, "readme", lib_url) != RETURN_OK) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (pager_buffer(info) != RETURN_OK) {
+    http_code = get_request(&readme, &readme_length, readme_url, MIMETYPE_TEXT);
+
+    if (http_code != 200) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (readme_length == 0) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (pager_buffer(readme) != RETURN_OK) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
@@ -454,8 +466,12 @@ cleanup:
         free(lib_url);
     }
 
-    if (info) {
-        free(info);
+    if (readme_url) {
+        free(readme_url);
+    }
+
+    if (readme) {
+        free(readme);
     }
 
     return rc;
