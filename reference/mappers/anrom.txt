@@ -15,3 +15,49 @@ Bus conflicts:       AMROM/AOROM only
 IRQ:                 No
 Audio:               No
 iNES mappers:        007
+
+Games:
+
+Arch Rivals
+Battletoads
+Battletoads (PAL)
+Battletoads / Double Dragon
+Beetlejuice
+Cabal
+Caesar's Palace
+Captain Skyhawk
+Cobra Triangle
+Cobra Triangle (PAL)
+Commando
+Danny Sullivan's Indy Heat
+Densetsu no Kisi Elrond
+Digger T. Rock
+Double Dare
+Hollywood Squares
+Jeopardy
+Jeopardy 25th Anniversary Ed.
+Jeopardy Jr.
+Lion King, The
+Marble Madness
+Marble Madness (PAL)
+NARC
+Nightmare on Elm Street, A
+RC Pro-Am 2
+Solar Jetman
+Solar Jetman (PAL)
+Solstice
+Solstice (J)
+Super Off Road
+Time Lord
+Time Lord (PAL)
+Wheel of Fortune
+Wheel of Fortune Family Edition
+Wheel of Fortune W/ Vanna White
+Who Framed Roger Rabbit?
+Wizards and Warriors
+Wizards and Warriors (PAL)
+Wizards and Warriors 2
+Wizards and Warriors 3
+World Games
+WWF Wrestlemania
+WWF Wrestlemania Challenge

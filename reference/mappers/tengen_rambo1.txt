@@ -14,3 +14,8 @@ Bus conflicts:       No
 IRQ:                 Yes
 Audio:               No
 iNES mappers:        064, 158
+
+Games:
+
+Klax
+Shinobi

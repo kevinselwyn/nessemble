@@ -15,3 +15,9 @@ Bus conflicts:       No
 IRQ:                 No
 Audio:               No
 iNES mappers:        009
+
+Games:
+
+Mike Tyson's Punch-Out
+Punch-Out
+Punch-Out Shohinban

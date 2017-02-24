@@ -9,8 +9,6 @@ char *strstr(const char *haystack, const char *needle);
 #include <string.h>
 char *strcasestr(const char *haystack, const char *needle);
 
-#define MIMETYPE_JSON "application/json"
-
 static unsigned int parse_json(struct json_token **json_tokens, char *json, unsigned int json_token_count) {
     unsigned int key = 0, type = 0, start = 0, end = 0, size = 0;
     int token_index = 0, i = 0, l = 0;

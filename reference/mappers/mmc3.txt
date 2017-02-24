@@ -15,3 +15,443 @@ Bus conflicts:       No
 IRQ:                 Yes
 Audio:               No
 iNES mappers:        004, 118, 119
+
+Games:
+
+1999 Hore Mitakotoka Sekimatsu
+8 Eyes
+8 Eyes (J)
+Abarenbou Tengu
+Adventure Island 2
+Adventure Island 3
+Adventures of Lolo (J)
+Adventures of Lolo 2
+Adventures of Rocky & Bullwinkle
+Akira
+Akuma no Shoutaijou
+Alien 3
+Altered Beast
+America Oudan no Ultra Quiz
+Anpan Man no Hiragana Daisuki
+Asmikkun Land
+Astyanax
+Babel no Tou
+Bad Dudes
+Bakusyou Jinsei Gekijyou 3
+Bananan no Ouiji Daibouken
+Bart vs. the World
+Bartman Meets Radioactive Man
+Base Wars
+Baseball Stars 2
+Bases Loaded 3
+Bases Loaded 4
+Batman
+Batman (PAL)
+Batman Returns
+Bill Elliot's NASCAR Challenge
+Blue Marlin, The
+Blue Shadow
+Bo Jackson Baseball
+Bubble Bobble 2
+Bucky O' Hare
+Bucky O' Hare (J)
+Bucky O' Hare (PAL)
+Bugs Bunny's Birthday Blowout
+Burai Fighter
+Capcom Barcelona '92
+Captain America and the Avengers
+Captain Planet
+Captain Tsubasa 2
+Castlequest (J)
+Catts Nintouden Teyandey
+Caveman Ninja
+Chase HQ
+Chibi Marukochan Uki Uki Shopping
+Chiyo no Fuji
+Cliffhanger
+Code Name Viper
+Columbus Ougon no Yoake
+Conquest of the Crystal Palace
+Contra Force
+Cosmic Epsilon
+Crash N' The Boys
+Crisis Force [hacked]
+Crossfire
+Crystalis
+Cyberball
+Daikaijyuu Deburas
+Daiku no Gensan
+Dark Lord
+Days of Thunder
+Defenders of Dynatron City
+Deja Vu
+Dirty Harry
+Doki Doki Yuenchi
+Double Dragon 2
+Double Dragon 2 (J)
+Double Dragon 3
+Double Dragon 3 (J)
+Double Dragon 3 (PAL)
+Doublemoon Densetsu
+Downtown Nekketsu Jidaigekidayo
+Downtown Nekketsu Kousinkyoko
+Downtown Nekketsu Monogatari
+Dracula
+Dracula (PAL)
+Dragon Buster [hacked]
+Dragon Buster 2
+Dragon Slayer 4
+Dragon Spirit
+Dragon Strike
+Dragon Wars
+Earthbound
+Empire Strikes Back, The
+Erika to Satoru no Yume Bouken
+F1 Circus
+F1 Hero
+F1 Hero 2
+F117A Stealth Fighter
+Faibird
+Family Boxing
+Family Circuit
+Family Jockey
+Family Majyan
+Family Majyan 2
+Family Pinball
+Family Stadium
+Family Stadium '87
+Family Stadium '88
+Family Stadium '89
+Family Stadium '91
+Family Stadium '92
+Family Stadium '93
+Family Stadium '94
+Family Tennis
+FC Genjin
+Felix the Cat
+Final Fantasy 3
+Fire Emblem [hacked]
+Fire Emblem Gaiden [hacked]
+Fusigi no Umi no Nadia
+Fuzzical Fighter
+Galaxy 5000
+Ganbare Goemon 2 [hacked?]
+Gargoyle's Quest 2
+Garou Densetsu Special [hacked]
+Gauntlet
+Gauntlet 2
+Gauntlet 2 (PAL)
+Genpei Toumaden
+George Foreman's KO Boxing
+GI Joe
+GI Joe -  The Atlantis Factor
+God Slayer
+Gold Medal Challenge '92
+Golgo 13 - The Mafat Conspiracy
+Golgo 13 - The Riddle of Icarus
+Gremlins 2
+Gunnac
+Gunnac (J)
+Heavy Barrel
+Hiryuu no Ken 3
+Hissatu Sigotonin
+Home Alone
+Home Alone 2
+Home Run Nighter '90
+Hosi no Kirby
+Hunt For Red October, The
+Ike Ike Nekketsu Hockey
+Image Fight
+Immortal, The
+Incredible Crash Dummies, The
+Indiana Jones / Temple of Doom
+Infiltrator
+Isolated Warrior
+J League - King of Ace Strikers
+Jackie Chan
+Jackie Chan's Action Kung-Fu
+James Bond Jr.
+James Bond Jr. (PAL)
+Jarvas
+Jetsons, The
+Jikuuyuuden Debias
+Joe and Mac
+Joy Mecha Fight
+Jumpin' Kid
+Jungle Book, The
+Jurassic Park
+Kabuki Quantum Fighter
+Kage
+Kagerou Densetsu
+Kaijyu Monogatari [hacked]
+Kamen Rider SD
+Karnov
+Karnov (J)
+Kart Fighter
+Kawa no Nushi Tsuri
+Keiba Honmei
+Keru Naguru
+Kick Master
+Kickle Cubicle
+Kid Klown
+King Kong 2
+King of Kings (J - diff. game)
+King's Quest 5
+Kirby's Adventure
+Kiwi Kraze
+Klax (J)
+Konami Sport in Soul
+Krion Conquest, The
+Krusty's Fun House
+Krusty's Fun House (PAL)
+Kurogane Hirosi no Keiba Densetu
+Kyoto Hana no Missutu Satsujin Jiken
+Kyoto Sesupensu Misa Yamamura Satsujin Jiken
+Last Armageddon
+Last Ninja, The
+Legacy of the Wizard
+Legends of the Diamond
+Little Nemo The Dream Master
+Little Ninja Brothers
+Lone Ranger, The
+Low G Man
+Lupin 3rd Pandra Nolsan
+Mad Max
+Magical Doropie
+Magician
+Mappy Land
+Mappy Land (J)
+Mario is Missing
+Mario's Time Machine
+Masuzoe Youiti no Asamade
+Maten Douji
+Max Warrior
+McKids
+Mega Man 3
+Mega Man 4
+Mega Man 4 (PAL)
+Mega Man 5
+Mega Man 6
+Megami Tensei
+Meimom Takonishi Ouendan
+Mendel Palace
+Metal Max
+Metal Storm
+Metal Storm (J)
+Metro Cross
+Might and Magic
+Might and Magic (J)
+Mighty Final Fight
+Mighty Final Fight (J)
+Minelvation Saga
+Mission Impossible
+Mission Impossible (PAL)
+Mitsume ga Tooru
+Momotarou Densetsu Gaiden
+Monster In My Pocket
+Monster In My Pocket (PAL)
+Moon Crystal
+Mother
+Murder Club
+My Life, My Love
+Nekketsu Kakutou Densetsu
+Nekketsu Koukou Soccer
+NES Play Action Football
+New Zealand Story, The
+Nightshade
+Niji no Silkroad
+Ningen Heiki Dead Fox
+Ninja Gaiden 2
+Ninja Gaiden 3
+Ninja Ryukenden 2
+Ninja Ryukenden 3
+Nintendo World Cup
+Nintendo World Cup (PAL)
+Noah's Ark
+North and South
+Nyankies
+Otaku no Seiza
+Over Horizon
+Pachi Slot Adventure 2
+Pachi Slot Adventure 3
+Pachio Kun 3
+Pachio Kun 4
+Pachio Kun 5 (Pachio Kun Jr)
+Panic Restaurant
+Parallel World
+Parasol Henbei
+Parodius (PAL)
+Pool of Radiance
+Pool of Radiance (J)
+Power Blade
+Power Blade 2
+Power Punch 2
+Probotector 2
+Project Q
+Punisher, The
+Quest of Kai, The
+Quinty
+Rad Racer 2
+Radia Senki
+Rampage
+Rampart
+Rasarulsii no Child's Quest
+RBI Baseball
+RBI Baseball 2
+RBI Baseball 3
+Recca: Summer Carnival '92
+Redalerma 2
+Ren and Stimpy:  Buckaroo$
+Ring King
+River City Ransom
+Road Runner
+Robocco Wars
+Robocop
+Robocop Vs Terminator
+Rock N' Ball
+Rockin' Kats
+Rockman 3
+Rockman 4
+Rockman 5
+Rockman 6
+Roger Clemens MVP Baseball
+Rollergames
+Rolling Thunder
+Roundball
+RPG Life Game
+Sanma no Meitantei
+Sansa-Rana-Ga
+SD Gundam Gachapon Senshi 2
+SD Gundam Gachapon Senshi 3
+SD Gundam Gachapon Senshi 4
+SD Gundam Gachapon Senshi 5
+SD Hatori Daisakusen
+SD Hero Soukessen
+SD Sengoku Busyou Retsuden
+Seirei Densetsu Lickle
+Shadow Brain
+Shadow of the Ninja
+Shadowgate
+Shadowgate (J)
+Shadowgate (Swedish)
+Shaffle Fight
+Shancara
+Shatterhand
+Shonen Ashibe
+Side Pocket (J)
+Silva Saga
+Silver Surfer
+Sky Kid (J)
+Smash TV
+SMB / Tetris / Nint. World Cup
+Solomon no Kagi 2
+SoMari
+Spider-Man
+Stanley
+Star Trek
+Star Wars
+Star Wars (J - Namco version)
+Star Wars (PAL)
+Startropics
+Startropics 2
+Street Fighter 2010
+Sugoro Quest
+Super Chinese Land
+Super Chinese Land 2
+Super C
+Super Contra
+Super Donkey Kong 2
+Super Express Satsujin Jiken
+Super Mario Bros 2
+Super Mario Bros 2 (-1 PRG rev.)
+Super Mario Bros 3
+Super Mario Bros 3 (-1 PRG Rev.)
+Super Mario Bros 3 (J)
+Super Mario Bros 3 (PAL)
+Super Mario USA
+Super Robot Taisen 2
+Super Spike V'Ball
+Super Spike V'Ball/Nintendo World Cup
+Super Sprint
+Super Spy Hunter
+Super Turrican (PAL)
+Super Xevious
+Sword Master
+Sword Master (J)
+T&C Surf Design 2
+Takahasi Meijin no Boukenjima 2
+Takahasi Meijin no Boukenjima 3
+Takahasi Meijin no Boukenjima 4
+Takeshi no Sengoku Fuunji
+Tecmo NBA Basketball
+Tecmo Super Bowl
+Teenage Mutant Ninja Turtles 2
+Teenage Mutant Ninja Turtles 3
+Tenchi wo Kurau 2
+Terminator, The
+Terminator 2
+Terminator 2 (Beta Version)
+Terminator 2 (J)
+Tetrastar
+Tetris 2
+Tetris 2 (PAL)
+Tetris Flash
+Tetsuwan Atom
+Time Zone
+Tiny Toon Adventures
+Tiny Toon Adventures 2
+Tiny Toons Cartoon Workshop
+Titei Senkuu Bazoruda
+TM Network Live At Power Bowl
+Toki
+Tokyukyuu Seirei Solbrain
+Tom and Jerry
+Toobin'
+Top Gun - The Second Mission
+Totally Rad
+Toxic Crusaders
+Twin Cobra
+Ultimate Air Combat
+Ultimate Basketball
+Ultraman Club 2
+Ultraman Club 3
+Uninvited
+US Championship V'Ball
+Uturun Desu
+Valkyure no Bouken
+Vice - Project Doom
+Villgust Gaiden
+Vindicators
+Wacky Races
+Wagyan Land
+Wairi no Write Rockboard
+Wanpaku Kokkun no Gurume World
+Wario no Mori
+Wario's Woods
+Warwolf
+Wayne's World
+WCW Championship Wrestling
+Werewolf
+Western Kids
+Where in Time is Carmen Sandiego
+Where's Waldo?
+Whomp 'Em
+Widget
+Wizardry - Knight of Diamonds
+Wizardry - Knight of Diamonds(J)
+Wizardry - Legacy of Lyllgamyn
+Wolverine
+Wurm
+WWF King of the Ring
+WWF Steel Cage Challenge
+WWF Steel Cage Challenge (PAL)
+Y's 2
+Y's 3
+Yoshi no Cookie
+Yoshi's Cookie
+Young Indiana Jones Chronicles
+Yume Penguin Monogatari (Hacked)
+Zaiteku Satsujin Jiken
+Zen - Intergalactic Ninja
+Zoids 3
+Zombie Nation

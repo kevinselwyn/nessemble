@@ -15,3 +15,12 @@ Bus conflicts:       No
 IRQ:                 CPU cycle counter
 Audio:               5B only
 iNES mappers:        069
+
+Games:
+
+Batman (J)
+Batman - Return of the Joker
+Dodge Danpei 2
+Dynamite Batman 2
+Gimmick!
+Hebereke

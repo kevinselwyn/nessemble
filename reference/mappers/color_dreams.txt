@@ -12,3 +12,21 @@ Bus conflicts:       Yes
 IRQ:                 No
 Audio:               No
 iNES mappers:        011
+
+Games:
+
+Adventures of Captain Comic
+Baby Boomer
+Bible Adventures
+Castle of Deceit
+Crystal Mines 2
+Exodus
+King of Kings
+Master Chu and the Drunkard Hu
+Metal Fighter
+Mission Cobra
+Pesterminator
+Raid 2020
+Silent Assault
+Spiritual Warfare
+Tagin' Dragon
