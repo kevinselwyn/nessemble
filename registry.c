@@ -28,14 +28,7 @@ static unsigned int open_config(FILE **file, char **filename) {
     }
 
     length = strlen(pw->pw_dir) + 18;
-    config_path = (char *)malloc(sizeof(char) * length + 1);
-
-    if (!config_path) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    config_path = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
     sprintf(config_path, "%s/%s", pw->pw_dir, "." PROGRAM_NAME);
 
@@ -77,9 +70,7 @@ static void close_config(FILE *file, char *filename) {
         (void)fclose(file);
     }
 
-    if (filename) {
-        free(filename);
-    }
+    nessemble_free(filename);
 }
 
 static unsigned int get_config(char **result, char *item) {
@@ -100,7 +91,7 @@ static unsigned int get_config(char **result, char *item) {
 
         if (strcmp(key, item) == 0) {
             found = TRUE;
-            *result = strdup(val);
+            *result = nessemble_strdup(val);
         }
     }
 
@@ -197,23 +188,14 @@ static unsigned int get_lib_url(char **lib_url, char *lib) {
 
     length_registry = strlen(registry);
     length_lib = strlen(lib);
-    path = (char *)malloc(sizeof(char) * (length_registry + length_lib + 6) + 1);
-
-    if (!path) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    path = (char *)nessemble_malloc(sizeof(char) * (length_registry + length_lib + 6) + 1);
 
     sprintf(path, "%s/%s.json", registry, lib);
 
     *lib_url = path;
 
 cleanup:
-    if (registry) {
-        free(registry);
-    }
+    nessemble_free(registry);
 
     return rc;
 }
@@ -230,14 +212,7 @@ static unsigned int get_lib_search_url(char **lib_search_url, char *term) {
 
     length_registry = strlen(registry);
     length_lib = strlen(term);
-    path = (char *)malloc(sizeof(char) * (length_registry + length_lib + 8) + 1);
-
-    if (!path) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    path = (char *)nessemble_malloc(sizeof(char) * (length_registry + length_lib + 8) + 1);
 
     if (strcmp(term, ".") == 0) {
         sprintf(path, "%s/", registry);
@@ -248,9 +223,7 @@ static unsigned int get_lib_search_url(char **lib_search_url, char *term) {
     *lib_search_url = path;
 
 cleanup:
-    if (registry) {
-        free(registry);
-    }
+    nessemble_free(registry);
 
     return rc;
 }
@@ -269,14 +242,7 @@ static unsigned int get_lib_dir(char **lib_dir) {
     }
 
     length = strlen(pw->pw_dir) + 11;
-    dir = (char *)malloc(sizeof(char) * length + 1);
-
-    if (!dir) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    dir = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
     sprintf(dir, "%s/%s", pw->pw_dir, "." PROGRAM_NAME);
 
@@ -300,14 +266,7 @@ static unsigned int get_lib_path(char **lib_path, char *lib) {
     }
 
     length = strlen(pw->pw_dir) + strlen(lib) + 16;
-    path = (char *)malloc(sizeof(char) * length + 1);
-
-    if (!path) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    path = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
     sprintf(path, "%s/%s/%s.asm", pw->pw_dir, "." PROGRAM_NAME, lib);
 
@@ -332,9 +291,7 @@ unsigned int lib_is_installed(char *lib) {
     installed = TRUE;
 
 cleanup:
-    if (lib_path) {
-        free(lib_path);
-    }
+    nessemble_free(lib_path);
 
     return installed;
 }
@@ -378,24 +335,13 @@ unsigned int lib_install(char *lib) {
     };
 
 cleanup:
-    if (lib_url) {
-        free(lib_url);
-    }
-
-    if (lib_path) {
-        free(lib_path);
-    }
-
-    if (lib_zip_url) {
-        free(lib_zip_url);
-    }
-
-    if (lib_data) {
-        free(lib_data);
-    }
+    nessemble_free(lib_url);
+    nessemble_free(lib_path);
+    nessemble_free(lib_zip_url);
+    nessemble_free(lib_data);
 
     if (lib_file) {
-        fclose(lib_file);
+        (void)fclose(lib_file);
     }
 
     return rc;
@@ -423,9 +369,7 @@ unsigned int lib_uninstall(char *lib) {
     }
 
 cleanup:
-    if (lib_path) {
-        free(lib_path);
-    }
+    nessemble_free(lib_path);
 
     return rc;
 }
@@ -462,17 +406,9 @@ unsigned int lib_info(char *lib) {
     }
 
 cleanup:
-    if (lib_url) {
-        free(lib_url);
-    }
-
-    if (readme_url) {
-        free(readme_url);
-    }
-
-    if (readme) {
-        free(readme);
-    }
+    nessemble_free(lib_url);
+    nessemble_free(readme_url);
+    nessemble_free(readme);
 
     return rc;
 }
@@ -513,9 +449,7 @@ unsigned int lib_list() {
     (void)closedir(dp);
 
 cleanup:
-    if (lib_dir) {
-        free(lib_dir);
-    }
+    nessemble_free(lib_dir);
 
     return rc;
 }
@@ -535,9 +469,7 @@ unsigned int lib_search(char *term) {
     }
 
 cleanup:
-    if (lib_search_url) {
-        free(lib_search_url);
-    }
+    nessemble_free(lib_search_url);
 
     return rc;
 }

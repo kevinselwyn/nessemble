@@ -59,12 +59,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
         goto cleanup;
     }
 
-    unzipped = (char *)malloc(sizeof(char) * (entry_length + 1));
-
-    if (!unzipped) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    unzipped = (char *)nessemble_malloc(sizeof(char) * (entry_length + 1));
 
     memcpy(unzipped, buffer, entry_length + 1);
 
@@ -76,9 +71,7 @@ cleanup:
         archive_read_free(arch);
     }
 
-    if (content) {
-        free(content);
-    }
+    nessemble_free(content);
 
     return rc;
 }

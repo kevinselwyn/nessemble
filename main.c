@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
             if (i + 1 < l) {
-                outfilename = strdup(argv[i + 1]);
+                outfilename = nessemble_strdup(argv[i + 1]);
             } else {
                 rc = usage(exec);
                 goto cleanup;
@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "-l") == 0 || strcmp(argv[i], "--list") == 0) {
             if (i + 1 < l) {
-                list_out = strdup(argv[i+1]);
+                list_out = nessemble_strdup(argv[i+1]);
             } else {
                 rc = usage(exec);
                 goto cleanup;
@@ -224,7 +224,7 @@ int main(int argc, char *argv[]) {
             piped = TRUE;
             filename = "stdin";
             strcpy(cwd, "/tmp/nessemble-stdin");
-            cwd_path = strdup("/tmp/nessemble");
+            cwd_path = nessemble_strdup("/tmp/nessemble");
 
             if (tmp_save(stdin, cwd) == RETURN_EPERM) {
                 rc = usage(exec);
@@ -243,7 +243,7 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
-        cwd_path = strdup(cwd);
+        cwd_path = nessemble_strdup(cwd);
 
         if (!cwd_path) {
             fprintf(stderr, "Could not find path of %s\n", filename);
@@ -273,11 +273,9 @@ int main(int argc, char *argv[]) {
 
     // output
     if (!outfilename || strcmp(outfilename, "-") == 0) {
-        if (outfilename) {
-            free(outfilename);
-        }
+        nessemble_free(outfilename);
 
-        outfilename = strdup("/dev/stdout");
+        outfilename = nessemble_strdup("/dev/stdout");
     }
 
     if (!outfilename) {
@@ -346,14 +344,7 @@ int main(int argc, char *argv[]) {
     }
 
     // create rom
-    rom = (unsigned int *)malloc(sizeof(unsigned int) * offset_max);
-
-    if (!rom) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    rom = (unsigned int *)nessemble_malloc(sizeof(unsigned int) * offset_max);
 
     // set all bytes to 0xFF
     for (i = 0, l = (unsigned int)offset_max; i < l; i++) {
@@ -467,30 +458,14 @@ int main(int argc, char *argv[]) {
 
 cleanup:
     for (i = 0, l = symbol_index; i < l; i++) {
-        if (symbols[i].name) {
-            free(symbols[i].name);
-        }
+        nessemble_free(symbols[i].name);
     }
 
-    if (rom) {
-        free(rom);
-    }
-
-    if (outfilename) {
-        free(outfilename);
-    }
-
-    if (cwd_path) {
-        free(cwd_path);
-    }
-
-    if (list_out) {
-        free(list_out);
-    }
-
-    if (registry) {
-        free(registry);
-    }
+    nessemble_free(rom);
+    nessemble_free(outfilename);
+    nessemble_free(cwd_path);
+    nessemble_free(list_out);
+    nessemble_free(registry);
 
     if (file) {
         (void)fclose(file);

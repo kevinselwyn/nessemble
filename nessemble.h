@@ -493,6 +493,9 @@ float easeOutBounce(float t, float b, float c, float d);
 float easeInOutBounce(float t, float b, float c, float d);
 
 /* UTILS */
+void *nessemble_malloc(size_t size);
+void nessemble_free(void *ptr);
+char *nessemble_strdup(char *str);
 int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);

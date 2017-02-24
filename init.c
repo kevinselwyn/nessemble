@@ -18,14 +18,7 @@ unsigned int init() {
     char *buffer = NULL, *input_filename = NULL;
     FILE *output = NULL;
 
-    buffer = (char *)malloc(sizeof(char) * INIT_BUF_SIZE);
-
-    if (!buffer) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    buffer = (char *)nessemble_malloc(sizeof(char) * INIT_BUF_SIZE);
 
     while (get_line(&buffer, "Filename: ") != NULL) {
         length = strlen(buffer);
@@ -35,7 +28,7 @@ unsigned int init() {
         }
 
         buffer[length - 1] = '\0';
-        input_filename = strdup(buffer);
+        input_filename = nessemble_strdup(buffer);
         break;
     }
 
@@ -156,13 +149,8 @@ unsigned int init() {
     printf("Created `%s`\n", input_filename);
 
 cleanup:
-    if (input_filename) {
-        free(input_filename);
-    }
-
-    if (buffer) {
-        free(buffer);
-    }
+    nessemble_free(input_filename);
+    nessemble_free(buffer);
 
     if (output) {
         (void)fclose(output);

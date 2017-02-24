@@ -268,9 +268,7 @@ int disassemble(char *input, char *output) {
     }
 
 cleanup:
-    if (indata) {
-        free(indata);
-    }
+    nessemble_free(indata);
 
     if (outfile) {
         (void)fclose(outfile);

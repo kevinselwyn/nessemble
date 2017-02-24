@@ -21,7 +21,7 @@ static void list_sort() {
 
         for (i = 1, l = list_index; i < l; i++) {
             if (strcmp(list_strings[i], list_strings[i-1]) < 0) {
-                tmp = strdup(list_strings[i]);
+                tmp = nessemble_strdup(list_strings[i]);
 
                 strcpy(list_strings[i], list_strings[i-1]);
                 strcpy(list_strings[i-1], tmp);
@@ -69,7 +69,7 @@ unsigned int output_list(char *filename) {
         for (i = 0, l = symbol_index; i < l; i++) {
             if (symbols[i].type == SYMBOL_CONSTANT || symbols[i].type == SYMBOL_ENUM) {
                 if (!list_strings[list_index]) {
-                    list_strings[list_index] = (char *)malloc(sizeof(char) * MAX_LIST_LENGTH);
+                    list_strings[list_index] = (char *)nessemble_malloc(sizeof(char) * MAX_LIST_LENGTH);
                 }
 
                 length = strlen(symbols[i].name) + 7;
@@ -97,7 +97,7 @@ unsigned int output_list(char *filename) {
         for (i = 0, l = symbol_index; i < l; i++) {
             if (symbols[i].type == SYMBOL_LABEL || symbols[i].type == SYMBOL_RS) {
                 if (!list_strings[list_index]) {
-                    list_strings[list_index] = (char *)malloc(sizeof(char) * MAX_LIST_LENGTH);
+                    list_strings[list_index] = (char *)nessemble_malloc(sizeof(char) * MAX_LIST_LENGTH);
                 }
 
                 length = strlen(symbols[i].name) + 7;
@@ -115,9 +115,7 @@ unsigned int output_list(char *filename) {
 
 cleanup:
     for (i = 0, l = MAX_LIST_COUNT; i < l; i++) {
-        if (list_strings[i] != NULL) {
-            free(list_strings[i]);
-        }
+        nessemble_free(list_strings[i]);
     }
 
     if (listfile) {

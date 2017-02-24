@@ -93,7 +93,7 @@ int include_stack_ptr = 0;
 ".inestrn"                 { return PSEUDO_INESTRN; }
 ".lobytes"                 { return PSEUDO_LOBYTES; }
 ".macro"                   { return PSEUDO_MACRO; }
-\.macrodef.+               { BEGIN(macro); yylval.sval = strdup(yytext+10); return PSEUDO_MACRO_DEF; }
+\.macrodef.+               { BEGIN(macro); yylval.sval = nessemble_strdup(yytext+10); return PSEUDO_MACRO_DEF; }
 ".org"                     { return PSEUDO_ORG; }
 ".out"                     { return PSEUDO_OUT; }
 ".prg"                     { return PSEUDO_PRG; }
@@ -104,11 +104,11 @@ int include_stack_ptr = 0;
 ".word"                    { return PSEUDO_WORD; }
 
 <include>[ \t]*            { /* WHITESPACE */ }
-<include>[^ \t\n]+         { BEGIN(INITIAL); yylval.sval = strdup(yytext); return QUOT_STRING; }
+<include>[^ \t\n]+         { BEGIN(INITIAL); yylval.sval = nessemble_strdup(yytext); return QUOT_STRING; }
 
 <macro>\n                  { /* WHITESPACE */ }
 <macro>\.endm              { BEGIN(INITIAL); return PSEUDO_MACRO_END; }
-<macro>.+                  { yylval.sval = strdup(yytext); return PSEUDO_MACRO_APPEND; }
+<macro>.+                  { yylval.sval = nessemble_strdup(yytext); return PSEUDO_MACRO_APPEND; }
 
 \$[0-9a-fA-F]+             { yylval.ival = hex2int(yytext+1); return NUMBER_HEX; }
 [0-9a-fA-F]+h              { yylval.ival = hex2int(yytext); return NUMBER_HEX; }
@@ -122,12 +122,12 @@ int include_stack_ptr = 0;
 \\[0-9]+                   { yylval.ival = dec2int(yytext+1); return NUMBER_ARG; }
 [\.0-3]{8}                 { yylval.ival = defchr2int(yytext); return NUMBER_DEFCHR; }
 
-[\.\@a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = strdup(yytext); return TEXT; }
-\"[^"]*\"                  { yylval.sval = strdup(yytext); return QUOT_STRING; }
+[\.\@a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = nessemble_strdup(yytext); return TEXT; }
+\"[^"]*\"                  { yylval.sval = nessemble_strdup(yytext); return QUOT_STRING; }
 [a-zA-Z]                   { yylval.cval = toupper(yytext[0]); return CHAR_REG; }
 
 <<EOF>>                    { return FEOF; }
-.                          { if (strdup(yytext)[0] == 13) { return ENDL; } else { return UNKNOWN; } }
+.                          { if (nessemble_strdup(yytext)[0] == 13) { return ENDL; } else { return UNKNOWN; } }
 
 %%
 

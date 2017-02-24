@@ -227,11 +227,7 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
         break;
     }
 
-    events = (struct midi_event *)malloc(sizeof(struct midi_event) * event_count);
-
-    if (!events) {
-        goto cleanup;
-    }
+    events = (struct midi_event *)nessemble_malloc(sizeof(struct midi_event) * event_count);
 
     // pass 2
 
@@ -292,7 +288,7 @@ struct midi_data read_midi(char *filename) {
     fprintf(stderr, "Tracks:  %d\n", midi.track_count);
     fprintf(stderr, "Quarter: %d\n\n", midi.quarter);
 
-    midi.tracks = (struct midi_track *)malloc(sizeof(struct midi_track) * midi.track_count);
+    midi.tracks = (struct midi_track *)nessemble_malloc(sizeof(struct midi_track) * midi.track_count);
 
     for (track = 0; track < midi.track_count; track++) {
         if (fread(midi.tracks[track].header, 1, 4, file) != 4) {
@@ -311,12 +307,7 @@ struct midi_data read_midi(char *filename) {
             continue;
         }
 
-        midi.tracks[track].data = (char *)malloc(sizeof(char) * (midi.tracks[track].length + 1));
-
-        if (!midi.tracks[track].data) {
-            fprintf(stderr, "Memory error\n");
-            goto cleanup;
-        }
+        midi.tracks[track].data = (char *)nessemble_malloc(sizeof(char) * (midi.tracks[track].length + 1));
 
         if (fread(midi.tracks[track].data, 1, midi.tracks[track].length, file) != midi.tracks[track].length) {
             continue;

@@ -46,12 +46,7 @@ void pseudo_incrle(char *string) {
         goto cleanup;
     }
 
-    bin_data = (char *)malloc(sizeof(char) * (bin_length + 1));
-
-    if (!bin_data) {
-        fatal("Memory error");
-        goto cleanup;
-    }
+    bin_data = (char *)nessemble_malloc(sizeof(char) * (bin_length + 1));
 
     if (fread(bin_data, 1, bin_length, incrle) != bin_length) {
         yyerror("Could not read %s", string);
@@ -130,15 +125,10 @@ void pseudo_incrle(char *string) {
     write_byte(0xFF);
 
 cleanup:
+    nessemble_free(path);
+    nessemble_free(bin_data);
+
     if (incrle) {
         (void)fclose(incrle);
-    }
-
-    if (path) {
-        free(path);
-    }
-
-    if (bin_data) {
-        free(bin_data);
     }
 }
