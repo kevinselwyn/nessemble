@@ -3,6 +3,8 @@
 #include <string.h>
 #include "nessemble.h"
 
+unsigned int reassemblable = FALSE;
+
 static unsigned int disassemble_offset(unsigned int offset, unsigned int inesprg, unsigned int ineschr, unsigned int inestrn) {
     if (inesprg == 0 && ineschr == 0) {
         return offset;
@@ -40,79 +42,295 @@ static unsigned int disassemble_byte(char *indata, unsigned int index) {
 }
 
 static void disassemble_inesprg(FILE *outfile, unsigned int offset, unsigned int inesprg) {
-    fprintf(outfile, "%04X | XXXX | %02X       | .db $%02X ; .inesprg %u\n", offset, inesprg, inesprg, inesprg);
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | XXXX | %02X       | ", offset, inesprg);
+    }
+
+    fprintf(outfile, ".db $%02X ; .inesprg %u\n", inesprg, inesprg);
 }
 
 static void disassemble_ineschr(FILE *outfile, unsigned int offset, unsigned int ineschr) {
-    fprintf(outfile, "%04X | XXXX | %02X       | .db $%02X ; .ineschr %u\n", offset, ineschr, ineschr, ineschr);
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | XXXX | %02X       | ", offset, ineschr);
+    }
+
+    fprintf(outfile, ".db $%02X ; .ineschr %u\n", ineschr, ineschr);
 }
 
 static void disassemble_inesmir(FILE *outfile, unsigned int offset, unsigned int arg0) {
-    fprintf(outfile, "%04X | XXXX | %02X       | .db $%02X ; .inesmir %u\n", offset, arg0, arg0, arg0 & 0x01);
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | XXXX | %02X       | ", offset, arg0);
+    }
+
+    fprintf(outfile, ".db $%02X ; .inesmir %u\n", arg0, arg0 & 0x01);
 }
 
 static void disassemble_inesmap(FILE *outfile, unsigned int offset, unsigned int arg0, unsigned int arg1) {
-    fprintf(outfile, "%04X | XXXX | %02X       | .db $%02X ; .inesmap %u\n", offset, arg1, arg1, (arg0 >> 4) | (arg1 & 0xF0));
-}
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | XXXX | %02X       | ", offset, arg1);
+    }
 
-static void disassemble_db(FILE *outfile, unsigned int offset, unsigned int value) {
-    fprintf(outfile, "%04X | %02X       | .db $%02X\n", offset, value, value);
+    fprintf(outfile, ".db $%02X ; .inesmap %u\n", arg1, (arg0 >> 4) | (arg1 & 0xF0));
 }
 
 static void disassemble_db_header(FILE *outfile, unsigned int offset, unsigned int value) {
-    fprintf(outfile, "%04X | XXXX | %02X       | .db $%02X\n", offset, value, value);
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | XXXX | %02X       | ", offset, value);
+    }
+
+    fprintf(outfile, ".db $%02X\n", value);
+}
+
+static void disassemble_db(FILE *outfile, unsigned int offset, unsigned int value) {
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X       | ", offset, value);
+    }
+
+    fprintf(outfile, ".db $%02X", value);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_implied(FILE *outfile, unsigned int offset, unsigned int opcode_id) {
-    fprintf(outfile, "%04X | %02X       | %s\n", offset, opcode_id, opcodes[opcode_id].mnemonic);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X       | ", offset, opcode_id);
+    }
+
+    fprintf(outfile, "%s", opcodes[opcode_id].mnemonic);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_accumulator(FILE *outfile, unsigned int offset, unsigned int opcode_id) {
-    fprintf(outfile, "%04X | %02X       | %s A\n", offset, opcode_id, opcodes[opcode_id].mnemonic);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X       | ", offset, opcode_id);
+    }
+
+    fprintf(outfile, "%s A", opcodes[opcode_id].mnemonic);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_relative(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0, unsigned int value) {
-    fprintf(outfile, "%04X | %02X %02X    | %s $%04X\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, value);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X    | ", offset, opcode_id, arg0);
+    }
+
+    fprintf(outfile, "%s $%04X", opcodes[opcode_id].mnemonic, value);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_immediate(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0) {
-    fprintf(outfile, "%04X | %02X %02X    | %s #$%02X\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X    | ", offset, opcode_id, arg0);
+    }
+
+    fprintf(outfile, "%s #$%02X", opcodes[opcode_id].mnemonic, arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_zeropage(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0) {
-    fprintf(outfile, "%04X | %02X %02X    | %s <$%02X\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X    | ", offset, opcode_id, arg0);
+    }
+
+    fprintf(outfile, "%s <$%02X", opcodes[opcode_id].mnemonic, arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_zeropage_x(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0) {
-    fprintf(outfile, "%04X | %02X %02X    | %s <$%02X, X\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X    | ", offset, opcode_id, arg0);
+    }
+
+    fprintf(outfile, "%s <$%02X, X", opcodes[opcode_id].mnemonic, arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_zeropage_y(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0) {
-    fprintf(outfile, "%04X | %02X %02X    | %s <$%02X, Y\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X    | ", offset, opcode_id, arg0);
+    }
+
+    fprintf(outfile, "%s <$%02X, Y", opcodes[opcode_id].mnemonic, arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_absolute(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0, unsigned int arg1) {
-    fprintf(outfile, "%04X | %02X %02X %02X | %s $%04X\n", offset, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X %02X | ", offset, opcode_id, arg0, arg1);
+    }
+
+    fprintf(outfile, "%s $%04X", opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_absolute_x(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0, unsigned int arg1) {
-    fprintf(outfile, "%04X | %02X %02X %02X | %s $%04X, X\n", offset, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X %02X | ", offset, opcode_id, arg0, arg1);
+    }
+
+    fprintf(outfile, "%s $%04X, X", opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_absolute_y(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0, unsigned int arg1) {
-    fprintf(outfile, "%04X | %02X %02X %02X | %s $%04X, Y\n", offset, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X %02X | ", offset, opcode_id, arg0, arg1);
+    }
+
+    fprintf(outfile, "%s $%04X, Y", opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_indirect(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0, unsigned int arg1) {
-    fprintf(outfile, "%04X | %02X %02X %02X | %s [$%04X]\n", offset, opcode_id, arg0, arg1, opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X %02X | ", offset, opcode_id, arg0, arg1);
+    }
+
+    fprintf(outfile, "%s [$%04X]", opcodes[opcode_id].mnemonic, (arg1 << 8) | arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_indirect_x(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0) {
-    fprintf(outfile, "%04X | %02X %02X    | %s [$%02X, X]\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X    | ", offset, opcode_id, arg0);
+    }
+
+    fprintf(outfile, "%s [$%02X, X]", opcodes[opcode_id].mnemonic, arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 static void disassemble_indirect_y(FILE *outfile, unsigned int offset, unsigned int opcode_id, unsigned int arg0) {
-    fprintf(outfile, "%04X | %02X %02X    | %s [$%02X], Y\n", offset, opcode_id, arg0, opcodes[opcode_id].mnemonic, arg0);
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, "\n");
+    }
+
+    if (reassemblable == FALSE) {
+        fprintf(outfile, "%04X | %02X %02X    | ", offset, opcode_id, arg0);
+    }
+
+    fprintf(outfile, "%s [$%02X], Y", opcodes[opcode_id].mnemonic, arg0);
+
+    if (reassemblable == TRUE && (offset % 0x100) == 0) {
+        fprintf(outfile, " ; %04X", offset);
+    }
+
+    fprintf(outfile, "\n");
 }
 
 int disassemble(char *input, char *output) {
@@ -144,9 +362,26 @@ int disassemble(char *input, char *output) {
         goto cleanup;
     }
 
+    reassemblable = is_flag_nes();
+
     if (strncmp(indata, "NES", 3) == 0) {
-        fprintf(outfile, "0000 | XXXX | 4E 45 53 | .ascii \"NES\"\n");
-        fprintf(outfile, "0003 | XXXX | 1A       | .db $1A\n");
+        if (reassemblable == FALSE) {
+            fprintf(outfile, "0000 | XXXX | 4E 45 53 | ");
+        }
+
+        fprintf(outfile, ".ascii \"NES\"");
+
+        if (reassemblable  == TRUE) {
+            fprintf(outfile, " ; header");
+        }
+
+        fprintf(outfile, "\n");
+
+        if (reassemblable == FALSE) {
+            fprintf(outfile, "0003 | XXXX | 1A       | ");
+        }
+
+        fprintf(outfile, ".db $1A\n");
 
         inesprg = disassemble_byte(indata, 4);
         disassemble_inesprg(outfile, 4, inesprg);
@@ -172,11 +407,15 @@ int disassemble(char *input, char *output) {
 
     ines_header = (unsigned int)(inesprg != 0 || ineschr != 0 ? TRUE : FALSE);
 
+    if (ines_header == TRUE && reassemblable == TRUE) {
+        fprintf(outfile, "\n");
+    }
+
     for (l = (unsigned int)insize; i < l; i++) {
         opcode_id = disassemble_byte(indata, i);
         offset = disassemble_offset(i, inesprg, ineschr, inestrn);
 
-        if (ines_header == TRUE) {
+        if (ines_header == TRUE && reassemblable == FALSE) {
             fprintf(outfile, "%04X | ", i);
         }
 
