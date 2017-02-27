@@ -318,8 +318,8 @@ static void disassemble_indirect_y(FILE *outfile, unsigned int offset, unsigned 
 int disassemble(char *input, char *output, char *listname) {
     int rc = RETURN_OK;
     unsigned int i = 0, j = 0, k = 0, l = 0;
-    unsigned int opcode_id = 0, arg0 = 0, arg1 = 0;
-    unsigned int offset = 0, inesprg = 0, ineschr = 0, inestrn = FALSE, ines_header = FALSE;
+    unsigned int opcode_id = 0, arg0 = 0, arg1 = 0, symbol_found = FALSE, skip_symbol = FALSE;
+    unsigned int offset = 0, end_offset = 0, inesprg = 0, ineschr = 0, inestrn = FALSE, ines_header = FALSE;
     unsigned int insize = 0;
     char *indata = NULL;
     FILE *outfile = NULL;
@@ -408,9 +408,23 @@ int disassemble(char *input, char *output, char *listname) {
         }
 
         if (reassemblable == TRUE) {
+            symbol_found = FALSE;
+            skip_symbol = FALSE;
+
             for (k = 0, l = symbol_index; k < l; k++) {
                 if (symbols[k].type == SYMBOL_LABEL && symbols[k].value == offset) {
                     fprintf(outfile, "%s: ; %04X\n", symbols[k].name, symbols[k].value);
+                    symbol_found = TRUE;
+                }
+            }
+
+            if (symbol_found == FALSE) {
+                end_offset = disassemble_offset(i + opcodes[opcode_id].length, inesprg, ineschr, inestrn);
+
+                for (k = 0, l = symbol_index; k < l; k++) {
+                    if (symbols[k].value > offset && symbols[k].value < end_offset) {
+                        skip_symbol = TRUE;
+                    }
                 }
             }
         }
@@ -420,6 +434,11 @@ int disassemble(char *input, char *output, char *listname) {
                 disassemble_db(outfile, offset, opcode_id);
 
                 i += 1;
+                continue;
+            }
+
+            if (reassemblable == TRUE && skip_symbol == TRUE) {
+                disassemble_db(outfile, offset, opcode_id);
                 continue;
             }
 
