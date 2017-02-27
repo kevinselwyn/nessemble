@@ -350,6 +350,8 @@ int disassemble(char *input, char *output, char *listname) {
     if (strncmp(indata, "NES", 3) == 0) {
         if (reassemblable == FALSE) {
             fprintf(outfile, "0000 | XXXX | 4E 45 53 | ");
+        } else {
+            fprintf(outfile, "    ");
         }
 
         fprintf(outfile, ".ascii \"NES\"");
@@ -362,6 +364,8 @@ int disassemble(char *input, char *output, char *listname) {
 
         if (reassemblable == FALSE) {
             fprintf(outfile, "0003 | XXXX | 1A       | ");
+        } else {
+            fprintf(outfile, "    ");
         }
 
         fprintf(outfile, ".db $1A\n");
