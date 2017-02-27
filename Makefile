@@ -47,7 +47,7 @@ $(YACC_OUT).c: $(NAME).y
 	$(YACC) $(YACC_FLAGS) $<
 
 opcodes.c: opcodes.csv
-	./opcodes.sh $< $@
+	./utils/opcodes.py -i $< > $@
 
 %.o: %.c
 	$(CC) -O -c $< $(CC_FLAGS) -o $@
