@@ -13,7 +13,7 @@
 int main(int argc, char *argv[]) {
     int rc = RETURN_OK;
     unsigned int i = 0, l = 0, byte = 0, piped = FALSE;
-    char *exec = NULL, *filename = NULL, *outfilename = NULL, *list_out = NULL, *recipe = NULL, *registry = NULL;
+    char *exec = NULL, *filename = NULL, *outfilename = NULL, *listname = NULL, *recipe = NULL, *registry = NULL;
     FILE *file = NULL, *outfile = NULL;
 
     // exec
@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "-l") == 0 || strcmp(argv[i], "--list") == 0) {
             if (i + 1 < l) {
-                list_out = nessemble_strdup(argv[i+1]);
+                listname = nessemble_strdup(argv[i+1]);
             } else {
                 rc = usage(exec);
                 goto cleanup;
@@ -181,6 +181,11 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--disassemble") == 0) {
             flags |= FLAG_DISASSEMBLE;
+            continue;
+        }
+
+        if (strcmp(argv[i], "-R") == 0 || strcmp(argv[i], "--reassemble") == 0) {
+            flags |= FLAG_REASSEMBLE;
             continue;
         }
 
@@ -287,7 +292,7 @@ int main(int argc, char *argv[]) {
 
     // disassemble
     if (is_flag_disassemble() == TRUE) {
-        rc = disassemble(cwd, outfilename);
+        rc = disassemble(cwd, outfilename, listname);
         goto cleanup;
     }
 
@@ -452,7 +457,7 @@ int main(int argc, char *argv[]) {
     }
 
     // write list
-    if (output_list(list_out) != RETURN_OK) {
+    if (output_list(listname) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -464,7 +469,7 @@ cleanup:
     nessemble_free(rom);
     nessemble_free(outfilename);
     nessemble_free(cwd_path);
-    nessemble_free(list_out);
+    nessemble_free(listname);
     nessemble_free(registry);
 
     if (file) {

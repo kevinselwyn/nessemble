@@ -341,6 +341,14 @@ unsigned int is_flag_disassemble() {
 }
 
 /**
+ * Test if reassemble flag is active
+ * @return {unsigned int} True if flag active, false if not
+ */
+unsigned int is_flag_reassemble() {
+    return (unsigned int)((flags & FLAG_REASSEMBLE) != 0 ? TRUE : FALSE);
+}
+
+/**
  * Test if sumlate flag is active
  * @return {unsigned int} True if flag active, false if not
  */

@@ -60,8 +60,9 @@
 #define FLAG_UNDOCUMENTED 0x01
 #define FLAG_NES          0x02
 #define FLAG_DISASSEMBLE  0x04
-#define FLAG_SIMULATE     0x08
-#define FLAG_CHECK        0x10
+#define FLAG_REASSEMBLE   0x08
+#define FLAG_SIMULATE     0x10
+#define FLAG_CHECK        0x20
 
 /* SEGMENTS */
 #define SEGMENT_CHR 1
@@ -123,7 +124,7 @@
 #define FLG_CARRY     7
 
 /* USAGE */
-#define USAGE_FLAG_COUNT            11
+#define USAGE_FLAG_COUNT            12
 #define USAGE_COMMAND_COUNT         8
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
@@ -273,6 +274,7 @@ void include_string_pop();
 unsigned int is_flag_undocumented();
 unsigned int is_flag_nes();
 unsigned int is_flag_disassemble();
+unsigned int is_flag_reassemble();
 unsigned int is_flag_simulate();
 unsigned int is_flag_check();
 
@@ -358,7 +360,7 @@ void assemble_zeropage(char *mnemonic, unsigned int address);
 void assemble_zeropage_xy(char *mnemonic, unsigned int address, char reg);
 
 /* DISASSEMBLY UTILS */
-int disassemble(char *input, char *output);
+int disassemble(char *input, char *output, char *listname);
 
 /* SIMULATE UTILS */
 int simulate(char *input, char *recipe);
@@ -514,6 +516,7 @@ void tmp_delete(char *filename);
 
 /* LIST */
 unsigned int output_list(char *filename);
+unsigned int input_list(char *filename);
 
 /* ERRORS */
 void fatal(const char *fmt, ...);
