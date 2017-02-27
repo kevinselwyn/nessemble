@@ -10,6 +10,7 @@ static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-l, --list <listfile.txt>", "generate list of labels and constants" },
     { "-c, --check", "check syntax only" },
     { "-d, --disassemble", "disassemble infile" },
+    { "-R, --reassemble", "enable reassembly" },
     { "-s, --simulate <infile.rom>", "start the simulator" },
     { "-r, --recipe <recipe.txt>", "recipe file for the simulator" },
     { "-v, --version", "display program version"},

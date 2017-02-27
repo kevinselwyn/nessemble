@@ -72,7 +72,7 @@ unsigned int output_list(char *filename) {
                     list_strings[list_index] = (char *)nessemble_malloc(sizeof(char) * MAX_LIST_LENGTH);
                 }
 
-                length = strlen(symbols[i].name) + 7;
+                length = strlen(symbols[i].name) + 8;
 
                 (void)snprintf(list_strings[list_index++], length, "%04X = %s", symbols[i].value, symbols[i].name);
             }
@@ -100,7 +100,7 @@ unsigned int output_list(char *filename) {
                     list_strings[list_index] = (char *)nessemble_malloc(sizeof(char) * MAX_LIST_LENGTH);
                 }
 
-                length = strlen(symbols[i].name) + 7;
+                length = strlen(symbols[i].name) + 8;
 
                 (void)snprintf(list_strings[list_index++], length, "%04X = %s", symbols[i].value, symbols[i].name);
             }
@@ -118,6 +118,61 @@ cleanup:
         nessemble_free(list_strings[i]);
     }
 
+    if (listfile) {
+        (void)fclose(listfile);
+    }
+
+    return rc;
+}
+
+unsigned int input_list(char *filename) {
+    unsigned int rc = RETURN_OK, symbol_type = 0, symbol_val = 0;
+    char line[MAX_LIST_LENGTH], symbol_name[MAX_LIST_LENGTH];
+    FILE *listfile = NULL;
+
+    if (!filename) {
+        goto cleanup;
+    }
+
+    listfile = fopen(filename, "r");
+
+    if (!listfile) {
+        fprintf(stderr, "Could not open `%s`\n", filename);
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    symbol_index = 0;
+
+    while (fgets(line, MAX_LIST_LENGTH, listfile)) {
+        if (strcmp(line, CONSTANTS "\n") == 0) {
+            symbol_type = SYMBOL_CONSTANT;
+            continue;
+        }
+
+        if (strcmp(line, LABELS "\n") == 0) {
+            symbol_type = SYMBOL_LABEL;
+            continue;
+        }
+
+        if (symbol_type == SYMBOL_CONSTANT) {
+            symbols[symbol_index].type = SYMBOL_CONSTANT;
+        } else if (symbol_type == SYMBOL_LABEL) {
+            symbols[symbol_index].type = SYMBOL_LABEL;
+        }
+
+        if (symbol_type == SYMBOL_LABEL || symbol_type == SYMBOL_CONSTANT) {
+            if (sscanf(line, "%04X = %s\n", &symbol_val, symbol_name) != 2) {
+                continue;
+            }
+
+            symbols[symbol_index].name = nessemble_strdup(symbol_name);
+            symbols[symbol_index++].value = symbol_val;
+        }
+    }
+
+cleanup:
     if (listfile) {
         (void)fclose(listfile);
     }
