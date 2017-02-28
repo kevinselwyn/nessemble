@@ -25,7 +25,7 @@ struct breakpoint {
     char *name;
 };
 
-char *rom_data;
+static char rom_data[0x10000];
 
 static struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } };
 static unsigned int cycles = 0;
@@ -65,8 +65,6 @@ int simulate(char *input, char *recipe) {
     }
 
     // load rom
-    rom_data = (char *)nessemble_malloc(sizeof(char) * 0x10000);
-
     for (i = 0, l = 0x10000; i < l; i++) {
         set_byte(i, 0xFF);
     }
@@ -128,10 +126,6 @@ int simulate(char *input, char *recipe) {
 cleanup:
     if (indata) {
         nessemble_free(indata);
-    }
-
-    if (rom_data) {
-        nessemble_free(rom_data);
     }
 
     if (recipe_file) {
@@ -367,7 +361,6 @@ void load_registers(char *input) {
         }
     }
 
-cleanup:
     nessemble_free(text);
 }
 
@@ -434,7 +427,6 @@ void load_flags(char *input) {
         }
     }
 
-cleanup:
     nessemble_free(text);
 }
 
@@ -463,7 +455,6 @@ void fill_memory(char **output, char *input) {
         (void)snprintf(addrs, 10, "%04X:%04X", addr_start, addr_end);
     }
 
-cleanup:
     *output = addrs;
 }
 

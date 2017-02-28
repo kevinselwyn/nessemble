@@ -6,7 +6,7 @@
 
 char *notes[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
-static unsigned int parse_events(struct midi_track *track, unsigned int quarter) {
+static unsigned int parse_events(struct midi_track *track, unsigned int /*@unused@*/quarter) {
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, j = 0, k = 0, length = 0;
     unsigned int offset = 0, status = 0, tempo = 0, byte[10];
@@ -86,7 +86,7 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
                 tempo |= byte[4] << 8;
                 tempo |= byte[5];
 
-                fprintf(stderr, "  Tempo: %d\n", tempo);
+                fprintf(stderr, "  Tempo: %u\n", tempo);
 
                 event_count++;
                 i += 6;
@@ -97,19 +97,19 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
                 fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_SMPTE\n", byte[1]);
 
                 byte[3] = (unsigned int)data[i+3] & 0xFF;
-                fprintf(stderr, "  Hours:     %d\n", byte[3]);
+                fprintf(stderr, "  Hours:     %u\n", byte[3]);
 
                 byte[4] = (unsigned int)data[i+4] & 0xFF;
-                fprintf(stderr, "  Minutes:   %d\n", byte[4]);
+                fprintf(stderr, "  Minutes:   %u\n", byte[4]);
 
                 byte[5] = (unsigned int)data[i+5] & 0xFF;
-                fprintf(stderr, "  Seconds:   %d\n", byte[5]);
+                fprintf(stderr, "  Seconds:   %u\n", byte[5]);
 
                 byte[6] = (unsigned int)data[i+6] & 0xFF;
-                fprintf(stderr, "  Frames:    %d\n", byte[6]);
+                fprintf(stderr, "  Frames:    %u\n", byte[6]);
 
                 byte[7] = (unsigned int)data[i+7] & 0xFF;
-                fprintf(stderr, "  Subframes: %d\n", byte[7]);
+                fprintf(stderr, "  Subframes: %u\n", byte[7]);
 
                 event_count++;
                 i += 8;
@@ -120,16 +120,16 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
                 fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_TIME_SIGNATURE\n", byte[1]);
 
                 byte[3] = (unsigned int)data[i+3] & 0xFF;
-                fprintf(stderr, "  Numerator:   %d\n", byte[3]);
+                fprintf(stderr, "  Numerator:   %u\n", byte[3]);
 
                 byte[4] = (unsigned int)data[i+4] & 0xFF;
-                fprintf(stderr, "  Denominator: %d\n", byte[4]);
+                fprintf(stderr, "  Denominator: %u\n", byte[4]);
 
                 byte[5] = (unsigned int)data[i+5] & 0xFF;
-                fprintf(stderr, "  Clocks:      %d\n", byte[5]);
+                fprintf(stderr, "  Clocks:      %u\n", byte[5]);
 
                 byte[6] = (unsigned int)data[i+6] & 0xFF;
-                fprintf(stderr, "  32nds:       %d\n", byte[6]);
+                fprintf(stderr, "  32nds:       %u\n", byte[6]);
 
                 event_count++;
                 i += 7;
@@ -140,10 +140,10 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
                 fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_KEY_SIGNATURE\n", byte[1]);
 
                 byte[3] = (unsigned int)data[i+3] & 0xFF;
-                fprintf(stderr, "  Sharps/Flats: %d\n", byte[3]);
+                fprintf(stderr, "  Sharps/Flats: %u\n", byte[3]);
 
                 byte[4] = (unsigned int)data[i+4] & 0xFF;
-                fprintf(stderr, "  Minor:        %d\n", byte[4]);
+                fprintf(stderr, "  Minor:        %u\n", byte[4]);
 
                 event_count++;
                 i += 5;
@@ -167,9 +167,9 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
             byte[1] = (unsigned int)data[i+1] & 0xFF;
             byte[2] = (unsigned int)data[i+2] & 0xFF;
 
-            fprintf(stderr, "  Note Off Channel %d\n", status & 0x0F);
-            fprintf(stderr, "  Note Off Key %d\n", byte[1]);
-            fprintf(stderr, "  Note Off Velocity %d\n", byte[2]);
+            fprintf(stderr, "  Note Off Channel %u\n", status & 0x0F);
+            fprintf(stderr, "  Note Off Key %u\n", byte[1]);
+            fprintf(stderr, "  Note Off Velocity %u\n", byte[2]);
 
             event_count++;
             i += 3;
@@ -182,9 +182,9 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
             byte[1] = (unsigned int)data[i+1] & 0xFF;
             byte[2] = (unsigned int)data[i+2] & 0xFF;
 
-            fprintf(stderr, "  Note On Channel %d\n", status & 0x0F);
-            fprintf(stderr, "  Note On Key %d\n", byte[1]);
-            fprintf(stderr, "  Note On Velocity %d\n", byte[2]);
+            fprintf(stderr, "  Note On Channel %u\n", status & 0x0F);
+            fprintf(stderr, "  Note On Key %u\n", byte[1]);
+            fprintf(stderr, "  Note On Velocity %u\n", byte[2]);
 
             event_count++;
             i += 3;
@@ -197,9 +197,9 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
             byte[1] = (unsigned int)data[i+1] & 0xFF;
             byte[2] = (unsigned int)data[i+2] & 0xFF;
 
-            fprintf(stderr, "  Pressure Channel %d\n", status & 0x0F);
-            fprintf(stderr, "  Pressure Value 1 %d\n", byte[1]);
-            fprintf(stderr, "  Pressure Value 2 %d\n", byte[2]);
+            fprintf(stderr, "  Pressure Channel %u\n", status & 0x0F);
+            fprintf(stderr, "  Pressure Value 1 %u\n", byte[1]);
+            fprintf(stderr, "  Pressure Value 2 %u\n", byte[2]);
 
             event_count++;
             i += 2;
@@ -211,8 +211,8 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
 
             byte[1] = (unsigned int)data[i+1] & 0xFF;
 
-            fprintf(stderr, "  Instrument Channel %d\n", status & 0x0F);
-            fprintf(stderr, "  Instrument Number %d\n", byte[1]);
+            fprintf(stderr, "  Instrument Channel %u\n", status & 0x0F);
+            fprintf(stderr, "  Instrument Number %u\n", byte[1]);
 
             event_count++;
             i += 2;
@@ -231,7 +231,6 @@ static unsigned int parse_events(struct midi_track *track, unsigned int quarter)
 
     // pass 2
 
-cleanup:
     track->events = events;
     track->event_count = event_count;
 
@@ -242,7 +241,7 @@ struct midi_data read_midi(char *filename) {
     unsigned int track = 0;
     size_t length = 0;
 	FILE *file = NULL;
-	struct midi_data midi = { { }, 0, 0, 0, 0, NULL };
+	struct midi_data midi;
 
 	file = fopen(filename, "rb");
 
@@ -309,7 +308,7 @@ struct midi_data read_midi(char *filename) {
 
         midi.tracks[track].data = (char *)nessemble_malloc(sizeof(char) * (midi.tracks[track].length + 1));
 
-        if (fread(midi.tracks[track].data, 1, midi.tracks[track].length, file) != midi.tracks[track].length) {
+        if (fread(midi.tracks[track].data, 1, (size_t)midi.tracks[track].length, file) != midi.tracks[track].length) {
             continue;
         }
 
