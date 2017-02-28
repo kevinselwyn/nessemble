@@ -666,8 +666,6 @@ int disassemble(char *input, char *output, char *listname) {
         goto cleanup;
     }
 
-    fprintf(stderr, "%d\n", isatty(fileno(outfile)));
-
     chr_filename = (char *)nessemble_malloc(sizeof(char) * (strlen(output) + 11));
 
     for (i = 0, l = ineschr; i < l; i++) {
