@@ -36,5 +36,5 @@ void pseudo_incpal(char *string) {
 cleanup:
     nessemble_free(path);
 
-    free_png(png);
+    free_png_read(png);
 }

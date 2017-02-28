@@ -21,110 +21,225 @@ static int colors_full[COLOR_COUNT_FULL] = {
 };
 
 void free_png(struct png_data png) {
-	int y = 0;
+    int y = 0;
 
-	for (y = 0; y < png.height; y++) {
+    for (y = 0; y < png.height; y++) {
         nessemble_free(png.row_pointers[y]);
-	}
+    }
 
     nessemble_free(png.row_pointers);
+}
 
+void free_png_read(struct png_data png) {
+    free_png(png);
     png_destroy_read_struct(&png.png_ptr, &png.info_ptr, NULL);
 }
 
+void free_png_write(struct png_data png) {
+    free_png(png);
+    png_destroy_write_struct(&png.png_ptr, &png.info_ptr);
+}
+
 int png_color_mode(int color_type) {
-	int color_mode = 0;
+    int color_mode = 0;
 
-	switch (color_type) {
-	case PNG_COLOR_TYPE_GRAY:
-		color_mode = 1;
-		break;
-	default:
-		color_mode = 3;
-	}
+    switch (color_type) {
+    case PNG_COLOR_TYPE_GRAY:
+        color_mode = 1;
+        break;
+    default:
+        color_mode = 3;
+    }
 
-	return color_mode;
+    return color_mode;
 }
 
 struct png_data read_png(char *filename) {
     int y = 0;
     size_t length = 0;
-	FILE *file = NULL;
-	struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
+    FILE *file = NULL;
+    struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
 
-	file = fopen(filename, "rb");
+    file = fopen(filename, "rb");
 
     length = strlen(cwd_path) + 1;
 
-	if (!file) {
-		error("Could not open `%s`", filename+length);
+    if (!file) {
+        error("Could not open `%s`", filename+length);
         goto cleanup;
-	}
+    }
 
-	if (fread(png.header, 1, 8, file) != 8) {
-		error("Could not read `%s`", filename+length);
+    if (fread(png.header, 1, 8, file) != 8) {
+        error("Could not read `%s`", filename+length);
         goto cleanup;
-	}
+    }
 
-	if (png_sig_cmp((unsigned char *)png.header, 0, 8)) {
-		error("`%s` is not a PNG", filename+length);
+    if (png_sig_cmp((unsigned char *)png.header, 0, 8)) {
+        error("`%s` is not a PNG", filename+length);
         goto cleanup;
-	}
+    }
 
-	png.png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png.png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
-	if (!png.png_ptr) {
-		yyerror("Could not parse PNG");
+    if (!png.png_ptr) {
+        yyerror("Could not parse PNG");
         goto cleanup;
-	}
+    }
 
-	png.info_ptr = png_create_info_struct(png.png_ptr);
+    png.info_ptr = png_create_info_struct(png.png_ptr);
 
-	if (!png.info_ptr) {
-		yyerror("Could not parse PNG");
+    if (!png.info_ptr) {
+        yyerror("Could not parse PNG");
         goto cleanup;
-	}
+    }
 
-	if (setjmp(png_jmpbuf(png.png_ptr))) {
-		yyerror("Could not parse PNG");
+    if (setjmp(png_jmpbuf(png.png_ptr))) {
+        yyerror("Could not parse PNG");
         goto cleanup;
-	}
+    }
 
-	png_init_io(png.png_ptr, file);
-	png_set_sig_bytes(png.png_ptr, 8);
-	png_read_info(png.png_ptr, png.info_ptr);
+    png_init_io(png.png_ptr, file);
+    png_set_sig_bytes(png.png_ptr, 8);
+    png_read_info(png.png_ptr, png.info_ptr);
 
-	png.width = png_get_image_width(png.png_ptr, png.info_ptr);
-	png.height = png_get_image_height(png.png_ptr, png.info_ptr);
-	png.color_type = png_get_color_type(png.png_ptr, png.info_ptr);
-	png.bit_depth = png_get_bit_depth(png.png_ptr, png.info_ptr);
+    png.width = png_get_image_width(png.png_ptr, png.info_ptr);
+    png.height = png_get_image_height(png.png_ptr, png.info_ptr);
+    png.color_type = png_get_color_type(png.png_ptr, png.info_ptr);
+    png.bit_depth = png_get_bit_depth(png.png_ptr, png.info_ptr);
 
     if (png.bit_depth != 8) {
         yyerror("Image bit depth must be 8");
         goto cleanup;
     }
 
-	png_read_update_info(png.png_ptr, png.info_ptr);
+    png_read_update_info(png.png_ptr, png.info_ptr);
 
-	if (setjmp(png_jmpbuf(png.png_ptr))) {
-		yyerror("Could not read PNG");
+    if (setjmp(png_jmpbuf(png.png_ptr))) {
+        yyerror("Could not read PNG");
         goto cleanup;
-	}
+    }
 
-	png.row_pointers = (unsigned char **)nessemble_malloc(sizeof(unsigned char *) * png.height);
+    png.row_pointers = (unsigned char **)nessemble_malloc(sizeof(unsigned char *) * png.height);
 
-	for (y = 0; y < png.height; y++) {
-		png.row_pointers[y] = (unsigned char *)nessemble_malloc(png_get_rowbytes(png.png_ptr, png.info_ptr));
-	}
+    for (y = 0; y < png.height; y++) {
+        png.row_pointers[y] = (unsigned char *)nessemble_malloc(png_get_rowbytes(png.png_ptr, png.info_ptr));
+    }
 
-	png_read_image(png.png_ptr, png.row_pointers);
+    png_read_image(png.png_ptr, png.row_pointers);
 
 cleanup:
     if (file) {
         fclose(file);
     }
 
-	return png;
+    return png;
+}
+
+unsigned int write_png(unsigned int *pixels, unsigned int width, unsigned int height, char *filename) {
+    int color_mode = 0;
+    unsigned int rc = RETURN_OK, pixel = 0;
+    unsigned int i = 0, l = 0, x = 0, y = 0;
+    FILE *output = NULL;
+    struct png_data png;
+
+    output = fopen(filename, "wb");
+
+    if (!output) {
+        fprintf(stderr, "Could not open %s for writing\n", filename);
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    png.width = width;
+    png.height = height;
+    png.bit_depth = 8;
+    png.color_type = 2;
+
+    png.png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+    if (!png.png_ptr) {
+        fprintf(stderr, "png_create_write_struct failed\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    png.info_ptr = png_create_info_struct(png.png_ptr);
+
+    if (!png.info_ptr) {
+        fprintf(stderr, "png_create_info_struct failed\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (setjmp(png_jmpbuf(png.png_ptr))) {
+        fprintf(stderr, "Error initializing write\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    png_init_io(png.png_ptr, output);
+
+    if (setjmp(png_jmpbuf(png.png_ptr))) {
+        fprintf(stderr, "Error writing header\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    png_set_IHDR(png.png_ptr, png.info_ptr, png.width, png.height, png.bit_depth, png.color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+    png_write_info(png.png_ptr, png.info_ptr);
+
+    if (setjmp(png_jmpbuf(png.png_ptr))) {
+        fprintf(stderr, "Error writing bytes\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    color_mode = png_color_mode(png.color_type);
+
+    png.row_pointers = (unsigned char **)nessemble_malloc(sizeof(unsigned char *) * height);
+
+    for (y = 0; y < height; y++) {
+        png.row_pointers[y] = (unsigned char *)nessemble_malloc(png_get_rowbytes(png.png_ptr, png.info_ptr));
+    }
+
+    for (y = 0; y < height; y++) {
+        png_byte *row = png.row_pointers[y];
+
+        for (x = 0; x < width; x++) {
+            png_byte *rgb = &(row[x * color_mode]);
+            pixel = pixels[x + (y * width)] & 0x03;
+
+            for (i = 0, l = color_mode; i < l; i++) {
+                rgb[i] = colors_1bps[pixel];
+            }
+        }
+    }
+
+    png_write_image(png.png_ptr, png.row_pointers);
+
+    if (setjmp(png_jmpbuf(png.png_ptr))) {
+        fprintf(stderr, "Error ending write\n");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    png_write_end(png.png_ptr, NULL);
+
+cleanup:
+    if (output) {
+        fclose(output);
+    }
+
+    free_png_write(png);
+
+    return rc;
 }
 
 int get_color(unsigned char *rgb, int color_mode) {
