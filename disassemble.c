@@ -1,7 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "nessemble.h"
+#include "png.h"
+
+#define _GNU_SOURCE
+#include <stdlib.h>
+int fileno(FILE *file);
 
 static unsigned int reassemblable = FALSE;
 
@@ -315,13 +321,48 @@ static void disassemble_indirect_y(FILE *outfile, unsigned int offset, unsigned 
     fprintf(outfile, "\n");
 }
 
+static unsigned int disassemble_chr(char *data, unsigned int length, char *filename) {
+    unsigned int rc = RETURN_OK;
+    unsigned int x = 0, y = 0, byte1 = 0, byte2 = 0, bit1 = 0, bit2 = 0, pixel = 0;
+    unsigned int i = 0, j = 0, k = 0, l = 0, m = 0, n = 0;
+    unsigned int pixels[128 * 256];
+
+    for (i = 0, j = length; i < j; i += 0x10) {
+        for (k = 0, l = 0x08; k < l; k++) {
+            byte1 = data[i+k];
+            byte2 = data[i+k+0x08];
+
+            for (m = 0, n = 8; m < n; m++) {
+                bit1 = (byte1 >> (7 - m)) & 1;
+                bit2 = (byte2 >> (7 - m)) & 1;
+                pixel = bit1 | (bit2 << 1);
+
+                pixels[((x * 8) + m) + (((y * 8) + k) * 128)] = pixel;
+            }
+        }
+
+        if (++x * 8 >= 128) {
+            x = 0;
+            y++;
+        }
+    }
+
+    if (write_png(pixels, 128, 256, filename) != RETURN_OK) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+cleanup:
+    return rc;
+}
+
 int disassemble(char *input, char *output, char *listname) {
     int rc = RETURN_OK;
     unsigned int i = 0, j = 0, k = 0, l = 0;
     unsigned int opcode_id = 0, arg0 = 0, arg1 = 0, symbol_found = FALSE, skip_symbol = FALSE;
     unsigned int offset = 0, end_offset = 0, inesprg = 0, ineschr = 0, inestrn = FALSE, ines_header = FALSE;
     unsigned int insize = 0;
-    char *indata = NULL;
+    char *indata = NULL, *chr_filename = NULL;
     FILE *outfile = NULL;
 
     insize = load_file(&indata, input);
@@ -403,7 +444,7 @@ int disassemble(char *input, char *output, char *listname) {
         goto cleanup;
     }
 
-    for (j = (unsigned int)insize; i < j; i++) {
+    for (j = (unsigned int)insize - (ineschr * BANK_CHR); i < j; i++) {
         opcode_id = disassemble_byte(indata, i);
         offset = disassemble_offset(i, inesprg, ineschr, inestrn);
 
@@ -525,8 +566,25 @@ int disassemble(char *input, char *output, char *listname) {
         }
     }
 
+    // output chr
+    if (isatty(fileno(outfile)) == 1) {
+        goto cleanup;
+    }
+
+    chr_filename = (char *)nessemble_malloc(sizeof(char) * (strlen(output) + 11));
+
+    for (i = 0, l = ineschr; i < l; i++) {
+        sprintf(chr_filename, "%s-chr%d.png", output, i);
+
+        if (disassemble_chr(indata+((insize - (ineschr * BANK_CHR)) + (i * BANK_CHR)), BANK_CHR, chr_filename) != RETURN_OK) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+    }
+
 cleanup:
     nessemble_free(indata);
+    nessemble_free(chr_filename);
 
     if (outfile) {
         (void)fclose(outfile);
