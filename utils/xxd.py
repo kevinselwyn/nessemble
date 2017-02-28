@@ -13,32 +13,17 @@ def xxd(infile):
     slug = re.sub('[^a-zA-Z0-9]', '_', infile)
     guard = '_%s' % (slug.replace('_txt', '_h').upper())
     length = 0
-    line = ''
 
     output.append('#ifndef %s' % (guard))
     output.append('#define %s\n' % (guard))
-    output.append('unsigned char %s[] = {' % (slug))
 
     with open(infile, 'r') as f:
         data = f.read()
 
+    output.append('unsigned char %s[] = "%s";' % (slug, repr(data).strip('"\'').replace('"', '\\"')))
+
     length = len(data)
 
-    for i in range(0, length, 12):
-        line = '  '
-
-        for j in range(0, 12):
-            if i + j == length:
-                break
-
-            line += '0x%02x' % (ord(data[i+j]))
-
-            if (i + j) + 1 != length:
-                line += ', '
-
-        output.append(line)
-
-    output.append('};')
     output.append('unsigned int %s_len = %d;\n' % (slug, length))
     output.append('#endif /* %s */' % (guard))
 

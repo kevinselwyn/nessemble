@@ -31,8 +31,9 @@ def opcodes(infile):
 
         if len(meta_arr):
             meta_str = ' | '.join(meta_arr)
+            meta_str = '(' + meta_str + ')'
 
-        output.append('    { %-06s %-17s %s, %s, %s, %-34s &do_%s }' % (mnemonic + ',', mode + ',', opcode, length, timing, meta_str + ',', func))
+        output.append('    { %-06s %-17s %s, %s, %s, (unsigned int)%-36s &do_%s }' % (mnemonic + ',', mode + ',', opcode, length, timing, meta_str + ',', func))
 
         if i + 1 < len(lines):
             output.append(',')
