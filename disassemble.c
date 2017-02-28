@@ -113,6 +113,10 @@ static void disassemble_db(FILE *outfile, unsigned int offset, unsigned int valu
     fprintf(outfile, "\n");
 }
 
+static void disassemble_fill(FILE *outfile, unsigned int value, unsigned int count) {
+    fprintf(outfile, "    .fill %d, $%02X\n", count, value);
+}
+
 static void disassemble_implied(FILE *outfile, unsigned int offset, unsigned int opcode_id) {
     if (reassemblable == FALSE) {
         fprintf(outfile, "%04X | %02X       | ", offset, opcode_id);
@@ -360,6 +364,7 @@ int disassemble(char *input, char *output, char *listname) {
     int rc = RETURN_OK;
     unsigned int i = 0, j = 0, k = 0, l = 0;
     unsigned int opcode_id = 0, arg0 = 0, arg1 = 0, symbol_found = FALSE, skip_symbol = FALSE;
+    unsigned int fill_index = 0, fill_count = 0, fill_offset = 0, fill_done = FALSE;
     unsigned int offset = 0, end_offset = 0, inesprg = 0, ineschr = 0, inestrn = FALSE, ines_header = FALSE;
     unsigned int insize = 0;
     char *indata = NULL, *chr_filename = NULL;
@@ -444,7 +449,7 @@ int disassemble(char *input, char *output, char *listname) {
                 fprintf(outfile, "%04X | ", i);
             } else {
                 if ((i - 0x10) % BANK_PRG == 0) {
-                    fprintf(outfile, "    .prg %d\n\n", (i - 0x10) / BANK_PRG);
+                    fprintf(outfile, "\n    .prg %d\n\n", (i - 0x10) / BANK_PRG);
                 }
             }
         }
@@ -455,7 +460,7 @@ int disassemble(char *input, char *output, char *listname) {
 
             for (k = 0, l = symbol_index; k < l; k++) {
                 if (symbols[k].type == SYMBOL_LABEL && symbols[k].value == offset) {
-                    fprintf(outfile, "%s: ; %04X\n", symbols[k].name, symbols[k].value);
+                    fprintf(outfile, "\n%s: ; %04X\n", symbols[k].name, symbols[k].value);
                     symbol_found = TRUE;
                 }
             }
@@ -473,7 +478,38 @@ int disassemble(char *input, char *output, char *listname) {
 
         if ((opcodes[opcode_id].meta & META_UNDOCUMENTED) == 0) {
             if (i + (opcodes[opcode_id].length - 1) >= insize) {
-                disassemble_db(outfile, offset, opcode_id);
+                if (reassemblable == FALSE) {
+                    disassemble_db(outfile, offset, opcode_id);
+                } else {
+                    fill_count = 0;
+                    fill_index = i;
+
+                    while (++fill_index < j + 1 && disassemble_byte(indata, fill_index) == opcode_id) {
+                        fill_offset = disassemble_offset(fill_index, inesprg, ineschr, inestrn);
+                        fill_done = FALSE;
+
+                        for (k = 0, l = symbol_index; k < l; k++) {
+                            if (symbols[k].value == fill_offset) {
+                                fill_done = TRUE;
+                            }
+                        }
+
+                        fill_count++;
+
+                        if (fill_done == TRUE) {
+                            break;
+                        }
+                    }
+
+                    if (fill_count >= 0x10) {
+                        disassemble_fill(outfile, opcode_id, fill_count);
+
+                        i += fill_count - 1;
+                        continue;
+                    } else {
+                        disassemble_db(outfile, offset, opcode_id);
+                    }
+                }
 
                 i += 1;
                 continue;
@@ -554,12 +590,74 @@ int disassemble(char *input, char *output, char *listname) {
                 i++;
                 break;
             default:
-                disassemble_db(outfile, offset, opcode_id);
+                if (reassemblable == FALSE) {
+                    disassemble_db(outfile, offset, opcode_id);
+                } else {
+                    fill_count = 0;
+                    fill_index = i;
+
+                    while (++fill_index < j + 1 && disassemble_byte(indata, fill_index) == opcode_id) {
+                        fill_offset = disassemble_offset(fill_index, inesprg, ineschr, inestrn);
+                        fill_done = FALSE;
+
+                        for (k = 0, l = symbol_index; k < l; k++) {
+                            if (symbols[k].value == fill_offset) {
+                                fill_done = TRUE;
+                            }
+                        }
+
+                        fill_count++;
+
+                        if (fill_done == TRUE) {
+                            break;
+                        }
+                    }
+
+                    if (fill_count >= 0x10) {
+                        disassemble_fill(outfile, opcode_id, fill_count);
+
+                        i += fill_count - 1;
+                        continue;
+                    } else {
+                        disassemble_db(outfile, offset, opcode_id);
+                    }
+                }
 
                 break;
             }
         } else {
-            disassemble_db(outfile, offset, opcode_id);
+            if (reassemblable == FALSE) {
+                disassemble_db(outfile, offset, opcode_id);
+            } else {
+                fill_count = 0;
+                fill_index = i;
+
+                while (++fill_index < j + 1 && disassemble_byte(indata, fill_index) == opcode_id) {
+                    fill_offset = disassemble_offset(fill_index, inesprg, ineschr, inestrn);
+                    fill_done = FALSE;
+
+                    for (k = 0, l = symbol_index; k < l; k++) {
+                        if (symbols[k].value == fill_offset) {
+                            fill_done = TRUE;
+                        }
+                    }
+
+                    fill_count++;
+
+                    if (fill_done == TRUE) {
+                        break;
+                    }
+                }
+
+                if (fill_count >= 0x10) {
+                    disassemble_fill(outfile, opcode_id, fill_count);
+
+                    i += fill_count - 1;
+                    continue;
+                } else {
+                    disassemble_db(outfile, offset, opcode_id);
+                }
+            }
         }
     }
 
