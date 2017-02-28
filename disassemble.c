@@ -49,42 +49,42 @@ static unsigned int disassemble_byte(char *indata, unsigned int index) {
 
 static void disassemble_inesprg(FILE *outfile, unsigned int offset, unsigned int inesprg) {
     if (reassemblable == FALSE) {
-        fprintf(outfile, "%04X | XXXX | %02X       | ", offset, inesprg);
+        fprintf(outfile, "%04X | XXXX | %02X       | .db $%02X ; ", offset, inesprg, inesprg);
     } else {
         fprintf(outfile, "    ");
     }
 
-    fprintf(outfile, ".db $%02X ; .inesprg %u\n", inesprg, inesprg);
+    fprintf(outfile, ".inesprg %u\n", inesprg);
 }
 
 static void disassemble_ineschr(FILE *outfile, unsigned int offset, unsigned int ineschr) {
     if (reassemblable == FALSE) {
-        fprintf(outfile, "%04X | XXXX | %02X       | ", offset, ineschr);
+        fprintf(outfile, "%04X | XXXX | %02X       | .db $%02X ; ", offset, ineschr, ineschr);
     } else {
         fprintf(outfile, "    ");
     }
 
-    fprintf(outfile, ".db $%02X ; .ineschr %u\n", ineschr, ineschr);
+    fprintf(outfile, ".ineschr %u\n", ineschr);
 }
 
 static void disassemble_inesmir(FILE *outfile, unsigned int offset, unsigned int arg0) {
     if (reassemblable == FALSE) {
-        fprintf(outfile, "%04X | XXXX | %02X       | ", offset, arg0);
+        fprintf(outfile, "%04X | XXXX | %02X       | .db $%02X ; ", offset, arg0, arg0);
     } else {
         fprintf(outfile, "    ");
     }
 
-    fprintf(outfile, ".db $%02X ; .inesmir %u\n", arg0, arg0 & 0x01);
+    fprintf(outfile, ".inesmir %u\n", arg0 & 0x01);
 }
 
 static void disassemble_inesmap(FILE *outfile, unsigned int offset, unsigned int arg0, unsigned int arg1) {
     if (reassemblable == FALSE) {
-        fprintf(outfile, "%04X | XXXX | %02X       | ", offset, arg1);
+        fprintf(outfile, "%04X | XXXX | %02X       | .db $%02X ; ", offset, arg1, arg1);
     } else {
         fprintf(outfile, "    ");
     }
 
-    fprintf(outfile, ".db $%02X ; .inesmap %u\n", arg1, (arg0 >> 4) | (arg1 & 0xF0));
+    fprintf(outfile, ".inesmap %u\n", (arg0 >> 4) | (arg1 & 0xF0));
 }
 
 static void disassemble_db_header(FILE *outfile, unsigned int offset, unsigned int value) {
@@ -390,26 +390,9 @@ int disassemble(char *input, char *output, char *listname) {
 
     if (strncmp(indata, "NES", 3) == 0) {
         if (reassemblable == FALSE) {
-            fprintf(outfile, "0000 | XXXX | 4E 45 53 | ");
-        } else {
-            fprintf(outfile, "    ");
+            fprintf(outfile, "0000 | XXXX | 4E 45 53 | .ascii \"NES\"\n");
+            fprintf(outfile, "0003 | XXXX | 1A       | .db $1A\n");
         }
-
-        fprintf(outfile, ".ascii \"NES\"");
-
-        if (reassemblable  == TRUE) {
-            fprintf(outfile, " ; header");
-        }
-
-        fprintf(outfile, "\n");
-
-        if (reassemblable == FALSE) {
-            fprintf(outfile, "0003 | XXXX | 1A       | ");
-        } else {
-            fprintf(outfile, "    ");
-        }
-
-        fprintf(outfile, ".db $1A\n");
 
         inesprg = disassemble_byte(indata, 4);
         disassemble_inesprg(outfile, 4, inesprg);
@@ -422,12 +405,14 @@ int disassemble(char *input, char *output, char *listname) {
         disassemble_inesmir(outfile, 6, arg0);
         disassemble_inesmap(outfile, 7, arg0, disassemble_byte(indata, 7));
 
-        disassemble_db_header(outfile, 8, disassemble_byte(indata, 8));
-        disassemble_db_header(outfile, 9, disassemble_byte(indata, 9));
-        disassemble_db_header(outfile, 10, disassemble_byte(indata, 10));
+        if (reassemblable == FALSE) {
+            disassemble_db_header(outfile, 8, disassemble_byte(indata, 8));
+            disassemble_db_header(outfile, 9, disassemble_byte(indata, 9));
+            disassemble_db_header(outfile, 10, disassemble_byte(indata, 10));
 
-        for (i = 11, j = 16; i < j; i++) {
-            disassemble_db_header(outfile, i, disassemble_byte(indata, i));
+            for (i = 11, j = 16; i < j; i++) {
+                disassemble_db_header(outfile, i, disassemble_byte(indata, i));
+            }
         }
 
         i = 0x10;
@@ -444,12 +429,24 @@ int disassemble(char *input, char *output, char *listname) {
         goto cleanup;
     }
 
-    for (j = (unsigned int)insize - (ineschr * BANK_CHR); i < j; i++) {
+    j = (unsigned int)insize;
+
+    if (reassemblable == TRUE) {
+        j -= (ineschr * BANK_CHR);
+    }
+
+    for (; i < j; i++) {
         opcode_id = disassemble_byte(indata, i);
         offset = disassemble_offset(i, inesprg, ineschr, inestrn);
 
-        if (ines_header == TRUE && reassemblable == FALSE) {
-            fprintf(outfile, "%04X | ", i);
+        if (ines_header == TRUE) {
+            if (reassemblable == FALSE) {
+                fprintf(outfile, "%04X | ", i);
+            } else {
+                if ((i - 0x10) % BANK_PRG == 0) {
+                    fprintf(outfile, "    .prg %d\n\n", (i - 0x10) / BANK_PRG);
+                }
+            }
         }
 
         if (reassemblable == TRUE) {
@@ -567,9 +564,11 @@ int disassemble(char *input, char *output, char *listname) {
     }
 
     // output chr
-    if (isatty(fileno(outfile)) == 1) {
+    if (isatty(fileno(outfile)) == 1 || strcmp(output, "/dev/stdout") == 0) {
         goto cleanup;
     }
+
+    fprintf(stderr, "%d\n", isatty(fileno(outfile)));
 
     chr_filename = (char *)nessemble_malloc(sizeof(char) * (strlen(output) + 11));
 
@@ -580,6 +579,9 @@ int disassemble(char *input, char *output, char *listname) {
             rc = RETURN_EPERM;
             goto cleanup;
         }
+
+        fprintf(outfile, "\n    .chr %d\n\n", i);
+        fprintf(outfile, "    .incpng \"%s\"\n", chr_filename);
     }
 
 cleanup:
