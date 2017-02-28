@@ -6,7 +6,7 @@ void pseudo_incpng(char *string, int offset, int limit) {
     int color_mode = 0, color = 0, byte = 0, tile_index = -1;
     int h = 0, w = 0, x = 0, y = 0;
     char *path = NULL;
-    struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
+    struct png_data png;
 
     if (get_fullpath(&path, string) != 0) {
         yyerror("Could not get full path of %s", string);

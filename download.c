@@ -77,7 +77,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     sprintf(message, "GET %s HTTP/1.1\r\nHost: %s", uri, host);
 
     if (port != 80) {
-        sprintf(message+strlen(message), ":%d", port);
+        sprintf(message+strlen(message), ":%u", port);
     }
 
     sprintf(message+strlen(message), "\r\nContent-Type: %s\r\n\r\n", mime_type);
@@ -98,10 +98,10 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
 
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(port);
-    memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+    serv_addr.sin_port = htons((uint16_t)port);
+    memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, (size_t)server->h_length);
 
-    if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+    if (connect(sockfd, (struct sockaddr *)&serv_addr, (socklen_t)sizeof(serv_addr)) < 0) {
         code = 500;
         goto cleanup;
     }
@@ -125,7 +125,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     } while (sent < total);
 
     memset(response, 0, sizeof(response));
-    total = sizeof(response) - 1;
+    total = (int)sizeof(response) - 1;
     received = 0;
 
     timeout.tv_sec = 1;

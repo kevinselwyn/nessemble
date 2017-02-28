@@ -5,6 +5,11 @@
 #include <unistd.h>
 #include "nessemble.h"
 
+#define _GNU_SOURCE
+#include <stdlib.h>
+int fileno(FILE *file);
+char *realpath(const char *path, char *resolved_path);
+
 /**
  * Main function
  * @param {int} argc - Argument count
@@ -57,7 +62,7 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "install") == 0) {
             if (i + 1 < l) {
-                while (++argv && argv[i] != NULL) {
+                while (++argv != NULL && argv[i] != NULL) {
                     if (lib_install(argv[i]) != RETURN_OK) {
                         rc = RETURN_EPERM;
                         goto cleanup;
@@ -74,7 +79,7 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "uninstall") == 0) {
             if (i + 1 < l) {
-                while (++argv && argv[i] != NULL) {
+                while (++argv != NULL && argv[i] != NULL) {
                     if (lib_uninstall(argv[i]) != RETURN_OK) {
                         rc = RETURN_EPERM;
                         goto cleanup;
@@ -227,9 +232,9 @@ int main(int argc, char *argv[]) {
     if (!filename) {
         if (isatty(fileno(stdin)) == FALSE) {
             piped = TRUE;
-            filename = "stdin";
-            strcpy(cwd, "/tmp/nessemble-stdin");
-            cwd_path = nessemble_strdup("/tmp/nessemble");
+            filename = nessemble_strdup("stdin");
+            strcpy(cwd, "/tmp/" PROGRAM_NAME "-stdin");
+            cwd_path = nessemble_strdup("/tmp/" PROGRAM_NAME);
 
             if (tmp_save(stdin, cwd) == RETURN_EPERM) {
                 rc = usage(exec);

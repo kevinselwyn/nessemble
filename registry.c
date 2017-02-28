@@ -276,7 +276,7 @@ cleanup:
     return rc;
 }
 
-unsigned int lib_is_installed(char *lib) {
+static unsigned int lib_is_installed(char *lib) {
     unsigned int installed = FALSE;
     char *lib_path = NULL;
 

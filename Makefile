@@ -17,7 +17,8 @@ YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c download.c error.c init.c instructions.c json.c list.c macro.c math.c midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c) reference.c registry.c simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c zip.c
+FILES        := main.c assemble.c disassemble.c download.c error.c init.c instructions.c json.c list.c macro.c math.c midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c) reference.c registry.c simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c zip.c
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
 HDRS         := $(NAME).h init.h license.h
 OBJS         := ${SRCS:c=o}
 
@@ -73,6 +74,9 @@ $(TEST): all
 
 check: all
 	@./check.sh
+
+splint: all
+	splint -I/usr/include -I/usr/include/x86_64-linux-gnu -warnposix $(FLAGS) $(FILES)
 
 registry: all
 	python ./registry/server.py --debug

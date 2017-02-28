@@ -10,7 +10,8 @@ void pseudo_incscreen(char *string, char *type) {
     unsigned int x = 0, y = 0, pixel_index = 0;
     unsigned int pixels[SCREEN_WIDTH * SCREEN_HEIGHT];
     char *path = NULL;
-    struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
+    struct png_data png;
+    png_byte *row, *rgb;
 
     if (get_fullpath(&path, string) != 0) {
         yyerror("Could not get full path of %s", string);
@@ -36,10 +37,10 @@ void pseudo_incscreen(char *string, char *type) {
 
     // get pixels
     for (y = 0; y < (unsigned int)png.height; y++) {
-        png_byte *row = png.row_pointers[y];
+        row = png.row_pointers[y];
 
         for (x = 0; x < (unsigned int)png.width; x++) {
-            png_byte *rgb = &(row[x * color_mode]);
+            rgb = &(row[x * color_mode]);
             color = match_color(rgb, color_mode);
 
             pixels[pixel_index++] = (unsigned int)color;

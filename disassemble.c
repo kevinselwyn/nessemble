@@ -3,7 +3,7 @@
 #include <string.h>
 #include "nessemble.h"
 
-unsigned int reassemblable = FALSE;
+static unsigned int reassemblable = FALSE;
 
 static unsigned int disassemble_offset(unsigned int offset, unsigned int inesprg, unsigned int ineschr, unsigned int inestrn) {
     if (inesprg == 0 && ineschr == 0) {

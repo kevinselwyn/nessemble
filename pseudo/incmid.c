@@ -8,7 +8,7 @@
  */
 void pseudo_incmid(char *string) {
     char *path = NULL;
-    struct midi_data midi = { { }, 0, 0, 0, 0, NULL };
+    struct midi_data midi;
 
     if (get_fullpath(&path, string) != 0) {
         yyerror("Could not get full path of %s", string);
