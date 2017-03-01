@@ -90,7 +90,7 @@ unsigned int simulate(char *input, char *recipe) {
         recipe_file = fopen(recipe, "r");
 
         if (!recipe_file) {
-            fprintf(stderr, "Could not open %s\n", recipe);
+            error_program_log("Could not open `%s`", recipe);
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -546,7 +546,7 @@ void print_instructions(char *input) {
     addr_end = (unsigned int)hex2int(input+5);
 
     while (addr_start < addr_end) {
-        fprintf(stderr, "%04X  ", addr_start);
+        printf("%04X  ", addr_start);
         addr_start += print_instruction(addr_start);
     }
 }
@@ -662,7 +662,7 @@ void start_record(char *input) {
     records[record_index].file = fopen(input+5, "w+");
 
     if (!records[record_index].file) {
-        fprintf(stderr, "Could not open %s\n", input+5);
+        error_program_log("Could not open `%s`", input+5);
         return;
     }
 
@@ -673,13 +673,13 @@ void list_breakpoints() {
     unsigned int i = 0, l = 0;
 
     for (i = 0, l = breakpoint_index; i < l; i++) {
-        fprintf(stderr, "%04X", breakpoints[i].address);
+        printf("%04X", breakpoints[i].address);
 
         if (breakpoints[i].name) {
-            fprintf(stderr, " %s", breakpoints[i].name);
+            printf(" %s", breakpoints[i].name);
         }
 
-        fprintf(stderr, "\n");
+        printf("\n");
     }
 }
 
@@ -742,7 +742,7 @@ unsigned int at_breakpoint() {
 
     for (i = 0, l = breakpoint_index; i < l; i++) {
         if (get_register(REGISTER_PC) == breakpoints[i].address) {
-            fprintf(stderr, "Breakpoint `%s` reached at 0x%04X\n", breakpoints[i].name, breakpoints[i].address);
+            printf("Breakpoint `%s` reached at 0x%04X\n", breakpoints[i].name, breakpoints[i].address);
 
             at = TRUE;
         }

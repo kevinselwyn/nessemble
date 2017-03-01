@@ -32,12 +32,13 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     } else if (strncmp(url, "https:", 6) == 0) {
         protocol = PROTOCOL_HTTPS;
     } else {
+        error_program_log("Protocol is not supported");
         code = 500;
         goto cleanup;
     }
 
     if (protocol == PROTOCOL_HTTPS) {
-        fprintf(stderr, "HTTPS is not supported\n");
+        error_program_log("HTTPS is not supported");
         code = 500;
     }
 
@@ -90,6 +91,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (sockfd < 0) {
+        error_program_log("Could not open socket");
         code = 500;
         goto cleanup;
     }
@@ -97,6 +99,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     server = gethostbyname(host);
 
     if (!server) {
+        error_program_log("Could not find host `%s`", host);
         code = 404;
         goto cleanup;
     }
@@ -107,6 +110,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, (size_t)server->h_length);
 
     if (connect(sockfd, (struct sockaddr *)&serv_addr, (socklen_t)sizeof(serv_addr)) < 0) {
+        error_program_log("Could not connect to host `%s`", host);
         code = 500;
         goto cleanup;
     }
@@ -171,12 +175,14 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     code = (unsigned int)atoi(code_str);
 
     if (code != 200) {
+        error_program_log("HTTP code `%u` returned", code);
         goto cleanup;
     }
 
     content_type_index = strcasestr(response, "Content-Type") - response;
 
     if (content_type_index == 0) {
+        error_program_log("Could not read `Content-Type`");
         code = 500;
         goto cleanup;
     }
@@ -184,6 +190,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     content_type_index += 14;
 
     if (strncmp(response+content_type_index, mime_type, strlen(mime_type)) != 0) {
+        error_program_log("Incorrect Content-Type `%s`", mime_type);
         code = 500;
         goto cleanup;
     }
@@ -191,6 +198,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     content_length_index = strcasestr(response, "Content-Length") - response;
 
     if (content_length_index == 0) {
+        error_program_log("Invalid `Content-Length`");
         code = 500;
         goto cleanup;
     }
@@ -200,6 +208,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     response_index = strstr(response, "\r\n\r\n") - response;
 
     if (response_index == 0) {
+        error_program_log("No response found");
         code = 500;
         goto cleanup;
     }

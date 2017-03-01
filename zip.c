@@ -19,13 +19,13 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
     switch (http_code) {
     case 503:
-        fprintf(stderr, "Could not reach the registry\n");
+        error_program_log("Could not reach the registry");
 
         rc = RETURN_EPERM;
         goto cleanup;
         break;
     case 404:
-        fprintf(stderr, "Library does not exist\n");
+        error_program_log("Library does not exist");
 
         rc = RETURN_EPERM;
         goto cleanup;
