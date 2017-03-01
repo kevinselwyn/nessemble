@@ -257,7 +257,7 @@ struct midi_data read_midi(char *filename) {
         goto cleanup;
 	}
 
-    fseek(file, 4, SEEK_SET);
+    (void)fseek(file, 4, SEEK_SET);
 
     midi.header_length = fgetu32_big(file);
     midi.format = fgetu16_big(file);
@@ -284,8 +284,8 @@ struct midi_data read_midi(char *filename) {
         goto cleanup;
     }
 
-    fprintf(stderr, "Tracks:  %d\n", midi.track_count);
-    fprintf(stderr, "Quarter: %d\n\n", midi.quarter);
+    fprintf(stderr, "Tracks:  %u\n", midi.track_count);
+    fprintf(stderr, "Quarter: %u\n\n", midi.quarter);
 
     midi.tracks = (struct midi_track *)nessemble_malloc(sizeof(struct midi_track) * midi.track_count);
 
@@ -308,7 +308,7 @@ struct midi_data read_midi(char *filename) {
 
         midi.tracks[track].data = (char *)nessemble_malloc(sizeof(char) * (midi.tracks[track].length + 1));
 
-        if (fread(midi.tracks[track].data, 1, (size_t)midi.tracks[track].length, file) != midi.tracks[track].length) {
+        if (fread(midi.tracks[track].data, 1, (size_t)midi.tracks[track].length, file) != (size_t)midi.tracks[track].length) {
             continue;
         }
 

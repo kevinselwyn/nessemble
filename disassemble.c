@@ -114,7 +114,7 @@ static void disassemble_db(FILE *outfile, unsigned int offset, unsigned int valu
 }
 
 static void disassemble_fill(FILE *outfile, unsigned int value, unsigned int count) {
-    fprintf(outfile, "    .fill %d, $%02X\n", count, value);
+    fprintf(outfile, "    .fill %u, $%02X\n", count, value);
 }
 
 static void disassemble_implied(FILE *outfile, unsigned int offset, unsigned int opcode_id) {
@@ -329,12 +329,14 @@ static unsigned int disassemble_chr(char *data, unsigned int length, char *filen
     unsigned int rc = RETURN_OK;
     unsigned int x = 0, y = 0, byte1 = 0, byte2 = 0, bit1 = 0, bit2 = 0, pixel = 0;
     unsigned int i = 0, j = 0, k = 0, l = 0, m = 0, n = 0;
-    unsigned int pixels[128 * 256];
+    unsigned int *pixels = NULL;
+
+    pixels = (unsigned int *)nessemble_malloc(sizeof(unsigned int) * (128 * 256));
 
     for (i = 0, j = length; i < j; i += 0x10) {
         for (k = 0, l = 0x08; k < l; k++) {
-            byte1 = data[i+k];
-            byte2 = data[i+k+0x08];
+            byte1 = (unsigned int)data[i+k];
+            byte2 = (unsigned int)data[i+k+0x08];
 
             for (m = 0, n = 8; m < n; m++) {
                 bit1 = (byte1 >> (7 - m)) & 1;
@@ -356,6 +358,8 @@ static unsigned int disassemble_chr(char *data, unsigned int length, char *filen
     }
 
 cleanup:
+    nessemble_free(pixels);
+
     return rc;
 }
 
@@ -447,7 +451,7 @@ unsigned int disassemble(char *input, char *output, char *listname) {
                 fprintf(outfile, "%04X | ", i);
             } else {
                 if ((i - 0x10) % BANK_PRG == 0) {
-                    fprintf(outfile, "\n    .prg %d\n\n", (i - 0x10) / BANK_PRG);
+                    fprintf(outfile, "\n    .prg %u\n\n", (i - 0x10) / BANK_PRG);
                 }
             }
         }
@@ -667,13 +671,13 @@ unsigned int disassemble(char *input, char *output, char *listname) {
     chr_filename = (char *)nessemble_malloc(sizeof(char) * (strlen(output) + 11));
 
     for (i = 0, l = ineschr; i < l; i++) {
-        sprintf(chr_filename, "%s-chr%d.png", output, i);
+        sprintf(chr_filename, "%s-chr%u.png", output, i);
 
         if ((rc = disassemble_chr(indata+((insize - (ineschr * BANK_CHR)) + (i * BANK_CHR)), BANK_CHR, chr_filename)) != RETURN_OK) {
             goto cleanup;
         }
 
-        fprintf(outfile, "\n    .chr %d\n\n", i);
+        fprintf(outfile, "\n    .chr %u\n\n", i);
         fprintf(outfile, "    .incpng \"%s\"\n", chr_filename);
     }
 
