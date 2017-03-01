@@ -18,7 +18,8 @@ char *realpath(const char *path, char *resolved_path);
 int main(int argc, char *argv[]) {
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0, byte = 0, piped = FALSE;
-    char *exec = NULL, *filename = NULL, *outfilename = NULL, *listname = NULL, *recipe = NULL, *registry = NULL;
+    char *exec = NULL, *filename = NULL, *outfilename = NULL, *listname = NULL, *recipe = NULL;
+    char *registry = NULL, *config = NULL;
     FILE *file = NULL, *outfile = NULL;
 
     // exec
@@ -36,6 +37,29 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "reference") == 0) {
             rc = reference(argv[i+1], argv[i+2]);
+            goto cleanup;
+        }
+
+        if (strcmp(argv[i], "config") == 0) {
+            if (i + 2 < l) {
+                if ((rc = set_config(argv[i+2], argv[i+1]) != RETURN_OK)) {
+                    error_program_output("Could not set `%s` config", argv[i+1]);
+                }
+            } else if (i + 1 < l) {
+                if ((rc = get_config(&config, argv[i+1]) != RETURN_OK)) {
+                    error_program_output("Could not get `%s` config", argv[i+1]);
+                }
+            } else {
+                if ((rc = list_config(&config) != RETURN_OK)) {
+                    error_program_output("Could not list config");
+                    goto cleanup;
+                }
+            }
+
+            if (config) {
+                printf("%s\n", config);
+            }
+
             goto cleanup;
         }
 
@@ -466,6 +490,7 @@ cleanup:
     nessemble_free(cwd_path);
     nessemble_free(listname);
     nessemble_free(registry);
+    nessemble_free(config);
 
     if (file) {
         (void)fclose(file);
