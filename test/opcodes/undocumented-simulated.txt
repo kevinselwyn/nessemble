@@ -83,3 +83,74 @@ AXS #$44
  PC  AC XR YR SP NV-BDIZC
 8018 FF C3 01 FF 11000001
 
+DCP <$44
+
+ PC  AC XR YR SP NV-BDIZC
+801A FF C3 01 FF 11000000
+
+       00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F
+0040 | -- -- -- -- 7F -- -- --  -- -- -- -- -- -- -- -- 
+
+DCP <$44, X
+
+ PC  AC XR YR SP NV-BDIZC
+801C FF C3 01 FF 11000000
+
+       00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F
+0100 | -- -- -- -- -- -- -- FE  -- -- -- -- -- -- -- -- 
+
+DCP $4400
+
+ PC  AC XR YR SP NV-BDIZC
+801F FF C3 01 FF 11000000
+
+       00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F
+4400 | 7F -- -- -- -- -- -- --  -- -- -- -- -- -- -- -- 
+
+DCP $4400, X
+
+ PC  AC XR YR SP NV-BDIZC
+8022 FF C3 01 FF 11000000
+
+       00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F
+44C0 | -- -- -- FE -- -- -- --  -- -- -- -- -- -- -- -- 
+
+DCP $4400, Y
+
+ PC  AC XR YR SP NV-BDIZC
+8025 FF C3 01 FF 11000000
+
+       00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F
+4400 | -- 06 -- -- -- -- -- --  -- -- -- -- -- -- -- -- 
+
+DCP [$44, X]
+
+ PC  AC XR YR SP NV-BDIZC
+8027 FF C3 01 FF 11000000
+
+       00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F
+FFF0 | -- -- -- -- -- -- -- --  -- -- -- -- -- -- FE -- 
+
+DCP [$44], Y
+
+ PC  AC XR YR SP NV-BDIZC
+8029 FF C3 01 FF 11000000
+
+       00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F
+8080 | 43 -- -- -- -- -- -- --  -- -- -- -- -- -- -- -- 
+
+DOP <$44
+
+ PC  AC XR YR SP NV-BDIZC
+802B FF C3 01 FF 11000000
+
+DOP <$44, X
+
+ PC  AC XR YR SP NV-BDIZC
+802D FF C3 01 FF 11000000
+
+DOP #$44
+
+ PC  AC XR YR SP NV-BDIZC
+802F FF C3 01 FF 11000000
+
