@@ -79,8 +79,7 @@ static unsigned int get_config(char **result, char *item) {
     char *config_path = NULL;
     FILE *config = NULL;
 
-    if (open_config(&config, &config_path) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = open_config(&config, &config_path)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -117,8 +116,7 @@ unsigned int set_registry(char *registry) {
     char *config_path = NULL;
     FILE *config = NULL;
 
-    if (open_config(&config, &config_path) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = open_config(&config, &config_path)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -181,8 +179,7 @@ static unsigned int get_lib_url(char **lib_url, char *lib) {
     size_t length_registry = 0, length_lib = 0;
     char *registry = NULL, *path = NULL;
 
-    if (get_registry(&registry) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_registry(&registry)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -205,8 +202,7 @@ static unsigned int get_lib_search_url(char **lib_search_url, char *term) {
     size_t length_registry = 0, length_lib = 0;
     char *registry = NULL, *path = NULL;
 
-    if (get_registry(&registry) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_registry(&registry)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -302,23 +298,19 @@ unsigned int lib_install(char *lib) {
     char *lib_url = NULL, *lib_path = NULL, *lib_zip_url = NULL, *lib_data = NULL;
     FILE *lib_file = NULL;
 
-    if (get_lib_url(&lib_url, lib) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_url(&lib_url, lib)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (get_json(&lib_zip_url, "resource", lib_url) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_json(&lib_zip_url, "resource", lib_url)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (get_lib_path(&lib_path, lib) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_path(&lib_path, lib)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (get_unzipped(&lib_data, &lib_length, "lib.asm", lib_zip_url) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_unzipped(&lib_data, &lib_length, "lib.asm", lib_zip_url)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -351,8 +343,7 @@ unsigned int lib_uninstall(char *lib) {
     unsigned int rc = RETURN_OK;
     char *lib_path = NULL;
 
-    if (get_lib_path(&lib_path, lib) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_path(&lib_path, lib)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -378,13 +369,11 @@ unsigned int lib_info(char *lib) {
     unsigned int rc = RETURN_OK, readme_length = 0, http_code = 0;
     char *lib_url = NULL, *readme = NULL, *readme_url = NULL;
 
-    if (get_lib_url(&lib_url, lib) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_url(&lib_url, lib)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (get_json(&readme_url, "readme", lib_url) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_json(&readme_url, "readme", lib_url)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -400,8 +389,7 @@ unsigned int lib_info(char *lib) {
         goto cleanup;
     }
 
-    if (pager_buffer(readme) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = pager_buffer(readme)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -420,8 +408,7 @@ unsigned int lib_list() {
     struct dirent *ep;
     DIR *dp = NULL;
 
-    if (get_lib_dir(&lib_dir) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_dir(&lib_dir)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -458,13 +445,11 @@ unsigned int lib_search(char *term) {
     unsigned int rc = RETURN_OK;
     char *lib_search_url = NULL;
 
-    if (get_lib_search_url(&lib_search_url, term) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_search_url(&lib_search_url, term)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (get_json_search(lib_search_url, term) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_json_search(lib_search_url, term)) != RETURN_OK) {
         goto cleanup;
     }
 

@@ -99,8 +99,7 @@ unsigned int reference(char *category, char *term) {
     len = *categories[category_id].terms[term_id].len;
     categories[category_id].terms[term_id].description[len-1] = '\0';
 
-    if (pager_buffer((char *)categories[category_id].terms[term_id].description) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = pager_buffer((char *)categories[category_id].terms[term_id].description)) != RETURN_OK) {
         goto cleanup;
     }
 

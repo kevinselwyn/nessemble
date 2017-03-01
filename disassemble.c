@@ -351,8 +351,7 @@ static unsigned int disassemble_chr(char *data, unsigned int length, char *filen
         }
     }
 
-    if (write_png(pixels, 128, 256, filename) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = write_png(pixels, 128, 256, filename)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -429,8 +428,7 @@ int disassemble(char *input, char *output, char *listname) {
         fprintf(outfile, "\n");
     }
 
-    if (input_list(listname) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = input_list(listname)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -671,8 +669,7 @@ int disassemble(char *input, char *output, char *listname) {
     for (i = 0, l = ineschr; i < l; i++) {
         sprintf(chr_filename, "%s-chr%d.png", output, i);
 
-        if (disassemble_chr(indata+((insize - (ineschr * BANK_CHR)) + (i * BANK_CHR)), BANK_CHR, chr_filename) != RETURN_OK) {
-            rc = RETURN_EPERM;
+        if ((rc = disassemble_chr(indata+((insize - (ineschr * BANK_CHR)) + (i * BANK_CHR)), BANK_CHR, chr_filename)) != RETURN_OK) {
             goto cleanup;
         }
 
