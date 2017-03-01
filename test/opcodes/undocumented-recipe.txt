@@ -19,3 +19,20 @@
 .memory 8081
 .registers A=FF
 .step
+.step
+.memory 0044
+.step
+.memory 0107
+.step
+.memory 4400
+.step
+.memory 44C3
+.step
+.memory 4401
+.step
+.memory FFFE
+.step
+.memory 8080
+.step
+.step
+.step
