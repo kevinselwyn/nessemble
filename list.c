@@ -45,7 +45,7 @@ unsigned int output_list(char *filename) {
     listfile = fopen(filename, "w");
 
     if (!listfile) {
-        fprintf(stderr, "Could not open `%s`\n", filename);
+        error_program_log("Could not open `%s`", filename);
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -137,7 +137,7 @@ unsigned int input_list(char *filename) {
     listfile = fopen(filename, "r");
 
     if (!listfile) {
-        fprintf(stderr, "Could not open `%s`\n", filename);
+        error_program_log("Could not open `%s`", filename);
 
         rc = RETURN_EPERM;
         goto cleanup;

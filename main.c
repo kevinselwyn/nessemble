@@ -27,7 +27,10 @@ int main(int argc, char *argv[]) {
     // parse args
     for (i = 1, l = (unsigned int)argc; i < l; i++) {
         if (strcmp(argv[i], "init") == 0) {
-            rc = init();
+            if ((rc = init()) != RETURN_OK) {
+                error_program_output("Could not initialize project");
+            }
+
             goto cleanup;
         }
 
@@ -54,7 +57,7 @@ int main(int argc, char *argv[]) {
             if (i + 1 < l) {
                 while (++argv != NULL && argv[i] != NULL) {
                     if ((rc = lib_install(argv[i])) != RETURN_OK) {
-                        fprintf(stderr, "Could not install `%s`\n", argv[i]);
+                        error_program_output("Could not install `%s`", argv[i]);
                         goto cleanup;
                     }
 
@@ -87,7 +90,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "info") == 0) {
             if (i + 1 < l) {
                 if ((rc = lib_info(argv[i+1])) != RETURN_OK) {
-                    fprintf(stderr, "Could not find info for `%s`\n", argv[i+1]);
+                    error_program_output("Could not find info for `%s`", argv[i+1]);
                     goto cleanup;
                 }
             } else {
@@ -233,7 +236,7 @@ int main(int argc, char *argv[]) {
     } else {
         // get cwd
         if (!realpath(filename, cwd)) {
-            fprintf(stderr, "Could not find real path of %s\n", filename);
+            error_program_output("Could not open `%s`", filename);
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -242,7 +245,7 @@ int main(int argc, char *argv[]) {
         cwd_path = nessemble_strdup(cwd);
 
         if (!cwd_path) {
-            fprintf(stderr, "Could not find path of %s\n", filename);
+            error_program_output("Could not open `%s`", filename);
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -258,10 +261,8 @@ int main(int argc, char *argv[]) {
 
     // simulate
     if (is_flag_simulate() == TRUE) {
-        if (!recipe) {
-            rc = simulate(cwd, "");
-        } else {
-            rc = simulate(cwd, recipe);
+        if ((rc = simulate(cwd, !recipe ? "" : recipe)) != RETURN_OK) {
+            error_program_output("Could not simulate");
         }
 
         goto cleanup;
@@ -275,7 +276,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!outfilename) {
-        fprintf(stderr, "Could not find output\n");
+        error_program_output("Could not find output");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -283,7 +284,10 @@ int main(int argc, char *argv[]) {
 
     // disassemble
     if (is_flag_disassemble() == TRUE) {
-        rc = disassemble(cwd, outfilename, listname);
+        if ((rc = disassemble(cwd, outfilename, listname)) != RETURN_OK) {
+            error_program_output("Could not disassemble `%s`", filename);
+        }
+
         goto cleanup;
     }
 
@@ -291,7 +295,7 @@ int main(int argc, char *argv[]) {
     file = fopen(cwd, "r");
 
     if (!file) {
-        fprintf(stderr, "Could not open %s\n", filename);
+        error_program_output("Could not open `%s`\n");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -328,7 +332,7 @@ int main(int argc, char *argv[]) {
 
     // restart
     if (fseek(yyin, 0, SEEK_SET) != 0) {
-        fprintf(stderr, "Seek error\n");
+        error_program_output("Could not rewind input file");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -384,7 +388,7 @@ int main(int argc, char *argv[]) {
 
     // check
     if (is_flag_check() == TRUE) {
-        fprintf(stderr, "No errors\n");
+        printf("No errors\n");
         goto cleanup;
     }
 
@@ -396,7 +400,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!outfile) {
-        fprintf(stderr, "Could not open %s\n", outfilename);
+        error_program_output("Could not open `%s`", outfilename);
 
         rc = RETURN_EPERM;
         goto cleanup;

@@ -176,16 +176,14 @@ unsigned int get_json(char **value, char *key, char *url) {
     char *text = NULL, *string_value = NULL;
     struct json_token *tokens = NULL;
 
-    http_code = get_request(&text, &text_length, url, MIMETYPE_JSON);
-
-    switch (http_code) {
+    switch ((http_code = get_request(&text, &text_length, url, MIMETYPE_JSON))) {
     case 503:
-        fprintf(stderr, "Could not reach the registry\n");
+        error_program_log("Could not reach the registry");
 
         rc = RETURN_EPERM;
         goto cleanup;
     case 404:
-        fprintf(stderr, "Library does not exist\n");
+        error_program_log("Library does not exist");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -256,12 +254,12 @@ unsigned int get_json_search(char *url, char *term) {
 
     switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
     case 503:
-        fprintf(stderr, "Could not reach the registry\n");
+        error_program_log("Could not reach the registry");
 
         rc = RETURN_EPERM;
         goto cleanup;
     case 404:
-        fprintf(stderr, "Library does not exist\n");
+        error_program_log("Library does not exist");
 
         rc = RETURN_EPERM;
         goto cleanup;

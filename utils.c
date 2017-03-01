@@ -207,7 +207,7 @@ int get_libpath(char **path, char *string) {
     struct passwd *pw = getpwuid(getuid());
 
     if (!pw) {
-        fprintf(stderr, "Could not find home\n");
+        error_program_log("Could not find home directory");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -246,26 +246,26 @@ unsigned int load_file(char **data, char *filename) {
     infile = fopen(filename, "r");
 
     if (!infile) {
-        fprintf(stderr, "Could not open %s\n", filename);
+        error_program_log("Could not open `%s`", filename);
         goto cleanup;
     }
 
     if (fseek(infile, 0, SEEK_END) != 0) {
-        fprintf(stderr, "Seek error\n");
+        error_program_log("Seek error");
         goto cleanup;
     }
 
     insize = (unsigned int)ftell(infile);
 
     if (fseek(infile, 0, SEEK_SET) != 0) {
-        fprintf(stderr, "Seek error\n");
+        error_program_log("Seek error");
 
         insize = 0;
         goto cleanup;
     }
 
     if (insize == 0) {
-        fprintf(stderr, "%s is empty\n", filename);
+        error_program_log("`%s` is empty", filename);
 
         insize = 0;
         goto cleanup;
@@ -274,7 +274,7 @@ unsigned int load_file(char **data, char *filename) {
     indata = (char *)nessemble_malloc(sizeof(char) * (insize + 1));
 
     if (fread(indata, 1, (size_t)insize, infile) != (size_t)insize) {
-        fprintf(stderr, "Could not read %s\n", filename);
+        error_program_log("Could not read `%s`", filename);
 
         insize = 0;
         goto cleanup;

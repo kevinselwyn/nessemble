@@ -21,7 +21,7 @@ static unsigned int open_config(FILE **file, char **filename) {
     DIR *dir = NULL;
 
     if (!pw) {
-        fprintf(stderr, "Could not find home\n");
+        error_program_log("Could not find home directory");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -52,7 +52,7 @@ static unsigned int open_config(FILE **file, char **filename) {
     }
 
     if (!config) {
-        fprintf(stderr, "Could not open " REGISTRY_CONFIG "\n");
+        error_program_log("Could not open `" REGISTRY_CONFIG "`");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -95,7 +95,7 @@ static unsigned int get_config(char **result, char *item) {
     }
 
     if (found == FALSE) {
-        fprintf(stderr, "No %s set\n", item);
+        error_program_log("No `%s` set", item);
 
         rc = RETURN_EPERM;
     }
@@ -135,7 +135,7 @@ unsigned int set_registry(char *registry) {
         config = fopen(config_path, "a");
 
         if (!config) {
-            fprintf(stderr, "Could not open " REGISTRY_CONFIG "\n");
+            error_program_log("Could not open `" REGISTRY_CONFIG "`");
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -150,7 +150,7 @@ unsigned int set_registry(char *registry) {
     config = fopen(config_path, "w+");
 
     if (!config) {
-        fprintf(stderr, "Could not open " REGISTRY_CONFIG "\n");
+        error_program_log("Could not open `" REGISTRY_CONFIG "`");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -231,7 +231,7 @@ static unsigned int get_lib_dir(char **lib_dir) {
     struct passwd *pw = getpwuid(getuid());
 
     if (!pw) {
-        fprintf(stderr, "Could not find home\n");
+        error_program_log("Could not find home directory");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -255,7 +255,7 @@ static unsigned int get_lib_path(char **lib_path, char *lib) {
     struct passwd *pw = getpwuid(getuid());
 
     if (!pw) {
-        fprintf(stderr, "Could not find home\n");
+        error_program_log("Could not find home directory");
 
         rc = RETURN_EPERM;
         goto cleanup;
