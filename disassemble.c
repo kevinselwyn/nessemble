@@ -359,8 +359,8 @@ cleanup:
     return rc;
 }
 
-int disassemble(char *input, char *output, char *listname) {
-    int rc = RETURN_OK;
+unsigned int disassemble(char *input, char *output, char *listname) {
+    unsigned int rc = RETURN_OK;
     unsigned int i = 0, j = 0, k = 0, l = 0;
     unsigned int opcode_id = 0, arg0 = 0, arg1 = 0, symbol_found = FALSE, skip_symbol = FALSE;
     unsigned int fill_index = 0, fill_count = 0, fill_offset = 0, fill_done = FALSE;

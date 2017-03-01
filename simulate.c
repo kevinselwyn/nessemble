@@ -38,9 +38,9 @@ static unsigned int breakpoint_index = 0;
  * Simulate 6502
  * @param {char *} input - Input filename
  */
-int simulate(char *input, char *recipe) {
-    int rc = RETURN_OK, header = 0;
-    int inesprg = 1;
+unsigned int simulate(char *input, char *recipe) {
+    int header = 0, inesprg = 1;
+    unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0;
     size_t insize = 0;
     char buffer[BUF_SIZE];
