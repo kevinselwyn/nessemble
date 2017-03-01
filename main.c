@@ -27,30 +27,20 @@ int main(int argc, char *argv[]) {
     // parse args
     for (i = 1, l = (unsigned int)argc; i < l; i++) {
         if (strcmp(argv[i], "init") == 0) {
-            if (init() != RETURN_OK) {
-                rc = RETURN_EPERM;
-            }
-
+            rc = init();
             goto cleanup;
         }
 
         if (strcmp(argv[i], "reference") == 0) {
-            if (reference(argv[i+1], argv[i+2]) != RETURN_OK) {
-                rc = RETURN_EPERM;
-            }
-
+            rc = reference(argv[i+1], argv[i+2]);
             goto cleanup;
         }
 
         if (strcmp(argv[i], "registry") == 0) {
             if (i + 1 < l) {
-                if (set_registry(argv[i+1]) != RETURN_OK) {
-                    rc = RETURN_EPERM;
-                }
+                rc = set_registry(argv[i+1]);
             } else {
-                if (get_registry(&registry) != RETURN_OK) {
-                    rc = RETURN_EPERM;
-                }
+                rc = get_registry(&registry);
 
                 if (registry) {
                     printf("%s\n", registry);
@@ -63,8 +53,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "install") == 0) {
             if (i + 1 < l) {
                 while (++argv != NULL && argv[i] != NULL) {
-                    if (lib_install(argv[i]) != RETURN_OK) {
-                        rc = RETURN_EPERM;
+                    if ((rc = lib_install(argv[i])) != RETURN_OK) {
                         goto cleanup;
                     }
 
@@ -80,8 +69,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "uninstall") == 0) {
             if (i + 1 < l) {
                 while (++argv != NULL && argv[i] != NULL) {
-                    if (lib_uninstall(argv[i]) != RETURN_OK) {
-                        rc = RETURN_EPERM;
+                    if ((rc = lib_uninstall(argv[i])) != RETURN_OK) {
                         goto cleanup;
                     }
 
@@ -96,10 +84,8 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "info") == 0) {
             if (i + 1 < l) {
-                if (lib_info(argv[i+1]) != RETURN_OK) {
+                if ((rc = lib_info(argv[i+1])) != RETURN_OK) {
                     fprintf(stderr, "Could not find info for `%s`\n", argv[i+1]);
-
-                    rc = RETURN_EPERM;
                     goto cleanup;
                 }
             } else {
@@ -110,8 +96,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (strcmp(argv[i], "ls") == 0) {
-            if (lib_list() != RETURN_OK) {
-                rc = RETURN_EPERM;
+            if ((rc = lib_list()) != RETURN_OK) {
                 goto cleanup;
             }
 
@@ -120,8 +105,7 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[i], "search") == 0) {
             if (i + 1 < l) {
-                if (lib_search(argv[i+1]) != RETURN_OK) {
-                    rc = RETURN_EPERM;
+                if ((rc = lib_search(argv[i+1])) != RETURN_OK) {
                     goto cleanup;
                 }
             } else {
@@ -236,7 +220,7 @@ int main(int argc, char *argv[]) {
             strcpy(cwd, "/tmp/" PROGRAM_NAME "-stdin");
             cwd_path = nessemble_strdup("/tmp/" PROGRAM_NAME);
 
-            if (tmp_save(stdin, cwd) == RETURN_EPERM) {
+            if ((rc = tmp_save(stdin, cwd)) != RETURN_OK) {
                 rc = usage(exec);
                 goto cleanup;
             }
@@ -334,7 +318,7 @@ int main(int argc, char *argv[]) {
         (void)yyparse();
     } while ((yyin != NULL && feof(yyin) == 0) && pass == 1);
 
-    if (error_exit() != RETURN_OK) {
+    if ((rc = error_exit()) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -390,7 +374,7 @@ int main(int argc, char *argv[]) {
         (void)yyparse();
     } while ((yyin != NULL && feof(yyin) == 0) && pass == 2);
 
-    if (error_exit() != RETURN_OK) {
+    if ((rc = error_exit()) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -462,7 +446,7 @@ int main(int argc, char *argv[]) {
     }
 
     // write list
-    if (output_list(listname) != RETURN_OK) {
+    if ((rc = output_list(listname)) != RETURN_OK) {
         goto cleanup;
     }
 

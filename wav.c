@@ -86,7 +86,8 @@ unsigned int open_wav(wave_src *wav, char *filename) {
     while (fread(buffer, 4, 1, wav->fp) != 0) {
         if (memcmp("fmt ", buffer, 4) == FALSE) {
             int errc = wav_format(&(wav->fmt), wav->fp);
-            if(errc < 0) {
+
+            if (errc < 0) {
                 rc = RETURN_EPERM;
                 goto cleanup;
             }

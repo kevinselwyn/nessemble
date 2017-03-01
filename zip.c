@@ -38,9 +38,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     archive_read_support_filter_gzip(arch);
     archive_read_support_format_tar(arch);
 
-    if (archive_read_open_memory(arch, content, content_length) != RETURN_OK) {
-        fprintf(stderr, "ERR\n");
-        rc = RETURN_EPERM;
+    if ((rc = archive_read_open_memory(arch, content, content_length)) != RETURN_OK) {
         goto cleanup;
     }
 

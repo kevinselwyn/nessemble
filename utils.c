@@ -172,7 +172,7 @@ int get_fullpath(char **path, char *string) {
     char *fullpath = NULL;
 
     if (string[0] == '<') {
-        if (get_libpath(path, string) != RETURN_OK) {
+        if ((rc = get_libpath(path, string)) != RETURN_OK) {
             error("Could not include library `%s`", string);
         }
 

@@ -165,7 +165,6 @@ static unsigned int parse_text(char **output, char *text) {
 
     parsed[index] = '\0';
 
-cleanup:
     *output = parsed;
 
     return rc;
@@ -236,8 +235,7 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    if (parse_text(&*value, string_value) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = parse_text(&*value, string_value)) != RETURN_OK) {
         goto cleanup;
     }
 
