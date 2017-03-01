@@ -17,7 +17,12 @@ YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 TEST         := test
 UNAME        := $(shell uname -s)
 
-FILES        := main.c assemble.c disassemble.c download.c error.c init.c instructions.c json.c list.c macro.c math.c midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c) reference.c registry.c simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c zip.c
+FILES        := main.c assemble.c config.c disassemble.c download.c error.c
+FILES        += init.c instructions.c json.c list.c macro.c math.c midi.c
+FILES        += opcodes.c pager.c png.c $(shell ls pseudo/*.c) reference.c
+FILES        += registry.c simulate.c $(shell ls simulate/*.c) usage.c utils.c
+FILES        += wav.c zip.c
+
 SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
 HDRS         := $(NAME).h init.h license.h
 OBJS         := ${SRCS:c=o}

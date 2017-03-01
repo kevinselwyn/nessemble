@@ -533,6 +533,13 @@ void error_program_output(const char *fmt, ...);
 /* INIT */
 unsigned int init();
 
+/* CONFIG */
+unsigned int open_config(FILE **file, char **filename);
+void close_config(FILE *file, char *filename);
+unsigned int get_config(char **result, char *item);
+unsigned int set_config(char *result, char *item);
+unsigned int list_config(char **result);
+
 /* REGISTRY */
 unsigned int get_registry();
 unsigned int set_registry(char *registry);
