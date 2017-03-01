@@ -12,3 +12,8 @@
 .step
 .step
 .step
+.registers A=07,X=07
+.step
+.memory 4401
+.step
+.memory 8081
