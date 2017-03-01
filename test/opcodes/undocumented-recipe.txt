@@ -17,3 +17,5 @@
 .memory 4401
 .step
 .memory 8081
+.registers A=FF
+.step
