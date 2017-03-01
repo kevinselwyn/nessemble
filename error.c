@@ -153,3 +153,40 @@ void yyerror(const char *fmt, ...) {
 
     exit(rc);
 }
+
+void error_program_log(const char *fmt, ...) {
+    va_list argptr;
+    va_start(argptr, fmt);
+
+    if (program_error_index >= MAX_ERROR_COUNT) {
+        return;
+    }
+
+    program_errors[program_error_index].message = (char *)nessemble_malloc(sizeof(char) * MAX_ERROR_LENGTH);
+
+    (void)vsnprintf(program_errors[program_error_index++].message, MAX_ERROR_LENGTH, fmt, argptr);
+}
+
+void error_program_output(const char *fmt, ...) {
+    char *message = NULL;
+    va_list argptr;
+    va_start(argptr, fmt);
+
+    if (program_error_index >= MAX_ERROR_COUNT) {
+        return;
+    }
+
+    message = (char *)nessemble_malloc(sizeof(char) * MAX_ERROR_LENGTH);
+
+    (void)vsnprintf(message, MAX_ERROR_LENGTH, fmt, argptr);
+
+    if (program_error_index > 0) {
+        fprintf(stderr, "%s: %s\n", message, program_errors[program_error_index-1].message);
+    } else {
+        fprintf(stderr, "%s\n", message);
+    }
+
+    if (message) {
+        free(message);
+    }
+}

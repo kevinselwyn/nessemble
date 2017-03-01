@@ -348,7 +348,7 @@ unsigned int lib_uninstall(char *lib) {
     }
 
     if (lib_is_installed(lib) == FALSE) {
-        fprintf(stderr, "`%s` is not installed\n", lib);
+        error_program_log("`%s` is not installed", lib);
 
         rc = RETURN_EPERM;
         goto cleanup;
