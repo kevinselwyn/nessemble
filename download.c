@@ -80,6 +80,11 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
         sprintf(message+strlen(message), ":%u", port);
     }
 
+    sprintf(message+strlen(message), "\r\nUser-Agent: " PROGRAM_NAME "/" PROGRAM_VERSION);
+    sprintf(message+strlen(message), "\r\nConnection: keep-alive");
+    sprintf(message+strlen(message), "\r\nCache-Control: no-cache");
+    sprintf(message+strlen(message), "\r\nAccept: */*");
+    sprintf(message+strlen(message), "\r\nAccept-Language: " PROGRAM_LANGUAGE ";q=0.8");
     sprintf(message+strlen(message), "\r\nContent-Type: %s\r\n\r\n", mime_type);
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
