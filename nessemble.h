@@ -527,6 +527,8 @@ unsigned int error_exists();
 unsigned int error_exit();
 void error_free();
 void yyerror(const char *fmt, ...);
+void error_program_log(const char *fmt, ...);
+void error_program_output(const char *fmt, ...);
 
 /* INIT */
 unsigned int init();

@@ -54,6 +54,7 @@ int main(int argc, char *argv[]) {
             if (i + 1 < l) {
                 while (++argv != NULL && argv[i] != NULL) {
                     if ((rc = lib_install(argv[i])) != RETURN_OK) {
+                        fprintf(stderr, "Could not install `%s`\n", argv[i]);
                         goto cleanup;
                     }
 
@@ -70,6 +71,7 @@ int main(int argc, char *argv[]) {
             if (i + 1 < l) {
                 while (++argv != NULL && argv[i] != NULL) {
                     if ((rc = lib_uninstall(argv[i])) != RETURN_OK) {
+                        error_program_output("Could not uninstall `%s`", argv[i]);
                         goto cleanup;
                     }
 
