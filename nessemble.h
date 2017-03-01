@@ -15,6 +15,7 @@
 #define PROGRAM_VERSION   "1.0.1"
 #define PROGRAM_COPYRIGHT "2017"
 #define PROGRAM_AUTHOR    "Kevin Selwyn"
+#define PROGRAM_LANGUAGE  "en-US"
 
 /* BOOLEAN */
 #ifndef TRUE
