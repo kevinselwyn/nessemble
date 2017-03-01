@@ -255,10 +255,10 @@ unsigned int pass;
 int main(int argc, char *argv[]);
 
 /* USAGE */
-int usage(char *exec);
+unsigned int usage(char *exec);
 void usage_simulate();
-int version();
-int license();
+unsigned int version();
+unsigned int license();
 
 /* REFERENCE */
 unsigned int reference(char *category, char *term);
@@ -360,10 +360,10 @@ void assemble_zeropage(char *mnemonic, unsigned int address);
 void assemble_zeropage_xy(char *mnemonic, unsigned int address, char reg);
 
 /* DISASSEMBLY UTILS */
-int disassemble(char *input, char *output, char *listname);
+unsigned int disassemble(char *input, char *output, char *listname);
 
 /* SIMULATE UTILS */
-int simulate(char *input, char *recipe);
+unsigned int simulate(char *input, char *recipe);
 void usage_simulate();
 int repl(char *input);
 void print_registers();

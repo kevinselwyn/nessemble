@@ -16,7 +16,7 @@ char *realpath(const char *path, char *resolved_path);
  * @param {char *} argv[] - Argument array
  */
 int main(int argc, char *argv[]) {
-    int rc = RETURN_OK;
+    unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0, byte = 0, piped = FALSE;
     char *exec = NULL, *filename = NULL, *outfilename = NULL, *listname = NULL, *recipe = NULL, *registry = NULL;
     FILE *file = NULL, *outfile = NULL;
@@ -475,5 +475,5 @@ cleanup:
 
     error_free();
 
-    return rc;
+    return (int)rc;
 }

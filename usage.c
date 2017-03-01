@@ -77,8 +77,9 @@ static void print_usage(struct usage_flag *usage_flags, unsigned int size) {
  * @param {string *} exec - Executable name
  * @param {int} Return code
  */
-int usage(char *exec) {
+unsigned int usage(char *exec) {
     int length = (int)strlen(exec);
+    unsigned int rc = RETURN_USAGE;
 
     printf("Usage: %s [options] <infile.asm>\n", exec);
     printf("%*s<command> [args]\n\n", length + 8, " ");
@@ -90,7 +91,7 @@ int usage(char *exec) {
 
     print_usage(usage_commands, USAGE_COMMAND_COUNT);
 
-    return RETURN_USAGE;
+    return rc;
 }
 
 /**
@@ -107,17 +108,19 @@ void usage_simulate() {
 /**
  * Program version
  */
-int version() {
+unsigned int version() {
+    unsigned int rc = RETURN_USAGE;
+
     printf(PROGRAM_NAME " v" PROGRAM_VERSION "\n\nCopyright " PROGRAM_COPYRIGHT " " PROGRAM_AUTHOR "\n");
 
-    return RETURN_USAGE;
+    return rc;
 }
 
 /**
  * Program license
  */
-int license() {
-    int rc = version();
+unsigned int license() {
+    unsigned int rc = version();
 
     license_txt[license_txt_len-1] = '\0';
 

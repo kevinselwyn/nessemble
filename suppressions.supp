@@ -8,6 +8,17 @@
    fun:main
 }
 {
+   <yyensure_buffer_stack_2>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:yyalloc
+   fun:yyensure_buffer_stack
+   fun:yylex
+   fun:yyparse
+   fun:main
+}
+{
    <yylex>
    Memcheck:Leak
    fun:malloc
