@@ -92,7 +92,22 @@ void do_asr(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_atx(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    unsigned int tmp = 0;
+
+    if (is_flag_undocumented() == FALSE) {
+        inc_register(REGISTER_PC, 1);
+        return;
+    }
+
+    tmp = value & get_register(REGISTER_A);
+
+    set_register(REGISTER_X, tmp);
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_axa(unsigned int opcode_index, unsigned int value) {
