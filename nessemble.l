@@ -122,7 +122,7 @@ int include_stack_ptr = 0;
 \\[0-9]+                   { yylval.ival = dec2int(yytext+1); return NUMBER_ARG; }
 [\.0-3]{8}                 { yylval.ival = defchr2int(yytext); return NUMBER_DEFCHR; }
 
-[\.\@a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = nessemble_strdup(yytext); return TEXT; }
+[\.\@a-zA-Z_][a-zA-Z0-9_]+ { yylval.sval = nessemble_strdup(yytext); if (yylval.sval[0] == '\0') { return FEOF; } else { return TEXT; } }
 \"[^"]*\"                  { yylval.sval = nessemble_strdup(yytext); return QUOT_STRING; }
 [a-zA-Z]                   { yylval.cval = toupper(yytext[0]); return CHAR_REG; }
 
