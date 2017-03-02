@@ -135,6 +135,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "search") == 0) {
             if (i + 1 < l) {
                 if ((rc = lib_search(argv[i+1])) != RETURN_OK) {
+                    error_program_output("Could not search");
                     goto cleanup;
                 }
             } else {
