@@ -100,9 +100,9 @@ unsigned int output_list(char *filename) {
                     list_strings[list_index] = (char *)nessemble_malloc(sizeof(char) * MAX_LIST_LENGTH);
                 }
 
-                length = strlen(symbols[i].name) + 8;
+                length = strlen(symbols[i].name) + 11;
 
-                (void)snprintf(list_strings[list_index++], length, "%04X = %s", symbols[i].value, symbols[i].name);
+                (void)snprintf(list_strings[list_index++], length, "%02X/%04X = %s", symbols[i].bank, symbols[i].value, symbols[i].name);
             }
         }
 
@@ -126,6 +126,7 @@ cleanup:
 }
 
 unsigned int input_list(char *filename) {
+    int symbol_bank = -1;
     unsigned int rc = RETURN_OK, symbol_type = 0, symbol_val = 0;
     char line[MAX_LIST_LENGTH], symbol_name[MAX_LIST_LENGTH];
     FILE *listfile = NULL;
@@ -163,12 +164,25 @@ unsigned int input_list(char *filename) {
         }
 
         if (symbol_type == SYMBOL_LABEL || symbol_type == SYMBOL_CONSTANT) {
-            if (sscanf(line, "%04X = %s\n", &symbol_val, symbol_name) != 2) {
-                continue;
+            if (symbol_type == SYMBOL_CONSTANT) {
+                if (sscanf(line, "%04X = %s\n", &symbol_val, symbol_name) != 2) {
+                    continue;
+                }
+            } else {
+                if (sscanf(line, "%02X/%04X = %s\n", &symbol_bank, &symbol_val, symbol_name) != 3) {
+                    continue;
+                }
             }
 
             symbols[symbol_index].name = nessemble_strdup(symbol_name);
-            symbols[symbol_index++].value = symbol_val;
+            symbols[symbol_index].value = symbol_val;
+
+            if (symbol_bank >= 0) {
+                symbols[symbol_index].bank = (unsigned int)symbol_bank;
+                symbol_bank = -1;
+            }
+
+            symbol_index++;
         }
     }
 
