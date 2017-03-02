@@ -612,7 +612,7 @@ unsigned int disassemble(char *input, char *output, char *listname) {
 
     chr_filename = (char *)nessemble_malloc(sizeof(char) * (strlen(output) + 11));
 
-    if (disassemble_ines_header == TRUE) {
+    if (disassemble_ines_header == TRUE && reassemblable == TRUE) {
         for (i = 0, l = disassemble_ineschr; i < l; i++) {
             sprintf(chr_filename, "%s-chr%u.png", output, i);
 
