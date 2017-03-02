@@ -14,6 +14,7 @@ static unsigned int disassemble_ines_header = FALSE;
 static unsigned int disassemble_inesprg = 0;
 static unsigned int disassemble_ineschr = 0;
 static unsigned int disassemble_inestrn = FALSE;
+static unsigned int disassemble_bank = 0;
 
 static unsigned int disassemble_offset(unsigned int offset) {
     if (disassemble_inesprg == 0 && disassemble_ineschr == 0) {
@@ -345,7 +346,7 @@ static unsigned int disassemble_data(FILE *outfile, char *data, unsigned int len
             symbol_skip = FALSE;
 
             for (k = 0, l = symbol_index; k < l; k++) {
-                if (symbols[k].type == SYMBOL_LABEL && symbols[k].value == offset) {
+                if (symbols[k].type == SYMBOL_LABEL && symbols[k].value == offset && symbols[k].bank == disassemble_bank) {
                     fprintf(outfile, "\n%s: ; %04X\n", symbols[k].name, symbols[k].value);
                     symbol_found = TRUE;
                 }
@@ -594,6 +595,7 @@ unsigned int disassemble(char *input, char *output, char *listname) {
 
         for (j = (unsigned int)insize - (disassemble_ineschr * BANK_CHR); i < j; i += BANK_PRG) {
             if (disassemble_ines_header == TRUE && reassemblable == TRUE) {
+                disassemble_bank = prg_counter;
                 fprintf(outfile, "\n    .prg %u\n\n", prg_counter++);
             }
 

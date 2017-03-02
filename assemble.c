@@ -141,12 +141,7 @@ void add_symbol(char *name, unsigned int value, unsigned int type) {
             }
         }
 
-        if (ines.prg < 2) {
-            bank = (value - (BANK_PRG * 3)) / BANK_PRG;
-        } else {
-            bank = (value - (BANK_PRG * 2)) / BANK_PRG;
-        }
-
+        bank = prg_index;
         symbol_id = get_symbol(name);
 
         if (symbol_id != -1) {
