@@ -126,7 +126,7 @@
 
 /* USAGE */
 #define USAGE_FLAG_COUNT            12
-#define USAGE_COMMAND_COUNT         8
+#define USAGE_COMMAND_COUNT         9
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
 /*
