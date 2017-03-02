@@ -200,19 +200,19 @@ Prints all information about given category and type.
 nessemble config
 ```
 
-List all config keys and values
+List all config keys and values.
 
 ```
 nessemble config registry
 ```
 
-Get config key value
+Get config key value.
 
 ```
 nessemble config registry http://www.example.com
 ```
 
-Set config key value
+Set config key value.
 
 #### registry [<url>]
 
@@ -220,13 +220,13 @@ Set config key value
 nessemble registry
 ```
 
-Get config registry value (alias for `config registry` option)
+Get config registry value (alias for `config registry` option).
 
 ```
 nessemble registry http://www.example.com
 ```
 
-Set config registry value (alias for `config registry <val>` option)
+Set config registry value (alias for `config registry <val>` option).
 
 #### install <package>
 
@@ -234,7 +234,7 @@ Set config registry value (alias for `config registry <val>` option)
 nessemble install controller
 ```
 
-Install package
+Install package.
 
 #### uninstall <package>
 
@@ -242,7 +242,7 @@ Install package
 nessemble uninstall controller
 ```
 
-Uninstall package
+Uninstall package.
 
 #### info <package>
 
@@ -250,7 +250,7 @@ Uninstall package
 nessemble info controller
 ```
 
-Get info on package
+Get info on package.
 
 #### ls
 
@@ -258,7 +258,7 @@ Get info on package
 nessemble ls
 ```
 
-List all installed packages
+List all installed packages.
 
 #### search <term>
 
