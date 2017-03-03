@@ -370,8 +370,6 @@ static unsigned int disassemble_data(FILE *outfile, char *data, unsigned int len
 
         if (i + (opcodes[opcode_id].length - 1) >= length) {
             disassemble_db(outfile, offset, opcode_id);
-
-            i += 1;
             continue;
         }
 

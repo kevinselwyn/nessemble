@@ -97,8 +97,8 @@ unsigned int error_exit() {
     if (error_exists() == TRUE) {
         length = strlen(cwd_path) + 1;
 
-        include_stack_ptr = (int)errors[0].stack;
-        yylineno = errors[0].line;
+        include_stack_ptr = (int)errors[error_index-1].stack;
+        yylineno = errors[error_index-1].line;
 
         line = yylineno - 1;
 
@@ -106,7 +106,7 @@ unsigned int error_exit() {
             line = 1;
         }
 
-        fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, line, errors[0].message);
+        fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, line, errors[error_index-1].message);
 
         rc = RETURN_EPERM;
     }
