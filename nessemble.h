@@ -125,7 +125,7 @@
 #define FLG_CARRY     7
 
 /* USAGE */
-#define USAGE_FLAG_COUNT            12
+#define USAGE_FLAG_COUNT            13
 #define USAGE_COMMAND_COUNT         9
 #define SIMULATION_USAGE_FLAG_COUNT 16
 

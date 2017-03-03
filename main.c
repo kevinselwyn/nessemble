@@ -17,7 +17,7 @@ char *realpath(const char *path, char *resolved_path);
  * @param {char *} argv[] - Argument array
  */
 int main(int argc, char *argv[]) {
-    int option_index = 0, c = 0;
+    int option_index = 0, c = 0, empty_byte = 0xFF;
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0, byte = 0, piped = FALSE;
     char *exec = NULL, *filename = NULL, *outfilename = NULL, *listname = NULL, *recipe = NULL;
@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
     struct option long_options[] = {
         { "output",       required_argument, 0, 'o' },
         { "format",       required_argument, 0, 'f' },
+        { "empty",        required_argument, 0, 'e' },
         { "undocumented", no_argument,       0, 'u' },
         { "list",         required_argument, 0, 'l' },
         { "check",        no_argument,       0, 'c' },
@@ -44,7 +45,7 @@ int main(int argc, char *argv[]) {
 
     // parse args
     while (TRUE == 1) {
-        c = getopt_long(argc, argv, "cdf:hlLo:rRsuv", long_options, &option_index);
+        c = getopt_long(argc, argv, "cde:f:hlLo:rRsuv", long_options, &option_index);
 
         if (c == -1) {
             break;
@@ -73,6 +74,15 @@ int main(int argc, char *argv[]) {
             if (strcmp(optarg, "nes") == 0 || strcmp(optarg, "NES") == 0) {
                 flags |= FLAG_NES;
             }
+
+            break;
+        case 'e':
+            if (optarg == NULL) {
+                rc = usage(exec);
+                goto cleanup;
+            }
+
+            empty_byte = hex2int(optarg);
 
             break;
         case 'u':
@@ -374,14 +384,14 @@ int main(int argc, char *argv[]) {
     // create rom
     rom = (unsigned int *)nessemble_malloc(sizeof(unsigned int) * offset_max);
 
-    // set all bytes to 0xFF
+    // set all bytes to empty_byte
     for (i = 0, l = (unsigned int)offset_max; i < l; i++) {
-        rom[i] = 0xFF;
+        rom[i] = empty_byte;
     }
 
-    // set all trainer bytes to 0xFF
+    // set all trainer bytes to empty_byte
     for (i = 0, l = TRAINER_MAX; i < l; i++) {
-        trainer[i] = 0xFF;
+        trainer[i] = empty_byte;
     }
 
     // clear offsets

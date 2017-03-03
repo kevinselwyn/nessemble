@@ -27,6 +27,7 @@ Usage: nessemble [options] <infile.asm>
 Options:
   -o, --output <outfile.rom>   output file
   -f, --format {NES,RAW}       output format
+  -e, --empty <hex>            empty byte value
   -u, --undocumented           use undocumented opcodes
   -l, --list <listfile.txt>    generate list of labels and constants
   -c, --check                  check syntax only
