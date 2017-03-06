@@ -1,3 +1,0 @@
-.flags carry=0
-.step
-.step

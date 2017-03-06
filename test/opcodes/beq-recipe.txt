@@ -1,3 +1,0 @@
-.flags zero=0
-.step
-.step
