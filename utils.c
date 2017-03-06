@@ -52,6 +52,10 @@ unsigned int is_stdout(char *filename) {
     }
 
 cleanup:
+    if (file) {
+        (void)fclose(file);
+    }
+
     return rc;
 }
 
