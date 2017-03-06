@@ -22,6 +22,7 @@ FILES        += error.c init.c instructions.c json.c list.c macro.c math.c
 FILES        += midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c)
 FILES        += reference.c registry.c simulate.c $(shell ls simulate/*.c)
 FILES        += usage.c utils.c wav.c zip.c
+FILES        += third-party/jsmn/jsmn.c
 
 SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
 HDRS         := $(NAME).h init.h license.h
