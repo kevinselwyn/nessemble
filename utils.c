@@ -37,6 +37,24 @@ char *nessemble_strdup(char *str) {
     return dup;
 }
 
+unsigned int is_stdout(char *filename) {
+    unsigned int rc = FALSE;
+    FILE *file = NULL;
+
+    file = fopen(filename, "w+");
+
+    if (!file) {
+        goto cleanup;
+    }
+
+    if (isatty(fileno(file)) == 1 || strcmp(filename, "/dev/stdout") == 0) {
+        rc = TRUE;
+    }
+
+cleanup:
+    return rc;
+}
+
 /**
  * Convert hex string to int
  * @param {char *} hex - Hexadecimal string (ex: $12)
@@ -362,6 +380,14 @@ unsigned int is_flag_simulate() {
  */
 unsigned int is_flag_check() {
     return (unsigned int)((flags & FLAG_CHECK) != 0 ? TRUE : FALSE);
+}
+
+/**
+ * Test if coverage flag is active
+ * @return {unsigned int} True if flag active, false if not
+ */
+unsigned int is_flag_coverage() {
+    return (unsigned int)((flags & FLAG_COVERAGE) != 0 ? TRUE : FALSE);
 }
 
 /**
