@@ -1,0 +1,3 @@
+.flags negative=0
+.step
+.step

@@ -1,0 +1,41 @@
+.registers A=44,X=01,Y=10
+.fill 0044 10 10
+.fill 4400 10 10
+.fill 4410 10
+.flags carry=0
+.step
+.registers A=20
+.step
+.step
+.registers A=30
+.step
+.step
+.step
+.step
+.step
+.registers A=13
+.fill 0013 10 10
+.fill 0023 10
+.flags carry=0
+.step
+.registers A=20
+.step
+.step
+.registers A=30
+.step
+.step
+.step
+.step
+.step
+.registers A=44
+.flags carry=0
+.step
+.registers A=20
+.step
+.step
+.registers A=30
+.step
+.step
+.step
+.step
+.step
