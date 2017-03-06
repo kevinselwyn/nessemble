@@ -3,7 +3,7 @@ BIN_DIR      := /usr/local/bin
 RM           := rm -f
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra
-CC_LIB_FLAGS := -lm -lpng -larchive
+CC_LIB_FLAGS := -lm -lpng
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
 LEX          := flex
@@ -22,7 +22,7 @@ FILES        += error.c init.c instructions.c json.c list.c macro.c math.c
 FILES        += midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c)
 FILES        += reference.c registry.c simulate.c $(shell ls simulate/*.c)
 FILES        += usage.c utils.c wav.c zip.c
-FILES        += third-party/jsmn/jsmn.c
+FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
 
 SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
 HDRS         := $(NAME).h init.h license.h
