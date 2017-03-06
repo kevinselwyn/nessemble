@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "nessemble.h"
-#include "json.h"
+#include "third-party/jsmn/jsmn.h"
 
 #include <string.h>
 char *strstr(const char *haystack, const char *needle);
@@ -9,131 +9,14 @@ char *strstr(const char *haystack, const char *needle);
 #include <string.h>
 char *strcasestr(const char *haystack, const char *needle);
 
-static unsigned int parse_json(struct json_token **json_tokens, char *json, unsigned int json_token_count) {
-    unsigned int key = 0, type = 0, start = 0, end = 0, size = 0;
-    int token_index = 0, i = 0, l = 0;
-    struct json_token *tokens = NULL;
+#define JSON_TOKEN_MAX 128
 
-    tokens = (struct json_token *)nessemble_malloc(sizeof(struct json_token) * (json_token_count));
+static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
+	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start && strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
+		return 0;
+	}
 
-    l = (int)strlen(json);
-
-    if (json[i++] != '{') {
-        goto cleanup;
-    }
-
-    type = JSON_UNDEFINED;
-
-    while (i < l) {
-        if (i >= l) {
-            break;
-        }
-
-        while (1 == TRUE) {
-            if (i >= l) {
-                break;
-            }
-
-            if (json[i] == '"') {
-                type = JSON_STRING;
-                break;
-            }
-
-            if ((int)json[i] >= 48 && (int)json[i] <= 57) {
-                type = JSON_NUMBER;
-                break;
-            }
-
-            if (json[i] == 't' || json[i] == 'f') {
-                type = JSON_BOOLEAN;
-                break;
-            }
-
-            if (json[i] == 'n') {
-                type = JSON_NULL;
-                break;
-            }
-
-            i++;
-        }
-
-        if (type == JSON_STRING) {
-            i++;
-        }
-
-        start = (unsigned int)i;
-
-        while (1 == TRUE) {
-            if (i >= l) {
-                break;
-            }
-
-            if (type == JSON_STRING) {
-                if (json[i] == '"' && json[i-1] != '\\') {
-                    break;
-                }
-            }
-
-            if (type == JSON_NUMBER || type == JSON_BOOLEAN || type == JSON_NULL) {
-                if (json[i] == ',' || json[i] == '}' || json[i] == '\n' || json[i] == ' ') {
-                    break;
-                }
-            }
-
-            i++;
-        }
-
-        end = (unsigned int)i;
-
-        key = FALSE;
-
-        while (1 == TRUE) {
-            if (i >= l) {
-                break;
-            }
-
-            if (json[i] == ':') {
-                key = TRUE;
-                break;
-            }
-
-            if (json[i] == '}') {
-                key = FALSE;
-                break;
-            }
-
-            if (json[i] == ',') {
-                break;
-            }
-
-            i++;
-        }
-
-        tokens[token_index].key = key;
-        tokens[token_index].type = type;
-        tokens[token_index].start = start;
-        tokens[token_index].end = end;
-        tokens[token_index].size = 0;
-
-        token_index++;
-        i++;
-    }
-
-    size = 0;
-
-    for (i = token_index - 1, l = 0; i >= l; --i) {
-        if (tokens[i].key == FALSE) {
-            size++;
-        } else {
-            tokens[i].size = size;
-            size = 0;
-        }
-    }
-
-cleanup:
-    *json_tokens = tokens;
-
-    return (unsigned int)token_index;
+	return -1;
 }
 
 static unsigned int parse_text(char **output, char *text) {
@@ -171,10 +54,12 @@ static unsigned int parse_text(char **output, char *text) {
 }
 
 unsigned int get_json(char **value, char *key, char *url) {
-    unsigned int rc = RETURN_OK, http_code = 0, text_length = 0, token_count = 0;
+    int token_count = 0;
+    unsigned int rc = RETURN_OK, http_code = 0, text_length = 0;
     unsigned int i = 0, l = 0, string_length = 0;
     char *text = NULL, *string_value = NULL;
-    struct json_token *tokens = NULL;
+    jsmn_parser parser;
+    jsmntok_t tokens[JSON_TOKEN_MAX];
 
     switch ((http_code = get_request(&text, &text_length, url, MIMETYPE_JSON))) {
     case 503:
@@ -197,29 +82,25 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    token_count = parse_json(&tokens, text, 22);
+    jsmn_init(&parser);
+    token_count = jsmn_parse(&parser, text, strlen(text), tokens, JSON_TOKEN_MAX);
 
-    if (token_count == 0) {
+    if (token_count <= 0 || tokens[0].type != JSMN_OBJECT) {
+        error_program_log("Could not parse JSON");
+
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (!tokens) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    for (i = 1, l = (unsigned int)token_count; i < l; i++) {
+        if (jsoneq(text, &tokens[i], key) == 0) {
+            string_length = tokens[i+1].end - tokens[i+1].start;
+            string_value = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
-    for (i = 0, l = token_count; i < l; i++) {
-        if (tokens[i].key == TRUE) {
-            if (strncmp(text+tokens[i].start, key, strlen(key)) == 0) {
-                string_length = tokens[i+1].end - tokens[i+1].start;
-                string_value = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
+            strncpy(string_value, text+tokens[i+1].start, (size_t)string_length);
+            string_value[string_length] = '\0';
 
-                strncpy(string_value, text+tokens[i+1].start, (size_t)string_length);
-                string_value[string_length] = '\0';
-
-                break;
-            }
+            break;
         }
     }
 
@@ -239,18 +120,19 @@ unsigned int get_json(char **value, char *key, char *url) {
 
 cleanup:
     nessemble_free(text);
-    nessemble_free(tokens);
 
     return rc;
 }
 
 unsigned int get_json_search(char *url, char *term) {
+    int token_count = 0;
     unsigned int rc = RETURN_OK, text_length = 0;
     unsigned int i = 0, k = 0, l = 0;
-    unsigned int token_count = 0, string_length = 0, results_index = 0;
+    unsigned int string_length = 0, results_index = 0;
     char *text = NULL;
     char *results[200];
-    struct json_token *tokens = NULL;
+    jsmn_parser parser;
+    jsmntok_t tokens[JSON_TOKEN_MAX];
 
     switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
     case 503:
@@ -273,45 +155,37 @@ unsigned int get_json_search(char *url, char *term) {
         goto cleanup;
     }
 
-    token_count = parse_json(&tokens, text, 100);
+    jsmn_init(&parser);
+    token_count = jsmn_parse(&parser, text, strlen(text), tokens, JSON_TOKEN_MAX);
 
-    if (token_count == 0) {
+    if (token_count <= 0 || tokens[0].type != JSMN_OBJECT) {
+        error_program_log("Could not parse JSON");
+
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (!tokens) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    for (i = 1, l = token_count; i < l; i++) {
+        if (jsoneq(text, &tokens[i], "name") == 0) {
+            string_length = tokens[i+1].end - tokens[i+1].start;
+            results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
-    for (i = 0, l = token_count; i < l; i++) {
-        if (tokens[i].key == TRUE) {
-            string_length = tokens[i].end - tokens[i].start;
+            memset(results[results_index], 0, (size_t)string_length);
+            strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
+            results[results_index][string_length] = '\0';
 
-            if (string_length == 4 && strncmp(text+tokens[i].start, "name", 4) == 0) {
-                string_length = tokens[i+1].end - tokens[i+1].start;
-                results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
+            results_index++;
+        }
 
-                memset(results[results_index], 0, (size_t)string_length);
-                strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
-                results[results_index][string_length] = '\0';
+        if (jsoneq(text, &tokens[i], "description") == 0) {
+            string_length = tokens[i+1].end - tokens[i+1].start;
+            results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
-                results_index++;
-            }
+            memset(results[results_index], 0, (size_t)string_length);
+            strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
+            results[results_index][string_length] = '\0';
 
-            string_length = tokens[i].end - tokens[i].start;
-
-            if (string_length == 11 && strncmp(text+tokens[i].start, "description", 11) == 0) {
-                string_length = tokens[i+1].end - tokens[i+1].start;
-                results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
-
-                memset(results[results_index], 0, (size_t)string_length);
-                strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
-                results[results_index][string_length] = '\0';
-
-                results_index++;
-            }
+            results_index++;
         }
     }
 
@@ -367,7 +241,6 @@ unsigned int get_json_search(char *url, char *term) {
 
 cleanup:
     nessemble_free(text);
-    nessemble_free(tokens);
 
     for (i = 0, l = results_index; i < l; i++) {
         nessemble_free(results[i]);
