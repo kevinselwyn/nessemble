@@ -64,6 +64,7 @@
 #define FLAG_REASSEMBLE   0x08
 #define FLAG_SIMULATE     0x10
 #define FLAG_CHECK        0x20
+#define FLAG_COVERAGE     0x40
 
 /* SEGMENTS */
 #define SEGMENT_CHR 1
@@ -125,7 +126,7 @@
 #define FLG_CARRY     7
 
 /* USAGE */
-#define USAGE_FLAG_COUNT            13
+#define USAGE_FLAG_COUNT            14
 #define USAGE_COMMAND_COUNT         9
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
@@ -230,6 +231,7 @@ extern struct easing easings[EASING_COUNT];
 
 /* IO */
 unsigned int *rom;
+unsigned int *coverage;
 
 /* OFFSETS */
 unsigned int prg_offsets[MAX_BANKS];
@@ -261,6 +263,9 @@ void usage_simulate();
 unsigned int version();
 unsigned int license();
 
+/* COVERAGE */
+unsigned int get_coverage();
+
 /* REFERENCE */
 unsigned int reference(char *category, char *term);
 
@@ -278,6 +283,7 @@ unsigned int is_flag_disassemble();
 unsigned int is_flag_reassemble();
 unsigned int is_flag_simulate();
 unsigned int is_flag_check();
+unsigned int is_flag_coverage();
 
 /* SEGMENT TESTS */
 unsigned int is_segment_chr();
@@ -499,6 +505,7 @@ float easeInOutBounce(float t, float b, float c, float d);
 void *nessemble_malloc(size_t size);
 void nessemble_free(void *ptr);
 char *nessemble_strdup(char *str);
+unsigned int is_stdout(char *filename);
 int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);

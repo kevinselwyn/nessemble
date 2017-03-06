@@ -496,7 +496,7 @@ cleanup:
 }
 
 unsigned int disassemble(char *input, char *output, char *listname) {
-    unsigned int rc = RETURN_OK, is_stdout = FALSE;
+    unsigned int rc = RETURN_OK;
     unsigned int i = 0, j = 0, l = 0;
     unsigned int arg0 = 0, prg_counter = 0;
     unsigned int insize = 0;
@@ -526,10 +526,6 @@ unsigned int disassemble(char *input, char *output, char *listname) {
 
     reassemblable = is_flag_reassemble();
 
-    if (isatty(fileno(outfile)) == 1 || strcmp(output, "/dev/stdout") == 0) {
-        is_stdout = TRUE;
-    }
-
     if (strncmp(indata, "NES", 3) == 0) {
         if (reassemblable == FALSE) {
             fprintf(outfile, "0000 | XXXX | 4E 45 53 | .ascii \"NES\"\n");
@@ -556,7 +552,7 @@ unsigned int disassemble(char *input, char *output, char *listname) {
                 disassemble_db_header(outfile, i, disassemble_byte(indata, i));
             }
         } else {
-            if (is_stdout == FALSE && disassemble_inestrn == TRUE && reassemblable == TRUE) {
+            if (is_stdout(output) == FALSE && disassemble_inestrn == TRUE && reassemblable == TRUE) {
                 trn_filename = (char *)nessemble_malloc(sizeof(char) * (strlen(output) + 13));
                 sprintf(trn_filename, "%s-trainer.asm", output);
 
@@ -604,7 +600,7 @@ unsigned int disassemble(char *input, char *output, char *listname) {
     }
 
     // output chr
-    if (is_stdout == TRUE) {
+    if (is_stdout(output) == TRUE) {
         goto cleanup;
     }
 

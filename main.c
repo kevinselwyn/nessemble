@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
         { "undocumented", no_argument,       0, 'u' },
         { "list",         required_argument, 0, 'l' },
         { "check",        no_argument,       0, 'c' },
+        { "coverage",     no_argument,       0, 'C' },
         { "disassemble",  no_argument,       0, 'd' },
         { "reassemble",   no_argument,       0, 'R' },
         { "simulate",     no_argument,       0, 's' },
@@ -98,6 +99,9 @@ int main(int argc, char *argv[]) {
             break;
         case 'c':
             flags |= FLAG_CHECK;
+            break;
+        case 'C':
+            flags |= FLAG_COVERAGE;
             break;
         case 'd':
             flags |= FLAG_DISASSEMBLE;
@@ -383,10 +387,12 @@ int main(int argc, char *argv[]) {
 
     // create rom
     rom = (unsigned int *)nessemble_malloc(sizeof(unsigned int) * offset_max);
+    coverage = (unsigned int *)nessemble_malloc(sizeof(unsigned int) * offset_max);
 
     // set all bytes to empty_byte
     for (i = 0, l = (unsigned int)offset_max; i < l; i++) {
         rom[i] = empty_byte;
+        coverage[i] = FALSE;
     }
 
     // set all trainer bytes to empty_byte
@@ -431,7 +437,7 @@ int main(int argc, char *argv[]) {
     }
 
     // write output
-    if (strcmp(outfilename, "/dev/stdout") == 0) {
+    if (is_stdout(outfilename) == TRUE) {
         outfile = stdout;
     } else {
         outfile = fopen(outfilename, "w");
@@ -494,12 +500,20 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
+    // write coverage
+    if (is_flag_coverage() == TRUE && is_flag_nes() == TRUE && is_stdout(outfilename) == FALSE) {
+        if ((rc = get_coverage()) != RETURN_OK) {
+            goto cleanup;
+        }
+    }
+
 cleanup:
     for (i = 0, l = symbol_index; i < l; i++) {
         nessemble_free(symbols[i].name);
     }
 
     nessemble_free(rom);
+    nessemble_free(coverage);
     nessemble_free(outfilename);
     nessemble_free(cwd_path);
     nessemble_free(listname);

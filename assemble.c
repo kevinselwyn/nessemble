@@ -97,6 +97,7 @@ void write_byte(unsigned int byte) {
 
     if (pass == 2 && offset < (unsigned int)offset_max) {
         rom[offset] = byte;
+        coverage[offset] = TRUE;
     }
 
     if (is_segment_prg() == TRUE) {

@@ -31,13 +31,13 @@ Options:
   -u, --undocumented           use undocumented opcodes
   -l, --list <listfile.txt>    generate list of labels and constants
   -c, --check                  check syntax only
+  -C, --coverage               log data coverage
   -d, --disassemble            disassemble infile
   -R, --reassemble             enable reassembly
   -s, --simulate <infile.rom>  start the simulator
   -r, --recipe <recipe.txt>    recipe file for the simulator
   -v, --version                display program version
   -L, --license                display program license
-  -h, --help                   print this message
 
 Commands:
   init                             initialize new project
@@ -104,6 +104,14 @@ nessemble infile.asm --check
 ```
 
 Only check for syntax errors. Does not compile.
+
+#### -C, --coverage
+
+```
+nessemble infile.asm --coverage
+```
+
+Check data coverage of ROM.
 
 #### -d, --disassemble
 
