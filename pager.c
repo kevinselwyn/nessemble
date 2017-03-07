@@ -38,7 +38,8 @@ unsigned int pager_buffer(char *buffer) {
             goto cleanup;
         }
 
-        rc = RETURN_EPERM;
+        printf("%s", buffer);
+        rc = RETURN_OK;
     }
 
 cleanup:

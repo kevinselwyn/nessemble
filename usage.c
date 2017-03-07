@@ -6,10 +6,13 @@
 static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-o, --output <outfile.rom>", "output file" },
     { "-f, --format {NES,RAW}", "output format" },
+    { "-e, --empty <hex>", "empty byte value" },
     { "-u, --undocumented", "use undocumented opcodes" },
     { "-l, --list <listfile.txt>", "generate list of labels and constants" },
     { "-c, --check", "check syntax only" },
+    { "-C, --coverage", "log data coverage" },
     { "-d, --disassemble", "disassemble infile" },
+    { "-R, --reassemble", "enable reassembly" },
     { "-s, --simulate <infile.rom>", "start the simulator" },
     { "-r, --recipe <recipe.txt>", "recipe file for the simulator" },
     { "-v, --version", "display program version"},
@@ -20,11 +23,12 @@ static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
 static struct usage_flag usage_commands[USAGE_COMMAND_COUNT] = {
     { "init", "initialize new project" },
     { "reference [<category>] [<term>]", "get reference info about assembly terms" },
+    { "config [<key>] [<val>]", "list/get/set config info" },
     { "registry [<url>]", "get/set registry url" },
     { "install <package>", "install package" },
     { "uninstall <package>", "uninstall package" },
     { "info <package>", "get info about package" },
-    { "ls", "list all packages in registry" },
+    { "ls", "list all installed packages" },
     { "search <term>", "search for package in registry" }
 };
 
@@ -76,8 +80,9 @@ static void print_usage(struct usage_flag *usage_flags, unsigned int size) {
  * @param {string *} exec - Executable name
  * @param {int} Return code
  */
-int usage(char *exec) {
+unsigned int usage(char *exec) {
     int length = (int)strlen(exec);
+    unsigned int rc = RETURN_USAGE;
 
     printf("Usage: %s [options] <infile.asm>\n", exec);
     printf("%*s<command> [args]\n\n", length + 8, " ");
@@ -89,7 +94,7 @@ int usage(char *exec) {
 
     print_usage(usage_commands, USAGE_COMMAND_COUNT);
 
-    return RETURN_USAGE;
+    return rc;
 }
 
 /**
@@ -106,17 +111,19 @@ void usage_simulate() {
 /**
  * Program version
  */
-int version() {
+unsigned int version() {
+    unsigned int rc = RETURN_USAGE;
+
     printf(PROGRAM_NAME " v" PROGRAM_VERSION "\n\nCopyright " PROGRAM_COPYRIGHT " " PROGRAM_AUTHOR "\n");
 
-    return RETURN_USAGE;
+    return rc;
 }
 
 /**
  * Program license
  */
-int license() {
-    int rc = version();
+unsigned int license() {
+    unsigned int rc = version();
 
     license_txt[license_txt_len-1] = '\0';
 

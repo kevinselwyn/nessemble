@@ -7,20 +7,10 @@
 #define MAX_MACRO_TEXT 1024 * 1024
 
 void add_macro(char *name) {
-    macros[macro_index].name = (char *)malloc(sizeof(char) * MAX_MACRO_NAME);
-
-    if (!macros[macro_index].name) {
-        fatal("Memory error");
-    }
-
+    macros[macro_index].name = (char *)nessemble_malloc(sizeof(char) * MAX_MACRO_NAME);
     strcpy(macros[macro_index].name, name);
 
-    macros[macro_index].text = (char *)malloc(sizeof(char) * MAX_MACRO_TEXT);
-
-    if (!macros[macro_index].text) {
-        fatal("Memory error");
-    }
-
+    macros[macro_index].text = (char *)nessemble_malloc(sizeof(char) * MAX_MACRO_TEXT);
     strcpy(macros[macro_index].text, "");
 }
 

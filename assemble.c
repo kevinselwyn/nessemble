@@ -46,7 +46,7 @@ unsigned int get_address_offset() {
             if (ines.prg < 2) {
                 offset = prg_offsets[prg_index] + (BANK_PRG * 3);
             } else {
-                offset = prg_offsets[prg_index] + ((BANK_PRG * 2) + ((ines.prg % 2) * BANK_PRG));
+                offset = prg_offsets[prg_index] + ((BANK_PRG * 2) + ((prg_index % 2) * BANK_PRG));
             }
         }
     } else {
@@ -97,6 +97,7 @@ void write_byte(unsigned int byte) {
 
     if (pass == 2 && offset < (unsigned int)offset_max) {
         rom[offset] = byte;
+        coverage[offset] = TRUE;
     }
 
     if (is_segment_prg() == TRUE) {
@@ -128,6 +129,7 @@ void write_byte(unsigned int byte) {
  */
 void add_symbol(char *name, unsigned int value, unsigned int type) {
     int symbol_id = -1;
+    unsigned int bank = 0;
 
     if (pass == 1) {
         if (if_active == TRUE) {
@@ -140,14 +142,17 @@ void add_symbol(char *name, unsigned int value, unsigned int type) {
             }
         }
 
+        bank = prg_index;
         symbol_id = get_symbol(name);
 
         if (symbol_id != -1) {
             symbols[symbol_id].value = value;
+            symbols[symbol_id].bank = bank;
             symbols[symbol_id].type = type;
         } else {
-            symbols[symbol_index].name = strdup(name);
+            symbols[symbol_index].name = nessemble_strdup(name);
             symbols[symbol_index].value = value;
+            symbols[symbol_index].bank = bank;
             symbols[symbol_index++].type = type;
         }
     }

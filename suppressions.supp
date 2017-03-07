@@ -2,6 +2,16 @@
    <yyensure_buffer_stack>
    Memcheck:Leak
    fun:malloc
+   fun:yyensure_buffer_stack
+   fun:yylex
+   fun:yyparse
+   fun:main
+}
+{
+   <yyensure_buffer_stack_2>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
    fun:yyalloc
    fun:yyensure_buffer_stack
    fun:yylex
@@ -12,7 +22,8 @@
    <yylex>
    Memcheck:Leak
    fun:malloc
-   fun:strdup
+   fun:nessemble_malloc
+   fun:nessemble_strdup
    fun:yylex
    fun:yyparse
    fun:main
@@ -22,6 +33,15 @@
    Memcheck:Leak
    fun:malloc
    fun:yyalloc
+   fun:yy_create_buffer
+   fun:yylex
+   fun:yyparse
+   fun:main
+}
+{
+   <yy_create_buffer_2>
+   Memcheck:Leak
+   fun:malloc
    fun:yy_create_buffer
    fun:yylex
    fun:yyparse

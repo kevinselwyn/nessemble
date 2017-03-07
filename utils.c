@@ -5,6 +5,60 @@
 #include <pwd.h>
 #include "nessemble.h"
 
+void *nessemble_malloc(size_t size) {
+    void *mem = NULL;
+
+    mem = malloc(sizeof(char) * size);
+
+    if (!mem) {
+        fatal("Memory error");
+    }
+
+    memset(mem, 0, size);
+
+    return mem;
+}
+
+void nessemble_free(void *ptr) {
+    if (ptr) {
+        free(ptr);
+    }
+}
+
+char *nessemble_strdup(char *str) {
+    char *dup = NULL;
+    size_t length = 0;
+
+    length = strlen(str);
+    dup = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+
+    strcpy(dup, str);
+
+    return dup;
+}
+
+unsigned int is_stdout(char *filename) {
+    unsigned int rc = FALSE;
+    FILE *file = NULL;
+
+    file = fopen(filename, "w+");
+
+    if (!file) {
+        goto cleanup;
+    }
+
+    if (isatty(fileno(file)) == 1 || strcmp(filename, "/dev/stdout") == 0) {
+        rc = TRUE;
+    }
+
+cleanup:
+    if (file) {
+        (void)fclose(file);
+    }
+
+    return rc;
+}
+
 /**
  * Convert hex string to int
  * @param {char *} hex - Hexadecimal string (ex: $12)
@@ -140,7 +194,7 @@ int get_fullpath(char **path, char *string) {
     char *fullpath = NULL;
 
     if (string[0] == '<') {
-        if (get_libpath(path, string) != RETURN_OK) {
+        if ((rc = get_libpath(path, string)) != RETURN_OK) {
             error("Could not include library `%s`", string);
         }
 
@@ -149,14 +203,7 @@ int get_fullpath(char **path, char *string) {
 
     string_length = strlen(string);
     path_length = strlen(cwd_path) + string_length - 1;
-    fullpath = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!fullpath) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
     strcpy(fullpath, cwd_path);
     strcat(fullpath, "/");
@@ -182,7 +229,7 @@ int get_libpath(char **path, char *string) {
     struct passwd *pw = getpwuid(getuid());
 
     if (!pw) {
-        fprintf(stderr, "Could not find home\n");
+        error_program_log("Could not find home directory");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -190,17 +237,10 @@ int get_libpath(char **path, char *string) {
 
     string_length = strlen(string);
     path_length = strlen(pw->pw_dir) + 11 + string_length - 1;
-    fullpath = (char *)malloc(sizeof(char) * (path_length + 1));
-
-    if (!fullpath) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
     strcpy(fullpath, pw->pw_dir);
-    strcat(fullpath, "/.nessemble/");
+    strcat(fullpath, "/." PROGRAM_NAME "/");
     strncat(fullpath, string + 1, string_length - 2);
 
     if (fullpath[path_length-1] == '>') {
@@ -228,42 +268,35 @@ unsigned int load_file(char **data, char *filename) {
     infile = fopen(filename, "r");
 
     if (!infile) {
-        fprintf(stderr, "Could not open %s\n", filename);
+        error_program_log("Could not open `%s`", filename);
         goto cleanup;
     }
 
     if (fseek(infile, 0, SEEK_END) != 0) {
-        fprintf(stderr, "Seek error\n");
+        error_program_log("Seek error");
         goto cleanup;
     }
 
     insize = (unsigned int)ftell(infile);
 
     if (fseek(infile, 0, SEEK_SET) != 0) {
-        fprintf(stderr, "Seek error\n");
+        error_program_log("Seek error");
 
         insize = 0;
         goto cleanup;
     }
 
     if (insize == 0) {
-        fprintf(stderr, "%s is empty\n", filename);
+        error_program_log("`%s` is empty", filename);
 
         insize = 0;
         goto cleanup;
     }
 
-    indata = (char *)malloc(sizeof(char) * (insize + 1));
-
-    if (!indata) {
-        fatal("Memory error");
-
-        insize = 0;
-        goto cleanup;
-    }
+    indata = (char *)nessemble_malloc(sizeof(char) * (insize + 1));
 
     if (fread(indata, 1, (size_t)insize, infile) != (size_t)insize) {
-        fprintf(stderr, "Could not read %s\n", filename);
+        error_program_log("Could not read `%s`", filename);
 
         insize = 0;
         goto cleanup;
@@ -330,6 +363,14 @@ unsigned int is_flag_disassemble() {
 }
 
 /**
+ * Test if reassemble flag is active
+ * @return {unsigned int} True if flag active, false if not
+ */
+unsigned int is_flag_reassemble() {
+    return (unsigned int)((flags & FLAG_REASSEMBLE) != 0 ? TRUE : FALSE);
+}
+
+/**
  * Test if sumlate flag is active
  * @return {unsigned int} True if flag active, false if not
  */
@@ -343,6 +384,14 @@ unsigned int is_flag_simulate() {
  */
 unsigned int is_flag_check() {
     return (unsigned int)((flags & FLAG_CHECK) != 0 ? TRUE : FALSE);
+}
+
+/**
+ * Test if coverage flag is active
+ * @return {unsigned int} True if flag active, false if not
+ */
+unsigned int is_flag_coverage() {
+    return (unsigned int)((flags & FLAG_COVERAGE) != 0 ? TRUE : FALSE);
 }
 
 /**

@@ -15,6 +15,7 @@
 #define PROGRAM_VERSION   "1.0.1"
 #define PROGRAM_COPYRIGHT "2017"
 #define PROGRAM_AUTHOR    "Kevin Selwyn"
+#define PROGRAM_LANGUAGE  "en-US"
 
 /* BOOLEAN */
 #ifndef TRUE
@@ -31,6 +32,11 @@
 #define RETURN_OK    0
 #define RETURN_EPERM 1
 #define RETURN_USAGE 129
+
+/* MIMETYPES */
+#define MIMETYPE_JSON "application/json"
+#define MIMETYPE_ZIP  "application/tar+gzip"
+#define MIMETYPE_TEXT "text/plain"
 
 /* VARS */
 #define MAX_INCLUDE_DEPTH 10
@@ -55,8 +61,10 @@
 #define FLAG_UNDOCUMENTED 0x01
 #define FLAG_NES          0x02
 #define FLAG_DISASSEMBLE  0x04
-#define FLAG_SIMULATE     0x08
-#define FLAG_CHECK        0x10
+#define FLAG_REASSEMBLE   0x08
+#define FLAG_SIMULATE     0x10
+#define FLAG_CHECK        0x20
+#define FLAG_COVERAGE     0x40
 
 /* SEGMENTS */
 #define SEGMENT_CHR 1
@@ -118,8 +126,8 @@
 #define FLG_CARRY     7
 
 /* USAGE */
-#define USAGE_FLAG_COUNT            11
-#define USAGE_COMMAND_COUNT         8
+#define USAGE_FLAG_COUNT            14
+#define USAGE_COMMAND_COUNT         9
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
 /*
@@ -136,7 +144,7 @@ struct opcode {
 /* SYMBOLS */
 struct symbol {
     char *name;
-    unsigned int value, type;
+    unsigned int value, type, bank;
 };
 
 /* MACROS */
@@ -223,6 +231,7 @@ extern struct easing easings[EASING_COUNT];
 
 /* IO */
 unsigned int *rom;
+unsigned int *coverage;
 
 /* OFFSETS */
 unsigned int prg_offsets[MAX_BANKS];
@@ -249,10 +258,13 @@ unsigned int pass;
 int main(int argc, char *argv[]);
 
 /* USAGE */
-int usage(char *exec);
+unsigned int usage(char *exec);
 void usage_simulate();
-int version();
-int license();
+unsigned int version();
+unsigned int license();
+
+/* COVERAGE */
+unsigned int get_coverage();
 
 /* REFERENCE */
 unsigned int reference(char *category, char *term);
@@ -268,8 +280,10 @@ void include_string_pop();
 unsigned int is_flag_undocumented();
 unsigned int is_flag_nes();
 unsigned int is_flag_disassemble();
+unsigned int is_flag_reassemble();
 unsigned int is_flag_simulate();
 unsigned int is_flag_check();
+unsigned int is_flag_coverage();
 
 /* SEGMENT TESTS */
 unsigned int is_segment_chr();
@@ -353,10 +367,10 @@ void assemble_zeropage(char *mnemonic, unsigned int address);
 void assemble_zeropage_xy(char *mnemonic, unsigned int address, char reg);
 
 /* DISASSEMBLY UTILS */
-int disassemble(char *input, char *output);
+unsigned int disassemble(char *input, char *output, char *listname);
 
 /* SIMULATE UTILS */
-int simulate(char *input, char *recipe);
+unsigned int simulate(char *input, char *recipe);
 void usage_simulate();
 int repl(char *input);
 void print_registers();
@@ -488,6 +502,10 @@ float easeOutBounce(float t, float b, float c, float d);
 float easeInOutBounce(float t, float b, float c, float d);
 
 /* UTILS */
+void *nessemble_malloc(size_t size);
+void nessemble_free(void *ptr);
+char *nessemble_strdup(char *str);
+unsigned int is_stdout(char *filename);
 int hex2int(char *hex);
 int bin2int(char *bin);
 int oct2int(char *oct);
@@ -506,6 +524,7 @@ void tmp_delete(char *filename);
 
 /* LIST */
 unsigned int output_list(char *filename);
+unsigned int input_list(char *filename);
 
 /* ERRORS */
 void fatal(const char *fmt, ...);
@@ -515,9 +534,18 @@ unsigned int error_exists();
 unsigned int error_exit();
 void error_free();
 void yyerror(const char *fmt, ...);
+void error_program_log(const char *fmt, ...);
+void error_program_output(const char *fmt, ...);
 
 /* INIT */
 unsigned int init();
+
+/* CONFIG */
+unsigned int open_config(FILE **file, char **filename);
+void close_config(FILE *file, char *filename);
+unsigned int get_config(char **result, char *item);
+unsigned int set_config(char *result, char *item);
+unsigned int list_config(char **result);
 
 /* REGISTRY */
 unsigned int get_registry();
@@ -529,7 +557,7 @@ unsigned int lib_list();
 unsigned int lib_search(char *term);
 
 /* DOWNLOAD */
-unsigned int get_request(char **request, size_t *request_length, char *url, char *mime_type);
+unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type);
 
 /* JSON */
 unsigned int get_json(char **value, char *key, char *filename);

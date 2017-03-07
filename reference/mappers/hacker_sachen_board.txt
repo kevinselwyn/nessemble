@@ -1,0 +1,14 @@
+HACKER/SACHEN BOARD (Mapper 113)
+
+Company:             unknown
+Boards:              unknown
+PRG ROM capacity:    256K
+PRG ROM window:      32K
+PRG RAM capacity:    None
+CHR capacity:        128K
+CHR window:          8k
+Nametable mirroring: H or V, controlled by mapper
+Bus conflicts:       No
+IRQ:                 No
+Audio:               No
+iNES mappers:        113

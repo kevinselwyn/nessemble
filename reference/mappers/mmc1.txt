@@ -1,0 +1,468 @@
+MMC1 (Mapper 001)
+
+Company:             Nintendo, others
+Games:               390 in NesCartDB
+Complexity:          ASIC
+Boards:              SKROM, SLROM,SNROM, others
+PRG ROM capacity:    512K
+PRG ROM window:      16K + 16K fixed or 32K
+PRG RAM capacity:    32K
+PRG RAM window:      8K
+CHR capacity:        128K
+CHR window:          4K + 4K or 8K
+Nametable mirroring: H, V, or 1, switchable
+Bus conflicts:       No
+IRQ:                 No
+Audio:               No
+iNES mappers:        001, 105, 155
+
+Games:
+
+100 Kiyagyou
+720
+'89 Dennou Hosi Uranai
+A-Ressya De Ikou
+Abadox
+Abadox (J)
+Acchi Kocchi Socchi
+Addams Family, The
+Addams Family 2, The (Pugsley)
+Adventures in the Magic Kingdom
+Adventures of Bayou Billy
+Adventures of Bayou Billy (PAL)
+Adventures of Lolo
+Adventures of Lolo 3
+Adventures of Rad Gravity, The
+Adventures of Rad Gravity (PAL)
+Adventures of Tom Sawyer, The
+Air Fortress
+Air Fortress (J)
+Airwolf
+Airwolf (PAL)
+Al Unser Jr's Turbo Racing
+Alien Syndrome (J)
+All Pro Basketball
+American Dream
+American Gladiators
+Ankoku Sinwa
+Anticipation
+Artelius
+Atlantis no Nazo
+Attack of the Killer Tomatoes
+Back to the Future 2/3
+Bad News Baseball
+Bad Street Brawler
+Baken Hissyougaku Gate-In
+Barbie
+Bard's Tale, The
+Bard's Tale, The (J)
+Bard's Tale 2, The
+Barker Bill's Trick Shooting
+Bart vs. the Space Mutants
+Baseball Simulator 1000
+Baseball Stars
+Baseball Stars (J)
+Bases Loaded
+Bases Loaded 2
+Battle Chess
+Battle of Olympus, The
+Battle Stadium
+Battle Storm
+Be-Bop High School
+Best Play Pro Yakyuu
+Best Play Pro Yakyuu 2
+Best Play Pro Yakyuu Special
+Big Bird's Hide and Speak
+Bigfoot
+Bikkuri Man World Gekitotu Sei Sensi
+Bill and Ted's Excellent Adventure
+Bionic Commando
+Birdy Rush
+Blaster Master
+Blaster Master (PAL)
+Bloody Warriors
+Boulder Dash
+Boulder Dash (J)
+Boy and His Blob, A
+Breakthru
+Bubble Bobble
+Bubble Bobble (PAL)
+Bugs Bunny's Crazy Castle
+Captain Ed
+Captain Silver
+Captain Tsubasa
+Castlevania 2
+Castlevania 2 (PAL)
+Caveman Games
+Chaos World
+Chiller
+Chip N' Dale - Rescue Rangers
+Chip N' Dale - Rescue Rangers 2
+Chip to Dale no Daisakusen
+Chip to Dale no Daisakusen 2
+Choujin Sentai Jetman
+Choujin Ultra Baseball
+Chugoku Jyansi Story Tonpuu
+Chuka Taisen
+Circus Caper
+Clash at Demonhead
+Cobra Command
+Cobra Command (J)
+Cocoron
+Conflict
+Cool World
+Cosmic Wars
+Cosmo Police Galivan
+Dai Meiro
+Dai Senryaku
+Dance Aerobics
+Darkman
+Darkwing Duck
+Datsugoku
+Day Dreamin' Davey
+Deep Dungeon 3
+Deep Dungeon 4
+Defender of the Crown
+Demon Sword
+Dengeki Big Bang
+Derby Stallion
+Derby Stallion Zenkokuban
+Desert Commander
+Destiny of an Emperor
+Dezaemon
+Die Hard (J)
+Donald Duck
+Donald Land
+Doraemon Gigzombi no Gyakusyuu
+Double Dragon
+Double Dragon (J)
+Double Dragon (PAL)
+Dr. Jekyll and Mr. Hyde
+Dr. Mario
+Dr. Mario (PAL)
+Dragon Fighter
+Dragon Quest 4
+Dragon Warrior
+Dragon Warrior 2
+Dragon Warrior 3
+Dragon Warrior 4
+Dragons of Flame
+Dungeon and Magic
+Dungeon Kid
+Dungeon Magic
+Dusty Diamond All-Star Softball
+Dynablaster
+Dynowarz
+Eggerland
+Eliminator Boat Duel
+Elite
+Elysion
+Emo Yan no 10 Bai Pro Yakyuu
+Exciting Rally
+F1 Built to Win
+Famicom Yakyuuban
+Family Fued
+Faria
+Faria (J)
+Faxanadu
+Fester's Quest
+Fighting Golf
+Final Fantasy
+Final Fantasy I/II
+Final Mission
+Flying Warriors
+Frankenstein
+Freedom Force
+Gambler Jikochusin Ha
+Gambler Jikochusin Ha 2
+Garfield
+Gekikame Ninjaden
+Gekitou Pro Wrestling
+Gekitou Stadium
+Genghis Khan
+Genghis Khan (J)
+Ghostbusters 2
+Ghoul School
+Ginga Eiyuu Densetsu
+Goal
+Godzilla
+Godzilla (J)
+Godzilla 2
+Golf '92, The
+Golf Grand Slam
+Golgo 13
+Golgo 13 (J)
+Gozonji Yajikita Tindouchu
+Grand Master
+Great Deal
+Great Tank
+Guerilla War
+Gunhed
+Haja no Fuuin
+Harlem Globetrotters
+Hatris
+Heavy Shreddin'
+Hercules no Eikou 2
+Heroes of the Lance
+Heroes of the Lance (J)
+Hillsfar (J)
+Hirake Ponkikki
+Hiryuu no Ken 2
+Hiryuu no Ken SP Fighting Wars
+Hissatu Dojo Yaburi
+Hittra no Fukkatu
+Hokuto no Ken 3
+Hokuto no Ken 4
+Home Run Nighter
+Hook
+Hook (J)
+Hoops
+Hostages
+Hototogisu
+Hudson Hawk
+Hyaku no Sekai no Monogatari
+Hyokkori Hyoutan Jima
+I Love Softball
+Idol Hakkenden
+Igo Sinan '91
+Igo Sinan '93
+Ikari Warriors 2
+Ikari Warriors 3
+Ikari Warriors 3 (J)
+Indiana Jones / Last Crusade
+International Cricket
+Iron Tank
+Itadaki Street
+Journey to Silius
+Jyanbou Ozaki no Hole-in-One
+Kabusiki Doujyou
+Kame no Ongaesi
+Kamen no Ninja Hanamaru
+Katteni Sirokuma
+Kero Kero Keroppi 2
+Kid Icarus
+Kid Niki
+Kiri no London Satsujin Jiken
+Kiteretsu Daihyakka
+Knight Rider
+Koushien
+Kuja Kuou
+Kuja Kuou 2
+Kyuukyoku Tiger
+Lee Trevino's Fighting Golf
+Legend of the Ghost Lion, The
+Legend of Zelda, The
+Legend of Zelda (-1 PRG Rev.)
+Lemmings
+Little League Baseball
+Mad City
+Magic Darts
+Magic Johnson's Fast Break
+Magic of Scherezade, The
+Mahou no Princess Minky Momo
+Maijin Eiyuuden Wataru Gaiden
+Majaventure
+Majyan RPG Dora Dora Dora
+Maniac Mansion
+Maniac Mansion (PAL)
+Mario Open Golf
+Marusa no Onna
+Matsumoto Tooru no Kabusiki Hissyougaku 2
+Mechanized Attack
+Mega Man 2
+Meiji Ishin
+Meitantei Holmes
+Melville's Flame
+Metal Flame Psybuster
+Metal Mech
+Metroid
+Mini-Putt
+Miracle Piano System
+Mirai Sensei Lios
+Mizusima Senji no Dai Koushien
+Moeru Oniisan
+Momotarou Densetsu
+Money Game 2, The
+Monopoly
+Monopoly (J)
+Monster Maker
+Monster Party
+Morita no Shogi
+Motocross Champion
+Motor City Patrol
+Mule
+Muppets Adventure
+Musashi no Bouken
+Navy Blue
+Nekketsu Koukou Dodgeball
+NES Open Tournament Golf
+Ninja Cop Saizou
+Ninja Gaiden
+Ninja Rahoi
+Ninja Ryukenden
+Nobunaga no Yabou Zenkokuban
+Nobunaga's Ambition
+Obochama Kun
+Ohotuku Ni Kiyu
+Oishinbo
+Operation Wolf
+Orb 3D
+Osomatsu Kun
+Overlord
+Pachinko Daisakusen
+Pachinko Daisakusen 2
+Pachio Kun 2
+Palamedes (J)
+Palamedes 2
+Parutena no Kagami
+Perfect Bowl
+Peter Pan and the Pirates
+Phantom Fighter
+Pictionary
+Pinball Quest
+Pirates
+Platoon
+Pole to Finish
+POW
+Predator
+President no Sentaku
+Prince Valiant
+Princess Tomato in Salad Kingdom
+Puzslot
+Racket Attack
+Race America
+Rad Racer
+Rad Racer (PAL)
+Raf World
+RC Pro-Am
+RC Pro-Am (PAL)
+Reigen Dousi
+Remote Control
+Rescue:  The Embassy Mission
+Road Man
+Roadblasters
+Robin Hood
+Robocop 2
+Robocop 3
+Rocket Ranger
+Rocketeer, The
+Rockman 2
+Rollerball
+Romance of the Three Kingdoms
+Romancia
+Sabaku no Kitune
+Saint Seiya 2 [hacked?]
+Sanada Jyuuyuusi
+Sangokusi
+Sarada no Kuni no Tomato Hime
+Satomi Hakkenden
+SCAT
+Sekiryuu Ou
+Sesame Street 123/ABC
+Sesame Street ABC
+Shadow Warrior
+Shikin Jyou
+Shin Satomi Hakkenden
+Shingen The Ruler
+Shinsenden
+Shogun
+Sijyou Saidai Quiz ou Ketteisen
+Silkworm
+Skate or Die 2
+Ski or Die
+Sky Kid
+Sky Shark
+SMB / Duck Hunt / WC Track Meet
+Snake Rattle N' Roll
+Snake Rattle N' Roll (PAL)
+Snake's Revenge
+Snoopy's Magic Show
+Snow Bros
+Softball Tengoku
+Space Shuttle Project
+Spot
+Square no Tom Sawyer
+Stealth ATF
+Stealth ATF (PAL)
+Sted Iseki Wakusei no Yabou
+Street Cop
+Strider
+Super Black Onyx
+Super Chinese Land 3
+Super Dodge Ball
+Super Momotarou Densetsu
+Super Real Baseball
+Superman
+Superman (J)
+Swamp Thing
+Sweet Home
+Syoukousi Sedy
+Taboo
+Taiyou no Sinden
+Takeda Shingen 2
+Tale Spin
+Tanikawa Kouji no Shogi Sinan 3
+Tao
+Target Renegade
+Tashiro Musasi no Princess Galppai
+Tatakae Ramen Man
+Tecmo Baseball
+Tecmo Bowl
+Tecmo Cup Soccer
+Tecmo World Wrestling
+Tecmo World Wrestling (PAL)
+Teenage Mutant Hero Turtles
+Teenage Mutant Ninja Turtles
+Teenage Mutant Ninja Turtles PAL
+Tenchi wo Kurau
+Tetris
+Tetris 2 + Bombliss
+Three Stooges, The
+Thunder and Lightning
+Thunderbirds
+Thunderbirds (J)
+Titan
+Tombs and Treasure
+Tonjan
+Top Players Tennis
+Touchdown Fever
+Touchdown Fever (J)
+Touhou Kenbunroku
+Track and Field 2
+Track and Field 2 (PAL)
+Triathron, The
+Tsuppari Wars
+Turbo Racing
+Ultima - Exodus
+Ultima - Exodus (J)
+Ultima - Quest of the Avatar
+Ultima - Quest of the Avatar (J)
+Ultima - Warriors of Destiny
+Untouchables, The
+Vegas Connection
+Vegas Dream
+Venus Wars, The
+Viva Las Vegas
+White Lion Densetsu
+Willow
+Willow (J)
+Win, Lose, or Draw
+Wizardry - Proving Grounds
+Wizardry - Proving Grounds (J)
+World Boxing
+World Super Tennis
+Wrath of the Black Manta
+Xenophobe
+Xexyz
+Y's
+Yo Noid
+Yokohama Renzoku Satsujin Jiken
+Yoshi
+Yoshi no Tamago
+Yousike Ide's Battle Mahjongg 2
+Zelda no Densetsu
+Zelda 2 - The Adventure of Link
+Zelda 2 (PAL)
+Zenbei Pro Basket
+Zoids 2
+Zombie Hunter

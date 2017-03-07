@@ -64,12 +64,7 @@ void error(const char *fmt, ...) {
     errors[error_index].stack = (unsigned int)include_stack_ptr;
     errors[error_index].line = yylineno;
 
-    errors[error_index].message = (char *)malloc(sizeof(char) * MAX_ERROR_LENGTH);
-
-    if (!errors[error_index].message) {
-        strcpy(errors[error_index++].message, "");
-        return;
-    }
+    errors[error_index].message = (char *)nessemble_malloc(sizeof(char) * MAX_ERROR_LENGTH);
 
     (void)vsnprintf(errors[error_index++].message, MAX_ERROR_LENGTH, fmt, argptr);
 
@@ -102,8 +97,8 @@ unsigned int error_exit() {
     if (error_exists() == TRUE) {
         length = strlen(cwd_path) + 1;
 
-        include_stack_ptr = (int)errors[0].stack;
-        yylineno = errors[0].line;
+        include_stack_ptr = (int)errors[error_index-1].stack;
+        yylineno = errors[error_index-1].line;
 
         line = yylineno - 1;
 
@@ -111,7 +106,7 @@ unsigned int error_exit() {
             line = 1;
         }
 
-        fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, line, errors[0].message);
+        fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, line, errors[error_index-1].message);
 
         rc = RETURN_EPERM;
     }
@@ -126,9 +121,7 @@ void error_free() {
     unsigned int i = 0, l = 0;
 
     for (i = 0, l = error_index; i < l; i++) {
-        if (errors[i].message) {
-            free(errors[i].message);
-        }
+        nessemble_free(errors[i].message);
     }
 }
 
@@ -159,4 +152,41 @@ void yyerror(const char *fmt, ...) {
     va_end(argptr);
 
     exit(rc);
+}
+
+void error_program_log(const char *fmt, ...) {
+    va_list argptr;
+    va_start(argptr, fmt);
+
+    if (program_error_index >= MAX_ERROR_COUNT) {
+        return;
+    }
+
+    program_errors[program_error_index].message = (char *)nessemble_malloc(sizeof(char) * MAX_ERROR_LENGTH);
+
+    (void)vsnprintf(program_errors[program_error_index++].message, MAX_ERROR_LENGTH, fmt, argptr);
+}
+
+void error_program_output(const char *fmt, ...) {
+    char *message = NULL;
+    va_list argptr;
+    va_start(argptr, fmt);
+
+    if (program_error_index >= MAX_ERROR_COUNT) {
+        return;
+    }
+
+    message = (char *)nessemble_malloc(sizeof(char) * MAX_ERROR_LENGTH);
+
+    (void)vsnprintf(message, MAX_ERROR_LENGTH, fmt, argptr);
+
+    if (program_error_index > 0) {
+        fprintf(stderr, "%s: %s\n", message, program_errors[program_error_index-1].message);
+    } else {
+        fprintf(stderr, "%s\n", message);
+    }
+
+    if (message) {
+        free(message);
+    }
 }

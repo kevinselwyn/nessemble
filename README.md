@@ -1,153 +1,278 @@
-# Nessemble Usage
+# nessemble
+
+`nessemble` is a 6502 assembler/disassembler/simulator targeting the Nintendo
+Entertainment System
+
+## Installation
+
+First, make sure all dependencies are installed:
+
+```
+sudo apt-get -y install make bison flex
+sudo apt-get -y install libpng12-dev libarchive-dev
+```
+
+To install the main executable:
+
+```
+make && sudo make install
+```
+
+## Usage
 
 ```
 Usage: nessemble [options] <infile.asm>
+                 <command> [args]
 
 Options:
   -o, --output <outfile.rom>   output file
   -f, --format {NES,RAW}       output format
+  -e, --empty <hex>            empty byte value
   -u, --undocumented           use undocumented opcodes
+  -l, --list <listfile.txt>    generate list of labels and constants
   -c, --check                  check syntax only
+  -C, --coverage               log data coverage
   -d, --disassemble            disassemble infile
+  -R, --reassemble             enable reassembly
   -s, --simulate <infile.rom>  start the simulator
   -r, --recipe <recipe.txt>    recipe file for the simulator
-  -h, --help                   print this message
+  -v, --version                display program version
+  -L, --license                display program license
+
+Commands:
+  init                             initialize new project
+  reference [<category>] [<term>]  get reference info about assembly terms
+  config [<key>] [<val>]           list/get/set config info
+  registry [<url>]                 get/set registry url
+  install <package>                install package
+  uninstall <package>              uninstall package
+  info <package>                   get info about package
+  ls                               list all installed packages
+  search <term>                    search for package in registry
 ```
 
-## Pseudo Instructions
+### Options
 
-Pseudo instructions are helpers that invoke certain functionality in the
-assembler.
-
-### .ascii
-
-Converts a string into bytes and stores them at the current address.
-
-Input:
+#### -o, --output <outfile.rom>
 
 ```
-.ascii "Hello, World!"
+nessemble infile.asm --output outfile.rom
 ```
 
-Output:
+If `-o, --output` is omitted or the provided filename is `-`, output will be
+written to `stdout`.
+
+#### -f, --format {NES,RAW}
 
 ```
-0000 | 48 65 6C 6C 6F 2C 20 57  6F 72 6C 64 21 | Hello, World!
+nessemble infile.asm --format RAW
 ```
 
-This instruction also supports `+` and `-` to shift the value of every byte:
+Format `NES` (default) will generate a NES ROM. `RAW` will generate raw code
+without an iNES header.
 
-Input:
-
-```
-.ascii "Hello, World!"-32
-```
-
-Output:
+#### -u, --undocumented
 
 ```
-0000 | 28 45 4C 4C 4F 0C 00 37  4F 52 4C 44 01 | Hello, World!
+nessemble infile.asm --undocumented
 ```
 
-### .chrX
+Assemble undocumented opcodes (see: Undocumented Instructions).
 
-Set the CHR-ROM bank to X.
+#### -l, --list <listfile.txt>
 
-input:
-
-```
-.chr0
-    .db $01, $02
-
-.chr1
-    .db $03, $04
-```
-
-Output:
+For assembly:
 
 ```
-0010 | 01 02 FF FF FF FF FF FF  FF FF FF FF FF FF FF FF |
-...
-2010 | 03 04 FF FF FF FF FF FF  FF FF FF FF FF FF FF FF |
-...
+nessemble infile.asm --list listfile.txt
 ```
 
-### .db
+`listfile.txt` will contain address and values for all labels and constants.
 
-Stores a single byte (or several) at the current address. Also aliased
-as `.byte` and `.lobytes`.
-
-Input:
+For disassembly (with reassembly):
 
 ```
-.db $12, $34
+nessemble --disassemble infile.rom --reassemble --list listfile.txt
 ```
 
-Output:
+`infile.rom` will be disassembled with the labels added in from `listfile.txt`.
+
+#### -c, --check
 
 ```
-0000 | 12 34 |
+nessemble infile.asm --check
 ```
 
-### .defchr
+Only check for syntax errors. Does not compile.
 
-Define a CHR tile
-
-For better visualization of the tile, use decimals. 0 = black, 1 = dark grey,
-2 = light grey, 3 = white. Other number bases are supported, but are harder
-to visualize.
-
-Input:
+#### -C, --coverage
 
 ```
-.defchr 33333333,
-        30000003,
-        30000003,
-        30000003,
-        30000003,
-        30000003,
-        30000003,
-        33333333
+nessemble infile.asm --coverage
 ```
 
-Output:
+Check data coverage of ROM.
+
+#### -d, --disassemble
 
 ```
-0000 | FF 81 81 81 81 81 81 FF  FF 81 81 81 81 81 81 FF |
+nessemble --disassemble infile.rom
 ```
 
-### .dw
+Disassemble an assembled ROM.
 
-Stores a single word (or several) at the current address. Also aliased
-as `.word`.
-
-Note: words (16-bit values) are stored as `little-endian`: low byte followed by
-the high byte.
-
-Input:
+#### -R, --reassemble
 
 ```
-.dw $1234, $5678
+nessemble --disassemble infile.rom --reassemble
 ```
 
-Output:
+Disassemble an assembled ROM with reassembly in mind.
+
+#### -s, --simulate <infile.rom>
 
 ```
-0000 | 34 12 78 56 |
+nessemble --simulate infile.rom
 ```
 
-### .hibytes
+Simulate 6502 processor.
 
-Stores the high byte of a single word (or several).
-
-Input:
+#### -r, --recipe <recipe.txt>
 
 ```
-.hibytes $1234, $5678
+nessemble --simulate infile.rom --recipe recipe.txt
 ```
 
-Output:
+Provide automated steps to run on the ROM.
+
+#### -v, --version
 
 ```
-0000 | 12 56 |
+nessemble --version
 ```
+
+Outputs version information.
+
+#### -L, --license
+
+```
+nessemble --license
+```
+
+Outputs license information.
+
+#### -h, --help
+
+```
+nessemble --help
+```
+
+Outputs help information.
+
+### Commands
+
+#### init
+
+```
+nessemble init
+Filename: file.asm
+PRG Banks: 1
+CHR Banks: 1
+Mapper (0-255): 0
+```
+
+Initialize a bare project.
+
+#### reference [<category>] [<term>]
+
+```
+nessemble reference
+```
+
+Prints all reference categories.
+
+```
+nessemble reference mappers
+```
+
+Prints all reference types for a given category.
+
+```
+nessemble reference mappers 0
+```
+
+Prints all information about given category and type.
+
+#### config [<key>] [<val>]
+
+```
+nessemble config
+```
+
+List all config keys and values.
+
+```
+nessemble config registry
+```
+
+Get config key value.
+
+```
+nessemble config registry http://www.example.com
+```
+
+Set config key value.
+
+#### registry [<url>]
+
+```
+nessemble registry
+```
+
+Get config registry value (alias for `config registry` option).
+
+```
+nessemble registry http://www.example.com
+```
+
+Set config registry value (alias for `config registry <val>` option).
+
+#### install <package>
+
+```
+nessemble install controller
+```
+
+Install package.
+
+#### uninstall <package>
+
+```
+nessemble uninstall controller
+```
+
+Uninstall package.
+
+#### info <package>
+
+```
+nessemble info controller
+```
+
+Get info on package.
+
+#### ls
+
+```
+nessemble ls
+```
+
+List all installed packages.
+
+#### search <term>
+
+```
+nessemble search input
+```
+
+Search for packages that are named/tagged with the provided term.

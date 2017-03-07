@@ -5,7 +5,8 @@
 void pseudo_incpal(char *string) {
     int color_mode = 0, color = 0, last_color = -1, x = 0;
     char *path = NULL;
-    struct png_data png = { NULL, 0, 0, {  }, 0, 0, 0, NULL, 0 };
+    struct png_data png;
+    png_byte *row;
 
     if (get_fullpath(&path, string) != 0) {
         yyerror("Could not get full path of %s", string);
@@ -20,7 +21,7 @@ void pseudo_incpal(char *string) {
 
     color_mode = png_color_mode(png.color_type);
 
-    png_byte *row = png.row_pointers[0];
+    row = png.row_pointers[0];
 
     for (x = 0; x < png.width; x++) {
         png_byte *rgb = &(row[x * color_mode]);
@@ -33,9 +34,7 @@ void pseudo_incpal(char *string) {
     }
 
 cleanup:
-    if (path) {
-        free(path);
-    }
+    nessemble_free(path);
 
-    free_png(png);
+    free_png_read(png);
 }

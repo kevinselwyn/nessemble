@@ -3,7 +3,13 @@
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <getopt.h>
 #include "nessemble.h"
+
+#define _GNU_SOURCE
+#include <stdlib.h>
+int fileno(FILE *file);
+char *realpath(const char *path, char *resolved_path);
 
 /**
  * Main function
@@ -11,41 +17,169 @@
  * @param {char *} argv[] - Argument array
  */
 int main(int argc, char *argv[]) {
-    int rc = RETURN_OK;
+    int option_index = 0, c = 0, empty_byte = 0xFF;
+    unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0, byte = 0, piped = FALSE;
-    char *exec = NULL, *filename = NULL, *outfilename = NULL, *list_out = NULL, *recipe = NULL, *registry = NULL;
+    char *exec = NULL, *filename = NULL, *outfilename = NULL, *listname = NULL, *recipe = NULL;
+    char *registry = NULL, *config = NULL;
     FILE *file = NULL, *outfile = NULL;
+    struct option long_options[] = {
+        { "output",       required_argument, 0, 'o' },
+        { "format",       required_argument, 0, 'f' },
+        { "empty",        required_argument, 0, 'e' },
+        { "undocumented", no_argument,       0, 'u' },
+        { "list",         required_argument, 0, 'l' },
+        { "check",        no_argument,       0, 'c' },
+        { "coverage",     no_argument,       0, 'C' },
+        { "disassemble",  no_argument,       0, 'd' },
+        { "reassemble",   no_argument,       0, 'R' },
+        { "simulate",     no_argument,       0, 's' },
+        { "recipe",       required_argument, 0, 'r' },
+        { "version",      no_argument,       0, 'v' },
+        { "license",      no_argument,       0, 'L' },
+        { "help",         no_argument,       0, 'h' },
+        { 0, 0, 0, 0 }
+    };
 
     // exec
     exec = argv[0];
 
     // parse args
-    for (i = 1, l = (unsigned int)argc; i < l; i++) {
-        if (strcmp(argv[i], "init") == 0) {
-            if (init() != RETURN_OK) {
-                rc = RETURN_EPERM;
+    while (TRUE == 1) {
+        c = getopt_long(argc, argv, "cde:f:hlLo:rRsuv", long_options, &option_index);
+
+        if (c == -1) {
+            break;
+        }
+
+        switch (c) {
+        case 'h':
+            rc = usage(exec);
+            goto cleanup;
+
+            break;
+        case 'o':
+            if (optarg == NULL) {
+                rc = usage(exec);
+                goto cleanup;
+            }
+
+            outfilename = nessemble_strdup(optarg);
+            break;
+        case 'f':
+            if (optarg == NULL) {
+                rc = usage(exec);
+                goto cleanup;
+            }
+
+            if (strcmp(optarg, "nes") == 0 || strcmp(optarg, "NES") == 0) {
+                flags |= FLAG_NES;
+            }
+
+            break;
+        case 'e':
+            if (optarg == NULL) {
+                rc = usage(exec);
+                goto cleanup;
+            }
+
+            empty_byte = hex2int(optarg);
+
+            break;
+        case 'u':
+            flags |= FLAG_UNDOCUMENTED;
+            break;
+        case 'l':
+            if (optarg == NULL) {
+                rc = usage(exec);
+                goto cleanup;
+            }
+
+            listname = nessemble_strdup(optarg);
+            break;
+        case 'c':
+            flags |= FLAG_CHECK;
+            break;
+        case 'C':
+            flags |= FLAG_COVERAGE;
+            break;
+        case 'd':
+            flags |= FLAG_DISASSEMBLE;
+            break;
+        case 'R':
+            flags |= FLAG_REASSEMBLE;
+            break;
+        case 's':
+            flags |= FLAG_SIMULATE;
+            break;
+        case 'r':
+            if (optarg == NULL) {
+                rc = usage(exec);
+                goto cleanup;
+            }
+
+            recipe = optarg;
+            break;
+        case 'v':
+            rc = version();
+            goto cleanup;
+
+            break;
+        case 'L':
+            rc = license();
+            goto cleanup;
+
+            break;
+        default:
+            rc = usage(exec);
+            goto cleanup;
+
+            break;
+        }
+    }
+
+    while (optind < argc) {
+        if (strcmp(argv[optind], "init") == 0) {
+            if ((rc = init()) != RETURN_OK) {
+                error_program_output("Could not initialize project");
             }
 
             goto cleanup;
         }
 
-        if (strcmp(argv[i], "reference") == 0) {
-            if (reference(argv[i+1], argv[i+2]) != RETURN_OK) {
-                rc = RETURN_EPERM;
-            }
-
+        if (strcmp(argv[optind], "reference") == 0) {
+            rc = reference(argv[optind+1], argv[optind+2]);
             goto cleanup;
         }
 
-        if (strcmp(argv[i], "registry") == 0) {
-            if (i + 1 < l) {
-                if (set_registry(argv[i+1]) != RETURN_OK) {
-                    rc = RETURN_EPERM;
+        if (strcmp(argv[optind], "config") == 0) {
+            if (optind + 2 < argc) {
+                if ((rc = set_config(argv[optind+2], argv[optind+1])) != RETURN_OK) {
+                    error_program_output("Could not set `%s` config", argv[optind+1]);
+                }
+            } else if (optind + 1 < argc) {
+                if ((rc = get_config(&config, argv[optind+1])) != RETURN_OK) {
+                    error_program_output("Could not get `%s` config", argv[optind+1]);
                 }
             } else {
-                if (get_registry(&registry) != RETURN_OK) {
-                    rc = RETURN_EPERM;
+                if ((rc = list_config(&config)) != RETURN_OK) {
+                    error_program_output("Could not list config");
+                    goto cleanup;
                 }
+            }
+
+            if (config) {
+                printf("%s\n", config);
+            }
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[optind], "registry") == 0) {
+            if (optind + 1 < argc) {
+                rc = set_registry(argv[optind+1]);
+            } else {
+                rc = get_registry(&registry);
 
                 if (registry) {
                     printf("%s\n", registry);
@@ -55,43 +189,15 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
-        if (strcmp(argv[i], "install") == 0) {
-            if (i + 1 < l) {
-                if (lib_install(argv[i+1]) != RETURN_OK) {
-                    rc = RETURN_EPERM;
-                    goto cleanup;
-                }
+        if (strcmp(argv[optind], "install") == 0) {
+            if (optind + 1 < argc) {
+                while (++argv != NULL && argv[optind] != NULL) {
+                    if ((rc = lib_install(argv[optind])) != RETURN_OK) {
+                        error_program_output("Could not install `%s`", argv[optind]);
+                        goto cleanup;
+                    }
 
-                printf("Installed `%s`\n", argv[i+1]);
-            } else {
-                rc = usage(exec);
-            }
-
-            goto cleanup;
-        }
-
-        if (strcmp(argv[i], "uninstall") == 0) {
-            if (i + 1 < l) {
-                if (lib_uninstall(argv[i+1]) != RETURN_OK) {
-                    rc = RETURN_EPERM;
-                    goto cleanup;
-                }
-
-                printf("Uninstalled `%s`\n", argv[i+1]);
-            } else {
-                rc = usage(exec);
-            }
-
-            goto cleanup;
-        }
-
-        if (strcmp(argv[i], "info") == 0) {
-            if (i + 1 < l) {
-                if (lib_info(argv[i+1]) != RETURN_OK) {
-                    fprintf(stderr, "Could not find info for `%s`\n", argv[i+1]);
-
-                    rc = RETURN_EPERM;
-                    goto cleanup;
+                    printf("Installed `%s`\n", argv[optind]);
                 }
             } else {
                 rc = usage(exec);
@@ -100,19 +206,27 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
-        if (strcmp(argv[i], "ls") == 0) {
-            if (lib_list() != RETURN_OK) {
-                rc = RETURN_EPERM;
-                goto cleanup;
+        if (strcmp(argv[optind], "uninstall") == 0) {
+            if (optind + 1 < argc) {
+                while (++argv != NULL && argv[optind] != NULL) {
+                    if ((rc = lib_uninstall(argv[optind])) != RETURN_OK) {
+                        error_program_output("Could not uninstall `%s`", argv[optind]);
+                        goto cleanup;
+                    }
+
+                    printf("Uninstalled `%s`\n", argv[optind]);
+                }
+            } else {
+                rc = usage(exec);
             }
 
             goto cleanup;
         }
 
-        if (strcmp(argv[i], "search") == 0) {
-            if (i + 1 < l) {
-                if (lib_search(argv[i+1]) != RETURN_OK) {
-                    rc = RETURN_EPERM;
+        if (strcmp(argv[optind], "info") == 0) {
+            if (optind + 1 < argc) {
+                if ((rc = lib_info(argv[optind+1])) != RETURN_OK) {
+                    error_program_output("Could not find info for `%s`", argv[optind+1]);
                     goto cleanup;
                 }
             } else {
@@ -122,107 +236,38 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
-        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-            rc = usage(exec);
-            goto cleanup;
-        }
-
-        if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
-            if (i + 1 < l) {
-                outfilename = strdup(argv[i + 1]);
-            } else {
-                rc = usage(exec);
+        if (strcmp(argv[optind], "ls") == 0) {
+            if ((rc = lib_list()) != RETURN_OK) {
                 goto cleanup;
             }
 
-            i += 1;
-            continue;
+            goto cleanup;
         }
 
-        if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--format") == 0) {
-            if (i + 1 < l) {
-                if (strcmp(argv[i+1], "nes") == 0 || strcmp(argv[i+1], "NES") == 0) {
-                    flags |= FLAG_NES;
+        if (strcmp(argv[optind], "search") == 0) {
+            if (optind + 1 < argc) {
+                if ((rc = lib_search(argv[optind+1])) != RETURN_OK) {
+                    error_program_output("Could not search");
+                    goto cleanup;
                 }
             } else {
                 rc = usage(exec);
-                goto cleanup;
             }
 
-            i += 1;
-            continue;
-        }
-
-        if (strcmp(argv[i], "-u") == 0 || strcmp(argv[i], "--undocumented") == 0) {
-            flags |= FLAG_UNDOCUMENTED;
-            continue;
-        }
-
-        if (strcmp(argv[i], "-l") == 0 || strcmp(argv[i], "--list") == 0) {
-            if (i + 1 < l) {
-                list_out = strdup(argv[i+1]);
-            } else {
-                rc = usage(exec);
-                goto cleanup;
-            }
-
-            i += 1;
-            continue;
-        }
-
-        if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--check") == 0) {
-            flags |= FLAG_CHECK;
-            continue;
-        }
-
-        if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--disassemble") == 0) {
-            flags |= FLAG_DISASSEMBLE;
-            continue;
-        }
-
-        if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--simulate") == 0) {
-            flags |= FLAG_SIMULATE;
-            continue;
-        }
-
-        if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--recipe") == 0) {
-            if (i + 1 < l) {
-                recipe = argv[i+1];
-            } else {
-                rc = usage(exec);
-                goto cleanup;
-            }
-
-            i += 1;
-            continue;
-        }
-
-        if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
-            rc = version();
             goto cleanup;
         }
 
-        if (strcmp(argv[i], "-L") == 0 || strcmp(argv[i], "--license") == 0) {
-            rc = license();
-            goto cleanup;
-        }
-
-        if (filename != NULL) {
-            rc = usage(exec);
-            goto cleanup;
-        }
-
-        filename = argv[i];
+        filename = argv[optind++];
     }
 
     if (!filename) {
         if (isatty(fileno(stdin)) == FALSE) {
             piped = TRUE;
-            filename = "stdin";
-            strcpy(cwd, "/tmp/nessemble-stdin");
-            cwd_path = strdup("/tmp/nessemble");
+            filename = nessemble_strdup("stdin");
+            strcpy(cwd, "/tmp/" PROGRAM_NAME "-stdin");
+            cwd_path = nessemble_strdup("/tmp/" PROGRAM_NAME);
 
-            if (tmp_save(stdin, cwd) == RETURN_EPERM) {
+            if ((rc = tmp_save(stdin, cwd)) != RETURN_OK) {
                 rc = usage(exec);
                 goto cleanup;
             }
@@ -233,16 +278,16 @@ int main(int argc, char *argv[]) {
     } else {
         // get cwd
         if (!realpath(filename, cwd)) {
-            fprintf(stderr, "Could not find real path of %s\n", filename);
+            error_program_output("Could not open `%s`", filename);
 
             rc = RETURN_EPERM;
             goto cleanup;
         }
 
-        cwd_path = strdup(cwd);
+        cwd_path = nessemble_strdup(cwd);
 
         if (!cwd_path) {
-            fprintf(stderr, "Could not find path of %s\n", filename);
+            error_program_output("Could not open `%s`", filename);
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -258,10 +303,8 @@ int main(int argc, char *argv[]) {
 
     // simulate
     if (is_flag_simulate() == TRUE) {
-        if (!recipe) {
-            rc = simulate(cwd, "");
-        } else {
-            rc = simulate(cwd, recipe);
+        if ((rc = simulate(cwd, !recipe ? "" : recipe)) != RETURN_OK) {
+            error_program_output("Could not simulate");
         }
 
         goto cleanup;
@@ -269,15 +312,13 @@ int main(int argc, char *argv[]) {
 
     // output
     if (!outfilename || strcmp(outfilename, "-") == 0) {
-        if (outfilename) {
-            free(outfilename);
-        }
+        nessemble_free(outfilename);
 
-        outfilename = strdup("/dev/stdout");
+        outfilename = nessemble_strdup("/dev/stdout");
     }
 
     if (!outfilename) {
-        fprintf(stderr, "Could not find output\n");
+        error_program_output("Could not find output");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -285,7 +326,10 @@ int main(int argc, char *argv[]) {
 
     // disassemble
     if (is_flag_disassemble() == TRUE) {
-        rc = disassemble(cwd, outfilename);
+        if ((rc = disassemble(cwd, outfilename, listname)) != RETURN_OK) {
+            error_program_output("Could not disassemble `%s`", filename);
+        }
+
         goto cleanup;
     }
 
@@ -293,7 +337,7 @@ int main(int argc, char *argv[]) {
     file = fopen(cwd, "r");
 
     if (!file) {
-        fprintf(stderr, "Could not open %s\n", filename);
+        error_program_output("Could not open `%s`\n");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -322,7 +366,7 @@ int main(int argc, char *argv[]) {
         (void)yyparse();
     } while ((yyin != NULL && feof(yyin) == 0) && pass == 1);
 
-    if (error_exit() != RETURN_OK) {
+    if ((rc = error_exit()) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -330,7 +374,7 @@ int main(int argc, char *argv[]) {
 
     // restart
     if (fseek(yyin, 0, SEEK_SET) != 0) {
-        fprintf(stderr, "Seek error\n");
+        error_program_output("Could not rewind input file");
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -342,23 +386,18 @@ int main(int argc, char *argv[]) {
     }
 
     // create rom
-    rom = (unsigned int *)malloc(sizeof(unsigned int) * offset_max);
+    rom = (unsigned int *)nessemble_malloc(sizeof(unsigned int) * offset_max);
+    coverage = (unsigned int *)nessemble_malloc(sizeof(unsigned int) * offset_max);
 
-    if (!rom) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    // set all bytes to 0xFF
+    // set all bytes to empty_byte
     for (i = 0, l = (unsigned int)offset_max; i < l; i++) {
-        rom[i] = 0xFF;
+        rom[i] = empty_byte;
+        coverage[i] = FALSE;
     }
 
-    // set all trainer bytes to 0xFF
+    // set all trainer bytes to empty_byte
     for (i = 0, l = TRAINER_MAX; i < l; i++) {
-        trainer[i] = 0xFF;
+        trainer[i] = empty_byte;
     }
 
     // clear offsets
@@ -385,7 +424,7 @@ int main(int argc, char *argv[]) {
         (void)yyparse();
     } while ((yyin != NULL && feof(yyin) == 0) && pass == 2);
 
-    if (error_exit() != RETURN_OK) {
+    if ((rc = error_exit()) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -393,19 +432,19 @@ int main(int argc, char *argv[]) {
 
     // check
     if (is_flag_check() == TRUE) {
-        fprintf(stderr, "No errors\n");
+        printf("No errors\n");
         goto cleanup;
     }
 
     // write output
-    if (strcmp(outfilename, "/dev/stdout") == 0) {
+    if (is_stdout(outfilename) == TRUE) {
         outfile = stdout;
     } else {
         outfile = fopen(outfilename, "w");
     }
 
     if (!outfile) {
-        fprintf(stderr, "Could not open %s\n", outfilename);
+        error_program_output("Could not open `%s`", outfilename);
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -457,36 +496,29 @@ int main(int argc, char *argv[]) {
     }
 
     // write list
-    if (output_list(list_out) != RETURN_OK) {
+    if ((rc = output_list(listname)) != RETURN_OK) {
         goto cleanup;
+    }
+
+    // write coverage
+    if (is_flag_coverage() == TRUE && is_flag_nes() == TRUE && is_stdout(outfilename) == FALSE) {
+        if ((rc = get_coverage()) != RETURN_OK) {
+            goto cleanup;
+        }
     }
 
 cleanup:
     for (i = 0, l = symbol_index; i < l; i++) {
-        if (symbols[i].name) {
-            free(symbols[i].name);
-        }
+        nessemble_free(symbols[i].name);
     }
 
-    if (rom) {
-        free(rom);
-    }
-
-    if (outfilename) {
-        free(outfilename);
-    }
-
-    if (cwd_path) {
-        free(cwd_path);
-    }
-
-    if (list_out) {
-        free(list_out);
-    }
-
-    if (registry) {
-        free(registry);
-    }
+    nessemble_free(rom);
+    nessemble_free(coverage);
+    nessemble_free(outfilename);
+    nessemble_free(cwd_path);
+    nessemble_free(listname);
+    nessemble_free(registry);
+    nessemble_free(config);
 
     if (file) {
         (void)fclose(file);
@@ -502,5 +534,5 @@ cleanup:
 
     error_free();
 
-    return rc;
+    return (int)rc;
 }
