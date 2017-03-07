@@ -1,19 +1,182 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <archive.h>
-#include <archive_entry.h>
 #include "nessemble.h"
+#include "third-party/udeflate/deflate.h"
 
-#define ZIP_BUF_SIZE 512 * 1024
+#define ZIP_BUF_SIZE   512 * 1024
+#define TAR_BLOCK_SIZE 512
+
+#define IN_SIZE  (1 << 12)
+#define OUT_SIZE (1 << 16)
+
+static char input[IN_SIZE];
+static char output[OUT_SIZE];
+
+static int i_in;
+static int i_out;
+
+int udeflate_read_bits(int n_bits) {
+    int next = 0, i = 0;
+
+    if ((((i_in + n_bits + 7) & (~7)) >> 3) > IN_SIZE) {
+		return -EINVAL;
+    }
+
+	uint32_t ret = 0;
+
+	for (i = 0; i < n_bits; i++, i_in++) {
+		next = (input[i_in >> 3] >> (i_in & 0x7)) & 1;
+		ret |= next << i;
+	}
+
+	return ret;
+}
+
+int udeflate_read_huffman_bits(int n_bits) {
+    int next = 0, i = 0;
+
+	if ((((i_in + n_bits + 7) & (~7)) >> 3) > IN_SIZE) {
+		return -EINVAL;
+    }
+
+	uint32_t ret = 0;
+
+	for (i = 0; i < n_bits; i++, i_in++) {
+		next = (input[i_in >> 3] >> (i_in & 0x7)) & 1;
+		ret = (ret << 1) | next;
+	}
+
+	return ret;
+}
+
+int udeflate_peek_huffman_bits(int n_bits) {
+    int next = 0, i = 0;
+
+	if ((((i_in + n_bits + 7) & (~7)) >> 3) > IN_SIZE) {
+		return -EINVAL;
+    }
+
+	uint32_t ret = 0;
+
+	int tmp_i_in = i_in;
+
+	for (i = 0; i < n_bits; i++, tmp_i_in++) {
+		next = (input[tmp_i_in >> 3] >> (tmp_i_in & 0x7)) & 1;
+		ret = (ret << 1) | next;
+	}
+
+	return ret;
+}
+
+int udeflate_read_next_byte() {
+	if ((((i_in + 7) & (~7)) >> 3) + 1 > IN_SIZE) {
+		return -EINVAL;
+    }
+
+	i_in = (i_in + 7) & (~7);
+
+	uint8_t ret = input[i_in >> 3];
+
+	i_in += 8;
+
+	return ret;
+}
+
+int udeflate_write_byte(uint8_t data) {
+	if ((i_out + 1) > OUT_SIZE) {
+		return -EOVERFLOW;
+    }
+
+	output[i_out++] = data;
+
+	return 0;
+}
+
+int udeflate_write_match(uint16_t len, uint16_t dist) {
+    int i = 0;
+
+	if ((i_out + len) > OUT_SIZE) {
+		return -EOVERFLOW;
+    }
+
+	if (i_out - dist < 0) {
+		return -EINVAL;
+    }
+
+	char *ptr = &output[i_out - dist];
+
+	for (i = 0; i < len; i++) {
+		output[i_out++] = *(ptr++);
+    }
+
+	return 0;
+}
+
+
+int udeflate_write_input_bytes(uint16_t len) {
+	if ((i_out + len) > OUT_SIZE) {
+		return -EOVERFLOW;
+    }
+
+	if ((i_in >> 3) + len > IN_SIZE) {
+		return -EINVAL;
+    }
+
+	memcpy(&output[i_out], &input[i_in >> 3], len);
+
+	i_out += len;
+	i_in += 8*len;
+
+	return 0;
+}
+
+static unsigned int untar(char **data, size_t *data_length, char *tar, unsigned int tar_length, char *filename) {
+    unsigned int rc = RETURN_OK, i = 0, l = 0;
+    unsigned int size = 0, remaining = 0;
+    char block[512], tar_filename[100];
+    char *filedata = NULL;
+
+    l = (unsigned int)tar_length;
+
+    while (i < l) {
+        memcpy(block, tar+i, TAR_BLOCK_SIZE);
+        memcpy(tar_filename, block, 100);
+
+        if (tar_filename[0] == '\0') {
+            break;
+        }
+
+        i += TAR_BLOCK_SIZE;
+        size = oct2int(block+124);
+        remaining = (((size / TAR_BLOCK_SIZE) + 1) * TAR_BLOCK_SIZE) - size;
+
+        if (strcmp(tar_filename, filename) == 0) {
+            filedata = (char *)malloc(sizeof(char) * (size + 1));
+
+            if (!filedata) {
+                rc = RETURN_EPERM;
+                goto cleanup;
+            }
+
+            memcpy(filedata, tar+i, size);
+
+            *data = filedata;
+            *data_length = (size_t)size;
+
+            break;
+        }
+
+        i += size + remaining;
+    }
+
+cleanup:
+    return rc;
+}
 
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url) {
-    unsigned int rc = RETURN_OK, http_code = 0, content_length = 0;
-    size_t entry_length = 0;
-    char buffer[ZIP_BUF_SIZE];
-    char *content = NULL, *unzipped = NULL;
-    struct archive *arch = archive_read_new();
-    struct archive_entry *entry;
+    unsigned int rc = RETURN_OK, http_code = 0, content_length = 0, index = 0;
+    char *content = NULL;
 
     http_code = get_request(&content, &content_length, url, MIMETYPE_ZIP);
 
@@ -35,41 +198,32 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
         break;
     }
 
-    archive_read_support_filter_gzip(arch);
-    archive_read_support_format_tar(arch);
+    while (content[index] != '\0') {
+        index++;
 
-    if ((rc = archive_read_open_memory(arch, content, content_length)) != RETURN_OK) {
-        goto cleanup;
-    }
-
-    while (archive_read_next_header(arch, &entry) == ARCHIVE_OK) {
-        if (strcmp(archive_entry_pathname(entry), filename) != 0) {
-            archive_read_data_skip(arch);
-            continue;
+        if (index >= content_length) {
+            rc = RETURN_EPERM;
+            goto cleanup;
         }
-
-        entry_length = archive_read_data(arch, buffer, ZIP_BUF_SIZE);
-        break;
     }
 
-    if (entry_length == 0) {
+    index++;
+
+    memcpy(input, content+index, content_length - index);
+
+    if (deflate() < 0) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    unzipped = (char *)nessemble_malloc(sizeof(char) * (entry_length + 1));
-
-    memcpy(unzipped, buffer, entry_length + 1);
-
-cleanup:
-    *data = unzipped;
-    *data_length = entry_length;
-
-    if (arch) {
-        archive_read_free(arch);
+    if ((rc = untar(&*data, &*data_length, output, i_out, filename)) != RETURN_OK) {
+        goto cleanup;
     }
 
-    nessemble_free(content);
+cleanup:
+    if (content) {
+        nessemble_free(content);
+    }
 
     return rc;
 }
