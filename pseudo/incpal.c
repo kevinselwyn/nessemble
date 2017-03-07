@@ -3,10 +3,11 @@
 #include "../png.h"
 
 void pseudo_incpal(char *string) {
-    int color_mode = 0, color = 0, last_color = -1, x = 0;
+    int color_mode = 3, color = 0, last_color = -1;
+    unsigned int x = 0;
     char *path = NULL;
+    unsigned char *rgb = NULL;
     struct png_data png;
-    png_byte *row;
 
     if (get_fullpath(&path, string) != 0) {
         yyerror("Could not get full path of %s", string);
@@ -19,12 +20,8 @@ void pseudo_incpal(char *string) {
         goto cleanup;
     }
 
-    color_mode = png_color_mode(png.color_type);
-
-    row = png.row_pointers[0];
-
     for (x = 0; x < png.width; x++) {
-        png_byte *rgb = &(row[x * color_mode]);
+        rgb = &(png.data[x * color_mode]);
         color = match_color(rgb, color_mode);
 
         if (color != last_color) {
@@ -35,6 +32,5 @@ void pseudo_incpal(char *string) {
 
 cleanup:
     nessemble_free(path);
-
-    free_png_read(png);
+    free_png(png);
 }
