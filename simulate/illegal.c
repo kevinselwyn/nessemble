@@ -92,23 +92,86 @@ void do_asr(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_atx(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    unsigned int tmp = 0;
+
+    if (is_flag_undocumented() == FALSE) {
+        inc_register(REGISTER_PC, 1);
+        return;
+    }
+
+    tmp = value & get_register(REGISTER_A);
+
+    set_register(REGISTER_X, tmp);
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_axa(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    unsigned int tmp = 0, address = 0;
+
+    if (is_flag_undocumented() == FALSE) {
+        inc_register(REGISTER_PC, 1);
+        return;
+    }
+
+    tmp = get_register(REGISTER_X) & get_register(REGISTER_A);
+    tmp &= 0x07;
+
+    address = get_address(opcode_index, value);
+    set_byte(address, tmp);
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_axs(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    unsigned int tmp = 0;
+
+    if (is_flag_undocumented() == FALSE) {
+        inc_register(REGISTER_PC, 1);
+        return;
+    }
+
+    tmp = get_register(REGISTER_X) & get_register(REGISTER_A);
+    tmp = (tmp - value) & 0xFF;
+
+    set_register(REGISTER_X, tmp);
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_CARRY, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_dcp(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    unsigned int tmp = 0, address = 0;
+
+    if (is_flag_undocumented() == FALSE) {
+        inc_register(REGISTER_PC, 1);
+        return;
+    }
+
+    address = get_address(opcode_index, value);
+    set_byte(address, (get_byte(address) - 1) & 0xFF);
+
+    set_flag(FLG_CARRY, (tmp >> 7) & 1);
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_dop(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    (void)opcode_index;
+    (void)value;
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_isc(unsigned int opcode_index, unsigned int value) {

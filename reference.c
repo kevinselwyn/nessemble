@@ -74,7 +74,7 @@ unsigned int reference(char *category, char *term) {
     }
 
     if (!term) {
-        printf("Terms in %s\n", category);
+        printf("Terms in %s:\n", category);
 
         for (i = 0, l = MAX_TERMS; i < l; i++) {
             if (!categories[category_id].terms[i].name) {
@@ -99,7 +99,9 @@ unsigned int reference(char *category, char *term) {
     len = *categories[category_id].terms[term_id].len;
     categories[category_id].terms[term_id].description[len-1] = '\0';
 
-    printf("%s\n", (char *)categories[category_id].terms[term_id].description);
+    if ((rc = pager_buffer((char *)categories[category_id].terms[term_id].description)) != RETURN_OK) {
+        goto cleanup;
+    }
 
 cleanup:
     return rc;

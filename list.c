@@ -21,7 +21,7 @@ static void list_sort() {
 
         for (i = 1, l = list_index; i < l; i++) {
             if (strcmp(list_strings[i], list_strings[i-1]) < 0) {
-                tmp = strdup(list_strings[i]);
+                tmp = nessemble_strdup(list_strings[i]);
 
                 strcpy(list_strings[i], list_strings[i-1]);
                 strcpy(list_strings[i-1], tmp);
@@ -45,7 +45,7 @@ unsigned int output_list(char *filename) {
     listfile = fopen(filename, "w");
 
     if (!listfile) {
-        fprintf(stderr, "Could not open `%s`\n", filename);
+        error_program_log("Could not open `%s`", filename);
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -69,10 +69,10 @@ unsigned int output_list(char *filename) {
         for (i = 0, l = symbol_index; i < l; i++) {
             if (symbols[i].type == SYMBOL_CONSTANT || symbols[i].type == SYMBOL_ENUM) {
                 if (!list_strings[list_index]) {
-                    list_strings[list_index] = (char *)malloc(sizeof(char) * MAX_LIST_LENGTH);
+                    list_strings[list_index] = (char *)nessemble_malloc(sizeof(char) * MAX_LIST_LENGTH);
                 }
 
-                length = strlen(symbols[i].name) + 7;
+                length = strlen(symbols[i].name) + 8;
 
                 (void)snprintf(list_strings[list_index++], length, "%04X = %s", symbols[i].value, symbols[i].name);
             }
@@ -97,12 +97,12 @@ unsigned int output_list(char *filename) {
         for (i = 0, l = symbol_index; i < l; i++) {
             if (symbols[i].type == SYMBOL_LABEL || symbols[i].type == SYMBOL_RS) {
                 if (!list_strings[list_index]) {
-                    list_strings[list_index] = (char *)malloc(sizeof(char) * MAX_LIST_LENGTH);
+                    list_strings[list_index] = (char *)nessemble_malloc(sizeof(char) * MAX_LIST_LENGTH);
                 }
 
-                length = strlen(symbols[i].name) + 7;
+                length = strlen(symbols[i].name) + 11;
 
-                (void)snprintf(list_strings[list_index++], length, "%04X = %s", symbols[i].value, symbols[i].name);
+                (void)snprintf(list_strings[list_index++], length, "%02X/%04X = %s", symbols[i].bank, symbols[i].value, symbols[i].name);
             }
         }
 
@@ -115,11 +115,78 @@ unsigned int output_list(char *filename) {
 
 cleanup:
     for (i = 0, l = MAX_LIST_COUNT; i < l; i++) {
-        if (list_strings[i] != NULL) {
-            free(list_strings[i]);
+        nessemble_free(list_strings[i]);
+    }
+
+    if (listfile) {
+        (void)fclose(listfile);
+    }
+
+    return rc;
+}
+
+unsigned int input_list(char *filename) {
+    int symbol_bank = -1;
+    unsigned int rc = RETURN_OK, symbol_type = 0, symbol_val = 0;
+    char line[MAX_LIST_LENGTH], symbol_name[MAX_LIST_LENGTH];
+    FILE *listfile = NULL;
+
+    if (!filename) {
+        goto cleanup;
+    }
+
+    listfile = fopen(filename, "r");
+
+    if (!listfile) {
+        error_program_log("Could not open `%s`", filename);
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    symbol_index = 0;
+
+    while (fgets(line, MAX_LIST_LENGTH, listfile)) {
+        if (strcmp(line, CONSTANTS "\n") == 0) {
+            symbol_type = SYMBOL_CONSTANT;
+            continue;
+        }
+
+        if (strcmp(line, LABELS "\n") == 0) {
+            symbol_type = SYMBOL_LABEL;
+            continue;
+        }
+
+        if (symbol_type == SYMBOL_CONSTANT) {
+            symbols[symbol_index].type = SYMBOL_CONSTANT;
+        } else if (symbol_type == SYMBOL_LABEL) {
+            symbols[symbol_index].type = SYMBOL_LABEL;
+        }
+
+        if (symbol_type == SYMBOL_LABEL || symbol_type == SYMBOL_CONSTANT) {
+            if (symbol_type == SYMBOL_CONSTANT) {
+                if (sscanf(line, "%04X = %s\n", &symbol_val, symbol_name) != 2) {
+                    continue;
+                }
+            } else {
+                if (sscanf(line, "%02X/%04X = %s\n", &symbol_bank, &symbol_val, symbol_name) != 3) {
+                    continue;
+                }
+            }
+
+            symbols[symbol_index].name = nessemble_strdup(symbol_name);
+            symbols[symbol_index].value = symbol_val;
+
+            if (symbol_bank >= 0) {
+                symbols[symbol_index].bank = (unsigned int)symbol_bank;
+                symbol_bank = -1;
+            }
+
+            symbol_index++;
         }
     }
 
+cleanup:
     if (listfile) {
         (void)fclose(listfile);
     }

@@ -6,7 +6,7 @@
 
 char *notes[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
-static unsigned int parse_events(struct midi_track *track, unsigned int quarter) {
+static unsigned int parse_events(struct midi_track *track, unsigned int /*@unused@*/quarter) {
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, j = 0, k = 0, length = 0;
     unsigned int offset = 0, status = 0, tempo = 0, byte[10];
@@ -344,7 +344,7 @@ struct midi_data read_midi(char *filename) {
     unsigned int track = 0, i = 0, j = 0, k = 0, l = 0;
     size_t length = 0;
 	FILE *file = NULL;
-	struct midi_data midi = { { }, 0, 0, 0, 0, NULL };
+	struct midi_data midi;
 
 	file = fopen(filename, "rb");
 
@@ -360,7 +360,7 @@ struct midi_data read_midi(char *filename) {
         goto cleanup;
 	}
 
-    fseek(file, 4, SEEK_SET);
+    (void)fseek(file, 4, SEEK_SET);
 
     midi.header_length = fgetu32_big(file);
     midi.format = fgetu16_big(file);
@@ -387,10 +387,10 @@ struct midi_data read_midi(char *filename) {
         goto cleanup;
     }
 
-    fprintf(stderr, "Tracks:  %d\n", midi.track_count);
-    fprintf(stderr, "Quarter: %d\n\n", midi.quarter);
+    fprintf(stderr, "Tracks:  %u\n", midi.track_count);
+    fprintf(stderr, "Quarter: %u\n\n", midi.quarter);
 
-    midi.tracks = (struct midi_track *)malloc(sizeof(struct midi_track) * midi.track_count);
+    midi.tracks = (struct midi_track *)nessemble_malloc(sizeof(struct midi_track) * midi.track_count);
 
     for (track = 0; track < midi.track_count; track++) {
         if (fread(midi.tracks[track].header, 1, 4, file) != 4) {
@@ -409,7 +409,7 @@ struct midi_data read_midi(char *filename) {
             continue;
         }
 
-        midi.tracks[track].data = (char *)malloc(sizeof(char) * (midi.tracks[track].length + 1));
+        midi.tracks[track].data = (char *)nessemble_malloc(sizeof(char) * (midi.tracks[track].length + 1));
 
         if (!midi.tracks[track].data) {
             //fprintf(stderr, "Memory error\n");

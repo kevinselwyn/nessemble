@@ -87,10 +87,10 @@ do
 
         if [ $has_valgrind -eq 1 ]
         then
-            valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble $rom.rom --disassemble &>/dev/null
+            valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=2 -q ./nessemble $rom.rom --disassemble &>/dev/null
             valgrind_fail_disassembly=$?
 
-            if [ $valgrind_fail_disassembly -eq 1 ]
+            if [ $valgrind_fail_disassembly -eq 2 ]
             then
                 valgrind_type="disassembly"
                 valgrind_fail=1
@@ -110,10 +110,10 @@ do
 
         if [ $has_valgrind -eq 1 ]
         then
-            valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble --simulate $rom.rom --recipe $rom-recipe.txt &>/dev/null
+            valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=2 -q ./nessemble --simulate $rom.rom --recipe $rom-recipe.txt &>/dev/null
             valgrind_fail_simulation=$?
 
-            if [ $valgrind_fail_simulation -eq 1 ]
+            if [ $valgrind_fail_simulation -eq 2 ]
             then
                 valgrind_type="simulation"
                 valgrind_fail=1
@@ -129,10 +129,10 @@ do
 
     if [ $has_valgrind -eq 1 ]
     then
-        valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=1 -q ./nessemble $asm --output - $flags &>/dev/null
+        valgrind --leak-check=full --show-reachable=yes --show-leak-kinds=all --suppressions=suppressions.supp --error-exitcode=2 -q ./nessemble $asm --output - $flags &>/dev/null
         valgrind_fail_assembly=$?
 
-        if [ $valgrind_fail_assembly -eq 1 ]
+        if [ $valgrind_fail_assembly -eq 2 ]
         then
             valgrind_type="assembly"
             valgrind_fail=1

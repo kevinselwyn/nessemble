@@ -25,7 +25,7 @@ struct breakpoint {
     char *name;
 };
 
-char *rom_data;
+static char rom_data[0x10000];
 
 static struct regs registers = { 0, 0, 0, 0x8000, 0xFF, { 0, 0, 0, 0, 0, 0, 0 } };
 static unsigned int cycles = 0;
@@ -38,9 +38,9 @@ static unsigned int breakpoint_index = 0;
  * Simulate 6502
  * @param {char *} input - Input filename
  */
-int simulate(char *input, char *recipe) {
-    int rc = RETURN_OK, header = 0;
-    int inesprg = 1;
+unsigned int simulate(char *input, char *recipe) {
+    int header = 0, inesprg = 1;
+    unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0;
     size_t insize = 0;
     char buffer[BUF_SIZE];
@@ -65,15 +65,6 @@ int simulate(char *input, char *recipe) {
     }
 
     // load rom
-    rom_data = (char *)malloc(sizeof(char) * 0x10000);
-
-    if (!rom_data) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
     for (i = 0, l = 0x10000; i < l; i++) {
         set_byte(i, 0xFF);
     }
@@ -99,7 +90,7 @@ int simulate(char *input, char *recipe) {
         recipe_file = fopen(recipe, "r");
 
         if (!recipe_file) {
-            fprintf(stderr, "Could not open %s\n", recipe);
+            error_program_log("Could not open `%s`", recipe);
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -134,11 +125,7 @@ int simulate(char *input, char *recipe) {
 
 cleanup:
     if (indata) {
-        free(indata);
-    }
-
-    if (rom_data) {
-        free(rom_data);
+        nessemble_free(indata);
     }
 
     if (recipe_file) {
@@ -193,9 +180,7 @@ int repl(char *input) {
             fill_memory(&addrs, input+5);
             print_memory(addrs);
 
-            if (addrs) {
-                free(addrs);
-            }
+            nessemble_free(addrs);
         }
 
         goto cleanup;
@@ -346,12 +331,7 @@ void load_registers(char *input) {
         }
     }
 
-    text = (char *)malloc(sizeof(char) * 8);
-
-    if (!text) {
-        fatal("Memory error");
-        goto cleanup;
-    }
+    text = (char *)nessemble_malloc(sizeof(char) * 8);
 
     strcpy(text, "0");
 
@@ -381,10 +361,7 @@ void load_registers(char *input) {
         }
     }
 
-cleanup:
-    if (text) {
-        free(text);
-    }
+    nessemble_free(text);
 }
 
 void load_flags(char *input) {
@@ -412,12 +389,7 @@ void load_flags(char *input) {
         }
     }
 
-    text = (char *)malloc(sizeof(char) * 13);
-
-    if (!text) {
-        fatal("Memory error");
-        goto cleanup;
-    }
+    text = (char *)nessemble_malloc(sizeof(char) * 13);
 
     strcpy(text, "0");
 
@@ -455,10 +427,7 @@ void load_flags(char *input) {
         }
     }
 
-cleanup:
-    if (text) {
-        free(text);
-    }
+    nessemble_free(text);
 }
 
 void fill_memory(char **output, char *input) {
@@ -466,12 +435,7 @@ void fill_memory(char **output, char *input) {
     size_t length = 0;
     char *addrs = NULL;
 
-    addrs = malloc(sizeof(char) * 10);
-
-    if (!addrs) {
-        fatal("Memory error");
-        goto cleanup;
-    }
+    addrs = nessemble_malloc(sizeof(char) * 10);
 
     input[4] = '\0';
     addr_start = (unsigned int)hex2int(input);
@@ -491,7 +455,6 @@ void fill_memory(char **output, char *input) {
         (void)snprintf(addrs, 10, "%04X:%04X", addr_start, addr_end);
     }
 
-cleanup:
     *output = addrs;
 }
 
@@ -583,7 +546,7 @@ void print_instructions(char *input) {
     addr_end = (unsigned int)hex2int(input+5);
 
     while (addr_start < addr_end) {
-        fprintf(stderr, "%04X  ", addr_start);
+        printf("%04X  ", addr_start);
         addr_start += print_instruction(addr_start);
     }
 }
@@ -699,7 +662,7 @@ void start_record(char *input) {
     records[record_index].file = fopen(input+5, "w+");
 
     if (!records[record_index].file) {
-        fprintf(stderr, "Could not open %s\n", input+5);
+        error_program_log("Could not open `%s`", input+5);
         return;
     }
 
@@ -710,13 +673,13 @@ void list_breakpoints() {
     unsigned int i = 0, l = 0;
 
     for (i = 0, l = breakpoint_index; i < l; i++) {
-        fprintf(stderr, "%04X", breakpoints[i].address);
+        printf("%04X", breakpoints[i].address);
 
         if (breakpoints[i].name) {
-            fprintf(stderr, " %s", breakpoints[i].name);
+            printf(" %s", breakpoints[i].name);
         }
 
-        fprintf(stderr, "\n");
+        printf("\n");
     }
 }
 
@@ -734,11 +697,9 @@ void add_breakpoint(char *input) {
     breakpoints[breakpoint_index].address = address;
 
     if (length > 5) {
-        if (breakpoints[breakpoint_index].name) {
-            free(breakpoints[breakpoint_index].name);
-        }
+        nessemble_free(breakpoints[breakpoint_index].name);
 
-        breakpoints[breakpoint_index].name = (char *)malloc(sizeof(char) * (length - 4));
+        breakpoints[breakpoint_index].name = (char *)nessemble_malloc(sizeof(char) * (length - 4));
 
         if (breakpoints[breakpoint_index].name) {
             strcpy(breakpoints[breakpoint_index].name, input+5);
@@ -781,7 +742,7 @@ unsigned int at_breakpoint() {
 
     for (i = 0, l = breakpoint_index; i < l; i++) {
         if (get_register(REGISTER_PC) == breakpoints[i].address) {
-            fprintf(stderr, "Breakpoint `%s` reached at 0x%04X\n", breakpoints[i].name, breakpoints[i].address);
+            printf("Breakpoint `%s` reached at 0x%04X\n", breakpoints[i].name, breakpoints[i].address);
 
             at = TRUE;
         }

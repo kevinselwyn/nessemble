@@ -7,182 +7,12 @@
 #include <sys/stat.h>
 #include "nessemble.h"
 
-#define REGISTRY_LINE_COUNT  10
-#define REGISTRY_LINE_LENGTH 256
-
-#define REGISTRY_CONFIG "config"
-
-static unsigned int open_config(FILE **file, char **filename) {
-    unsigned int rc = RETURN_OK;
-    char *config_path = NULL;
-    size_t length = 0;
-    struct passwd *pw = getpwuid(getuid());
-    FILE *config = NULL;
-    DIR *dir = NULL;
-
-    if (!pw) {
-        fprintf(stderr, "Could not find home\n");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    length = strlen(pw->pw_dir) + 18;
-    config_path = (char *)malloc(sizeof(char) * length + 1);
-
-    if (!config_path) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    sprintf(config_path, "%s/%s", pw->pw_dir, "." PROGRAM_NAME);
-
-    dir = opendir(config_path);
-
-    if (!dir) {
-        if (mkdir(config_path, 0777) != 0) {
-            rc = RETURN_EPERM;
-            goto cleanup;
-        }
-    } else {
-        (void)closedir(dir);
-    }
-
-    strcat(config_path, "/" REGISTRY_CONFIG);
-
-    if (access(config_path, F_OK) == -1) {
-        config = fopen(config_path, "w+");
-    } else {
-        config = fopen(config_path, "r+");
-    }
-
-    if (!config) {
-        fprintf(stderr, "Could not open " REGISTRY_CONFIG "\n");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    *file = config;
-    *filename = config_path;
-
-cleanup:
-    return rc;
-}
-
-static void close_config(FILE *file, char *filename) {
-    if (file) {
-        (void)fclose(file);
-    }
-
-    if (filename) {
-        free(filename);
-    }
-}
-
-static unsigned int get_config(char **result, char *item) {
-    unsigned int rc = RETURN_OK, found = FALSE;
-    char line[REGISTRY_LINE_LENGTH], key[REGISTRY_LINE_LENGTH], val[REGISTRY_LINE_LENGTH];
-    char *config_path = NULL;
-    FILE *config = NULL;
-
-    if (open_config(&config, &config_path) != RETURN_OK) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    while (fgets(line, REGISTRY_LINE_LENGTH, config) != NULL) {
-        if (sscanf(line, "%s %s\n", key, val) != 2) {
-            continue;
-        }
-
-        if (strcmp(key, item) == 0) {
-            found = TRUE;
-            *result = strdup(val);
-        }
-    }
-
-    if (found == FALSE) {
-        fprintf(stderr, "No %s set\n", item);
-
-        rc = RETURN_EPERM;
-    }
-
-cleanup:
-    close_config(config, config_path);
-
-    return rc;
-}
-
 unsigned int get_registry(char **registry) {
     return get_config(&*registry, "registry");
 }
 
 unsigned int set_registry(char *registry) {
-    unsigned int rc = RETURN_OK, found = FALSE, line_index = 0, i = 0, l = 0;
-    char lines[REGISTRY_LINE_COUNT][REGISTRY_LINE_LENGTH], key[REGISTRY_LINE_LENGTH], val[REGISTRY_LINE_LENGTH];
-    char *config_path = NULL;
-    FILE *config = NULL;
-
-    if (open_config(&config, &config_path) != RETURN_OK) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    while (fgets(lines[line_index], REGISTRY_LINE_LENGTH, config) != NULL) {
-        if (sscanf(lines[line_index++], "%s %s\n", key, val) != 2) {
-            continue;
-        }
-
-        if (strcmp(key, "registry") == 0) {
-            found = TRUE;
-        }
-    }
-
-    if (found != TRUE) {
-        (void)fclose(config);
-        config = fopen(config_path, "a");
-
-        if (!config) {
-            fprintf(stderr, "Could not open " REGISTRY_CONFIG "\n");
-
-            rc = RETURN_EPERM;
-            goto cleanup;
-        }
-
-        fprintf(config, "registry\t%s\n", registry);
-
-        goto cleanup;
-    }
-
-    (void)fclose(config);
-    config = fopen(config_path, "w+");
-
-    if (!config) {
-        fprintf(stderr, "Could not open " REGISTRY_CONFIG "\n");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    for (i = 0, l = line_index; i < l; i++) {
-        if (sscanf(lines[i], "%s %s\n", key, val) != 2) {
-            continue;
-        }
-
-        if (strcmp(key, "registry") == 0) {
-            fprintf(config, "%s\t%s\n", key, registry);
-        } else {
-            fprintf(config, "%s\t%s\n", key, val);
-        }
-    }
-
-cleanup:
-    close_config(config, config_path);
-
-    return rc;
+    return set_config(registry, "registry");
 }
 
 static unsigned int get_lib_url(char **lib_url, char *lib) {
@@ -190,30 +20,20 @@ static unsigned int get_lib_url(char **lib_url, char *lib) {
     size_t length_registry = 0, length_lib = 0;
     char *registry = NULL, *path = NULL;
 
-    if (get_registry(&registry) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_registry(&registry)) != RETURN_OK) {
         goto cleanup;
     }
 
     length_registry = strlen(registry);
     length_lib = strlen(lib);
-    path = (char *)malloc(sizeof(char) * (length_registry + length_lib + 6) + 1);
-
-    if (!path) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    path = (char *)nessemble_malloc(sizeof(char) * (length_registry + length_lib + 6) + 1);
 
     sprintf(path, "%s/%s.json", registry, lib);
 
     *lib_url = path;
 
 cleanup:
-    if (registry) {
-        free(registry);
-    }
+    nessemble_free(registry);
 
     return rc;
 }
@@ -223,21 +43,13 @@ static unsigned int get_lib_search_url(char **lib_search_url, char *term) {
     size_t length_registry = 0, length_lib = 0;
     char *registry = NULL, *path = NULL;
 
-    if (get_registry(&registry) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_registry(&registry)) != RETURN_OK) {
         goto cleanup;
     }
 
     length_registry = strlen(registry);
     length_lib = strlen(term);
-    path = (char *)malloc(sizeof(char) * (length_registry + length_lib + 8) + 1);
-
-    if (!path) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    path = (char *)nessemble_malloc(sizeof(char) * (length_registry + length_lib + 8) + 1);
 
     if (strcmp(term, ".") == 0) {
         sprintf(path, "%s/", registry);
@@ -248,9 +60,7 @@ static unsigned int get_lib_search_url(char **lib_search_url, char *term) {
     *lib_search_url = path;
 
 cleanup:
-    if (registry) {
-        free(registry);
-    }
+    nessemble_free(registry);
 
     return rc;
 }
@@ -262,21 +72,14 @@ static unsigned int get_lib_dir(char **lib_dir) {
     struct passwd *pw = getpwuid(getuid());
 
     if (!pw) {
-        fprintf(stderr, "Could not find home\n");
+        error_program_log("Could not find home directory");
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     length = strlen(pw->pw_dir) + 11;
-    dir = (char *)malloc(sizeof(char) * length + 1);
-
-    if (!dir) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    dir = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
     sprintf(dir, "%s/%s", pw->pw_dir, "." PROGRAM_NAME);
 
@@ -293,21 +96,14 @@ static unsigned int get_lib_path(char **lib_path, char *lib) {
     struct passwd *pw = getpwuid(getuid());
 
     if (!pw) {
-        fprintf(stderr, "Could not find home\n");
+        error_program_log("Could not find home directory");
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     length = strlen(pw->pw_dir) + strlen(lib) + 16;
-    path = (char *)malloc(sizeof(char) * length + 1);
-
-    if (!path) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    path = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
     sprintf(path, "%s/%s/%s.asm", pw->pw_dir, "." PROGRAM_NAME, lib);
 
@@ -317,7 +113,7 @@ cleanup:
     return rc;
 }
 
-unsigned int lib_is_installed(char *lib) {
+static unsigned int lib_is_installed(char *lib) {
     unsigned int installed = FALSE;
     char *lib_path = NULL;
 
@@ -332,9 +128,7 @@ unsigned int lib_is_installed(char *lib) {
     installed = TRUE;
 
 cleanup:
-    if (lib_path) {
-        free(lib_path);
-    }
+    nessemble_free(lib_path);
 
     return installed;
 }
@@ -345,23 +139,19 @@ unsigned int lib_install(char *lib) {
     char *lib_url = NULL, *lib_path = NULL, *lib_zip_url = NULL, *lib_data = NULL;
     FILE *lib_file = NULL;
 
-    if (get_lib_url(&lib_url, lib) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_url(&lib_url, lib)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (get_json(&lib_zip_url, "resource", lib_url) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_json(&lib_zip_url, "resource", lib_url)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (get_lib_path(&lib_path, lib) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_path(&lib_path, lib)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (get_unzipped(&lib_data, &lib_length, "lib.asm", lib_zip_url) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_unzipped(&lib_data, &lib_length, "lib.asm", lib_zip_url)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -378,24 +168,13 @@ unsigned int lib_install(char *lib) {
     };
 
 cleanup:
-    if (lib_url) {
-        free(lib_url);
-    }
-
-    if (lib_path) {
-        free(lib_path);
-    }
-
-    if (lib_zip_url) {
-        free(lib_zip_url);
-    }
-
-    if (lib_data) {
-        free(lib_data);
-    }
+    nessemble_free(lib_url);
+    nessemble_free(lib_path);
+    nessemble_free(lib_zip_url);
+    nessemble_free(lib_data);
 
     if (lib_file) {
-        fclose(lib_file);
+        (void)fclose(lib_file);
     }
 
     return rc;
@@ -405,13 +184,12 @@ unsigned int lib_uninstall(char *lib) {
     unsigned int rc = RETURN_OK;
     char *lib_path = NULL;
 
-    if (get_lib_path(&lib_path, lib) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_path(&lib_path, lib)) != RETURN_OK) {
         goto cleanup;
     }
 
     if (lib_is_installed(lib) == FALSE) {
-        fprintf(stderr, "`%s` is not installed\n", lib);
+        error_program_log("`%s` is not installed", lib);
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -423,40 +201,43 @@ unsigned int lib_uninstall(char *lib) {
     }
 
 cleanup:
-    if (lib_path) {
-        free(lib_path);
-    }
+    nessemble_free(lib_path);
 
     return rc;
 }
 
 unsigned int lib_info(char *lib) {
-    unsigned int rc = RETURN_OK;
-    char *lib_url = NULL, *info = NULL;
+    unsigned int rc = RETURN_OK, readme_length = 0, http_code = 0;
+    char *lib_url = NULL, *readme = NULL, *readme_url = NULL;
 
-    if (get_lib_url(&lib_url, lib) != RETURN_OK) {
+    if ((rc = get_lib_url(&lib_url, lib)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = get_json(&readme_url, "readme", lib_url)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    http_code = get_request(&readme, &readme_length, readme_url, MIMETYPE_TEXT);
+
+    if (http_code != 200) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (get_json(&info, "readme", lib_url) != RETURN_OK) {
+    if (readme_length == 0) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (pager_buffer(info) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = pager_buffer(readme)) != RETURN_OK) {
         goto cleanup;
     }
 
 cleanup:
-    if (lib_url) {
-        free(lib_url);
-    }
-
-    if (info) {
-        free(info);
-    }
+    nessemble_free(lib_url);
+    nessemble_free(readme_url);
+    nessemble_free(readme);
 
     return rc;
 }
@@ -468,8 +249,7 @@ unsigned int lib_list() {
     struct dirent *ep;
     DIR *dp = NULL;
 
-    if (get_lib_dir(&lib_dir) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_dir(&lib_dir)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -497,9 +277,7 @@ unsigned int lib_list() {
     (void)closedir(dp);
 
 cleanup:
-    if (lib_dir) {
-        free(lib_dir);
-    }
+    nessemble_free(lib_dir);
 
     return rc;
 }
@@ -508,20 +286,16 @@ unsigned int lib_search(char *term) {
     unsigned int rc = RETURN_OK;
     char *lib_search_url = NULL;
 
-    if (get_lib_search_url(&lib_search_url, term) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_lib_search_url(&lib_search_url, term)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (get_json_search(lib_search_url, term) != RETURN_OK) {
-        rc = RETURN_EPERM;
+    if ((rc = get_json_search(lib_search_url, term)) != RETURN_OK) {
         goto cleanup;
     }
 
 cleanup:
-    if (lib_search_url) {
-        free(lib_search_url);
-    }
+    nessemble_free(lib_search_url);
 
     return rc;
 }

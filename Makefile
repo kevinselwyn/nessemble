@@ -3,7 +3,7 @@ BIN_DIR      := /usr/local/bin
 RM           := rm -f
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra
-CC_LIB_FLAGS := -lm -lpng -ljson-c -lcurl -larchive
+CC_LIB_FLAGS := -lm -lpng
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
 LEX          := flex
@@ -14,16 +14,23 @@ YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 
-OPCODES      := opcodes
 TEST         := test
 UNAME        := $(shell uname -s)
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c main.c assemble.c disassemble.c download.c error.c init.c instructions.c json.c list.c macro.c math.c midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c) reference.c registry.c simulate.c $(shell ls simulate/*.c) usage.c utils.c wav.c zip.c
+FILES        := main.c assemble.c config.c coverage.c disassemble.c download.c
+FILES        += error.c init.c instructions.c json.c list.c macro.c math.c
+FILES        += midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c)
+FILES        += reference.c registry.c simulate.c $(shell ls simulate/*.c)
+FILES        += usage.c utils.c wav.c zip.c
+FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
+
+SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
 HDRS         := $(NAME).h init.h license.h
 OBJS         := ${SRCS:c=o}
 
-REFERENCE    := reference/registers/ppuctrl.h reference/registers/ppumask.h reference/registers/ppustatus.h reference/registers/oamaddr.h reference/registers/oamdata.h reference/registers/ppuscroll.h reference/registers/ppuaddr.h reference/registers/ppudata.h
-REFERENCE    += reference/addressing/accumulator.h reference/addressing/implied.h reference/addressing/immediate.h reference/addressing/relative.h reference/addressing/zeropage.h reference/addressing/zeropage-x.h reference/addressing/zeropage-y.h reference/addressing/absolute.h reference/addressing/absolute-x.h reference/addressing/absolute-y.h reference/addressing/indirect.h reference/addressing/indirect-x.h reference/addressing/indirect-y.h
+REFERENCE    := $(shell ls reference/registers/*.txt | sed 's/.txt/.h/g')
+REFERENCE    += $(shell ls reference/addressing/*.txt | sed 's/.txt/.h/g')
+REFERENCE    += $(shell ls reference/mappers/*.txt | sed 's/.txt/.h/g')
 
 ifeq ($(ENV), debug)
 	CC_FLAGS += -g
@@ -47,16 +54,13 @@ $(YACC_OUT).c: $(NAME).y
 	$(YACC) $(YACC_FLAGS) $<
 
 opcodes.c: opcodes.csv
-	./opcodes.sh $< $@
+	./utils/opcodes.py -i $< > $@
 
 %.o: %.c
 	$(CC) -O -c $< $(CC_FLAGS) -o $@
 
 %.h: %.txt
-	$(eval STR := _$(shell echo "$@" | awk '{print toupper($$0)}' | sed "s/[^[:alpha:]]/_/g"))
-	printf "#ifndef %s\n#define %s\n\n" $(STR) $(STR) > $@
-	xxd -i $< >> $@
-	printf "\n#endif /* %s */\n" $(STR) >> $@
+	./utils/xxd.py -i $< > $@
 
 reference.c: ${REFERENCE:txt=h} reference.h
 
@@ -77,6 +81,9 @@ $(TEST): all
 check: all
 	@./check.sh
 
+splint: all
+	splint -I/usr/include -I/usr/include/x86_64-linux-gnu -warnposix $(FLAGS) $(FILES)
+
 registry: all
 	python ./registry/server.py --debug
 
@@ -89,4 +96,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c $(OPCODES).c $(OBJS) init.h license.h $(REFERENCE) check/suite_*
+	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h $(REFERENCE) check/suite_*

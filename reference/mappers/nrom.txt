@@ -1,0 +1,167 @@
+NROM (Mapper 000)
+
+Company:             Nintendo, others
+Boards:              NROM, HROM*, RROM, RTROM, SROM, STROM
+PRG ROM capacity:    16K or 32K
+PRG ROM window:      n/a
+PRG RAM capacity:    2K or 4K in Family Basic only
+PRG RAM window:      n/a
+CHR capacity:        8K
+CHR window:          n/a
+Nametable mirroring: Fixed H or V, controlled by solder pads (*V only)
+Bus conflicts:       Yes
+IRQ:                 No
+Audio:               No
+iNES mappers:        000
+
+Games:
+
+10 Yard Fight
+10 Yard Fight (J)
+110 in 1 Menu
+1942 (J)
+58 In 1 Menu
+76 In 1 Menu
+Antarctic Adventure
+Arkanoid
+Astro Robo Sasa
+B-Wings
+Back to the Future
+Balloon Fight
+Balloon Fight (PAL)
+Baltron
+Baseball
+Baseball (J)
+Battle City
+Binary Land
+Bokosuka Wars
+Bomberman (J)
+Burgertime (J)
+Chack N' Pop
+Challenger
+Championship Lode Runner
+Clu Clu Land disk-to-nes conv.
+Defender 2
+Devil World
+Dig Dug
+Dig Dug 2 (J)
+Donkey Kong
+Donkey Kong 3
+Donkey Kong Jr.
+Donkey Kong Jr. Math
+Donkey Kong Jr. Sansuu Asobi
+Door Door
+Dough Boy
+Duck
+Duck Hunt
+Elevator Action
+Excitebike
+Excitebike (PAL)
+Exed Exes
+Exerion
+F1 Race
+Famicom Typing Tutor (Dr PC Jr)
+Famicom Typing Tutor 2
+Field Combat
+Flappy
+Formation Z
+Four Card Games
+Front Line
+Galaga (J)
+Galaxian
+Galg
+Game Genie
+Geimos
+Golf
+Gomoku Narabe
+Gyrodine
+Hogan's Alley
+Hydlide
+Hydlide (J)
+Hyper Olympic
+Hyper Olympic - Tonosoma Edition
+Hyper Sports
+Ice Climber
+Ice Climber (disk conversion)
+Ice Hockey
+Ice Hockey (disk coversion)
+Igo Sinan
+Ikki
+Jewelry
+Joust
+Karateka
+Kinniku Man
+Kung-Fu
+Lode Runner (J)
+Lot Lot
+Lunar Ball
+Mach Rider
+Macross
+Mag Max (J)
+Mappy
+Mario Bros
+Mighty Bomb Jack (J)
+Millipede
+Ms. Pac-Man
+Naitou 9 Dan Shogi Hiden
+Ninja Kun
+Nuts and Milk
+Obake no Qtarou
+Onyanko Town
+Othello (J)
+Othello (Disk conversion)
+Pac-Land
+Pac-Man
+Pac-Man (Unlicensed Version)
+Pac-Man (J)
+Pachicom
+Penguin Kun Wars
+Pinball
+Poo-Yan
+Popeye
+Popeye Eigo Asobi
+Portpia Renzoku Satsujin Jiken
+Pyramid
+Raid on Bungling Bay
+Raid on Bungling Bay (J)
+Road Fighter
+Robot Block (Stack-Up)
+Robot Gyro (Gyromite)
+Route 16 Turbo
+Seicross
+Seicross (J)
+Sky Destroyer
+Slalom
+Slalom (PAL)
+Soccer
+Soccer (Disk Conversion)
+Son Son
+Space Invaders
+Spartan X
+Spelunker (J)
+Spy Vs. Spy (J)
+Sqoon (J)
+Star Force (J)
+Star Gate
+Star Luster
+Super Arabian
+Super Dynamix Badminton
+Super Mario Bros
+Super Mario Bros (PAL)
+Super Mario Bros (Disk Conv.)
+Tag Team Pro Wrestling
+Tag Team Wrestling
+Tennis
+Thexder
+Tower of Druaga, The
+Twinbee (Disk Conversion)
+Urban Champion
+Volguard 2
+Volleyball (Disk Conversion)
+Warpman
+Wild Gunman
+Wrecking Crew
+Xevious (J)
+Yie-Ar Kung-Fu
+Yo Nin Uti Majyan
+Zippy Race

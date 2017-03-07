@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "nessemble.h"
 #include "init.h"
 
@@ -15,17 +16,11 @@ unsigned int init() {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
     int input_prg = 0, input_chr = 0, input_mapper = 0, input_mirroring = 0;
     size_t length = 0;
+    char answer = '\0';
     char *buffer = NULL, *input_filename = NULL;
     FILE *output = NULL;
 
-    buffer = (char *)malloc(sizeof(char) * INIT_BUF_SIZE);
-
-    if (!buffer) {
-        fatal("Memory error");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    buffer = (char *)nessemble_malloc(sizeof(char) * INIT_BUF_SIZE);
 
     while (get_line(&buffer, "Filename: ") != NULL) {
         length = strlen(buffer);
@@ -35,7 +30,7 @@ unsigned int init() {
         }
 
         buffer[length - 1] = '\0';
-        input_filename = strdup(buffer);
+        input_filename = nessemble_strdup(buffer);
         break;
     }
 
@@ -129,10 +124,24 @@ unsigned int init() {
         goto cleanup;
     }
 
+    if (access(input_filename, F_OK) != -1) {
+        while (answer != 'y' && answer != 'Y') {
+            printf("`%s` already exists. Overwrite? [Yn] ", input_filename);
+
+            if (scanf(" %c", &answer) != 1) {
+                goto cleanup;
+            }
+
+            if (answer == 'n' || answer == 'N') {
+                goto cleanup;
+            }
+        }
+    }
+
     output = fopen(input_filename, "w+");
 
     if (!output) {
-        fprintf(stderr, "Could not open `%s`\n", input_filename);
+        error_program_log("Could not open `%s`", input_filename);
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -156,13 +165,8 @@ unsigned int init() {
     printf("Created `%s`\n", input_filename);
 
 cleanup:
-    if (input_filename) {
-        free(input_filename);
-    }
-
-    if (buffer) {
-        free(buffer);
-    }
+    nessemble_free(input_filename);
+    nessemble_free(buffer);
 
     if (output) {
         (void)fclose(output);

@@ -32,6 +32,8 @@ def registry_response(data, status=200, mimetype='application/json'):
     else:
         response = make_response(data, status)
 
+    response.headers.remove('Content-Type')
+
     response.headers.add('Content-Type', mimetype)
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Server', 'Nessemble')
@@ -151,16 +153,25 @@ def get_package(package):
     except ValueError:
         abort(500)
 
-    # include README.md
-    try:
-        with open('%s/README.md' % (path), 'r') as f:
-            result['readme'] = f.read()
-    except IOError:
-        pass
-
+    result["readme"] = "%s%s.md" % (request.url_root, package)
     result["resource"] = "%s%s.tar.gz" % (request.url_root, package)
 
     return registry_response(result)
+
+@app.route('/<string:package>.md', methods=['GET'])
+def get_readme(package):
+    """Get package README endpoint"""
+
+    readme = ''
+    path = '%s/libs/%s/' % (os.path.dirname(os.path.abspath(__file__)), package)
+
+    try:
+        with open('%s/README.md' % (path), 'r') as f:
+            readme = f.read()
+    except IOError:
+        abort(404)
+
+    return registry_response(readme, mimetype='text/plain')
 
 @app.route('/<string:package>.tar.gz', methods=['GET'])
 def get_gz(package):

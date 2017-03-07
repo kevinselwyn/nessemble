@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <json-c/json.h>
 #include "nessemble.h"
+#include "third-party/jsmn/jsmn.h"
 
 #include <string.h>
 char *strstr(const char *haystack, const char *needle);
@@ -9,32 +9,69 @@ char *strstr(const char *haystack, const char *needle);
 #include <string.h>
 char *strcasestr(const char *haystack, const char *needle);
 
-#define MIMETYPE_JSON "application/json"
+#define JSON_TOKEN_MAX 128
+
+static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
+	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start && strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
+		return 0;
+	}
+
+	return -1;
+}
+
+static unsigned int parse_text(char **output, char *text) {
+    unsigned int rc = RETURN_OK;
+    unsigned int length = 0, index = 0, i = 0, l = 0;
+    char *parsed = NULL;
+
+    length = (unsigned int)strlen(text);
+
+    parsed = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+
+    for (i = 0, l = length; i < l; i++) {
+        if (text[i] == '\\') {
+            if (text[i+1] == 'n') {
+                parsed[index++] = '\n';
+                i++;
+                continue;
+            } else if (text[i+1] == 't') {
+                parsed[index++] = '\t';
+                i++;
+                continue;
+            }
+
+            parsed[index++] = '\\';
+        } else {
+            parsed[index++] = text[i];
+        }
+    }
+
+    parsed[index] = '\0';
+
+    *output = parsed;
+
+    return rc;
+}
 
 unsigned int get_json(char **value, char *key, char *url) {
-    unsigned int rc = RETURN_OK, http_code = 0;
-    size_t text_length = 0, string_length = 0;
-    char *text = NULL, *output = NULL, *string_value = NULL, *k_val = NULL;
-    json_object *jobj;
-    enum json_type type;
-    struct json_tokener *tok;
-    struct json_object *v_val;
+    int token_count = 0;
+    unsigned int rc = RETURN_OK, http_code = 0, text_length = 0;
+    unsigned int i = 0, l = 0, string_length = 0;
+    char *text = NULL, *string_value = NULL;
+    jsmn_parser parser;
+    jsmntok_t tokens[JSON_TOKEN_MAX];
 
-    http_code = get_request(&text, &text_length, url, MIMETYPE_JSON);
-
-    switch (http_code) {
+    switch ((http_code = get_request(&text, &text_length, url, MIMETYPE_JSON))) {
     case 503:
-        fprintf(stderr, "Could not reach the registry\n");
+        error_program_log("Could not reach the registry");
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 404:
-        fprintf(stderr, "Library does not exist\n");
+        error_program_log("Library does not exist");
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 200:
     default:
         break;
@@ -45,32 +82,31 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    tok = json_tokener_new();
+    jsmn_init(&parser);
+    token_count = jsmn_parse(&parser, text, strlen(text), tokens, JSON_TOKEN_MAX);
 
-    if (!tok) {
+    if (token_count <= 0 || tokens[0].type != JSMN_OBJECT) {
+        error_program_log("Could not parse JSON");
+
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    jobj = json_tokener_parse_ex(tok, text, text_length);
+    for (i = 1, l = (unsigned int)token_count; i < l; i++) {
+        if (jsoneq(text, &tokens[i], key) == 0) {
+            string_length = tokens[i+1].end - tokens[i+1].start;
+            string_value = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
-    if (!jobj) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+            strncpy(string_value, text+tokens[i+1].start, (size_t)string_length);
+            string_value[string_length] = '\0';
 
-    for (struct lh_entry *entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
-        if (strcmp(key, k_val) == 0) {
-            type = json_object_get_type(v_val);
-
-            if (type != json_type_string) {
-                rc = RETURN_EPERM;
-                goto cleanup;
-            }
-
-            string_value = (char *)json_object_get_string(v_val);
-            string_length = strlen(string_value);
+            break;
         }
+    }
+
+    if (!string_value) {
+        rc = RETURN_EPERM;
+        goto cleanup;
     }
 
     if (string_length == 0) {
@@ -78,47 +114,37 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    output = (char *)malloc(sizeof(char) * (string_length) + 1);
-
-    if (!output) {
-        rc = RETURN_EPERM;
+    if ((rc = parse_text(&*value, string_value)) != RETURN_OK) {
         goto cleanup;
     }
 
-    strcpy(output, string_value);
-
-    *value = output;
-
 cleanup:
-    if (text) {
-        free(text);
-    }
+    nessemble_free(text);
 
     return rc;
 }
 
 unsigned int get_json_search(char *url, char *term) {
-    unsigned int rc = RETURN_OK, i = 0, j = 0, k = 0, l = 0;
-    size_t text_length = 0;
-    char *text = NULL, *k_val = NULL;
-    json_object *jobj;
-    enum json_type type;
-    struct json_tokener *tok;
-    struct json_object *v_val, *results;
+    int token_count = 0;
+    unsigned int rc = RETURN_OK, text_length = 0;
+    unsigned int i = 0, k = 0, l = 0;
+    unsigned int string_length = 0, results_index = 0;
+    char *text = NULL;
+    char *results[200];
+    jsmn_parser parser;
+    jsmntok_t tokens[JSON_TOKEN_MAX];
 
     switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
     case 503:
-        fprintf(stderr, "Could not reach the registry\n");
+        error_program_log("Could not reach the registry");
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 404:
-        fprintf(stderr, "Library does not exist\n");
+        error_program_log("Library does not exist");
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 200:
     default:
         break;
@@ -129,115 +155,95 @@ unsigned int get_json_search(char *url, char *term) {
         goto cleanup;
     }
 
-    tok = json_tokener_new();
+    jsmn_init(&parser);
+    token_count = jsmn_parse(&parser, text, strlen(text), tokens, JSON_TOKEN_MAX);
 
-    if (!tok) {
+    if (token_count <= 0 || tokens[0].type != JSMN_OBJECT) {
+        error_program_log("Could not parse JSON");
+
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    jobj = json_tokener_parse_ex(tok, text, text_length);
+    for (i = 1, l = token_count; i < l; i++) {
+        if (jsoneq(text, &tokens[i], "name") == 0) {
+            string_length = tokens[i+1].end - tokens[i+1].start;
+            results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
-    if (!jobj) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+            memset(results[results_index], 0, (size_t)string_length);
+            strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
+            results[results_index][string_length] = '\0';
 
-    for (struct lh_entry *entry = json_object_get_object(jobj)->head; ({ if (entry) { k_val = (char *)entry->k; v_val = (struct json_object *)entry->v; } ; entry; }); entry = entry->next) {
-        if (strcmp("results", k_val) == 0 || strcmp("libraries", k_val) == 0) {
-            type = json_object_get_type(v_val);
+            results_index++;
+        }
 
-            if (type != json_type_array) {
-                rc = RETURN_EPERM;
-                goto cleanup;
-            }
+        if (jsoneq(text, &tokens[i], "description") == 0) {
+            string_length = tokens[i+1].end - tokens[i+1].start;
+            results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
-            if (json_object_object_get_ex(jobj, k_val, &results) != TRUE) {
-                rc = RETURN_EPERM;
-                goto cleanup;
-            };
+            memset(results[results_index], 0, (size_t)string_length);
+            strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
+            results[results_index][string_length] = '\0';
 
-            for (i = 0, j = json_object_array_length(results); i < j; i++) {
-                int name_index = 0, description_index = 0, term_length = 0;
-                json_object *result = NULL, *name = NULL, *description = NULL;
-                char *name_text = NULL, *description_text = NULL;
-
-                result = json_object_array_get_idx(results, (size_t)i);
-                type = json_object_get_type(result);
-
-                if (type != json_type_object) {
-                    continue;
-                }
-
-                if (json_object_object_get_ex(result, "name", &name) != TRUE) {
-                    continue;
-                }
-
-                type = json_object_get_type(name);
-
-                if (type != json_type_string) {
-                    continue;
-                }
-
-                if (json_object_object_get_ex(result, "description", &description) != TRUE) {
-                    continue;
-                }
-
-                type = json_object_get_type(description);
-
-                if (type != json_type_string) {
-                    continue;
-                }
-
-                name_text = (char *)json_object_get_string(name);
-                description_text = (char *)json_object_get_string(description);
-
-                term_length = (int)strlen(term);
-                name_index = strcasestr(name_text, term) - name_text;
-                description_index = strcasestr(description_text, term) - description_text;
-
-                if (name_index >= 0) {
-                    for (k = 0, l = (unsigned int)strlen(name_text); k < l; k++) {
-                        if (k == (unsigned int)name_index) {
-                            printf("\e[1m");
-                        }
-
-                        printf("%c", name_text[k]);
-
-                        if (k + 1 == (unsigned int)(name_index + term_length)) {
-                            printf("\e[0m");
-                        }
-                    }
-                } else {
-                    printf("%s", name_text);
-                }
-
-                printf(" - ");
-
-                if (description_index >= 0) {
-                    for (k = 0, l = (unsigned int)strlen(description_text); k < l; k++) {
-                        if (k == (unsigned int)description_index) {
-                            printf("\e[1m");
-                        }
-
-                        printf("%c", description_text[k]);
-
-                        if (k + 1 == (unsigned int)(description_index + term_length)) {
-                            printf("\e[0m");
-                        }
-                    }
-                } else {
-                    printf("%s", description_text);
-                }
-
-                printf("\n");
-            }
+            results_index++;
         }
     }
 
+    i = 0;
+
+    while (i < results_index) {
+        int name_index = 0, description_index = 0, term_length = 0;
+        char *name_text = NULL, *description_text = NULL;
+
+        name_text = results[i++];
+        description_text = results[i++];
+
+        term_length = (int)strlen(term);
+        name_index = strcasestr(name_text, term) - name_text;
+        description_index = strcasestr(description_text, term) - description_text;
+
+        if (name_index >= 0) {
+            for (k = 0, l = (unsigned int)strlen(name_text); k < l; k++) {
+                if (k == (unsigned int)name_index) {
+                    printf("\e[1m");
+                }
+
+                printf("%c", name_text[k]);
+
+                if (k + 1 == (unsigned int)(name_index + term_length)) {
+                    printf("\e[0m");
+                }
+            }
+        } else {
+            printf("%s", name_text);
+        }
+
+        printf(" - ");
+
+        if (description_index >= 0) {
+            for (k = 0, l = (unsigned int)strlen(description_text); k < l; k++) {
+                if (k == (unsigned int)description_index) {
+                    printf("\e[1m");
+                }
+
+                printf("%c", description_text[k]);
+
+                if (k + 1 == (unsigned int)(description_index + term_length)) {
+                    printf("\e[0m");
+                }
+            }
+        } else {
+            printf("%s", description_text);
+        }
+
+        printf("\n");
+    }
+
 cleanup:
-    if (text) {
-        free(text);
+    nessemble_free(text);
+
+    for (i = 0, l = results_index; i < l; i++) {
+        nessemble_free(results[i]);
     }
 
     return rc;
