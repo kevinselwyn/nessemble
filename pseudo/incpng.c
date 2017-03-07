@@ -3,9 +3,10 @@
 #include "../png.h"
 
 void pseudo_incpng(char *string, int offset, int limit) {
-    int color_mode = 0, color = 0, byte = 0, tile_index = -1;
-    int h = 0, w = 0, x = 0, y = 0;
+    int color_mode = 3, color = 0, byte = 0, tile_index = -1;
+    unsigned int h = 0, w = 0, x = 0, y = 0;
     char *path = NULL;
+    unsigned char *rgb = NULL;
     struct png_data png;
 
     if (get_fullpath(&path, string) != 0) {
@@ -18,8 +19,6 @@ void pseudo_incpng(char *string, int offset, int limit) {
     if (error_exists() != RETURN_OK) {
         goto cleanup;
     }
-
-    color_mode = png_color_mode(png.color_type);
 
     for (h = 0; h < png.height; h += 8) {
         for (w = 0; w < png.width; w += 8) {
@@ -34,11 +33,10 @@ void pseudo_incpng(char *string, int offset, int limit) {
             }
 
             for (y = h; y < h + 8; y++) {
-                png_byte *row = png.row_pointers[y];
                 byte = 0;
 
                 for (x = w; x < w + 8; x++) {
-                    png_byte *rgb = &(row[x * color_mode]);
+                    rgb = &(png.data[(x * color_mode) + (y * (png.width * color_mode))]);
                     color = get_color(rgb, color_mode);
 
                     byte |= (color & 0x01) << (7 - (x % 8));
@@ -48,11 +46,10 @@ void pseudo_incpng(char *string, int offset, int limit) {
             }
 
             for (y = h; y < h + 8; y++) {
-                png_byte *row = png.row_pointers[y];
                 byte = 0;
 
                 for (x = w; x < w + 8; x++) {
-                    png_byte *rgb = &(row[x * color_mode]);
+                    rgb = &(png.data[(x * color_mode) + (y * (png.width * color_mode))]);
                     color = get_color(rgb, color_mode);
 
                     byte |= ((color >> 1) & 0x01) << (7 - (x % 8));
@@ -65,6 +62,5 @@ void pseudo_incpng(char *string, int offset, int limit) {
 
 cleanup:
     nessemble_free(path);
-
-    free_png_read(png);
+    free_png(png);
 }
