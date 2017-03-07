@@ -486,6 +486,7 @@ static unsigned int disassemble_chr(char *data, unsigned int length, char *filen
     }
 
     if ((rc = write_png(pixels, 128, 256, filename)) != RETURN_OK) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
