@@ -1,1 +1,1 @@
-.inestrn "instructions.asm"
+.inestrn "../instructions/instructions.asm"

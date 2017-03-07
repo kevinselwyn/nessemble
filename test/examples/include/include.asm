@@ -1,2 +1,2 @@
-.include "instructions.asm"
-.include "instructions.asm"
+.include "../instructions/instructions.asm"
+.include "../instructions/instructions.asm"
