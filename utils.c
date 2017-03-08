@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pwd.h>
 #include "nessemble.h"
 
 void *nessemble_malloc(size_t size) {
@@ -35,6 +34,18 @@ char *nessemble_strdup(char *str) {
     strcpy(dup, str);
 
     return dup;
+}
+
+int nessemble_mkdir(const char *dirname, int mode) {
+    int rc = 0;
+
+#ifdef WIN32
+    rc = mkdir(dirname);
+#else /* WIN32 */
+    rc = mkdir(dirname, mode);
+#endif /* WIN32 */
+
+    return rc;
 }
 
 unsigned int is_stdout(char *filename) {
@@ -225,21 +236,17 @@ cleanup:
 int get_libpath(char **path, char *string) {
     int rc = RETURN_OK;
     size_t string_length = 0, path_length = 0;
-    char *fullpath = NULL;
-    struct passwd *pw = getpwuid(getuid());
+    char *home = NULL, *fullpath = NULL;
 
-    if (!pw) {
-        error_program_log("Could not find home directory");
-
-        rc = RETURN_EPERM;
+    if ((rc = get_home(&home)) != RETURN_OK) {
         goto cleanup;
     }
 
     string_length = strlen(string);
-    path_length = strlen(pw->pw_dir) + 11 + string_length - 1;
+    path_length = strlen(home) + 11 + string_length - 1;
     fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
-    strcpy(fullpath, pw->pw_dir);
+    strcpy(fullpath, home);
     strcat(fullpath, "/." PROGRAM_NAME "/");
     strncat(fullpath, string + 1, string_length - 2);
 
@@ -254,6 +261,8 @@ int get_libpath(char **path, char *string) {
     *path = fullpath;
 
 cleanup:
+    nessemble_free(home);
+
     return rc;
 }
 

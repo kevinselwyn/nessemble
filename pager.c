@@ -9,6 +9,9 @@ unsigned int pager_buffer(char *buffer) {
     char *arguments[2];
     pid_t pid;
 
+#ifdef WIN32
+    printf("%s", buffer);
+#else /* WIN32 */
     if (pipe(pfds) < 0) {
         printf("%s", buffer);
         goto cleanup;
@@ -38,6 +41,7 @@ unsigned int pager_buffer(char *buffer) {
         printf("%s", buffer);
         rc = RETURN_OK;
     }
+#endif /* WIN32 */
 
 cleanup:
     return rc;

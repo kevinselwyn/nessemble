@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pwd.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include "nessemble.h"
@@ -68,48 +67,44 @@ cleanup:
 static unsigned int get_lib_dir(char **lib_dir) {
     unsigned int rc = RETURN_OK;
     size_t length = 0;
-    char *dir = NULL;
-    struct passwd *pw = getpwuid(getuid());
+    char *home = NULL, *dir = NULL;
 
-    if (!pw) {
-        error_program_log("Could not find home directory");
-
-        rc = RETURN_EPERM;
+    if ((rc = get_home(&home)) != RETURN_OK) {
         goto cleanup;
     }
 
-    length = strlen(pw->pw_dir) + 11;
+    length = strlen(home) + 11;
     dir = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
-    sprintf(dir, "%s/%s", pw->pw_dir, "." PROGRAM_NAME);
+    sprintf(dir, "%s/%s", home, "." PROGRAM_NAME);
 
     *lib_dir = dir;
 
 cleanup:
+    nessemble_free(home);
+
     return rc;
 }
 
 static unsigned int get_lib_path(char **lib_path, char *lib) {
     unsigned int rc = RETURN_OK;
     size_t length = 0;
-    char *path = NULL;
-    struct passwd *pw = getpwuid(getuid());
+    char *home = NULL, *path = NULL;
 
-    if (!pw) {
-        error_program_log("Could not find home directory");
-
-        rc = RETURN_EPERM;
+    if ((rc = get_home(&home)) != RETURN_OK) {
         goto cleanup;
     }
 
-    length = strlen(pw->pw_dir) + strlen(lib) + 16;
+    length = strlen(home) + strlen(lib) + 16;
     path = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
-    sprintf(path, "%s/%s/%s.asm", pw->pw_dir, "." PROGRAM_NAME, lib);
+    sprintf(path, "%s/%s/%s.asm", home, "." PROGRAM_NAME, lib);
 
     *lib_path = path;
 
 cleanup:
+    nessemble_free(home);
+
     return rc;
 }
 
@@ -248,6 +243,7 @@ unsigned int lib_list() {
     char *lib_dir = NULL;
     struct dirent *ep;
     DIR *dp = NULL;
+    struct stat s;
 
     if ((rc = get_lib_dir(&lib_dir)) != RETURN_OK) {
         goto cleanup;
@@ -261,7 +257,9 @@ unsigned int lib_list() {
     }
 
     while ((ep = readdir(dp)) != NULL) {
-        if (ep->d_type == DT_REG) {
+        stat(ep->d_name, &s);
+
+        if ((s.st_mode & S_IFDIR) != 0) {
             length = strlen(ep->d_name);
 
             if (strcmp(ep->d_name + (length - 4), ".asm") != 0) {
