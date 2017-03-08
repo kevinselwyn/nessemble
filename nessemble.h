@@ -2,6 +2,7 @@
 #define _NESSEMBLE_H
 
 #include <stdio.h>
+#include <time.h>
 
 /*
  * DEFINES
@@ -129,6 +130,15 @@
 #define USAGE_FLAG_COUNT            14
 #define USAGE_COMMAND_COUNT         9
 #define SIMULATION_USAGE_FLAG_COUNT 16
+
+/* MAYBE UNDEFINED */
+#ifndef CLOCK_MONOTONIC
+#define CLOCK_MONOTONIC 1
+#endif /* CLOCK_MONOTONIC */
+
+#ifndef EOVERFLOW
+#define EOVERFLOW 75
+#endif /* EOVERFLOW */
 
 /*
  * STRUCTS
@@ -262,6 +272,9 @@ unsigned int usage(char *exec);
 void usage_simulate();
 unsigned int version();
 unsigned int license();
+
+/* HOME */
+unsigned int get_home(char **home);
 
 /* COVERAGE */
 unsigned int get_coverage();
@@ -502,9 +515,14 @@ float easeOutBounce(float t, float b, float c, float d);
 float easeInOutBounce(float t, float b, float c, float d);
 
 /* UTILS */
+#ifdef WIN32
+int clock_gettime(int X, struct timeval *tv);
+#endif /* WIN32 */
+
 void *nessemble_malloc(size_t size);
 void nessemble_free(void *ptr);
 char *nessemble_strdup(char *str);
+int nessemble_mkdir(const char *dirname, int mode);
 unsigned int is_stdout(char *filename);
 int hex2int(char *hex);
 int bin2int(char *bin);

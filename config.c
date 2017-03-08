@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pwd.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include "nessemble.h"
@@ -22,28 +21,24 @@ struct config_type config_types[CONFIG_TYPES] = {
 
 unsigned int open_config(FILE **file, char **filename) {
     unsigned int rc = RETURN_OK;
-    char *config_path = NULL;
+    char *home = NULL, *config_path = NULL;
     size_t length = 0;
-    struct passwd *pw = getpwuid(getuid());
     FILE *config = NULL;
     DIR *dir = NULL;
 
-    if (!pw) {
-        error_program_log("Could not find home directory");
-
-        rc = RETURN_EPERM;
+    if ((rc = get_home(&home)) != RETURN_OK) {
         goto cleanup;
     }
 
-    length = strlen(pw->pw_dir) + 18;
+    length = strlen(home) + 18;
     config_path = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
-    sprintf(config_path, "%s/%s", pw->pw_dir, "." PROGRAM_NAME);
+    sprintf(config_path, "%s/%s", home, "." PROGRAM_NAME);
 
     dir = opendir(config_path);
 
     if (!dir) {
-        if (mkdir(config_path, 0777) != 0) {
+        if (nessemble_mkdir(config_path, 0777) != 0) {
             rc = RETURN_EPERM;
             goto cleanup;
         }
@@ -70,6 +65,8 @@ unsigned int open_config(FILE **file, char **filename) {
     *filename = config_path;
 
 cleanup:
+    nessemble_free(home);
+
     return rc;
 }
 

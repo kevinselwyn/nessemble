@@ -150,7 +150,7 @@ static int read_fixed_block()
 	{
 		int ret;
 		uint16_t code;
-		uint16_t len;
+		uint16_t len = 0;
 
 		if((ret = read_fixed_code()) < 0)
 			return ret;
@@ -311,7 +311,7 @@ static int read_huffman_tree_lens(uint16_t cl_tree[], uint8_t code_lens[], int t
 	for(i = 0; i < tree_len;)
 	{
 		int ret;
-		uint8_t len;
+		uint8_t len = 0;
 		uint16_t code_len;
 
 		if((ret = read_litlen_code(cl_tree, &len)) < 0)

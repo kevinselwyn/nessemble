@@ -1,12 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
-#include <netdb.h>
 #include "nessemble.h"
 #include "download.h"
+
+#ifdef WIN32
+#include <winsock2.h>
+#else /* WIN32 */
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#endif /* WIN32 */
 
 #include <string.h>
 char *strstr(const char *haystack, const char *needle);
@@ -107,10 +112,10 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
 
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons((uint16_t)port);
+    serv_addr.sin_port = htons(port);
     memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, (size_t)server->h_length);
 
-    if (connect(sockfd, (struct sockaddr *)&serv_addr, (socklen_t)sizeof(serv_addr)) < 0) {
+    if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
         error_program_log("Could not connect to host `%s`", host);
         code = 500;
         goto cleanup;
