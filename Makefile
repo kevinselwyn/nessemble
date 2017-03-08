@@ -32,12 +32,6 @@ REFERENCE    := $(shell ls reference/registers/*.txt | sed 's/.txt/.h/g')
 REFERENCE    += $(shell ls reference/addressing/*.txt | sed 's/.txt/.h/g')
 REFERENCE    += $(shell ls reference/mappers/*.txt | sed 's/.txt/.h/g')
 
-# DEBUG
-
-ifeq ($(ENV), debug)
-	CC_FLAGS += -g
-endif
-
 # PLATFORM-SPECIFIC
 
 ifeq ($(UNAME), Darwin)
@@ -47,6 +41,8 @@ else
 endif
 
 # TARGET-SPECIFIC
+
+debug: CC_FLAGS += -g
 
 js: EXEC := $(NAME).js
 js: CC   := emcc
@@ -58,6 +54,8 @@ win32: CC_FLAGS :=
 # TARGETS
 
 all: $(EXEC)
+
+debug: $(EXEC)
 
 js: $(EXEC)
 
