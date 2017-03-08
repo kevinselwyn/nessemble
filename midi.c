@@ -14,6 +14,8 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
     char *data = NULL;
     struct midi_event *events = NULL;
 
+    memset(byte, 0, 10);
+
     data = track->data;
     length = track->length;
 

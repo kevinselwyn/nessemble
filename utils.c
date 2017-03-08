@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <pwd.h>
 #include "nessemble.h"
 
 void *nessemble_malloc(size_t size) {
@@ -42,11 +41,10 @@ int nessemble_mkdir(const char *dirname, int mode) {
 
 #ifdef WIN32
     rc = mkdir(dirname);
+#else /* WIN32 */
+    rc = mkdir(dirname, mode);
 #endif /* WIN32 */
 
-    rc = mkdir(dirname, mode);
-
-cleanup:
     return rc;
 }
 
