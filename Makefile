@@ -1,4 +1,5 @@
 NAME         := nessemble
+EXEC         := $(NAME)
 BIN_DIR      := /usr/local/bin
 RM           := rm -f
 CC           := gcc
@@ -14,12 +15,11 @@ YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 
-TEST         := test
 UNAME        := $(shell uname -s)
 
 FILES        := main.c assemble.c config.c coverage.c disassemble.c download.c
-FILES        += error.c init.c instructions.c json.c list.c macro.c math.c
-FILES        += midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c)
+FILES        += error.c home.c init.c instructions.c json.c list.c macro.c
+FILES        += math.c midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c)
 FILES        += reference.c registry.c simulate.c $(shell ls simulate/*.c)
 FILES        += usage.c utils.c wav.c zip.c
 FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
@@ -32,9 +32,13 @@ REFERENCE    := $(shell ls reference/registers/*.txt | sed 's/.txt/.h/g')
 REFERENCE    += $(shell ls reference/addressing/*.txt | sed 's/.txt/.h/g')
 REFERENCE    += $(shell ls reference/mappers/*.txt | sed 's/.txt/.h/g')
 
+# DEBUG
+
 ifeq ($(ENV), debug)
 	CC_FLAGS += -g
 endif
+
+# PLATFORM-SPECIFIC
 
 ifeq ($(UNAME), Darwin)
 	CC_FLAGS += -ll -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments
@@ -42,7 +46,23 @@ else
 	CC_FLAGS += -lfl -lrt
 endif
 
-all: $(NAME)
+# TARGET-SPECIFIC
+
+js: EXEC := $(NAME).js
+js: CC   := emcc
+
+win32: EXEC := $(NAME).exe
+win32: CC   := i686-w64-mingw32-gcc
+
+# TARGETS
+
+all: $(EXEC)
+
+js: $(EXEC)
+
+win32: $(EXEC)
+
+# RECIPES
 
 $(LEX_OUT).c: $(NAME).l
 	$(LEX) $(LEX_FLAGS) $<
@@ -72,11 +92,11 @@ usage.c: license.h
 
 license.h: ${licence.txt:txt=h}
 
-$(NAME): $(OBJS) $(HDRS)
-	$(CC) -o $@ $(OBJS) $(CC_FLAGS) $(CC_LIB_FLAGS)
+$(EXEC): $(OBJS) $(HDRS)
+	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_LIB_FLAGS)
 
-$(TEST): all
-	@./$(TEST).sh
+test: all
+	@./test.sh
 
 check: all
 	@./check.sh
@@ -88,12 +108,12 @@ registry: all
 	python ./registry/server.py --debug
 
 install: all
-	strip $(NAME)
-	install -m 0755 $(NAME) $(BIN_DIR)
+	strip $(EXEC)
+	install -m 0755 $(EXEC) $(BIN_DIR)
 
 uninstall:
-	rm -f $(BIN_DIR)/$(NAME)
+	rm -f $(BIN_DIR)/$(EXEC)
 
 .PHONY: clean
 clean:
-	$(RM) $(NAME) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h $(REFERENCE) check/suite_*
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h $(REFERENCE) check/suite_*

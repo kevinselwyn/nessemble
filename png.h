@@ -1,5 +1,3 @@
-#include <png.h>
-
 struct png_data {
     unsigned int width, height;
 	unsigned char *data;
