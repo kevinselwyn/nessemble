@@ -10,14 +10,14 @@ unsigned int pager_buffer(char *buffer) {
     pid_t pid;
 
     if (pipe(pfds) < 0) {
-        rc = RETURN_EPERM;
+        printf("%s", buffer);
         goto cleanup;
     }
 
     pid = fork();
 
     if (pid < 0) {
-        rc = RETURN_EPERM;
+        printf("%s", buffer);
         goto cleanup;
     } else if (pid == 0) {
         (void)close(pfds[0]);
@@ -33,10 +33,7 @@ unsigned int pager_buffer(char *buffer) {
         (void)dup2(pfds[0], STDIN_FILENO);
         (void)close(pfds[0]);
 
-        if (execvp(arguments[0], arguments) == 0) {
-            rc = RETURN_OK;
-            goto cleanup;
-        }
+        (void)execvp(arguments[0], arguments);
 
         printf("%s", buffer);
         rc = RETURN_OK;
