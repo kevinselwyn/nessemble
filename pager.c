@@ -3,16 +3,15 @@
 #include <unistd.h>
 #include "nessemble.h"
 
-#ifdef WIN32
-#include <winsock2.h>
-#endif /* WIN32 */
-
 unsigned int pager_buffer(char *buffer) {
     unsigned int rc = RETURN_OK;
     int pfds[2] = { 0, 0 };
     char *arguments[2];
     pid_t pid;
 
+#ifdef WIN32
+    printf("%s", buffer);
+#else /* WIN32 */
     if (pipe(pfds) < 0) {
         printf("%s", buffer);
         goto cleanup;
@@ -42,6 +41,7 @@ unsigned int pager_buffer(char *buffer) {
         printf("%s", buffer);
         rc = RETURN_OK;
     }
+#endif /* WIN32 */
 
 cleanup:
     return rc;
