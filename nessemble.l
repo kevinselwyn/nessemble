@@ -65,6 +65,7 @@ int include_stack_ptr = 0;
 ".byte"                    { return PSEUDO_BYTE; }
 ".checksum"                { return PSEUDO_CHECKSUM; }
 ".chr"                     { return PSEUDO_CHR; }
+".color"                   { return PSEUDO_COLOR; }
 ".db"                      { return PSEUDO_DB; }
 ".defchr"                  { return PSEUDO_DEFCHR; }
 ".dw"                      { return PSEUDO_DW; }

@@ -53,6 +53,7 @@
 %token PSEUDO_BYTE
 %token PSEUDO_CHECKSUM
 %token PSEUDO_CHR
+%token PSEUDO_COLOR
 %token PSEUDO_DB
 %token PSEUDO_DEFCHR
 %token PSEUDO_DW
@@ -229,6 +230,7 @@ pseudo
     : pseudo_ascii     { /* NOTHING */ }
     | pseudo_checksum  { pseudo_checksum($1); }
     | pseudo_chr       { pseudo_chr($1); }
+    | pseudo_color     { pseudo_color(); }
     | pseudo_db        { pseudo_db(); }
     | pseudo_defchr    { pseudo_defchr(); }
     | pseudo_dw        { pseudo_dw(); }
@@ -279,6 +281,11 @@ pseudo_checksum
 
 pseudo_chr
     : PSEUDO_CHR number { $$ = $2; }
+    ;
+
+pseudo_color
+    : PSEUDO_COLOR number       { ints[length_ints++] = $2; }
+    | pseudo_color COMMA number { ints[length_ints++] = $3; }
     ;
 
 pseudo_db_alias

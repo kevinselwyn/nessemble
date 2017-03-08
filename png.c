@@ -84,14 +84,9 @@ int get_color(unsigned char *rgb, int color_mode) {
     return color;
 }
 
-int match_color(unsigned char *rgb, int color_mode) {
+int match_color(unsigned char *rgb) {
     int r1 = 0, g1 = 0, b1 = 0, r2 = 0, g2 = 0, b2 = 0;
     int diff = 0xFFFFFF, next_diff = 0xFFFFFF, color = 0, i = 0, l = 0;
-
-    if (color_mode != 3) {
-        fprintf(stderr, "Invalid color mode\n");
-        goto cleanup;
-    }
 
     for (i = 0, l = COLOR_COUNT_FULL; i < l; i++) {
         r1 = rgb[0];

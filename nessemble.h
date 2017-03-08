@@ -322,6 +322,7 @@ int has_label(char *name);
 void pseudo_ascii(char *string, int offset);
 void pseudo_checksum(unsigned int address);
 void pseudo_chr(unsigned int index);
+void pseudo_color();
 void pseudo_db();
 void pseudo_defchr();
 void pseudo_dw();

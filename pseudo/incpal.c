@@ -22,7 +22,7 @@ void pseudo_incpal(char *string) {
 
     for (x = 0; x < png.width; x++) {
         rgb = &(png.data[x * color_mode]);
-        color = match_color(rgb, color_mode);
+        color = match_color(rgb);
 
         if (color != last_color) {
             write_byte(color);
