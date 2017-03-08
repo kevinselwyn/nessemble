@@ -131,6 +131,10 @@ int include_stack_ptr = 0;
 
 %%
 
+int yywrap() {
+    return 1;
+}
+
 /**
  * Pushes an .include file to the buffer
  * @param {char *} filename - Filename to include
