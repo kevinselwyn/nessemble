@@ -41,7 +41,7 @@ endif
 # PLATFORM-SPECIFIC
 
 ifeq ($(UNAME), Darwin)
-	CC_FLAGS += -ll -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments
+	CC_FLAGS += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments
 else
 	CC_FLAGS += -lfl -lrt
 endif
