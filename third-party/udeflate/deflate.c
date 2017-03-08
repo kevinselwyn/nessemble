@@ -150,7 +150,7 @@ static int read_fixed_block()
 	{
 		int ret;
 		uint16_t code;
-		uint16_t len;
+		uint16_t len = 0;
 
 		if((ret = read_fixed_code()) < 0)
 			return ret;

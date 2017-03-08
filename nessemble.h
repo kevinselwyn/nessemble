@@ -263,6 +263,9 @@ void usage_simulate();
 unsigned int version();
 unsigned int license();
 
+/* HOME */
+unsigned int get_home(char **home);
+
 /* COVERAGE */
 unsigned int get_coverage();
 
@@ -505,6 +508,7 @@ float easeInOutBounce(float t, float b, float c, float d);
 void *nessemble_malloc(size_t size);
 void nessemble_free(void *ptr);
 char *nessemble_strdup(char *str);
+int nessemble_mkdir(const char *dirname, int mode);
 unsigned int is_stdout(char *filename);
 int hex2int(char *hex);
 int bin2int(char *bin);
