@@ -19,9 +19,9 @@ UNAME        := $(shell uname -s)
 
 FILES        := main.c assemble.c config.c coverage.c disassemble.c download.c
 FILES        += error.c home.c init.c instructions.c json.c list.c macro.c
-FILES        += math.c midi.c opcodes.c pager.c png.c $(shell ls pseudo/*.c)
-FILES        += reference.c registry.c simulate.c $(shell ls simulate/*.c)
-FILES        += usage.c utils.c wav.c zip.c
+FILES        += math.c midi.c opcodes.c pager.c png.c reference.c registry.c
+FILES        += simulate.c usage.c utils.c wav.c zip.c
+FILES        += $(shell ls pseudo/*.c) $(shell ls simulate/*.c)
 FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
 
 SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
@@ -51,8 +51,9 @@ endif
 js: EXEC := $(NAME).js
 js: CC   := emcc
 
-win32: EXEC := $(NAME).exe
-win32: CC   := i686-w64-mingw32-gcc
+win32: EXEC     := $(NAME).exe
+win32: CC       := i686-w64-mingw32-gcc
+win32: CC_FLAGS :=
 
 # TARGETS
 

@@ -3,6 +3,10 @@
 #include <unistd.h>
 #include "nessemble.h"
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif /* WIN32 */
+
 unsigned int pager_buffer(char *buffer) {
     unsigned int rc = RETURN_OK;
     int pfds[2] = { 0, 0 };

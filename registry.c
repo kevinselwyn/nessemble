@@ -243,6 +243,7 @@ unsigned int lib_list() {
     char *lib_dir = NULL;
     struct dirent *ep;
     DIR *dp = NULL;
+    struct stat s;
 
     if ((rc = get_lib_dir(&lib_dir)) != RETURN_OK) {
         goto cleanup;
@@ -256,7 +257,9 @@ unsigned int lib_list() {
     }
 
     while ((ep = readdir(dp)) != NULL) {
-        if (ep->d_type == DT_REG) {
+        stat(ep->d_name, &s);
+
+        if ((s.st_mode & S_IFDIR) != 0) {
             length = strlen(ep->d_name);
 
             if (strcmp(ep->d_name + (length - 4), ".asm") != 0) {
