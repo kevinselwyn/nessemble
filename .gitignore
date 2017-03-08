@@ -9,4 +9,4 @@ reference/**/*.h
 y.tab.*
 *.o
 suite_*
-third-party/jsmn
+third-party/**/*.o
