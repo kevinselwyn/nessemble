@@ -10,73 +10,67 @@
 #define IN_SIZE  (1 << 12)
 #define OUT_SIZE (1 << 16)
 
-static char input[IN_SIZE];
-static char output[OUT_SIZE];
+static char input[IN_SIZE], output[OUT_SIZE];
 
-static int i_in;
-static int i_out;
+static unsigned int i_in, i_out;
 
 int udeflate_read_bits(int n_bits) {
-    int next = 0, i = 0;
+    int next = 0, i = 0, ret = 0;
 
-    if ((((i_in + n_bits + 7) & (~7)) >> 3) > IN_SIZE) {
+    if ((((i_in + n_bits + 7) & (~7)) >> 3) > (unsigned int)IN_SIZE) {
 		return -EINVAL;
     }
 
-	uint32_t ret = 0;
-
 	for (i = 0; i < n_bits; i++, i_in++) {
-		next = (input[i_in >> 3] >> (i_in & 0x7)) & 1;
-		ret |= next << i;
+		next = (int)((unsigned int)input[i_in >> 3] >> (i_in & 0x7)) & 1;
+		ret |= (unsigned int)next << (unsigned int)i;
 	}
 
 	return ret;
 }
 
 int udeflate_read_huffman_bits(int n_bits) {
-    int next = 0, i = 0;
+    int next = 0, i = 0, ret = 0;
 
-	if ((((i_in + n_bits + 7) & (~7)) >> 3) > IN_SIZE) {
+	if ((((i_in + n_bits + 7) & (~7)) >> 3) > (unsigned int)IN_SIZE) {
 		return -EINVAL;
     }
 
-	uint32_t ret = 0;
-
 	for (i = 0; i < n_bits; i++, i_in++) {
-		next = (input[i_in >> 3] >> (i_in & 0x7)) & 1;
-		ret = (ret << 1) | next;
+		next = (int)((unsigned int)input[i_in >> 3] >> (i_in & 0x7)) & 1;
+		ret = (int)((unsigned int)ret << 1) | next;
 	}
 
 	return ret;
 }
 
 int udeflate_peek_huffman_bits(int n_bits) {
-    int next = 0, i = 0;
+    int next = 0, i = 0, tmp_i_in = 0, ret = 0;
 
-	if ((((i_in + n_bits + 7) & (~7)) >> 3) > IN_SIZE) {
+	if ((((i_in + n_bits + 7) & (~7)) >> 3) > (unsigned int)IN_SIZE) {
 		return -EINVAL;
     }
 
-	uint32_t ret = 0;
-
-	int tmp_i_in = i_in;
+	tmp_i_in = (int)i_in;
 
 	for (i = 0; i < n_bits; i++, tmp_i_in++) {
-		next = (input[tmp_i_in >> 3] >> (tmp_i_in & 0x7)) & 1;
-		ret = (ret << 1) | next;
+		next = (int)(((unsigned int)input[(unsigned int)tmp_i_in >> 3] >> (unsigned int)(tmp_i_in & 0x7)) & 1);
+		ret = (int)((unsigned int)ret << 1) | next;
 	}
 
 	return ret;
 }
 
 int udeflate_read_next_byte() {
-	if ((((i_in + 7) & (~7)) >> 3) + 1 > IN_SIZE) {
+    int ret = 0;
+
+	if ((((i_in + 7) & (~7)) >> 3) + 1 > (unsigned int)IN_SIZE) {
 		return -EINVAL;
     }
 
 	i_in = (i_in + 7) & (~7);
 
-	uint8_t ret = input[i_in >> 3];
+	ret = (int)input[i_in >> 3];
 
 	i_in += 8;
 
@@ -84,29 +78,30 @@ int udeflate_read_next_byte() {
 }
 
 int udeflate_write_byte(uint8_t data) {
-	if ((i_out + 1) > OUT_SIZE) {
+	if ((i_out + 1) > (unsigned int)OUT_SIZE) {
 		return -EOVERFLOW;
     }
 
-	output[i_out++] = data;
+	output[i_out++] = (char)data;
 
 	return 0;
 }
 
 int udeflate_write_match(uint16_t len, uint16_t dist) {
     int i = 0;
+    char *ptr = NULL;
 
-	if ((i_out + len) > OUT_SIZE) {
+	if ((i_out + (unsigned int)len) > (unsigned int)OUT_SIZE) {
 		return -EOVERFLOW;
     }
 
-	if (i_out - dist < 0) {
+	if ((int)(i_out - dist) < 0) {
 		return -EINVAL;
     }
 
-	char *ptr = &output[i_out - dist];
+	ptr = &output[i_out - dist];
 
-	for (i = 0; i < len; i++) {
+	for (i = 0; i < (int)len; i++) {
 		output[i_out++] = *(ptr++);
     }
 
@@ -115,11 +110,11 @@ int udeflate_write_match(uint16_t len, uint16_t dist) {
 
 
 int udeflate_write_input_bytes(uint16_t len) {
-	if ((i_out + len) > OUT_SIZE) {
+	if ((i_out + (unsigned int)len) > (unsigned int)OUT_SIZE) {
 		return -EOVERFLOW;
     }
 
-	if ((i_in >> 3) + len > IN_SIZE) {
+	if (((i_in >> 3) + (unsigned int)len) > (unsigned int)IN_SIZE) {
 		return -EINVAL;
     }
 
@@ -148,7 +143,7 @@ static unsigned int untar(char **data, size_t *data_length, char *tar, unsigned 
         }
 
         i += TAR_BLOCK_SIZE;
-        size = oct2int(block+124);
+        size = (unsigned int)oct2int(block+124);
         remaining = (((size / TAR_BLOCK_SIZE) + 1) * TAR_BLOCK_SIZE) - size;
 
         if (strcmp(tar_filename, filename) == 0) {
@@ -159,7 +154,7 @@ static unsigned int untar(char **data, size_t *data_length, char *tar, unsigned 
                 goto cleanup;
             }
 
-            memcpy(filedata, tar+i, size);
+            memcpy(filedata, tar+i, (size_t)size);
 
             *data = filedata;
             *data_length = (size_t)size;
@@ -186,16 +181,19 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 404:
         error_program_log("Library does not exist");
 
         rc = RETURN_EPERM;
         goto cleanup;
-        break;
     case 200:
     default:
         break;
+    }
+
+    if (!content) {
+        rc = RETURN_EPERM;
+        goto cleanup;
     }
 
     while (content[index] != '\0') {
@@ -209,7 +207,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
     index++;
 
-    memcpy(input, content+index, content_length - index);
+    memcpy(input, content+index, (size_t)(content_length - index));
 
     if (deflate() < 0) {
         rc = RETURN_EPERM;
