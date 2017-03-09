@@ -97,9 +97,6 @@ $(EXEC): $(OBJS) $(HDRS)
 test: all
 	@./test.sh
 
-check: all
-	@./check.sh
-
 splint: all
 	splint -I/usr/include -I/usr/include/x86_64-linux-gnu -warnposix $(FLAGS) $(FILES)
 
@@ -115,4 +112,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h $(REFERENCE) check/suite_*
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h $(REFERENCE)
