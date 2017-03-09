@@ -109,6 +109,5 @@ int match_color(unsigned char *rgb) {
         color = 0x0F;
     }
 
-cleanup:
     return color;
 }

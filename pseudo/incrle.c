@@ -127,8 +127,5 @@ void pseudo_incrle(char *string) {
 cleanup:
     nessemble_free(path);
     nessemble_free(bin_data);
-
-    if (incrle) {
-        (void)fclose(incrle);
-    }
+    nessemble_fclose(incrle);
 }

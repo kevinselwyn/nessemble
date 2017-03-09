@@ -526,6 +526,7 @@ int clock_gettime(int X, struct timeval *tv);
 
 void *nessemble_malloc(size_t size);
 void nessemble_free(void *ptr);
+void nessemble_fclose(FILE *file);
 char *nessemble_strdup(char *str);
 int nessemble_mkdir(const char *dirname, int mode);
 unsigned int is_stdout(char *filename);

@@ -167,10 +167,7 @@ unsigned int init() {
 cleanup:
     nessemble_free(input_filename);
     nessemble_free(buffer);
-
-    if (output) {
-        (void)fclose(output);
-    }
+    nessemble_fclose(output);
 
     return rc;
 }

@@ -167,8 +167,8 @@ void do_dcp(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_dop(unsigned int opcode_index, unsigned int value) {
-    (void)opcode_index;
-    (void)value;
+    UNUSED(opcode_index);
+    UNUSED(value);
 
     inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
     inc_cycles(opcodes[opcode_index].timing);

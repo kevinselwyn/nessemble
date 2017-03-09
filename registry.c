@@ -167,10 +167,7 @@ cleanup:
     nessemble_free(lib_path);
     nessemble_free(lib_zip_url);
     nessemble_free(lib_data);
-
-    if (lib_file) {
-        (void)fclose(lib_file);
-    }
+    nessemble_fclose(lib_file);
 
     return rc;
 }
@@ -272,7 +269,7 @@ unsigned int lib_list() {
         }
     }
 
-    (void)closedir(dp);
+    UNUSED(closedir(dp));
 
 cleanup:
     nessemble_free(lib_dir);
