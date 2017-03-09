@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "nessemble.h"
 
 void *nessemble_malloc(size_t size) {
@@ -21,6 +22,12 @@ void *nessemble_malloc(size_t size) {
 void nessemble_free(void *ptr) {
     if (ptr) {
         free(ptr);
+    }
+}
+
+void nessemble_fclose(FILE *file) {
+    if (file) {
+        fclose(file);
     }
 }
 
@@ -63,9 +70,7 @@ unsigned int is_stdout(char *filename) {
     }
 
 cleanup:
-    if (file) {
-        (void)fclose(file);
-    }
+    nessemble_fclose(file);
 
     return rc;
 }
@@ -314,9 +319,7 @@ unsigned int load_file(char **data, char *filename) {
     *data = indata;
 
 cleanup:
-    if (infile) {
-        (void)fclose(infile);
-    }
+    nessemble_fclose(infile);
 
     return insize;
 }
@@ -334,17 +337,17 @@ unsigned int tmp_save(FILE *file, char *filename) {
     }
 
     while (fread(&ch, 1, 1, file) > 0) {
-        (void)fwrite(&ch, 1, sizeof(ch), tmp);
+        UNUSED(fwrite(&ch, 1, sizeof(ch), tmp));
     }
 
-    (void)fclose(tmp);
-
 cleanup:
+    nessemble_fclose(tmp);
+
     return rc;
 }
 
 void tmp_delete(char *filename) {
-    (void)unlink(filename);
+    UNUSED(unlink(filename));
 }
 
 /**

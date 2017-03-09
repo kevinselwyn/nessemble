@@ -17,7 +17,7 @@ void fatal(const char *fmt, ...) {
     va_start(argptr, fmt);
 
     fprintf(stderr, "Fatal error: ");
-    (void)vfprintf(stderr, fmt, argptr);
+    UNUSED(vfprintf(stderr, fmt, argptr));
     fprintf(stderr, "\n");
 
     va_end(argptr);
@@ -46,7 +46,7 @@ void warning(const char *fmt, ...) {
     }
 
     fprintf(stderr, "Warning in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, line);
-    (void)vfprintf(stderr, fmt, argptr);
+    UNUSED(vfprintf(stderr, fmt, argptr));
     fprintf(stderr, "\n");
 
     va_end(argptr);
@@ -66,10 +66,10 @@ void error(const char *fmt, ...) {
 
     errors[error_index].message = (char *)nessemble_malloc(sizeof(char) * MAX_ERROR_LENGTH);
 
-    (void)vsnprintf(errors[error_index++].message, MAX_ERROR_LENGTH, fmt, argptr);
+    UNUSED(vsnprintf(errors[error_index++].message, MAX_ERROR_LENGTH, fmt, argptr));
 
     if (error_index >= MAX_ERROR_COUNT) {
-        (void)error_exit();
+        UNUSED(error_exit());
     }
 }
 
@@ -146,7 +146,7 @@ void yyerror(const char *fmt, ...) {
     }
 
     fprintf(stderr, "Error in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, line);
-    (void)vfprintf(stderr, fmt, argptr);
+    UNUSED(vfprintf(stderr, fmt, argptr));
     fprintf(stderr, "\n");
 
     va_end(argptr);
@@ -164,7 +164,7 @@ void error_program_log(const char *fmt, ...) {
 
     program_errors[program_error_index].message = (char *)nessemble_malloc(sizeof(char) * MAX_ERROR_LENGTH);
 
-    (void)vsnprintf(program_errors[program_error_index++].message, MAX_ERROR_LENGTH, fmt, argptr);
+    UNUSED(vsnprintf(program_errors[program_error_index++].message, MAX_ERROR_LENGTH, fmt, argptr));
 }
 
 void error_program_output(const char *fmt, ...) {
@@ -178,7 +178,7 @@ void error_program_output(const char *fmt, ...) {
 
     message = (char *)nessemble_malloc(sizeof(char) * MAX_ERROR_LENGTH);
 
-    (void)vsnprintf(message, MAX_ERROR_LENGTH, fmt, argptr);
+    UNUSED(vsnprintf(message, MAX_ERROR_LENGTH, fmt, argptr));
 
     if (program_error_index > 0) {
         fprintf(stderr, "%s: %s\n", message, program_errors[program_error_index-1].message);

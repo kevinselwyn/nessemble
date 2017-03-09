@@ -43,7 +43,7 @@ unsigned int open_config(FILE **file, char **filename) {
             goto cleanup;
         }
     } else {
-        (void)closedir(dir);
+        UNUSED(closedir(dir));
     }
 
     strcat(config_path, "/" CONFIG_FILENAME);
@@ -71,11 +71,8 @@ cleanup:
 }
 
 void close_config(FILE *file, char *filename) {
-    if (file) {
-        (void)fclose(file);
-    }
-
     nessemble_free(filename);
+    nessemble_fclose(file);
 }
 
 unsigned int get_config(char **result, char *item) {
@@ -132,7 +129,7 @@ unsigned int set_config(char *result, char *item) {
     }
 
     if (found != TRUE) {
-        (void)fclose(config);
+        nessemble_fclose(config);
         config = fopen(config_path, "a");
 
         if (!config) {
@@ -147,7 +144,7 @@ unsigned int set_config(char *result, char *item) {
         goto cleanup;
     }
 
-    (void)fclose(config);
+    nessemble_fclose(config);
     config = fopen(config_path, "w+");
 
     if (!config) {

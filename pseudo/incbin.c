@@ -62,8 +62,5 @@ void pseudo_incbin(char *string, int offset, int limit) {
 cleanup:
     nessemble_free(path);
     nessemble_free(bin_data);
-
-    if (incbin) {
-        (void)fclose(incbin);
-    }
+    nessemble_fclose(incbin);
 }

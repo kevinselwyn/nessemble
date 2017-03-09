@@ -173,7 +173,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
         goto cleanup;
     }
 
-    (void)close(sockfd);
+    UNUSED(close(sockfd));
 
     strncpy(code_str, response+9, 3);
     code_str[3] = '\0';

@@ -74,7 +74,7 @@ unsigned int output_list(char *filename) {
 
                 length = strlen(symbols[i].name) + 8;
 
-                (void)snprintf(list_strings[list_index++], length, "%04X = %s", symbols[i].value, symbols[i].name);
+                UNUSED(snprintf(list_strings[list_index++], length, "%04X = %s", symbols[i].value, symbols[i].name));
             }
         }
 
@@ -102,7 +102,7 @@ unsigned int output_list(char *filename) {
 
                 length = strlen(symbols[i].name) + 11;
 
-                (void)snprintf(list_strings[list_index++], length, "%02X/%04X = %s", symbols[i].bank, symbols[i].value, symbols[i].name);
+                UNUSED(snprintf(list_strings[list_index++], length, "%02X/%04X = %s", symbols[i].bank, symbols[i].value, symbols[i].name));
             }
         }
 
@@ -118,9 +118,7 @@ cleanup:
         nessemble_free(list_strings[i]);
     }
 
-    if (listfile) {
-        (void)fclose(listfile);
-    }
+    nessemble_fclose(listfile);
 
     return rc;
 }
@@ -187,9 +185,7 @@ unsigned int input_list(char *filename) {
     }
 
 cleanup:
-    if (listfile) {
-        (void)fclose(listfile);
-    }
+    nessemble_fclose(listfile);
 
     return rc;
 }

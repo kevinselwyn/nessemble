@@ -124,13 +124,8 @@ unsigned int simulate(char *input, char *recipe) {
     }
 
 cleanup:
-    if (indata) {
-        nessemble_free(indata);
-    }
-
-    if (recipe_file) {
-        (void)fclose(recipe_file);
-    }
+    nessemble_free(indata);
+    nessemble_fclose(recipe_file);
 
     return rc;
 }
@@ -187,7 +182,7 @@ int repl(char *input) {
     }
 
     if (strncmp(input, "instruction", 11) == 0) {
-        (void)print_instruction((unsigned int)get_register(REGISTER_PC));
+        UNUSED(print_instruction((unsigned int)get_register(REGISTER_PC)));
 
         printf("\n");
 
@@ -220,9 +215,9 @@ int repl(char *input) {
 
     if (strncmp(input, "step", 4) == 0) {
         if (length > 5) {
-            (void)steps(input+5);
+            UNUSED(steps(input+5));
         } else {
-            (void)steps("1");
+            UNUSED(steps("1"));
         }
 
         goto cleanup;
@@ -450,9 +445,9 @@ void fill_memory(char **output, char *input) {
     }
 
     if (addr_end - addr_start == 0) {
-        (void)snprintf(addrs, 5, "%04X", addr_start);
+        UNUSED(snprintf(addrs, 5, "%04X", addr_start));
     } else {
-        (void)snprintf(addrs, 10, "%04X:%04X", addr_start, addr_end);
+        UNUSED(snprintf(addrs, 10, "%04X:%04X", addr_start, addr_end));
     }
 
     *output = addrs;
@@ -589,7 +584,7 @@ int steps(char *input) {
     count = (unsigned int)dec2int(input);
 
     for (i = 0, l = count; i < l; i++) {
-        (void)print_instruction((unsigned int)get_register(REGISTER_PC));
+        UNUSED(print_instruction((unsigned int)get_register(REGISTER_PC)));
 
         printf("\n");
 
@@ -755,9 +750,7 @@ void quit() {
     unsigned int i = 0, l = 0;
 
     for (i = 0, l = record_index; i < l; i++) {
-        if (records[i].file) {
-            (void)fclose(records[i].file);
-        }
+        nessemble_fclose(records[i].file);
     }
 }
 

@@ -362,7 +362,7 @@ struct midi_data read_midi(char *filename) {
         goto cleanup;
 	}
 
-    (void)fseek(file, 4, SEEK_SET);
+    UNUSED(fseek(file, 4, SEEK_SET));
 
     midi.header_length = fgetu32_big(file);
     midi.format = fgetu16_big(file);
@@ -475,9 +475,7 @@ struct midi_data read_midi(char *filename) {
     }
 
 cleanup:
-    if (file) {
-        fclose(file);
-    }
+    nessemble_fclose(file);
 
     return midi;
 }

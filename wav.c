@@ -19,7 +19,7 @@ static int wav_format(wave_fmt *format, FILE *fp) {
     format->frame_size = fgetu16_little(fp);
     format->bits_sample = fgetu16_little(fp);
 
-    (void)fseek(fp, fmt_len - 16, SEEK_CUR);
+    UNUSED(fseek(fp, fmt_len - 16, SEEK_CUR));
 
 cleanup:
     return rc;
@@ -113,7 +113,7 @@ unsigned int open_wav(wave_src *wav, char *filename) {
         } else {
             long int chunk_size = (long int)fgetu32_little(wav->fp);
 
-            (void)fseek(wav->fp, chunk_size, SEEK_CUR);
+            UNUSED(fseek(wav->fp, chunk_size, SEEK_CUR));
         }
     }
 
@@ -124,7 +124,5 @@ cleanup:
 }
 
 void close_wav(wave_src *wav) {
-    if (wav->fp) {
-        (void)fclose(wav->fp);
-    }
+    nessemble_fclose(wav->fp);
 }

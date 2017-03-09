@@ -624,14 +624,8 @@ cleanup:
     nessemble_free(indata);
     nessemble_free(trn_filename);
     nessemble_free(chr_filename);
-
-    if (outfile) {
-        (void)fclose(outfile);
-    }
-
-    if (trnfile) {
-        (void)fclose(trnfile);
-    }
+    nessemble_fclose(outfile);
+    nessemble_fclose(trnfile);
 
     return rc;
 }

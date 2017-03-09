@@ -23,20 +23,20 @@ unsigned int pager_buffer(char *buffer) {
         printf("%s", buffer);
         goto cleanup;
     } else if (pid == 0) {
-        (void)close(pfds[0]);
-        (void)dup2(pfds[1], STDOUT_FILENO);
-        (void)close(pfds[1]);
+        UNUSED(close(pfds[0]));
+        UNUSED(dup2(pfds[1], STDOUT_FILENO));
+        UNUSED(close(pfds[1]));
 
         printf("%s", buffer);
     } else {
         arguments[0] = "less";
         arguments[1] = NULL;
 
-        (void)close(pfds[1]);
-        (void)dup2(pfds[0], STDIN_FILENO);
-        (void)close(pfds[0]);
+        UNUSED(close(pfds[1]));
+        UNUSED(dup2(pfds[0], STDIN_FILENO));
+        UNUSED(close(pfds[0]));
 
-        (void)execvp(arguments[0], arguments);
+        UNUSED(execvp(arguments[0], arguments));
 
         printf("%s", buffer);
         rc = RETURN_OK;

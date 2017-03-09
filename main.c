@@ -363,7 +363,7 @@ int main(int argc, char *argv[]) {
     pass = 1;
 
     do {
-        (void)yyparse();
+        UNUSED(yyparse());
     } while ((yyin != NULL && feof(yyin) == 0) && pass == 1);
 
     if ((rc = error_exit()) != RETURN_OK) {
@@ -421,7 +421,7 @@ int main(int argc, char *argv[]) {
     include_stack_ptr = 0;
 
     do {
-        (void)yyparse();
+        UNUSED(yyparse());
     } while ((yyin != NULL && feof(yyin) == 0) && pass == 2);
 
     if ((rc = error_exit()) != RETURN_OK) {
@@ -452,47 +452,47 @@ int main(int argc, char *argv[]) {
 
     // write nes header
     if (is_flag_nes() == TRUE) {
-        (void)fwrite("NES", 3, 1, outfile); // 0-2
+        UNUSED(fwrite("NES", 3, 1, outfile)); // 0-2
 
         byte = 0x1A;
-        (void)fwrite(&byte, 1, 1, outfile); // 3
+        UNUSED(fwrite(&byte, 1, 1, outfile)); // 3
 
-        (void)fwrite(&ines.prg, 1, 1, outfile); // 4
-        (void)fwrite(&ines.chr, 1, 1, outfile); // 5
+        UNUSED(fwrite(&ines.prg, 1, 1, outfile)); // 4
+        UNUSED(fwrite(&ines.chr, 1, 1, outfile)); // 5
 
         byte = 0;
         byte |= ines.mir & 0x01;
         byte |= (ines.trn & 0x01) << 0x02;
         byte |= (ines.map & 0x0F) << 0x04;
 
-        (void)fwrite(&byte, 1, 1, outfile); // 6
+        UNUSED(fwrite(&byte, 1, 1, outfile)); // 6
 
         byte = 0;
         byte |= (ines.map & 0xF0);
 
-        (void)fwrite(&byte, 1, 1, outfile); // 7
+        UNUSED(fwrite(&byte, 1, 1, outfile)); // 7
 
         byte = 0;
 
-        (void)fwrite(&byte, 1, 1, outfile); // 8
-        (void)fwrite(&byte, 1, 1, outfile); // 9
-        (void)fwrite(&byte, 1, 1, outfile); // 10
+        UNUSED(fwrite(&byte, 1, 1, outfile)); // 8
+        UNUSED(fwrite(&byte, 1, 1, outfile)); // 9
+        UNUSED(fwrite(&byte, 1, 1, outfile)); // 10
 
         for (i = 11, l = 16; i < l; i++) {
-            (void)fwrite(&byte, 1, 1, outfile); // 11-15
+            UNUSED(fwrite(&byte, 1, 1, outfile)); // 11-15
         }
     }
 
     // write trainer
     if (ines.trn == 1) {
         for (i = 0, l = TRAINER_MAX; i < l; i++) {
-            (void)fwrite(trainer+i, 1, 1, outfile);
+            UNUSED(fwrite(trainer+i, 1, 1, outfile));
         }
     }
 
     // write rom data
     for (i = 0, l = (unsigned int)offset_max; i < l; i++) {
-        (void)fwrite(rom+i, 1, 1, outfile);
+        UNUSED(fwrite(rom+i, 1, 1, outfile));
     }
 
     // write list
@@ -519,14 +519,8 @@ cleanup:
     nessemble_free(listname);
     nessemble_free(registry);
     nessemble_free(config);
-
-    if (file) {
-        (void)fclose(file);
-    }
-
-    if (outfile) {
-        (void)fclose(outfile);
-    }
+    nessemble_fclose(file);
+    nessemble_fclose(outfile);
 
     if (piped == TRUE) {
         tmp_delete(cwd);
