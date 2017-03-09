@@ -136,6 +136,10 @@
 #define CLOCK_MONOTONIC 1
 #endif /* CLOCK_MONOTONIC */
 
+#ifndef EINVAL
+#define EINVAL 22
+#endif /* EINVAL */
+
 #ifndef EOVERFLOW
 #define EOVERFLOW 75
 #endif /* EOVERFLOW */
