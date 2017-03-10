@@ -74,6 +74,25 @@ def get_auth(headers):
     if not token:
         abort(401)
 
+    conn = db.connect()
+
+    sel = select([users_table], users_table.c.login_token == token)
+    res = conn.execute(sel)
+    user = res.fetchone()
+
+    if not user:
+        return False
+
+    diff = datetime.datetime.now() - user['date_login']
+
+    if diff.days >= 1:
+        u = update(users_table).where(users_table.c.id == user['id']).values({
+            'login_token': None
+        })
+        conn.execute(u)
+
+        return False
+
     return token
 
 def missing_fields(data, fields, field_name='field'):
@@ -339,9 +358,9 @@ def user_create():
 def user_login():
     """User login"""
 
-    user = request.authorization
+    auth = request.authorization
 
-    missing = missing_fields(user, ['username', 'password'], 'authorization')
+    missing = missing_fields(auth, ['username', 'password'], 'authorization')
     if missing:
         return missing
 
@@ -349,20 +368,20 @@ def user_login():
 
     # check if user exists
 
-    sel = select([users_table], users_table.c.email == user['username'])
+    sel = select([users_table], users_table.c.email == auth['username'])
     res = conn.execute(sel)
-    row = res.fetchone()
+    user = res.fetchone()
 
-    if not row:
+    if not user:
         return unauthorized_custom('User does not exist')
 
-    if row['password'] != md5.new(user['password']).hexdigest():
+    if user['password'] != md5.new(auth['password']).hexdigest():
         return unauthorized_custom('Incorrect password')
 
     # create login token
 
     login_token = '%X' % (random.getrandbits(128))
-    u = update(users_table).where(users_table.c.id == row['id']).values({
+    u = update(users_table).where(users_table.c.id == user['id']).values({
         'date_login': datetime.datetime.now(),
         'login_token': login_token
     })
@@ -378,20 +397,20 @@ def user_logout():
 
     token = get_auth(request.headers)
 
+    if not token:
+        return unauthorized_custom('User is not logged in')
+
     conn = db.connect()
 
-    # get logged-in user
+    # get user by token
 
     sel = select([users_table], users_table.c.login_token == token)
     res = conn.execute(sel)
-    row = res.fetchone()
-
-    if not row:
-        return unauthorized_custom('User is not logged in')
+    user = res.fetchone()
 
     # log out
 
-    u = update(users_table).where(users_table.c.id == row['id']).values({
+    u = update(users_table).where(users_table.c.id == user['id']).values({
         'login_token': None
     })
     conn.execute(u)
