@@ -52,6 +52,7 @@
 #define MAX_NESTED_IFS    10
 #define TRAINER_MAX       512
 #define BUF_SIZE          256
+#define BUF_GET_LINE      256
 
 /* PATH */
 #ifndef PATH_MAX
@@ -545,6 +546,7 @@ int get_libpath(char **path, char *string);
 unsigned int load_file(char **data, char *filename);
 unsigned int tmp_save(FILE *file, char *filename);
 void tmp_delete(char *filename);
+char *get_line(char **buffer, char *prompt);
 
 /* LIST */
 unsigned int output_list(char *filename);
@@ -582,8 +584,10 @@ unsigned int lib_search(char *term);
 
 /* DOWNLOAD */
 unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type);
+unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, char *mime_type);
 
 /* JSON */
+unsigned int get_json_value(char **value, char *key, char *json);
 unsigned int get_json(char **value, char *key, char *filename);
 unsigned int get_json_search(char *url, char *term);
 
@@ -592,5 +596,8 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
 /* PAGER */
 unsigned int pager_buffer(char *buffer);
+
+/* USER */
+unsigned int user_create();
 
 #endif /* _NESSEMBLE_H */

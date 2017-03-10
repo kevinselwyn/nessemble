@@ -350,6 +350,11 @@ void tmp_delete(char *filename) {
     UNUSED(unlink(filename));
 }
 
+char *get_line(char **buffer, char *prompt) {
+    printf("%s", prompt);
+    return fgets(*buffer, 256, stdin);
+}
+
 /**
  * Test if undocumented flag is active
  * @return {unsigned int} True if flag active, false if not

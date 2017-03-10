@@ -20,7 +20,7 @@ UNAME        := $(shell uname -s)
 FILES        := main.c assemble.c config.c coverage.c disassemble.c download.c
 FILES        += error.c home.c init.c instructions.c json.c list.c macro.c
 FILES        += math.c midi.c opcodes.c pager.c png.c reference.c registry.c
-FILES        += simulate.c usage.c utils.c wav.c zip.c
+FILES        += simulate.c usage.c user.c utils.c wav.c zip.c
 FILES        += $(shell ls pseudo/*.c) $(shell ls simulate/*.c)
 FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
 

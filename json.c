@@ -53,13 +53,57 @@ static unsigned int parse_text(char **output, char *text) {
     return rc;
 }
 
-unsigned int get_json(char **value, char *key, char *url) {
+unsigned int get_json_value(char **value, char *key, char *json) {
     int token_count = 0;
-    unsigned int rc = RETURN_OK, http_code = 0, text_length = 0;
+    unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0, string_length = 0;
-    char *text = NULL, *string_value = NULL;
+    char *string_value = NULL;
     jsmn_parser parser;
     jsmntok_t tokens[JSON_TOKEN_MAX];
+
+    jsmn_init(&parser);
+    token_count = jsmn_parse(&parser, json, strlen(json), tokens, JSON_TOKEN_MAX);
+
+    if (token_count <= 0 || tokens[0].type != JSMN_OBJECT) {
+        error_program_log("Could not parse JSON");
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    for (i = 1, l = (unsigned int)token_count; i < l; i++) {
+        if (jsoneq(json, &tokens[i], key) == 0) {
+            string_length = tokens[i+1].end - tokens[i+1].start;
+            string_value = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
+
+            strncpy(string_value, json+tokens[i+1].start, (size_t)string_length);
+            string_value[string_length] = '\0';
+
+            break;
+        }
+    }
+
+    if (!string_value) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (string_length == 0) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if ((rc = parse_text(&*value, string_value)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+cleanup:
+    return rc;
+}
+
+unsigned int get_json(char **value, char *key, char *url) {
+    unsigned int rc = RETURN_OK, http_code = 0, text_length = 0;
+    char *text = NULL;
 
     switch ((http_code = get_request(&text, &text_length, url, MIMETYPE_JSON))) {
     case 503:
@@ -82,39 +126,7 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    jsmn_init(&parser);
-    token_count = jsmn_parse(&parser, text, strlen(text), tokens, JSON_TOKEN_MAX);
-
-    if (token_count <= 0 || tokens[0].type != JSMN_OBJECT) {
-        error_program_log("Could not parse JSON");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    for (i = 1, l = (unsigned int)token_count; i < l; i++) {
-        if (jsoneq(text, &tokens[i], key) == 0) {
-            string_length = tokens[i+1].end - tokens[i+1].start;
-            string_value = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
-
-            strncpy(string_value, text+tokens[i+1].start, (size_t)string_length);
-            string_value[string_length] = '\0';
-
-            break;
-        }
-    }
-
-    if (!string_value) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    if (string_length == 0) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    if ((rc = parse_text(&*value, string_value)) != RETURN_OK) {
+    if ((rc = get_json_value(&*value, key, text)) != RETURN_OK) {
         goto cleanup;
     }
 
