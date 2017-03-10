@@ -257,6 +257,17 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
+        if (strcmp(argv[optind], "adduser") == 0) {
+            if ((rc = user_create()) != RETURN_OK) {
+                error_program_output("Could not add user");
+                goto cleanup;
+            }
+
+            printf("User created\n");
+
+            goto cleanup;
+        }
+
         filename = argv[optind++];
     }
 
