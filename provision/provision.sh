@@ -13,7 +13,7 @@ sudo apt-get -y install bc gdb splint valgrind
 sudo apt-get -y install python-pip
 
 # python modules
-sudo pip install flask
+sudo pip install flask sqlalchemy
 
 # run server
 python /vagrant/registry/server.py --debug &> /dev/null &
