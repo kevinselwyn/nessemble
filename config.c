@@ -139,7 +139,9 @@ unsigned int set_config(char *result, char *item) {
             goto cleanup;
         }
 
-        fprintf(config, "%s\t%s\n", item, result);
+        if (result != NULL) {
+            fprintf(config, "%s\t%s\n", item, result);
+        }
 
         goto cleanup;
     }
@@ -160,7 +162,9 @@ unsigned int set_config(char *result, char *item) {
         }
 
         if (strcmp(key, item) == 0) {
-            fprintf(config, "%s\t%s\n", key, result);
+            if (result != NULL) {
+                fprintf(config, "%s\t%s\n", key, result);
+            }
         } else {
             fprintf(config, "%s\t%s\n", key, val);
         }

@@ -607,5 +607,7 @@ unsigned int pager_buffer(char *buffer);
 
 /* USER */
 unsigned int user_create();
+unsigned int user_login();
+unsigned int user_logout();
 
 #endif /* _NESSEMBLE_H */

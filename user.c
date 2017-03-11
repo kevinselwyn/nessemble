@@ -25,6 +25,24 @@ cleanup:
     return rc;
 }
 
+static unsigned int user_auth(struct http_header *http_headers) {
+    unsigned int rc = RETURN_OK;
+    char *token = NULL;
+
+    if ((rc = get_config(&token, "login")) != RETURN_OK) {
+        error_program_log("User not logged in");
+        goto cleanup;
+    }
+
+    http_headers->keys[http_headers->count] = "X-Auth-Token";
+    http_headers->vals[http_headers->count++] = nessemble_strdup(token);
+
+cleanup:
+    nessemble_free(token);
+
+    return rc;
+}
+
 unsigned int user_create() {
     unsigned int rc = RETURN_OK;
     unsigned int http_code = 0, response_length = 0;
@@ -190,5 +208,45 @@ cleanup:
     nessemble_free(auth);
     nessemble_free(token);
 
+    return rc;
+}
+
+unsigned int user_logout() {
+    unsigned int rc = RETURN_OK;
+    unsigned int http_code = 0, response_length = 0;
+    char *url = NULL, *response = NULL, *error = NULL;
+    struct http_header http_headers = { 0, {}, {} };
+
+    if ((rc = user_auth(&http_headers)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = user_url(&url, "logout")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    http_code = post_request(&response, &response_length, url, "{}", MIMETYPE_JSON, http_headers);
+
+    if (!response || response_length == 0) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (http_code != 200) {
+        if ((rc = get_json_value(&error, "error", response)) != RETURN_OK) {
+            error_program_log("Could not read response");
+        } else {
+            error_program_log(error);
+        }
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if ((rc = set_config(NULL, "login")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+cleanup:
     return rc;
 }
