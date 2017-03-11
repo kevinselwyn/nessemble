@@ -268,6 +268,17 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
+        if (strcmp(argv[optind], "login") == 0) {
+            if ((rc = user_login()) != RETURN_OK) {
+                error_program_output("Could not login");
+                goto cleanup;
+            }
+
+            printf("Login successful\n");
+
+            goto cleanup;
+        }
+
         filename = argv[optind++];
     }
 
