@@ -279,6 +279,17 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
+        if (strcmp(argv[optind], "logout") == 0) {
+            if ((rc = user_logout()) != RETURN_OK) {
+                error_program_output("Could not logout");
+                goto cleanup;
+            }
+
+            printf("Logout successful\n");
+
+            goto cleanup;
+        }
+
         filename = argv[optind++];
     }
 
