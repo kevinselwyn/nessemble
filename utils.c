@@ -202,6 +202,52 @@ unsigned int str2hash(char *string) {
 }
 
 /**
+ * Base64 encode
+ * @param {char **} encoded - Encoded string
+ * @param {char *} str - Input string
+ */
+unsigned int base64enc(char **encoded, char *str) {
+    unsigned int rc = RETURN_OK;
+    unsigned int u = 0, len = 0, w = 0, i = 0, index = 0;
+    size_t length = 0;
+	char c[4];
+    char *output = NULL;
+    const char *alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    length = strlen(str);
+    output = (char *)nessemble_malloc(sizeof(char) * length);
+
+    memset(c, '\0', 4);
+    memset(output, '\0', length);
+
+	do {
+		c[1] = c[2] = 0;
+
+        memcpy(c, str+i, 4);
+
+        if ((len = strlen(c)) >= 3) {
+            len = 3;
+            i += 3;
+        }
+
+		u = c[0] << 16 | c[1] << 8 | c[2];
+
+        output[index++] = alpha[u >> 18];
+        output[index++] = alpha[(u >> 12) & 63];
+        output[index++] = len < 2 ? '=' : alpha[u >> 6 & 63];
+        output[index++] = len < 3 ? '=' : alpha[u & 63];
+
+		if (++w == 19) {
+            w = 0;
+        }
+	} while (len == 3);
+
+    *encoded = output;
+
+	return rc;
+}
+
+/**
  * Get fullpath
  */
 int get_fullpath(char **path, char *string) {

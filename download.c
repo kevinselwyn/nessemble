@@ -19,7 +19,7 @@ char *strstr(const char *haystack, const char *needle);
 #include <string.h>
 char *strcasestr(const char *haystack, const char *needle);
 
-static unsigned int do_request(char **request, unsigned int *request_length, char *url, char *data, char *method, char *mime_type) {
+static unsigned int do_request(char **request, unsigned int *request_length, char *url, char *data, char *method, char *mime_type, struct http_header http_headers) {
     unsigned int port = 80, protocol = PROTOCOL_HTTP;
     unsigned int i = 0, l = 0, index = 0;
     unsigned int code = 0, length = 0;
@@ -93,6 +93,10 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     sprintf(message+strlen(message), "\r\nAccept: */*");
     sprintf(message+strlen(message), "\r\nAccept-Language: " PROGRAM_LANGUAGE ";q=0.8");
     sprintf(message+strlen(message), "\r\nContent-Type: %s", mime_type);
+
+    for (i = 0, l = http_headers.count; i < l; i++) {
+        sprintf(message+strlen(message), "\r\n%s: %s", http_headers.keys[i], http_headers.vals[i]);
+    }
 
     if (data) {
         sprintf(message+strlen(message), "\r\nContent-Length: %lu\r\n\r\n", strlen(data));
@@ -237,13 +241,19 @@ cleanup:
     nessemble_free(host);
     nessemble_free(uri);
 
+    for (i = 0, l = http_headers.count; i < l; i++) {
+        nessemble_free(http_headers.vals[i]);
+    }
+
     return code;
 }
 
 unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type) {
-    return do_request(&*request, request_length, url, NULL, "GET", mime_type);
+    struct http_header http_headers = { 0, {}, {} };
+
+    return do_request(&*request, request_length, url, NULL, "GET", mime_type, http_headers);
 }
 
-unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, char *mime_type) {
-    return do_request(&*request, request_length, url, data, "POST", mime_type);
+unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, char *mime_type, struct http_header http_headers) {
+    return do_request(&*request, request_length, url, data, "POST", mime_type, http_headers);
 }
