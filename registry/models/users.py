@@ -2,11 +2,9 @@
 # pylint: disable=C0103,C0301,R0903
 """User model"""
 
-from sqlalchemy import Column, create_engine, DateTime, Integer, String
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from .base import Base
+from sqlalchemy import Column, DateTime, Integer, String
 
-Base = declarative_base()
 class User(Base):
     """User model"""
 
@@ -22,7 +20,3 @@ class User(Base):
 
     def __repr__(self):
         return "<User(id='%s', name='%s', email='%s', password='%s', date_created='%s', date_login='%s', login_token='%s')>" % (self.id, self.name, self.email, self.password, self.date_created, self.date_login, self.login_token)
-
-users_db = create_engine('sqlite:///users.db')
-Base.metadata.create_all(users_db)
-Users_Session = sessionmaker(bind=users_db)
