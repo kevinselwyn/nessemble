@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include "nessemble.h"
@@ -12,12 +13,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #endif /* WIN32 */
-
-#include <string.h>
-char *strstr(const char *haystack, const char *needle);
-#define _GNU_SOURCE
-#include <string.h>
-char *strcasestr(const char *haystack, const char *needle);
 
 static unsigned int do_request(char **request, unsigned int *request_length, char *url, char *data, char *method, char *mime_type, struct http_header http_headers) {
     unsigned int port = 80, protocol = PROTOCOL_HTTP;
@@ -195,7 +190,7 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
         error_program_log("HTTP code `%u` returned", code);
     }
 
-    content_type_index = strcasestr(response, "Content-Type") - response;
+    content_type_index = nessemble_strcasestr(response, "Content-Type") - response;
 
     if (content_type_index == 0) {
         error_program_log("Could not read `Content-Type`");
@@ -211,7 +206,7 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
         goto cleanup;
     }
 
-    content_length_index = strcasestr(response, "Content-Length") - response;
+    content_length_index = nessemble_strcasestr(response, "Content-Length") - response;
 
     if (content_length_index == 0) {
         error_program_log("Invalid `Content-Length`");

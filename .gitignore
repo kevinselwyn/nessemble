@@ -12,3 +12,4 @@ suite_*
 third-party/**/*.o
 *.db
 *.pyc
+*.exe

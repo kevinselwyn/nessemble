@@ -9,7 +9,6 @@
 #define _GNU_SOURCE
 #include <stdlib.h>
 int fileno(FILE *file);
-char *realpath(const char *path, char *resolved_path);
 
 /**
  * Main function
@@ -310,7 +309,7 @@ int main(int argc, char *argv[]) {
         }
     } else {
         // get cwd
-        if (!realpath(filename, cwd)) {
+        if (!nessemble_realpath(filename, cwd)) {
             error_program_output("Could not open `%s`", filename);
 
             rc = RETURN_EPERM;
@@ -370,7 +369,7 @@ int main(int argc, char *argv[]) {
     file = fopen(cwd, "r");
 
     if (!file) {
-        error_program_output("Could not open `%s`\n");
+        error_program_output("Could not open `%s`\n", cwd);
 
         rc = RETURN_EPERM;
         goto cleanup;
