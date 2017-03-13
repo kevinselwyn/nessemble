@@ -1,5 +1,5 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0326,E1120
+# pylint: disable=C0103,C0301,C0326
 """Nessemble registry server"""
 
 import json
@@ -14,7 +14,7 @@ import sqlite3
 import csv
 import argparse
 from flask import Flask, abort, g, make_response, request
-from sqlalchemy import Column, create_engine, DateTime, Integer, MetaData, select, String, Table, update
+from models.users import User, Users_Session
 
 #----------------#
 # Constants
@@ -26,23 +26,6 @@ PORT     = 5000
 # Variables
 
 app = Flask(__name__)
-
-#----------------#
-# Database
-
-users_db = create_engine('sqlite:///users.db')
-users_metadata = MetaData(bind=users_db)
-users_table = Table('users', users_metadata,
-                    Column('id', Integer, primary_key=True),
-                    Column('name', String(128)),
-                    Column('email', String(128)),
-                    Column('password', String(128)),
-                    Column('date_created', DateTime),
-                    Column('date_login', DateTime),
-                    Column('login_token', String(128))
-                   )
-
-users_metadata.create_all()
 
 #----------------#
 # Utilities
@@ -75,22 +58,25 @@ def get_auth(headers):
     if not token:
         abort(401)
 
-    conn = users_db.connect()
+    # start session
 
-    sel = select([users_table], users_table.c.login_token == token)
-    res = conn.execute(sel)
-    user = res.fetchone()
+    session = Users_Session()
+
+    # check if user exists
+
+    result = session.query(User).filter(User.login_token == token).all()
+    user = result[0]
 
     if not user:
         return False
 
-    diff = datetime.datetime.now() - user['date_login']
+    diff = datetime.datetime.now() - user.date_login
 
     if diff.days >= 1:
-        u = update(users_table).where(users_table.c.id == user['id']).values({
+        session.query(User).filter(User.id == user.id).update({
             'login_token': None
         })
-        conn.execute(u)
+        session.commit()
 
         return False
 
@@ -331,27 +317,25 @@ def user_create():
     if missing:
         return missing
 
-    conn = users_db.connect()
+    # start session
+
+    session = Users_Session()
 
     # check if user exists
 
-    sel = select([users_table], users_table.c.email == user['email'])
-    res = conn.execute(sel)
-    row = res.fetchone()
+    result = session.query(User).filter(User.email == user['email']).all()
 
-    if row:
+    if len(result):
         return conflict_custom('User already exists')
 
     # create user
 
-    conn.execute(users_table.insert(), [
-        {
-            'name': user['name'],
-            'email': user['email'],
-            'password': md5.new(user['password']).hexdigest(),
-            'date_created': datetime.datetime.now()
-        }
-    ])
+    session.add(User(
+        name=user['name'],
+        email=user['email'],
+        password=md5.new(user['password']).hexdigest(),
+        date_created=datetime.datetime.now()))
+    session.commit()
 
     return registry_response({})
 
@@ -365,28 +349,31 @@ def user_login():
     if missing:
         return missing
 
-    conn = users_db.connect()
+    # start session
+
+    session = Users_Session()
 
     # check if user exists
 
-    sel = select([users_table], users_table.c.email == auth['username'])
-    res = conn.execute(sel)
-    user = res.fetchone()
+    result = session.query(User).filter(User.email == auth['username']).all()
 
-    if not user:
+    if not len(result):
         return unauthorized_custom('User does not exist')
 
-    if user['password'] != md5.new(auth['password']).hexdigest():
+    user = result[0]
+
+    if user.password != md5.new(auth['password']).hexdigest():
         return unauthorized_custom('Incorrect password')
 
     # create login token
 
     login_token = '%X' % (random.getrandbits(128))
-    u = update(users_table).where(users_table.c.id == user['id']).values({
+
+    session.query(User).filter(User.id == user.id).update({
         'date_login': datetime.datetime.now(),
         'login_token': login_token
     })
-    conn.execute(u)
+    session.commit()
 
     return registry_response({
         'token': login_token
@@ -401,20 +388,21 @@ def user_logout():
     if not token:
         return unauthorized_custom('User is not logged in')
 
-    conn = users_db.connect()
+    # start session
 
-    # get user by token
+    session = Users_Session()
 
-    sel = select([users_table], users_table.c.login_token == token)
-    res = conn.execute(sel)
-    user = res.fetchone()
+    # check if user exists
+
+    result = session.query(User).filter(User.login_token == token).all()
+    user = result[0]
 
     # log out
 
-    u = update(users_table).where(users_table.c.id == user['id']).values({
+    session.query(User).filter(User.id == user.id).update({
         'login_token': None
     })
-    conn.execute(u)
+    session.commit()
 
     return registry_response({})
 
