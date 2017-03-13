@@ -79,7 +79,7 @@ unsigned int user_create() {
         break;
     }
 
-    while ((user_password = getpass("Password: ")) != NULL) {
+    while ((user_password = nessemble_getpass("Password: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -149,7 +149,7 @@ unsigned int user_login() {
         break;
     }
 
-    while ((user_password = getpass("Password: ")) != NULL) {
+    while ((user_password = nessemble_getpass("Password: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {

@@ -529,14 +529,17 @@ float easeInOutBounce(float t, float b, float c, float d);
 
 /* UTILS */
 #ifdef WIN32
-int clock_gettime(int X, struct timeval *tv);
+//int clock_gettime(int X, struct timeval *tv);
 #endif /* WIN32 */
 
 void *nessemble_malloc(size_t size);
 void nessemble_free(void *ptr);
 void nessemble_fclose(FILE *file);
 char *nessemble_strdup(char *str);
+const char *nessemble_strcasestr(const char *s1, const char *s2);
 int nessemble_mkdir(const char *dirname, int mode);
+char *nessemble_getpass(const char *prompt);
+char *nessemble_realpath(const char *path, char *resolved_path);
 unsigned int is_stdout(char *filename);
 int hex2int(char *hex);
 int bin2int(char *bin);

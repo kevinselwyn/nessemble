@@ -5,6 +5,19 @@
 #include <sys/stat.h>
 #include "nessemble.h"
 
+#ifdef WIN32
+#include <windows.h>
+#endif /* WIN32 */
+
+#ifndef WIN32
+#include <string.h>
+char *strstr(const char *haystack, const char *needle);
+#define _GNU_SOURCE
+#include <string.h>
+char *strcasestr(const char *haystack, const char *needle);
+char *realpath(const char *path, char *resolved_path);
+#endif /* WIN32 */
+
 void *nessemble_malloc(size_t size) {
     void *mem = NULL;
 
@@ -43,6 +56,14 @@ char *nessemble_strdup(char *str) {
     return dup;
 }
 
+const char *nessemble_strcasestr(const char *s1, const char *s2) {
+#ifdef WIN32
+    return strstr(s1, s2);
+#else /* WIN32 */
+    return strcasestr(s1, s2);
+#endif
+}
+
 int nessemble_mkdir(const char *dirname, int mode) {
     int rc = 0;
 
@@ -53,6 +74,58 @@ int nessemble_mkdir(const char *dirname, int mode) {
 #endif /* WIN32 */
 
     return rc;
+}
+
+char *nessemble_getpass(const char *prompt) {
+    char *pass = NULL;
+
+#ifdef WIN32
+    size_t length = 0;
+
+    pass = (char *)nessemble_malloc(sizeof(char) * 256);
+
+    fputs(prompt, stdout);
+
+    // hide cursor
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info;
+    info.dwSize = 100;
+    info.bVisible = FALSE;
+    SetConsoleCursorInfo(consoleHandle, &info);
+
+    while (get_line(&pass, NULL) != NULL) {
+        length = strlen(pass);
+
+        if (length - 1 == 0) {
+            continue;
+        }
+
+        pass[length - 1] = '\0';
+        break;
+    }
+
+    info.bVisible = TRUE;
+    SetConsoleCursorInfo(consoleHandle, &info);
+#else /* WIN32 */
+    pass = getpass(prompt);
+#endif
+
+    return pass;
+}
+
+char *nessemble_realpath(const char *path, char *resolved_path) {
+#ifdef WIN32
+    int rc = RETURN_OK;
+    char *lppPart = NULL;
+
+    if ((rc = GetFullPathName(path, 1024, resolved_path, &lppPart)) == 0) {
+        return NULL;
+    }
+
+    return resolved_path;
+#else /* WIN32 */
+    return realpath(path, resolved_path);
+#endif /* WIN32 */
 }
 
 unsigned int is_stdout(char *filename) {
@@ -397,7 +470,10 @@ void tmp_delete(char *filename) {
 }
 
 char *get_line(char **buffer, char *prompt) {
-    printf("%s", prompt);
+    if (prompt) {
+        printf("%s", prompt);
+    }
+
     return fgets(*buffer, 256, stdin);
 }
 

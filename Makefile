@@ -49,7 +49,7 @@ js: CC   := emcc
 
 win32: EXEC     := $(NAME).exe
 win32: CC       := i686-w64-mingw32-gcc
-win32: CC_FLAGS :=
+win32: CC_FLAGS := -lws2_32
 
 # TARGETS
 

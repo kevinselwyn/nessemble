@@ -1,13 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "nessemble.h"
 #include "third-party/jsmn/jsmn.h"
-
-#include <string.h>
-char *strstr(const char *haystack, const char *needle);
-#define _GNU_SOURCE
-#include <string.h>
-char *strcasestr(const char *haystack, const char *needle);
 
 #define JSON_TOKEN_MAX 128
 
@@ -211,8 +206,8 @@ unsigned int get_json_search(char *url, char *term) {
         description_text = results[i++];
 
         term_length = (int)strlen(term);
-        name_index = strcasestr(name_text, term) - name_text;
-        description_index = strcasestr(description_text, term) - description_text;
+        name_index = nessemble_strcasestr(name_text, term) - name_text;
+        description_index = nessemble_strcasestr(description_text, term) - description_text;
 
         if (name_index >= 0) {
             for (k = 0, l = (unsigned int)strlen(name_text); k < l; k++) {
