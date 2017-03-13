@@ -1,15 +1,16 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0326
+# pylint: disable=C0103,C0301,C0326,R0914
 """Nessemble registry server"""
 
+import csv
+import datetime
 import json
+import md5
+import random
+import StringIO
 import tarfile
 import tempfile
 import time
-import datetime
-import random
-import md5
-import StringIO
 import argparse
 from flask import Flask, abort, g, make_response, request
 from sqlalchemy import create_engine
@@ -139,7 +140,7 @@ def get_package_json(package='', full=True, string=False):
     }
 
     if full:
-        output['readme'] = '%s%s.md' % (request.url_root, package),
+        output['readme'] = '%s%s.md' % (request.url_root, package)
         output['resource'] = '%s%s.tar.gz' % (request.url_root, package)
 
     if string:
@@ -162,7 +163,9 @@ def get_package_readme(package=''):
 
     lib, user = result[0]
 
-    return lib.readme
+    output = lib.readme.replace('\\n', '\n')
+
+    return output
 
 def get_package_zip(package=''):
     """Get package zip"""
@@ -182,7 +185,7 @@ def get_package_zip(package=''):
     lib, user = result[0]
 
     string_lib = StringIO.StringIO()
-    string_lib.write(lib.lib)
+    string_lib.write(lib.lib.replace('\\n', '\n'))
     string_lib.seek(0)
     string_lib_info = tarfile.TarInfo(name='lib.asm')
     string_lib_info.size = len(string_lib.buf)
@@ -196,7 +199,7 @@ def get_package_zip(package=''):
     tar.addfile(fileobj=string_json, tarinfo=string_json_info)
 
     string_readme = StringIO.StringIO()
-    string_readme.write(lib.readme)
+    string_readme.write(lib.readme.replace('\\n', '\n'))
     string_readme.seek(0)
     string_readme_info = tarfile.TarInfo(name='README.md')
     string_readme_info.size = len(string_readme.buf)
@@ -479,12 +482,63 @@ def user_logout():
 def db_import(filename=None):
     """Import database"""
 
+    csvfile = open(filename, 'rb')
+    reader = csv.reader(csvfile)
+
+    columns = next(reader)
+    rows = []
+
+    for row in reader:
+        lib_id = row[0]
+        user_id = row[1]
+        readme = row[2]
+        lib = row[3]
+        name = row[4]
+        description = row[5]
+        version = row[6]
+        lib_license = row[7]
+        tags = row[8]
+
+        rows.append(Lib(id=lib_id, \
+            user_id=user_id, \
+            readme=readme, \
+            lib=lib, \
+            name=name, \
+            description=description, \
+            version=version, \
+            license=lib_license, \
+            tags=tags))
+
+    session = Session()
+    session.add_all(rows)
+    session.commit()
+
     return
 
 def db_export():
     """Export database"""
 
-    return
+    session = Session()
+    result = session.query(Lib).all()
+
+    csvfile = open('registry.csv', 'wb')
+    writer = csv.writer(csvfile)
+
+    result = session.query(Lib).all()
+
+    writer.writerow([column.name for column in Lib.__table__.columns])
+
+    for lib in result:
+        writer.writerow([
+            lib.id, \
+            lib.user_id, \
+            lib.readme, \
+            lib.lib, \
+            lib.name, \
+            lib.description, \
+            lib.version, \
+            lib.license, \
+            lib.tags])
 
 #----------------#
 # Main
