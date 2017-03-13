@@ -7,11 +7,36 @@
 #include "nessemble.h"
 
 unsigned int get_registry(char **registry) {
-    return get_config(&*registry, "registry");
+    unsigned int rc = RETURN_OK;
+    size_t length = 0;
+    char *result = NULL;
+
+    rc = get_config(&result, "registry");
+
+    length = strlen(result);
+
+    if (result[length - 1] == '/') {
+        result[length - 1] = '\0';
+    }
+
+    *registry = result;
+
+    return rc;
 }
 
 unsigned int set_registry(char *registry) {
-    return set_config(registry, "registry");
+    unsigned int rc = RETURN_OK;
+    size_t length = 0;
+
+    length = strlen(registry);
+
+    if (registry[length - 1] == '/') {
+        registry[length - 1] = '\0';
+    }
+
+    rc = set_config(registry, "registry");
+
+    return rc;
 }
 
 static unsigned int get_lib_url(char **lib_url, char *lib) {
