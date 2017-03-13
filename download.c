@@ -19,15 +19,15 @@ char *strstr(const char *haystack, const char *needle);
 #include <string.h>
 char *strcasestr(const char *haystack, const char *needle);
 
-unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type) {
+static unsigned int do_request(char **request, unsigned int *request_length, char *url, char *data, char *method, char *mime_type, struct http_header http_headers) {
     unsigned int port = 80, protocol = PROTOCOL_HTTP;
     unsigned int i = 0, l = 0, index = 0;
     unsigned int code = 0, length = 0;
     int sockfd = 0, bytes = 0, sent = 0, received = 0, total = 0;
     int content_type_index = 0, response_index = 0, content_length_index = 0;
-    char message[1024], response[4096], code_str[4];
+    char message[2048], response[4096], code_str[4];
     char *host = NULL, *uri = NULL;
-    char *data = NULL;
+    char *output = NULL;
     struct hostent *server;
     struct sockaddr_in serv_addr;
     struct timeval timeout;
@@ -81,7 +81,7 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
         host[index] = '\0';
     }
 
-    sprintf(message, "GET %s HTTP/1.1\r\nHost: %s", uri, host);
+    sprintf(message, "%s %s HTTP/1.1\r\nHost: %s", method, uri, host);
 
     if (port != 80) {
         sprintf(message+strlen(message), ":%u", port);
@@ -92,7 +92,18 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
     sprintf(message+strlen(message), "\r\nCache-Control: no-cache");
     sprintf(message+strlen(message), "\r\nAccept: */*");
     sprintf(message+strlen(message), "\r\nAccept-Language: " PROGRAM_LANGUAGE ";q=0.8");
-    sprintf(message+strlen(message), "\r\nContent-Type: %s\r\n\r\n", mime_type);
+    sprintf(message+strlen(message), "\r\nContent-Type: %s", mime_type);
+
+    for (i = 0, l = http_headers.count; i < l; i++) {
+        sprintf(message+strlen(message), "\r\n%s: %s", http_headers.keys[i], http_headers.vals[i]);
+    }
+
+    if (data) {
+        sprintf(message+strlen(message), "\r\nContent-Length: %lu\r\n\r\n", strlen(data));
+        sprintf(message+strlen(message), "%s", data);
+    } else {
+        sprintf(message+strlen(message), "\r\n\r\n");
+    }
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -182,7 +193,6 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
 
     if (code != 200) {
         error_program_log("HTTP code `%u` returned", code);
-        goto cleanup;
     }
 
     content_type_index = strcasestr(response, "Content-Type") - response;
@@ -219,17 +229,31 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
         goto cleanup;
     }
 
-    data = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+    output = (char *)nessemble_malloc(sizeof(char) * (length + 1));
 
-    memcpy(data, response+(response_index+4), (size_t)length);
-    data[length] = '\0';
+    memcpy(output, response+(response_index+4), (size_t)length);
+    output[length] = '\0';
 
 cleanup:
-    *request = data;
+    *request = output;
     *request_length = length;
 
     nessemble_free(host);
     nessemble_free(uri);
 
+    for (i = 0, l = http_headers.count; i < l; i++) {
+        nessemble_free(http_headers.vals[i]);
+    }
+
     return code;
+}
+
+unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type) {
+    struct http_header http_headers = { 0, {}, {} };
+
+    return do_request(&*request, request_length, url, NULL, "GET", mime_type, http_headers);
+}
+
+unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, char *mime_type, struct http_header http_headers) {
+    return do_request(&*request, request_length, url, data, "POST", mime_type, http_headers);
 }
