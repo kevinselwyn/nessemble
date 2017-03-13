@@ -2,8 +2,9 @@
 # pylint: disable=C0103
 """Models"""
 
-from .users import User, Users_Session
+from .libs import Lib
+from .users import User
 
 __all__ = [
-    User, Users_Session
+    Lib, User
 ]

@@ -5,16 +5,18 @@
 import json
 import tarfile
 import tempfile
-import os
 import time
 import datetime
 import random
 import md5
-import sqlite3
-import csv
+import StringIO
 import argparse
 from flask import Flask, abort, g, make_response, request
-from models.users import User, Users_Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from models.base import Base
+from models.libs import Lib
+from models.users import User
 
 #----------------#
 # Constants
@@ -26,6 +28,13 @@ PORT     = 5000
 # Variables
 
 app = Flask(__name__)
+
+#----------------#
+# Databases
+
+db = create_engine('sqlite:///registry.db')
+Base.metadata.create_all(db)
+Session = sessionmaker(bind=db)
 
 #----------------#
 # Utilities
@@ -60,7 +69,7 @@ def get_auth(headers):
 
     # start session
 
-    session = Users_Session()
+    session = Session()
 
     # check if user exists
 
@@ -102,34 +111,105 @@ def missing_fields(data, fields, field_name='field'):
         'error': 'Missing %s: `%s`' % (field_name if len(missing) == 1 else ('%ss' % field_name), '`, `'.join(missing))
     }, 400)
 
-def get_packages():
-    """Get all packages"""
+def get_package_json(package='', full=True, string=False):
+    """Get package JSON"""
 
-    data = ''
-    path = '%s/libs' % (os.path.dirname(os.path.abspath(__file__)))
-    result = []
-    readme = {}
+    session = Session()
 
-    for package in os.listdir(path):
-        try:
-            with open('%s/%s/package.json' % (path, package), 'r') as f:
-                data = f.read()
-        except IOError:
-            continue
+    result = session.query(Lib, User) \
+                .filter(Lib.name == package) \
+                .filter(Lib.user_id == User.id) \
+                .all()
 
-        try:
-            readme = json.loads(data)
-        except ValueError:
-            continue
+    if not len(result):
+        return False
 
-        result.append({
-            'name': readme['name'],
-            'description': readme['description'],
-            'tags': readme['tags'],
-            'url': '%s%s.json' % (request.url_root, readme['name'])
-        })
+    lib, user = result[0]
 
-    return result
+    output = {
+        'name': lib.name,
+        'description': lib.description,
+        'version': lib.version,
+        'author': {
+            'name': user.name,
+            'email': user.email
+        },
+        'license': lib.license,
+        'tags': lib.tags.split(',')
+    }
+
+    if full:
+        output['readme'] = '%s%s.md' % (request.url_root, package),
+        output['resource'] = '%s%s.tar.gz' % (request.url_root, package)
+
+    if string:
+        return json.dumps(output, indent=4)
+
+    return output
+
+def get_package_readme(package=''):
+    """Get package README"""
+
+    session = Session()
+
+    result = session.query(Lib, User) \
+                .filter(Lib.name == package) \
+                .filter(Lib.user_id == User.id) \
+                .all()
+
+    if not len(result):
+        return False
+
+    lib, user = result[0]
+
+    return lib.readme
+
+def get_package_zip(package=''):
+    """Get package zip"""
+
+    temp = tempfile.NamedTemporaryFile()
+    tar = tarfile.open(temp.name, 'w:gz')
+    session = Session()
+
+    result = session.query(Lib, User) \
+                .filter(Lib.name == package) \
+                .filter(Lib.user_id == User.id) \
+                .all()
+
+    if not len(result):
+        return False
+
+    lib, user = result[0]
+
+    string_lib = StringIO.StringIO()
+    string_lib.write(lib.lib)
+    string_lib.seek(0)
+    string_lib_info = tarfile.TarInfo(name='lib.asm')
+    string_lib_info.size = len(string_lib.buf)
+    tar.addfile(fileobj=string_lib, tarinfo=string_lib_info)
+
+    string_json = StringIO.StringIO()
+    string_json.write(get_package_json(package, full=False, string=True))
+    string_json.seek(0)
+    string_json_info = tarfile.TarInfo(name='package.json')
+    string_json_info.size = len(string_json.buf)
+    tar.addfile(fileobj=string_json, tarinfo=string_json_info)
+
+    string_readme = StringIO.StringIO()
+    string_readme.write(lib.readme)
+    string_readme.seek(0)
+    string_readme_info = tarfile.TarInfo(name='README.md')
+    string_readme_info.size = len(string_readme.buf)
+    tar.addfile(fileobj=string_readme, tarinfo=string_readme_info)
+
+    tar.close()
+
+    with open(temp.name, 'r') as f:
+        data = f.read()
+
+    temp.close()
+
+    return data
 
 @app.before_request
 def before_request():
@@ -217,30 +297,47 @@ def internal_server_error(error):
 def list_packages():
     """List packages endpoint"""
 
-    result = {
-        'libraries': get_packages()
+    session = Session()
+    results = {
+        'libraries': []
     }
 
-    return registry_response(result)
+    result = session.query(Lib) \
+                .order_by(Lib.name) \
+                .all()
+
+    for lib in result:
+        results['libraries'].append({
+            'name': lib.name,
+            'description': lib.description,
+            'tags': lib.tags.split(','),
+            'url': '%s%s.json' % (request.url_root, lib.name)
+        })
+
+    return registry_response(results)
 
 @app.route('/search/<string:term>', methods=['GET'])
 def search_packages(term):
     """Search packages endpoint"""
 
-    packages = get_packages()
+    term = '%%%s%%' % (term.lower())
+    session = Session()
     results = {
         'results': []
     }
 
-    term = term.lower()
+    result = session.query(Lib) \
+                .filter(Lib.name.like(term)) \
+                .order_by(Lib.name) \
+                .all()
 
-    for package in packages:
-        match_name = package['name'].lower().find(term) != -1
-        match_description = package['description'].lower().find(term) != -1
-        match_tags = any(tag.lower().find(term) != -1 for tag in package['tags'])
-
-        if match_name or match_description or match_tags:
-            results['results'].append(package)
+    for lib in result:
+        results['results'].append({
+            'name': lib.name,
+            'description': lib.description,
+            'tags': lib.tags.split(','),
+            'url': '%s%s.json' % (request.url_root, lib.name)
+        })
 
     return registry_response(results)
 
@@ -248,39 +345,20 @@ def search_packages(term):
 def get_package(package):
     """Get package endpoint"""
 
-    data = ''
-    path = '%s/libs/%s/' % (os.path.dirname(os.path.abspath(__file__)), package)
-    result = {}
+    output = get_package_json(package)
 
-    # get package.json
-    try:
-        with open('%s/package.json' % (path), 'r') as f:
-            data = f.read()
-    except IOError:
+    if not output:
         abort(404)
 
-    # parse package.json
-    try:
-        result = json.loads(data)
-    except ValueError:
-        abort(500)
-
-    result["readme"] = "%s%s.md" % (request.url_root, package)
-    result["resource"] = "%s%s.tar.gz" % (request.url_root, package)
-
-    return registry_response(result)
+    return registry_response(output)
 
 @app.route('/<string:package>.md', methods=['GET'])
 def get_readme(package):
     """Get package README endpoint"""
 
-    readme = ''
-    path = '%s/libs/%s/' % (os.path.dirname(os.path.abspath(__file__)), package)
+    readme = get_package_readme(package)
 
-    try:
-        with open('%s/README.md' % (path), 'r') as f:
-            readme = f.read()
-    except IOError:
+    if not readme:
         abort(404)
 
     return registry_response(readme, mimetype='text/plain')
@@ -289,21 +367,10 @@ def get_readme(package):
 def get_gz(package):
     """Get package zip endpoint"""
 
-    data = ''
-    path = '%s/libs/%s/' % (os.path.dirname(os.path.abspath(__file__)), package)
-    temp = tempfile.NamedTemporaryFile()
+    data = get_package_zip(package)
 
-    tar = tarfile.open(temp.name, 'w:gz')
-
-    for filename in ['lib.asm', 'package.json', 'README.md']:
-        tar.add("%s/%s" % (path, filename), arcname=filename)
-
-    tar.close()
-
-    with open(temp.name, 'r') as f:
-        data = f.read()
-
-    temp.close()
+    if not data:
+        abort(404)
 
     return registry_response(data, mimetype='application/tar+gzip')
 
@@ -319,7 +386,7 @@ def user_create():
 
     # start session
 
-    session = Users_Session()
+    session = Session()
 
     # check if user exists
 
@@ -351,7 +418,7 @@ def user_login():
 
     # start session
 
-    session = Users_Session()
+    session = Session()
 
     # check if user exists
 
@@ -390,7 +457,7 @@ def user_logout():
 
     # start session
 
-    session = Users_Session()
+    session = Session()
 
     # check if user exists
 
@@ -410,39 +477,14 @@ def user_logout():
 # Import/Export
 
 def db_import(filename=None):
-    """Import tables"""
+    """Import database"""
 
-    if not filename:
-        return
-
-    basename = os.path.splitext(filename)[0]
-    tablename = '%s.db' % (basename)
-
-    os.remove(tablename)
-
-    infile = open(filename, 'rb')
-    incsv = csv.reader(infile)
-
-    fields = next(incsv)
-
-    print fields
-
-    for row in incsv:
-        print row
+    return
 
 def db_export():
-    """Export tables"""
+    """Export database"""
 
-    con = sqlite3.connect('users.db')
-    outfile = open('users.csv', 'wb')
-    outcsv = csv.writer(outfile)
-
-    cursor = con.execute('select * from users')
-
-    outcsv.writerow([x[0] for x in cursor.description])
-    outcsv.writerows(cursor.fetchall())
-
-    outfile.close()
+    return
 
 #----------------#
 # Main
