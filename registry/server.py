@@ -1,5 +1,5 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0326
+# pylint: disable=C0103,C0301,C0326,E1120
 """Nessemble registry server"""
 
 import json
@@ -10,6 +10,8 @@ import time
 import datetime
 import random
 import md5
+import sqlite3
+import csv
 import argparse
 from flask import Flask, abort, g, make_response, request
 from sqlalchemy import Column, create_engine, DateTime, Integer, MetaData, select, String, Table, update
@@ -28,10 +30,9 @@ app = Flask(__name__)
 #----------------#
 # Database
 
-db = create_engine('sqlite:///registry.db')
-metadata = MetaData(bind=db)
-
-users_table = Table('users', metadata,
+users_db = create_engine('sqlite:///users.db')
+users_metadata = MetaData(bind=users_db)
+users_table = Table('users', users_metadata,
                     Column('id', Integer, primary_key=True),
                     Column('name', String(128)),
                     Column('email', String(128)),
@@ -41,7 +42,7 @@ users_table = Table('users', metadata,
                     Column('login_token', String(128))
                    )
 
-metadata.create_all()
+users_metadata.create_all()
 
 #----------------#
 # Utilities
@@ -74,7 +75,7 @@ def get_auth(headers):
     if not token:
         abort(401)
 
-    conn = db.connect()
+    conn = users_db.connect()
 
     sel = select([users_table], users_table.c.login_token == token)
     res = conn.execute(sel)
@@ -330,7 +331,7 @@ def user_create():
     if missing:
         return missing
 
-    conn = db.connect()
+    conn = users_db.connect()
 
     # check if user exists
 
@@ -364,7 +365,7 @@ def user_login():
     if missing:
         return missing
 
-    conn = db.connect()
+    conn = users_db.connect()
 
     # check if user exists
 
@@ -400,7 +401,7 @@ def user_logout():
     if not token:
         return unauthorized_custom('User is not logged in')
 
-    conn = db.connect()
+    conn = users_db.connect()
 
     # get user by token
 
@@ -418,6 +419,44 @@ def user_logout():
     return registry_response({})
 
 #----------------#
+# Import/Export
+
+def db_import(filename=None):
+    """Import tables"""
+
+    if not filename:
+        return
+
+    basename = os.path.splitext(filename)[0]
+    tablename = '%s.db' % (basename)
+
+    os.remove(tablename)
+
+    infile = open(filename, 'rb')
+    incsv = csv.reader(infile)
+
+    fields = next(incsv)
+
+    print fields
+
+    for row in incsv:
+        print row
+
+def db_export():
+    """Export tables"""
+
+    con = sqlite3.connect('users.db')
+    outfile = open('users.csv', 'wb')
+    outcsv = csv.writer(outfile)
+
+    cursor = con.execute('select * from users')
+
+    outcsv.writerow([x[0] for x in cursor.description])
+    outcsv.writerows(cursor.fetchall())
+
+    outfile.close()
+
+#----------------#
 # Main
 
 def main():
@@ -427,8 +466,18 @@ def main():
     parser.add_argument('--host', '-H', dest='host', type=str, default=HOSTNAME, required=False, help='Host')
     parser.add_argument('--port', '-P', dest='port', type=int, default=PORT, required=False, help='Port')
     parser.add_argument('--debug', '-D', dest='debug', action='store_true', required=False, help='Debug mode')
+    parser.add_argument('--import', '-i', dest='db_import', type=str, help='Import CSV')
+    parser.add_argument('--export', '-e', dest='db_export', action='store_true', help='Export CSV')
 
     args = parser.parse_args()
+
+    if args.db_import:
+        db_import(args.db_import)
+        return
+
+    if args.db_export:
+        db_export()
+        return
 
     app.run(host=args.host, port=args.port, debug=args.debug)
 
