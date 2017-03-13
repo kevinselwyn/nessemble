@@ -5,13 +5,6 @@
 #include "nessemble.h"
 #include "init.h"
 
-#define INIT_BUF_SIZE 256
-
-static char *get_line(char **buffer, char *prompt) {
-    printf("%s", prompt);
-    return fgets(*buffer, INIT_BUF_SIZE, stdin);
-}
-
 unsigned int init() {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
     int input_prg = 0, input_chr = 0, input_mapper = 0, input_mirroring = 0;
@@ -20,7 +13,7 @@ unsigned int init() {
     char *buffer = NULL, *input_filename = NULL;
     FILE *output = NULL;
 
-    buffer = (char *)nessemble_malloc(sizeof(char) * INIT_BUF_SIZE);
+    buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
 
     while (get_line(&buffer, "Filename: ") != NULL) {
         length = strlen(buffer);

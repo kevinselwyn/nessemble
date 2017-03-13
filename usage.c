@@ -29,7 +29,10 @@ static struct usage_flag usage_commands[USAGE_COMMAND_COUNT] = {
     { "uninstall <package>", "uninstall package" },
     { "info <package>", "get info about package" },
     { "ls", "list all installed packages" },
-    { "search <term>", "search for package in registry" }
+    { "search <term>", "search for package in registry" },
+    { "adduser", "create user account" },
+    { "login", "login to the registry" },
+    { "logout", "logout of the registry" }
 };
 
 static struct usage_flag simulation_usage_flags[SIMULATION_USAGE_FLAG_COUNT] = {

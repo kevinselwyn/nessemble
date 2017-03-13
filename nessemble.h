@@ -52,6 +52,7 @@
 #define MAX_NESTED_IFS    10
 #define TRAINER_MAX       512
 #define BUF_SIZE          256
+#define BUF_GET_LINE      256
 
 /* PATH */
 #ifndef PATH_MAX
@@ -128,7 +129,7 @@
 
 /* USAGE */
 #define USAGE_FLAG_COUNT            14
-#define USAGE_COMMAND_COUNT         9
+#define USAGE_COMMAND_COUNT         12
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
 /* MAYBE UNDEFINED */
@@ -180,6 +181,13 @@ struct usage_flag {
 struct easing {
     char *type;
     float (*func)(float t, float b, float c, float d);
+};
+
+/* HTPP HEADERS */
+struct http_header {
+    unsigned int count;
+    char *keys[16];
+    char *vals[16];
 };
 
 /*
@@ -536,6 +544,7 @@ int oct2int(char *oct);
 int dec2int(char *dec);
 int defchr2int(char *defchr);
 unsigned int str2hash(char *string);
+unsigned int base64enc(char **encoded, char *str);
 unsigned int fgetu16_little(FILE *fp);
 unsigned int fgetu16_big(FILE *fp);
 unsigned int fgetu32_little(FILE *fp);
@@ -545,6 +554,7 @@ int get_libpath(char **path, char *string);
 unsigned int load_file(char **data, char *filename);
 unsigned int tmp_save(FILE *file, char *filename);
 void tmp_delete(char *filename);
+char *get_line(char **buffer, char *prompt);
 
 /* LIST */
 unsigned int output_list(char *filename);
@@ -582,8 +592,10 @@ unsigned int lib_search(char *term);
 
 /* DOWNLOAD */
 unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type);
+unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, char *mime_type, struct http_header http_headers);
 
 /* JSON */
+unsigned int get_json_value(char **value, char *key, char *json);
 unsigned int get_json(char **value, char *key, char *filename);
 unsigned int get_json_search(char *url, char *term);
 
@@ -592,5 +604,10 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
 /* PAGER */
 unsigned int pager_buffer(char *buffer);
+
+/* USER */
+unsigned int user_create();
+unsigned int user_login();
+unsigned int user_logout();
 
 #endif /* _NESSEMBLE_H */

@@ -1,14 +1,23 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301
+# pylint: disable=C0103,C0301,C0326,R0914
 """Nessemble registry server"""
 
+import csv
+import datetime
 import json
+import md5
+import random
+import StringIO
 import tarfile
 import tempfile
-import os
 import time
 import argparse
 from flask import Flask, abort, g, make_response, request
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from models.base import Base
+from models.libs import Lib
+from models.users import User
 
 #----------------#
 # Constants
@@ -20,6 +29,13 @@ PORT     = 5000
 # Variables
 
 app = Flask(__name__)
+
+#----------------#
+# Databases
+
+db = create_engine('sqlite:///registry.db')
+Base.metadata.create_all(db)
+Session = sessionmaker(bind=db)
 
 #----------------#
 # Utilities
@@ -41,34 +57,162 @@ def registry_response(data, status=200, mimetype='application/json'):
 
     return response
 
-def get_packages():
-    """Get all packages"""
+def get_auth(headers):
+    """Get auth token"""
 
-    data = ''
-    path = '%s/libs' % (os.path.dirname(os.path.abspath(__file__)))
-    result = []
-    readme = {}
+    if not 'X-Auth-Token' in headers:
+        abort(401)
 
-    for package in os.listdir(path):
-        try:
-            with open('%s/%s/package.json' % (path, package), 'r') as f:
-                data = f.read()
-        except IOError:
-            continue
+    token = headers['X-Auth-Token']
 
-        try:
-            readme = json.loads(data)
-        except ValueError:
-            continue
+    if not token:
+        abort(401)
 
-        result.append({
-            'name': readme['name'],
-            'description': readme['description'],
-            'tags': readme['tags'],
-            'url': '%s%s.json' % (request.url_root, readme['name'])
+    # start session
+
+    session = Session()
+
+    # check if user exists
+
+    result = session.query(User).filter(User.login_token == token).all()
+    user = result[0]
+
+    if not user:
+        return False
+
+    diff = datetime.datetime.now() - user.date_login
+
+    if diff.days >= 1:
+        session.query(User).filter(User.id == user.id).update({
+            'login_token': None
         })
+        session.commit()
 
-    return result
+        return False
+
+    return token
+
+def missing_fields(data, fields, field_name='field'):
+    """Check for missing fields"""
+
+    missing = []
+
+    if not data:
+        missing = fields
+    else:
+        for field in fields:
+            if not field in data:
+                missing.append(field)
+
+    if len(missing) == 0:
+        return False
+
+    return registry_response({
+        'status': 400,
+        'error': 'Missing %s: `%s`' % (field_name if len(missing) == 1 else ('%ss' % field_name), '`, `'.join(missing))
+    }, 400)
+
+def get_package_json(package='', full=True, string=False):
+    """Get package JSON"""
+
+    session = Session()
+
+    result = session.query(Lib, User) \
+                .filter(Lib.name == package) \
+                .filter(Lib.user_id == User.id) \
+                .all()
+
+    if not len(result):
+        return False
+
+    lib, user = result[0]
+
+    output = {
+        'name': lib.name,
+        'description': lib.description,
+        'version': lib.version,
+        'author': {
+            'name': user.name,
+            'email': user.email
+        },
+        'license': lib.license,
+        'tags': lib.tags.split(',')
+    }
+
+    if full:
+        output['readme'] = '%s%s.md' % (request.url_root, package)
+        output['resource'] = '%s%s.tar.gz' % (request.url_root, package)
+
+    if string:
+        return json.dumps(output, indent=4)
+
+    return output
+
+def get_package_readme(package=''):
+    """Get package README"""
+
+    session = Session()
+
+    result = session.query(Lib, User) \
+                .filter(Lib.name == package) \
+                .filter(Lib.user_id == User.id) \
+                .all()
+
+    if not len(result):
+        return False
+
+    lib, user = result[0]
+
+    output = lib.readme.replace('\\n', '\n')
+
+    return output
+
+def get_package_zip(package=''):
+    """Get package zip"""
+
+    temp = tempfile.NamedTemporaryFile()
+    tar = tarfile.open(temp.name, 'w:gz')
+    session = Session()
+
+    result = session.query(Lib, User) \
+                .filter(Lib.name == package) \
+                .filter(Lib.user_id == User.id) \
+                .all()
+
+    if not len(result):
+        return False
+
+    lib, user = result[0]
+
+    string_lib = StringIO.StringIO()
+    string_lib.write(lib.lib.replace('\\n', '\n'))
+    string_lib.seek(0)
+    string_lib_info = tarfile.TarInfo(name='lib.asm')
+    string_lib_info.size = len(string_lib.buf)
+    tar.addfile(fileobj=string_lib, tarinfo=string_lib_info)
+
+    string_json = StringIO.StringIO()
+    string_json.write(get_package_json(package, full=False, string=True))
+    string_json.seek(0)
+    string_json_info = tarfile.TarInfo(name='package.json')
+    string_json_info.size = len(string_json.buf)
+    tar.addfile(fileobj=string_json, tarinfo=string_json_info)
+
+    string_readme = StringIO.StringIO()
+    string_readme.write(lib.readme.replace('\\n', '\n'))
+    string_readme.seek(0)
+    string_readme_info = tarfile.TarInfo(name='README.md')
+    string_readme_info.size = len(string_readme.buf)
+    tar.addfile(fileobj=string_readme, tarinfo=string_readme_info)
+
+    tar.close()
+
+    with open(temp.name, 'r') as f:
+        data = f.read()
+
+    temp.close()
+
+    return data
 
 @app.before_request
 def before_request():
@@ -80,6 +224,40 @@ def before_request():
 #----------------#
 # Errors
 
+@app.errorhandler(400)
+def bad_request(error):
+    """Bad Request error handler"""
+
+    return registry_response({
+        'status': int(str(error)[:3]),
+        'error': 'Bad Request'
+    }, status=400)
+
+def bad_request_custom(message=False):
+    """Bad Request custom error handler"""
+
+    return registry_response({
+        'status': 400,
+        'error': 'Bad Request' if not message else message
+    }, status=400)
+
+@app.errorhandler(401)
+def unauthorized(error):
+    """Unauthorized error handler"""
+
+    return registry_response({
+        'status': int(str(error)[:3]),
+        'error': 'Unauthorized'
+    }, status=401)
+
+def unauthorized_custom(message=False):
+    """Unauthorized custom error handler"""
+
+    return registry_response({
+        'status': 401,
+        'error': 'Unauthorized' if not message else message
+    }, status=401)
+
 @app.errorhandler(404)
 def not_found(error):
     """Not Found error handler"""
@@ -88,6 +266,23 @@ def not_found(error):
         'status': int(str(error)[:3]),
         'error': 'Not Found'
     }, status=404)
+
+@app.errorhandler(409)
+def conflict(error):
+    """Conflict error handler"""
+
+    return registry_response({
+        'status': int(str(error)[:3]),
+        'error': 'Conflict'
+    }, status=409)
+
+def conflict_custom(message=False):
+    """Conflict custom error handler"""
+
+    return registry_response({
+        'status': 409,
+        'error': 'Conflict' if not message else message
+    }, status=409)
 
 @app.errorhandler(500)
 def internal_server_error(error):
@@ -105,30 +300,47 @@ def internal_server_error(error):
 def list_packages():
     """List packages endpoint"""
 
-    result = {
-        'libraries': get_packages()
+    session = Session()
+    results = {
+        'libraries': []
     }
 
-    return registry_response(result)
+    result = session.query(Lib) \
+                .order_by(Lib.name) \
+                .all()
+
+    for lib in result:
+        results['libraries'].append({
+            'name': lib.name,
+            'description': lib.description,
+            'tags': lib.tags.split(','),
+            'url': '%s%s.json' % (request.url_root, lib.name)
+        })
+
+    return registry_response(results)
 
 @app.route('/search/<string:term>', methods=['GET'])
 def search_packages(term):
     """Search packages endpoint"""
 
-    packages = get_packages()
+    term = '%%%s%%' % (term.lower())
+    session = Session()
     results = {
         'results': []
     }
 
-    term = term.lower()
+    result = session.query(Lib) \
+                .filter(Lib.name.like(term)) \
+                .order_by(Lib.name) \
+                .all()
 
-    for package in packages:
-        match_name = package['name'].lower().find(term) != -1
-        match_description = package['description'].lower().find(term) != -1
-        match_tags = any(tag.lower().find(term) != -1 for tag in package['tags'])
-
-        if match_name or match_description or match_tags:
-            results['results'].append(package)
+    for lib in result:
+        results['results'].append({
+            'name': lib.name,
+            'description': lib.description,
+            'tags': lib.tags.split(','),
+            'url': '%s%s.json' % (request.url_root, lib.name)
+        })
 
     return registry_response(results)
 
@@ -136,39 +348,20 @@ def search_packages(term):
 def get_package(package):
     """Get package endpoint"""
 
-    data = ''
-    path = '%s/libs/%s/' % (os.path.dirname(os.path.abspath(__file__)), package)
-    result = {}
+    output = get_package_json(package)
 
-    # get package.json
-    try:
-        with open('%s/package.json' % (path), 'r') as f:
-            data = f.read()
-    except IOError:
+    if not output:
         abort(404)
 
-    # parse package.json
-    try:
-        result = json.loads(data)
-    except ValueError:
-        abort(500)
-
-    result["readme"] = "%s%s.md" % (request.url_root, package)
-    result["resource"] = "%s%s.tar.gz" % (request.url_root, package)
-
-    return registry_response(result)
+    return registry_response(output)
 
 @app.route('/<string:package>.md', methods=['GET'])
 def get_readme(package):
     """Get package README endpoint"""
 
-    readme = ''
-    path = '%s/libs/%s/' % (os.path.dirname(os.path.abspath(__file__)), package)
+    readme = get_package_readme(package)
 
-    try:
-        with open('%s/README.md' % (path), 'r') as f:
-            readme = f.read()
-    except IOError:
+    if not readme:
         abort(404)
 
     return registry_response(readme, mimetype='text/plain')
@@ -177,23 +370,175 @@ def get_readme(package):
 def get_gz(package):
     """Get package zip endpoint"""
 
-    data = ''
-    path = '%s/libs/%s/' % (os.path.dirname(os.path.abspath(__file__)), package)
-    temp = tempfile.NamedTemporaryFile()
+    data = get_package_zip(package)
 
-    tar = tarfile.open(temp.name, 'w:gz')
-
-    for filename in ['lib.asm', 'package.json', 'README.md']:
-        tar.add("%s/%s" % (path, filename), arcname=filename)
-
-    tar.close()
-
-    with open(temp.name, 'r') as f:
-        data = f.read()
-
-    temp.close()
+    if not data:
+        abort(404)
 
     return registry_response(data, mimetype='application/tar+gzip')
+
+@app.route('/user/create', methods=['POST'])
+def user_create():
+    """Create new user"""
+
+    user = request.get_json()
+
+    missing = missing_fields(user, ['name', 'email', 'password'])
+    if missing:
+        return missing
+
+    # start session
+
+    session = Session()
+
+    # check if user exists
+
+    result = session.query(User).filter(User.email == user['email']).all()
+
+    if len(result):
+        return conflict_custom('User already exists')
+
+    # create user
+
+    session.add(User(
+        name=user['name'],
+        email=user['email'],
+        password=md5.new(user['password']).hexdigest(),
+        date_created=datetime.datetime.now()))
+    session.commit()
+
+    return registry_response({})
+
+@app.route('/user/login', methods=['POST'])
+def user_login():
+    """User login"""
+
+    auth = request.authorization
+
+    missing = missing_fields(auth, ['username', 'password'], 'authorization')
+    if missing:
+        return missing
+
+    # start session
+
+    session = Session()
+
+    # check if user exists
+
+    result = session.query(User).filter(User.email == auth['username']).all()
+
+    if not len(result):
+        return unauthorized_custom('User does not exist')
+
+    user = result[0]
+
+    if user.password != md5.new(auth['password']).hexdigest():
+        return unauthorized_custom('Incorrect password')
+
+    # create login token
+
+    login_token = '%X' % (random.getrandbits(128))
+
+    session.query(User).filter(User.id == user.id).update({
+        'date_login': datetime.datetime.now(),
+        'login_token': login_token
+    })
+    session.commit()
+
+    return registry_response({
+        'token': login_token
+    })
+
+@app.route('/user/logout', methods=['GET', 'POST'])
+def user_logout():
+    """User logout"""
+
+    token = get_auth(request.headers)
+
+    if not token:
+        return unauthorized_custom('User is not logged in')
+
+    # start session
+
+    session = Session()
+
+    # check if user exists
+
+    result = session.query(User).filter(User.login_token == token).all()
+    user = result[0]
+
+    # log out
+
+    session.query(User).filter(User.id == user.id).update({
+        'login_token': None
+    })
+    session.commit()
+
+    return registry_response({})
+
+#----------------#
+# Import/Export
+
+def db_import(filename=None):
+    """Import database"""
+
+    csvfile = open(filename, 'rb')
+    reader = csv.reader(csvfile)
+
+    columns = next(reader)
+    rows = []
+
+    for row in reader:
+        lib_id = row[0]
+        user_id = row[1]
+        readme = row[2]
+        lib = row[3]
+        name = row[4]
+        description = row[5]
+        version = row[6]
+        lib_license = row[7]
+        tags = row[8]
+
+        rows.append(Lib(id=lib_id, \
+            user_id=user_id, \
+            readme=readme, \
+            lib=lib, \
+            name=name, \
+            description=description, \
+            version=version, \
+            license=lib_license, \
+            tags=tags))
+
+    session = Session()
+    session.add_all(rows)
+    session.commit()
+
+    return
+
+def db_export():
+    """Export database"""
+
+    session = Session()
+    result = session.query(Lib).all()
+
+    csvfile = open('registry.csv', 'wb')
+    writer = csv.writer(csvfile)
+
+    result = session.query(Lib).all()
+
+    writer.writerow([column.name for column in Lib.__table__.columns])
+
+    for lib in result:
+        writer.writerow([
+            lib.id, \
+            lib.user_id, \
+            lib.readme, \
+            lib.lib, \
+            lib.name, \
+            lib.description, \
+            lib.version, \
+            lib.license, \
+            lib.tags])
 
 #----------------#
 # Main
@@ -205,8 +550,18 @@ def main():
     parser.add_argument('--host', '-H', dest='host', type=str, default=HOSTNAME, required=False, help='Host')
     parser.add_argument('--port', '-P', dest='port', type=int, default=PORT, required=False, help='Port')
     parser.add_argument('--debug', '-D', dest='debug', action='store_true', required=False, help='Debug mode')
+    parser.add_argument('--import', '-i', dest='db_import', type=str, help='Import CSV')
+    parser.add_argument('--export', '-e', dest='db_export', action='store_true', help='Export CSV')
 
     args = parser.parse_args()
+
+    if args.db_import:
+        db_import(args.db_import)
+        return
+
+    if args.db_export:
+        db_export()
+        return
 
     app.run(host=args.host, port=args.port, debug=args.debug)
 

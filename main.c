@@ -257,6 +257,39 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
+        if (strcmp(argv[optind], "adduser") == 0) {
+            if ((rc = user_create()) != RETURN_OK) {
+                error_program_output("Could not add user");
+                goto cleanup;
+            }
+
+            printf("User created\n");
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[optind], "login") == 0) {
+            if ((rc = user_login()) != RETURN_OK) {
+                error_program_output("Could not login");
+                goto cleanup;
+            }
+
+            printf("Login successful\n");
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[optind], "logout") == 0) {
+            if ((rc = user_logout()) != RETURN_OK) {
+                error_program_output("Could not logout");
+                goto cleanup;
+            }
+
+            printf("Logout successful\n");
+
+            goto cleanup;
+        }
+
         filename = argv[optind++];
     }
 

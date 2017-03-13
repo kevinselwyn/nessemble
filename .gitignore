@@ -10,3 +10,5 @@ y.tab.*
 *.o
 suite_*
 third-party/**/*.o
+*.db
+*.pyc
