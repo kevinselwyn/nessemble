@@ -8,6 +8,19 @@
  * DEFINES
  */
 
+/* PLATFORMS */
+#if defined(WIN32) || defined(_WIN32) || (__MINGW32__)
+#define IS_WINDOWS
+#endif /* WIN32 || _WIN32 || __MINGW32__ */
+
+#if defined(__linux__)
+#define IS_LINUX
+#endif /* __linux__ */
+
+#if defined(__APPLE__)
+#define IS_MAC
+#endif /* __APPLE__ */
+
 /* UNUSED */
 #define UNUSED(x) (void)(x)
 
@@ -528,9 +541,9 @@ float easeOutBounce(float t, float b, float c, float d);
 float easeInOutBounce(float t, float b, float c, float d);
 
 /* UTILS */
-#ifdef WIN32
+#ifdef IS_WINDOWS
 //int clock_gettime(int X, struct timeval *tv);
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 
 void *nessemble_malloc(size_t size);
 void nessemble_free(void *ptr);

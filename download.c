@@ -6,13 +6,13 @@
 #include "nessemble.h"
 #include "download.h"
 
-#ifdef WIN32
+#ifdef IS_WINDOWS
 #include <winsock2.h>
-#else /* WIN32 */
+#else /* IS_WINDOWS */
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 
 static unsigned int do_request(char **request, unsigned int *request_length, char *url, char *data, char *method, char *mime_type, struct http_header http_headers) {
     unsigned int port = 80, protocol = PROTOCOL_HTTP;

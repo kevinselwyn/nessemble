@@ -5,18 +5,16 @@
 #include <sys/stat.h>
 #include "nessemble.h"
 
-#ifdef WIN32
+#ifdef IS_WINDOWS
 #include <windows.h>
-#endif /* WIN32 */
-
-#ifndef WIN32
+#else /* IS_WINDOWS */
 #include <string.h>
 char *strstr(const char *haystack, const char *needle);
 #define _GNU_SOURCE
 #include <string.h>
 char *strcasestr(const char *haystack, const char *needle);
 char *realpath(const char *path, char *resolved_path);
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 
 void *nessemble_malloc(size_t size) {
     void *mem = NULL;
@@ -57,21 +55,21 @@ char *nessemble_strdup(char *str) {
 }
 
 const char *nessemble_strcasestr(const char *s1, const char *s2) {
-#ifdef WIN32
+#ifdef IS_WINDOWS
     return strstr(s1, s2);
-#else /* WIN32 */
+#else /* IS_WINDOWS */
     return strcasestr(s1, s2);
-#endif
+#endif /* IS_WINDOWS */
 }
 
 int nessemble_mkdir(const char *dirname, int mode) {
     int rc = 0;
 
-#ifdef WIN32
+#ifdef IS_WINDOWS
     rc = mkdir(dirname);
-#else /* WIN32 */
+#else /* IS_WINDOWS */
     rc = mkdir(dirname, mode);
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 
     return rc;
 }
@@ -79,7 +77,7 @@ int nessemble_mkdir(const char *dirname, int mode) {
 char *nessemble_getpass(const char *prompt) {
     char *pass = NULL;
 
-#ifdef WIN32
+#ifdef IS_WINDOWS
     size_t length = 0;
 
     pass = (char *)nessemble_malloc(sizeof(char) * 256);
@@ -106,15 +104,15 @@ char *nessemble_getpass(const char *prompt) {
 
     info.bVisible = TRUE;
     SetConsoleCursorInfo(consoleHandle, &info);
-#else /* WIN32 */
+#else /* IS_WINDOWS */
     pass = getpass(prompt);
-#endif
+#endif /* IS_WINDOWS */
 
     return pass;
 }
 
 char *nessemble_realpath(const char *path, char *resolved_path) {
-#ifdef WIN32
+#ifdef IS_WINDOWS
     int rc = RETURN_OK;
     char *lppPart = NULL;
 
@@ -123,9 +121,9 @@ char *nessemble_realpath(const char *path, char *resolved_path) {
     }
 
     return resolved_path;
-#else /* WIN32 */
+#else /* IS_WINDOWS */
     return realpath(path, resolved_path);
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 }
 
 unsigned int is_stdout(char *filename) {
