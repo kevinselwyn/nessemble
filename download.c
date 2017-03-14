@@ -100,6 +100,16 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
         sprintf(message+strlen(message), "\r\n\r\n");
     }
 
+#ifdef IS_WINDOWS
+    WSADATA wsa;
+
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+        error_program_log("Could not initialize Winsock");
+        code = 500;
+        goto cleanup;
+    }
+#endif /* IS_WINDOWS */
+
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (sockfd < 0) {
@@ -131,7 +141,11 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     sent = 0;
 
     do {
+#ifdef IS_WINDOWS
+        bytes = (int)send(sockfd, message+sent, (size_t)(total - sent), 0);
+#else /* IS_WINDOWS */
         bytes = (int)write(sockfd, message+sent, (size_t)(total - sent));
+#endif /* IS_WINDOWS */
 
         if (bytes < 0) {
             code = 500;
@@ -160,7 +174,11 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
             break;
         }
 
+#ifdef IS_WINDOWS
+        bytes = (int)recv(sockfd, response+received, (size_t)(total - received), 0);
+#else /* IS_WINDOWS */
         bytes = (int)read(sockfd, response+received, (size_t)(total - received));
+#endif /* IS_WINDOWS */
 
         if (bytes < 0) {
             code = 500;

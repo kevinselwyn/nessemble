@@ -279,39 +279,34 @@ unsigned int str2hash(char *string) {
  */
 unsigned int base64enc(char **encoded, char *str) {
     unsigned int rc = RETURN_OK;
-    unsigned int u = 0, len = 0, w = 0, i = 0, index = 0;
-    size_t length = 0;
-	char c[4];
+    unsigned int i = 0, j = 0;
+    unsigned int a = 0, b = 0, c = 0, abc = 0;
+    unsigned int mod_table[3] = { 0, 2, 1 };
+    size_t input_length = 0, output_length = 0;
     char *output = NULL;
     const char *alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-    length = strlen(str);
-    output = (char *)nessemble_malloc(sizeof(char) * length);
+    input_length = strlen(str);
+    output_length = 4 * ((input_length + 2) / 3);
 
-    memset(c, '\0', 4);
-    memset(output, '\0', length);
+    output = (char *)nessemble_malloc(sizeof(char) * (output_length + 1));
 
-	do {
-		c[1] = c[2] = 0;
+    for (i = 0, j = 0; i < (unsigned int)input_length;) {
+        a = i < input_length ? (unsigned int)str[i++] : 0;
+        b = i < input_length ? (unsigned int)str[i++] : 0;
+        c = i < input_length ? (unsigned int)str[i++] : 0;
 
-        memcpy(c, str+i, 4);
+        abc = (a << 0x10) + (b << 0x08) + c;
 
-        if ((len = strlen(c)) >= 3) {
-            len = 3;
-            i += 3;
-        }
+        output[j++] = alpha[(abc >> 18) & 0x3F];
+        output[j++] = alpha[(abc >> 12) & 0x3F];
+        output[j++] = alpha[(abc >> 6) & 0x3F];
+        output[j++] = alpha[abc & 0x3F];
+    }
 
-		u = c[0] << 16 | c[1] << 8 | c[2];
-
-        output[index++] = alpha[u >> 18];
-        output[index++] = alpha[(u >> 12) & 63];
-        output[index++] = len < 2 ? '=' : alpha[u >> 6 & 63];
-        output[index++] = len < 3 ? '=' : alpha[u & 63];
-
-		if (++w == 19) {
-            w = 0;
-        }
-	} while (len == 3);
+    for (i = 0; i < mod_table[input_length % 3]; i++) {
+        output[output_length - 1 - i] = '=';
+    }
 
     *encoded = output;
 
