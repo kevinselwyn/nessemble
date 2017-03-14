@@ -1,7 +1,26 @@
 #include <stdio.h>
 #include <string.h>
+#include <getopt.h>
 #include "nessemble.h"
 #include "license.h"
+
+struct option commandline_options[USAGE_FLAG_COUNT+1] = {
+    { "output",       required_argument, 0, 'o' },
+    { "format",       required_argument, 0, 'f' },
+    { "empty",        required_argument, 0, 'e' },
+    { "undocumented", no_argument,       0, 'u' },
+    { "list",         required_argument, 0, 'l' },
+    { "check",        no_argument,       0, 'c' },
+    { "coverage",     no_argument,       0, 'C' },
+    { "disassemble",  no_argument,       0, 'd' },
+    { "reassemble",   no_argument,       0, 'R' },
+    { "simulate",     no_argument,       0, 's' },
+    { "recipe",       required_argument, 0, 'r' },
+    { "version",      no_argument,       0, 'v' },
+    { "license",      no_argument,       0, 'L' },
+    { "help",         no_argument,       0, 'h' },
+    { 0, 0, 0, 0 }
+};
 
 static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-o, --output <outfile.rom>", "output file" },
