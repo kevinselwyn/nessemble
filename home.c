@@ -13,10 +13,11 @@ unsigned int get_home(char **home) {
     unsigned int rc = RETURN_OK;
 
 #ifdef IS_WINDOWS
-    if (SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, *home) != S_OK) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    char *path = (char *)nessemble_malloc(sizeof(char) * 1024);
+
+    sprintf(path, "%s%s", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
+
+    *home = path;
 #else /* IS_WINDOWS */
     struct passwd *pw = getpwuid(getuid());
 
