@@ -2,6 +2,7 @@
 #define _NESSEMBLE_H
 
 #include <stdio.h>
+#include <getopt.h>
 #include <time.h>
 
 /*
@@ -198,6 +199,8 @@ struct ines_header {
 struct usage_flag {
     char *invocation, *description;
 };
+
+struct option commandline_options[USAGE_FLAG_COUNT+1];
 
 /* EASING */
 struct easing {

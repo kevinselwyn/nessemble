@@ -22,30 +22,13 @@ int main(int argc, char *argv[]) {
     char *exec = NULL, *filename = NULL, *outfilename = NULL, *listname = NULL, *recipe = NULL;
     char *registry = NULL, *config = NULL;
     FILE *file = NULL, *outfile = NULL;
-    struct option long_options[] = {
-        { "output",       required_argument, 0, 'o' },
-        { "format",       required_argument, 0, 'f' },
-        { "empty",        required_argument, 0, 'e' },
-        { "undocumented", no_argument,       0, 'u' },
-        { "list",         required_argument, 0, 'l' },
-        { "check",        no_argument,       0, 'c' },
-        { "coverage",     no_argument,       0, 'C' },
-        { "disassemble",  no_argument,       0, 'd' },
-        { "reassemble",   no_argument,       0, 'R' },
-        { "simulate",     no_argument,       0, 's' },
-        { "recipe",       required_argument, 0, 'r' },
-        { "version",      no_argument,       0, 'v' },
-        { "license",      no_argument,       0, 'L' },
-        { "help",         no_argument,       0, 'h' },
-        { 0, 0, 0, 0 }
-    };
 
     // exec
     exec = argv[0];
 
     // parse args
     while (TRUE == 1) {
-        c = getopt_long(argc, argv, "cde:f:hlLo:rRsuv", long_options, &option_index);
+        c = getopt_long(argc, argv, "cCde:f:hlLo:rRsuv", commandline_options, &option_index);
 
         if (c == -1) {
             break;
