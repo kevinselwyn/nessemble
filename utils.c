@@ -136,7 +136,7 @@ unsigned int is_stdout(char *filename) {
         goto cleanup;
     }
 
-    if (isatty(fileno(file)) == 1 || strcmp(filename, "/dev/stdout") == 0) {
+    if (isatty(fileno(file)) == 1 || strcmp(filename, SEP "dev" SEP "stdout") == 0) {
         rc = TRUE;
     }
 
@@ -339,7 +339,7 @@ int get_fullpath(char **path, char *string) {
     fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
     strcpy(fullpath, cwd_path);
-    strcat(fullpath, "/");
+    strcat(fullpath, SEP);
     strncat(fullpath, string + 1, string_length - 2);
 
     if (fullpath[path_length-1] == '"') {
@@ -369,7 +369,7 @@ int get_libpath(char **path, char *string) {
     fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
     strcpy(fullpath, home);
-    strcat(fullpath, "/." PROGRAM_NAME "/");
+    strcat(fullpath, SEP "." PROGRAM_NAME SEP);
     strncat(fullpath, string + 1, string_length - 2);
 
     if (fullpath[path_length-1] == '>') {

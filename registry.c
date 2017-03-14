@@ -101,7 +101,7 @@ static unsigned int get_lib_dir(char **lib_dir) {
     length = strlen(home) + 11;
     dir = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
-    sprintf(dir, "%s/%s", home, "." PROGRAM_NAME);
+    sprintf(dir, "%s" SEP "%s", home, "." PROGRAM_NAME);
 
     *lib_dir = dir;
 
@@ -123,7 +123,7 @@ static unsigned int get_lib_path(char **lib_path, char *lib) {
     length = strlen(home) + strlen(lib) + 16;
     path = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
-    sprintf(path, "%s/%s/%s.asm", home, "." PROGRAM_NAME, lib);
+    sprintf(path, "%s" SEP "%s" SEP "%s.asm", home, "." PROGRAM_NAME, lib);
 
     *lib_path = path;
 
