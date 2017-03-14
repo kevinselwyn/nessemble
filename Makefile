@@ -51,6 +51,10 @@ win32: EXEC     := $(NAME).exe
 win32: CC       := i686-w64-mingw32-gcc
 win32: CC_FLAGS := -lws2_32
 
+win64: EXEC     := $(NAME).exe
+win64: CC       := x86_64-w64-mingw32-gcc
+win64: CC_FLAGS := -lws2_32
+
 # TARGETS
 
 all: $(EXEC)
@@ -60,6 +64,8 @@ debug: $(EXEC)
 js: $(EXEC)
 
 win32: $(EXEC)
+
+win64: $(EXEC)
 
 # RECIPES
 
