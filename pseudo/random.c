@@ -22,13 +22,13 @@ void pseudo_random() {
         count = ints[1];
     }
 
-#ifndef WIN32
+#ifndef IS_WINDOWS
     if (seed == 0) {
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
         seed = (unsigned int)ts.tv_nsec;
     }
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 
     srand(seed);
 
