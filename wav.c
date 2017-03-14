@@ -35,8 +35,8 @@ int wav_sample(wave_src *wav) {
     for (i = 0; i < (int)wav->fmt.bits_sample && wav->chunk_left > 0; i += 8) {
         int c = fgetc(wav->fp);
 
-        cur_sample >>= 8;
-        cur_sample |= (c & 0xff) << 8;
+        cur_sample = (int)((unsigned int)cur_sample >> 8);
+        cur_sample = (int)(cur_sample | ((unsigned int)c & 0xff) << 8);
         wav->chunk_left--;
     }
 

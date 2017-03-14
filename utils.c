@@ -12,6 +12,7 @@
 char *strstr(const char *haystack, const char *needle);
 #define _GNU_SOURCE
 #include <string.h>
+int fileno(FILE *file);
 char *strcasestr(const char *haystack, const char *needle);
 char *realpath(const char *path, char *resolved_path);
 #endif /* IS_WINDOWS */
@@ -38,7 +39,7 @@ void nessemble_free(void *ptr) {
 
 void nessemble_fclose(FILE *file) {
     if (file) {
-        fclose(file);
+        (void)fclose(file);
     }
 }
 
@@ -68,19 +69,19 @@ int nessemble_mkdir(const char *dirname, int mode) {
 #ifdef IS_WINDOWS
     rc = mkdir(dirname);
 #else /* IS_WINDOWS */
-    rc = mkdir(dirname, mode);
+    rc = mkdir(dirname, (unsigned int)mode);
 #endif /* IS_WINDOWS */
 
     return rc;
 }
 
 char *nessemble_getpass(const char *prompt) {
-    char *pass = NULL;
+    char *password = NULL;
 
 #ifdef IS_WINDOWS
     size_t length = 0;
 
-    pass = (char *)nessemble_malloc(sizeof(char) * 256);
+    password = (char *)nessemble_malloc(sizeof(char) * 256);
 
     fputs(prompt, stdout);
 
@@ -91,24 +92,24 @@ char *nessemble_getpass(const char *prompt) {
     info.bVisible = FALSE;
     SetConsoleCursorInfo(consoleHandle, &info);
 
-    while (get_line(&pass, NULL) != NULL) {
-        length = strlen(pass);
+    while (get_line(&password, NULL) != NULL) {
+        length = strlen(password);
 
         if (length - 1 == 0) {
             continue;
         }
 
-        pass[length - 1] = '\0';
+        password[length - 1] = '\0';
         break;
     }
 
     info.bVisible = TRUE;
     SetConsoleCursorInfo(consoleHandle, &info);
 #else /* IS_WINDOWS */
-    pass = getpass(prompt);
+    password = getpass(prompt);
 #endif /* IS_WINDOWS */
 
-    return pass;
+    return password;
 }
 
 char *nessemble_realpath(const char *path, char *resolved_path) {
@@ -282,11 +283,11 @@ unsigned int base64enc(char **encoded, char *str) {
     unsigned int i = 0, j = 0;
     unsigned int a = 0, b = 0, c = 0, abc = 0;
     unsigned int mod_table[3] = { 0, 2, 1 };
-    size_t input_length = 0, output_length = 0;
+    unsigned int input_length = 0, output_length = 0;
     char *output = NULL;
     const char *alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-    input_length = strlen(str);
+    input_length = (unsigned int)strlen(str);
     output_length = 4 * ((input_length + 2) / 3);
 
     output = (char *)nessemble_malloc(sizeof(char) * (output_length + 1));
@@ -316,8 +317,8 @@ unsigned int base64enc(char **encoded, char *str) {
 /**
  * Get fullpath
  */
-int get_fullpath(char **path, char *string) {
-    int rc = RETURN_OK;
+unsigned int get_fullpath(char **path, char *string) {
+    unsigned int rc = RETURN_OK;
     size_t string_length = 0, path_length = 0;
     char *fullpath = NULL;
 
@@ -350,8 +351,8 @@ cleanup:
 /**
  * Get libpath
  */
-int get_libpath(char **path, char *string) {
-    int rc = RETURN_OK;
+unsigned int get_libpath(char **path, char *string) {
+    unsigned int rc = RETURN_OK;
     size_t string_length = 0, path_length = 0;
     char *home = NULL, *fullpath = NULL;
 
