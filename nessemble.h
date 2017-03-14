@@ -39,6 +39,15 @@
 #define FALSE 0
 #endif /* FALSE */
 
+/* SEPARATORS */
+#ifdef IS_WINDOWS
+#define SEP      "\\"
+#define SEP_CHAR '\\'
+#else /* IS_WINDOWS */
+#define SEP      "/"
+#define SEP_CHAR '/'
+#endif /* IS_WINDOWS */
+
 /* MATH */
 #define PI 3.14159265358979323846
 

@@ -33,7 +33,7 @@ unsigned int open_config(FILE **file, char **filename) {
     length = strlen(home) + 18;
     config_path = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
-    sprintf(config_path, "%s/%s", home, "." PROGRAM_NAME);
+    sprintf(config_path, "%s" SEP "%s", home, "." PROGRAM_NAME);
 
     dir = opendir(config_path);
 
@@ -46,7 +46,7 @@ unsigned int open_config(FILE **file, char **filename) {
         UNUSED(closedir(dir));
     }
 
-    strcat(config_path, "/" CONFIG_FILENAME);
+    strcat(config_path, SEP CONFIG_FILENAME);
 
     if (access(config_path, F_OK) == -1) {
         config = fopen(config_path, "w+");

@@ -296,8 +296,8 @@ int main(int argc, char *argv[]) {
         if (isatty(fileno(stdin)) == FALSE) {
             piped = TRUE;
             filename = nessemble_strdup("stdin");
-            strcpy(cwd, "/tmp/" PROGRAM_NAME "-stdin");
-            cwd_path = nessemble_strdup("/tmp/" PROGRAM_NAME);
+            strcpy(cwd, SEP "tmp" SEP PROGRAM_NAME "-stdin");
+            cwd_path = nessemble_strdup(SEP "tmp" SEP PROGRAM_NAME);
 
             if ((rc = tmp_save(stdin, cwd)) != RETURN_OK) {
                 rc = usage(exec);
@@ -326,7 +326,7 @@ int main(int argc, char *argv[]) {
         }
 
         for (i = (unsigned int)strlen(cwd_path), l = 0; i >= l; i--) {
-            if (cwd_path[i] == '/') {
+            if (cwd_path[i] == SEP_CHAR) {
                 cwd_path[i] = '\0';
                 break;
             }
@@ -346,7 +346,7 @@ int main(int argc, char *argv[]) {
     if (!outfilename || strcmp(outfilename, "-") == 0) {
         nessemble_free(outfilename);
 
-        outfilename = nessemble_strdup("/dev/stdout");
+        outfilename = nessemble_strdup(SEP "dev" SEP "stdout");
     }
 
     if (!outfilename) {
