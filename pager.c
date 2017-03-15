@@ -49,9 +49,15 @@ cleanup:
 
 unsigned int pager_file(char *filename) {
     unsigned int rc = RETURN_OK;
+    unsigned int content_length = 0;
     char *content = NULL;
 
-    if (load_file(&content, filename) == 0) {
+    if ((rc = load_file(&content, &content_length, filename)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (content_length == 0) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
