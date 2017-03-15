@@ -7,9 +7,8 @@
  */
 void pseudo_incbin(char *string, int offset, int limit) {
     unsigned int i = 0, l = 0;
-    size_t bin_length = 0;
+    unsigned int bin_length = 0;
     char *path = NULL, *bin_data = NULL;
-    FILE *incbin = NULL;
 
     if (get_fullpath(&path, string) != 0) {
         yyerror("Could not get full path of %s", string);
@@ -21,33 +20,8 @@ void pseudo_incbin(char *string, int offset, int limit) {
         goto cleanup;
     }
 
-    incbin = fopen(path, "r");
-
-    if (!incbin) {
-        yyerror("Could not include %s", string);
-        goto cleanup;
-    }
-
-    if (fseek(incbin, 0, SEEK_END) != 0) {
-        yyerror("Seek error");
-        goto cleanup;
-    }
-
-    bin_length = (size_t)ftell(incbin);
-
-    if (fseek(incbin, 0, SEEK_SET) != 0) {
-        yyerror("Seek error");
-        goto cleanup;
-    }
-
-    if (bin_length == 0) {
-        goto cleanup;
-    }
-
-    bin_data = (char *)nessemble_malloc(sizeof(char) * (bin_length + 1));
-
-    if (fread(bin_data, 1, bin_length, incbin) != bin_length) {
-        yyerror("Could not read %s", string);
+    if (load_file(&bin_data, &bin_length, path) != RETURN_OK) {
+        yyerror("Could not read `%s`", path);
         goto cleanup;
     }
 
@@ -62,5 +36,4 @@ void pseudo_incbin(char *string, int offset, int limit) {
 cleanup:
     nessemble_free(path);
     nessemble_free(bin_data);
-    nessemble_fclose(incbin);
 }
