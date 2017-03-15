@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <sys/stat.h>
 #include "nessemble.h"
 
@@ -71,6 +72,55 @@ int nessemble_mkdir(const char *dirname, int mode) {
 #else /* IS_WINDOWS */
     rc = mkdir(dirname, (unsigned int)mode);
 #endif /* IS_WINDOWS */
+
+    return rc;
+}
+
+int nessemble_rmdir(const char *path) {
+    int rc = -1;
+    DIR *d = opendir(path);
+    size_t path_len = strlen(path);
+
+    if (d) {
+        struct dirent *p;
+        rc = 0;
+
+        while (!rc && (p = readdir(d))) {
+            int r2 = -1;
+            char *buf;
+            size_t len;
+
+            if (strcmp(p->d_name, ".") == 0 || strcmp(p->d_name, "..") == 0) {
+                continue;
+            }
+
+            len = path_len + strlen(p->d_name) + 2;
+            buf = malloc(len);
+
+            if (buf) {
+                struct stat statbuf;
+                snprintf(buf, len, "%s/%s", path, p->d_name);
+
+                if (!stat(buf, &statbuf)) {
+                    if (S_ISDIR(statbuf.st_mode)) {
+                        r2 = nessemble_rmdir(buf);
+                    } else {
+                        r2 = unlink(buf);
+                    }
+                }
+
+                free(buf);
+            }
+
+            rc = r2;
+        }
+
+        closedir(d);
+    }
+
+    if (!rc) {
+        rc = rmdir(path);
+    }
 
     return rc;
 }
@@ -361,16 +411,13 @@ unsigned int get_libpath(char **path, char *string) {
     }
 
     string_length = strlen(string);
-    path_length = strlen(home) + 11 + string_length - 1;
+    path_length = strlen(home) + 19 + string_length - 1;
     fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
     strcpy(fullpath, home);
     strcat(fullpath, SEP "." PROGRAM_NAME SEP);
     strncat(fullpath, string + 1, string_length - 2);
-
-    if (fullpath[path_length-1] == '>') {
-        fullpath[path_length-1] = '\0';
-    }
+    strcat(fullpath, SEP "lib.asm");
 
     if (access(fullpath, F_OK) == -1) {
         rc = RETURN_EPERM;

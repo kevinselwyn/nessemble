@@ -46,3 +46,21 @@ unsigned int pager_buffer(char *buffer) {
 cleanup:
     return rc;
 }
+
+unsigned int pager_file(char *filename) {
+    unsigned int rc = RETURN_OK;
+    char *content = NULL;
+
+    if (load_file(&content, filename) == 0) {
+        goto cleanup;
+    }
+
+    if ((rc = pager_buffer(content)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+cleanup:
+    nessemble_free(content);
+
+    return rc;
+}
