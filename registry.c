@@ -302,7 +302,7 @@ cleanup:
 
 unsigned int lib_list() {
     unsigned int rc = RETURN_OK;
-    size_t length = 0;
+    char path[1024];
     char *lib_dir = NULL;
     struct dirent *ep;
     DIR *dp = NULL;
@@ -312,27 +312,28 @@ unsigned int lib_list() {
         goto cleanup;
     }
 
-    dp = opendir(lib_dir);
-
-    if (!dp) {
+    if ((dp = opendir(lib_dir)) == NULL) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     while ((ep = readdir(dp)) != NULL) {
-        stat(ep->d_name, &s);
+        memset(path, '\0', 1024);
+        sprintf(path, "%s/%s", lib_dir, ep->d_name);
 
-        if ((s.st_mode & S_IFDIR) != 0) {
-            length = strlen(ep->d_name);
-
-            if (strcmp(ep->d_name + (length - 4), ".asm") != 0) {
-                continue;
-            }
-
-            ep->d_name[length - 4] = '\0';
-
-            printf("%s\n", ep->d_name);
+        if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0) {
+            continue;
         }
+
+        if (stat(path, &s) != 0) {
+            continue;
+        }
+
+        if (!S_ISDIR(s.st_mode)) {
+            continue;
+        }
+
+        printf("%s\n", ep->d_name);
     }
 
     UNUSED(closedir(dp));
