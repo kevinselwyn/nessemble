@@ -14,6 +14,9 @@ static char input[IN_SIZE], output[OUT_SIZE];
 
 static unsigned int i_in, i_out;
 
+char *cache_url, *cache_content;
+unsigned int cache_content_length = 0;
+
 int udeflate_read_bits(int n_bits) {
     int next = 0, i = 0, ret = 0;
 
@@ -108,7 +111,6 @@ int udeflate_write_match(uint16_t len, uint16_t dist) {
 	return 0;
 }
 
-
 int udeflate_write_input_bytes(uint16_t len) {
 	if ((i_out + (unsigned int)len) > (unsigned int)OUT_SIZE) {
 		return -EOVERFLOW;
@@ -173,27 +175,41 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     unsigned int rc = RETURN_OK, http_code = 0, content_length = 0, index = 0;
     char *content = NULL;
 
-    http_code = get_request(&content, &content_length, url, MIMETYPE_ZIP);
+    if (!cache_url || (strcmp(url, cache_url) != 0)) {
+        http_code = get_request(&content, &content_length, url, MIMETYPE_ZIP);
 
-    switch (http_code) {
-    case 503:
-        error_program_log("Could not reach the registry");
+        switch (http_code) {
+        case 503:
+            error_program_log("Could not reach the registry");
 
-        rc = RETURN_EPERM;
-        goto cleanup;
-    case 404:
-        error_program_log("Library does not exist");
+            rc = RETURN_EPERM;
+            goto cleanup;
+        case 404:
+            error_program_log("Library does not exist");
 
-        rc = RETURN_EPERM;
-        goto cleanup;
-    case 200:
-    default:
-        break;
-    }
+            rc = RETURN_EPERM;
+            goto cleanup;
+        case 200:
+        default:
+            break;
+        }
 
-    if (!content) {
-        rc = RETURN_EPERM;
-        goto cleanup;
+        if (!content) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        cache_url = url;
+
+        cache_content = (char *)nessemble_malloc(sizeof(char) * (content_length + 1));
+        memcpy(cache_content, content, content_length);
+
+        cache_content_length = content_length;
+    } else {
+        content_length = cache_content_length;
+
+        content = (char *)nessemble_malloc(sizeof(char) * (content_length + 1));
+        memcpy(content, cache_content, content_length);
     }
 
     while (content[index] != '\0') {
@@ -218,10 +234,13 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
         goto cleanup;
     }
 
+    i_in = 0;
+    i_out = 0;
+    memset(input, '\0', IN_SIZE);
+    memset(output, '\0', OUT_SIZE);
+
 cleanup:
-    if (content) {
-        nessemble_free(content);
-    }
+    nessemble_free(content);
 
     return rc;
 }

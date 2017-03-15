@@ -563,6 +563,7 @@ void nessemble_fclose(FILE *file);
 char *nessemble_strdup(char *str);
 const char *nessemble_strcasestr(const char *s1, const char *s2);
 int nessemble_mkdir(const char *dirname, int mode);
+int nessemble_rmdir(const char *path);
 char *nessemble_getpass(const char *prompt);
 char *nessemble_realpath(const char *path, char *resolved_path);
 unsigned int is_stdout(char *filename);
@@ -632,6 +633,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
 /* PAGER */
 unsigned int pager_buffer(char *buffer);
+unsigned int pager_file(char *filename);
 
 /* USER */
 unsigned int user_create();
