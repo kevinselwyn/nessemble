@@ -42,12 +42,14 @@ unsigned int simulate(char *input, char *recipe) {
     int header = 0, inesprg = 1;
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0;
-    size_t insize = 0;
+    unsigned int insize = 0;
     char buffer[BUF_SIZE];
     char *indata = NULL;
     FILE *recipe_file = NULL;
 
-    insize = (size_t)load_file(&indata, input);
+    if ((rc = load_file(&indata, &insize, input)) != RETURN_OK) {
+        goto cleanup;
+    }
 
     if (!indata) {
         rc = RETURN_EPERM;

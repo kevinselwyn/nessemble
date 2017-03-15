@@ -504,7 +504,9 @@ unsigned int disassemble(char *input, char *output, char *listname) {
     char *indata = NULL, *trn_filename = NULL, *chr_filename = NULL;
     FILE *outfile = NULL, *trnfile = NULL;
 
-    insize = load_file(&indata, input);
+    if ((rc = load_file(&indata, &insize, input)) != RETURN_OK) {
+        goto cleanup;
+    }
 
     if (!indata) {
         rc = RETURN_EPERM;

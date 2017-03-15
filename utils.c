@@ -434,7 +434,8 @@ cleanup:
 /**
  * Load file
  */
-unsigned int load_file(char **data, char *filename) {
+unsigned int load_file(char **data, unsigned int *data_length, char *filename) {
+    unsigned int rc = RETURN_OK;
     unsigned int insize = 0;
     char *indata = NULL;
     FILE *infile = NULL;
@@ -443,11 +444,15 @@ unsigned int load_file(char **data, char *filename) {
 
     if (!infile) {
         error_program_log("Could not open `%s`", filename);
+
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
     if (fseek(infile, 0, SEEK_END) != 0) {
         error_program_log("Seek error");
+
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -457,6 +462,7 @@ unsigned int load_file(char **data, char *filename) {
         error_program_log("Seek error");
 
         insize = 0;
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -464,6 +470,7 @@ unsigned int load_file(char **data, char *filename) {
         error_program_log("`%s` is empty", filename);
 
         insize = 0;
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -473,15 +480,17 @@ unsigned int load_file(char **data, char *filename) {
         error_program_log("Could not read `%s`", filename);
 
         insize = 0;
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
     *data = indata;
+    *data_length = insize;
 
 cleanup:
     nessemble_fclose(infile);
 
-    return insize;
+    return rc;
 }
 
 unsigned int tmp_save(FILE *file, char *filename) {

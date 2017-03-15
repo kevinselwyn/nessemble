@@ -580,7 +580,7 @@ unsigned int fgetu32_little(FILE *fp);
 unsigned int fgetu32_big(FILE *fp);
 unsigned int get_fullpath(char **path, char *string);
 unsigned int get_libpath(char **path, char *string);
-unsigned int load_file(char **data, char *filename);
+unsigned int load_file(char **data, unsigned int *data_length, char *filename);
 unsigned int tmp_save(FILE *file, char *filename);
 void tmp_delete(char *filename);
 char *get_line(char **buffer, char *prompt);
