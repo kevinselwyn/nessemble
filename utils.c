@@ -439,6 +439,7 @@ unsigned int load_file(char **data, unsigned int *data_length, char *filename) {
     unsigned int insize = 0;
     char *indata = NULL;
     FILE *infile = NULL;
+    struct stat stbuf;
 
     infile = fopen(filename, "r");
 
@@ -449,22 +450,14 @@ unsigned int load_file(char **data, unsigned int *data_length, char *filename) {
         goto cleanup;
     }
 
-    if (fseek(infile, 0, SEEK_END) != 0) {
-        error_program_log("Seek error");
+    if ((fstat(fileno(infile), &stbuf) != 0) || (!S_ISREG(stbuf.st_mode))) {
+        error_program_log("Could not get filesize");
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    insize = (unsigned int)ftell(infile);
-
-    if (fseek(infile, 0, SEEK_SET) != 0) {
-        error_program_log("Seek error");
-
-        insize = 0;
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
+    insize = (unsigned int)stbuf.st_size;
 
     if (insize == 0) {
         error_program_log("`%s` is empty", filename);
