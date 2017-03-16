@@ -2,8 +2,6 @@
 #include <float.h>
 #include "nessemble.h"
 
-#define CRC_TABLE_SIZE 256
-
 /**
  * Calculate CRC-32
  * @param {unsigned int *} buffer - Data buffer

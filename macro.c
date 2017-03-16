@@ -3,9 +3,6 @@
 #include <string.h>
 #include "nessemble.h"
 
-#define MAX_MACRO_NAME 1024
-#define MAX_MACRO_TEXT 1024 * 1024
-
 void add_macro(char *name) {
     macros[macro_index].name = (char *)nessemble_malloc(sizeof(char) * MAX_MACRO_NAME);
     strcpy(macros[macro_index].name, name);
