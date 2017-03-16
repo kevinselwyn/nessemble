@@ -117,7 +117,7 @@ unsigned int get_json_url(char **value, char *key, char *url) {
     unsigned int rc = RETURN_OK, http_code = 0, text_length = 0;
     char *text = NULL;
 
-    switch ((http_code = get_request(&text, &text_length, url, MIMETYPE_JSON))) {
+    switch ((http_code = get_request(&text, &text_length, url, 1024 * 512, MIMETYPE_JSON))) {
     case 503:
         error_program_log("Could not reach the registry");
 
@@ -158,7 +158,7 @@ unsigned int get_json_search(char *url, char *term) {
     jsmn_parser parser;
     jsmntok_t tokens[JSON_TOKEN_MAX];
 
-    switch (get_request(&text, &text_length, url, MIMETYPE_JSON)) {
+    switch (get_request(&text, &text_length, url, 1024 * 512, MIMETYPE_JSON)) {
     case 503:
         error_program_log("Could not reach the registry");
 

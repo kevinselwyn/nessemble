@@ -620,8 +620,8 @@ unsigned int lib_list();
 unsigned int lib_search(char *term);
 
 /* DOWNLOAD */
-unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type);
-unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, char *mime_type, struct http_header http_headers);
+unsigned int get_request(char **request, unsigned int *request_length, char *url, unsigned int data_length, char *mime_type);
+unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, unsigned int data_length, char *mime_type, struct http_header http_headers);
 
 /* JSON */
 unsigned int get_json_buffer(char **value, char *key, char *json);

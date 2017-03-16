@@ -267,7 +267,7 @@ unsigned int lib_info(char *lib) {
             goto cleanup;
         }
 
-        http_code = get_request(&readme, &readme_length, readme_url, MIMETYPE_TEXT);
+        http_code = get_request(&readme, &readme_length, readme_url, 1024 * 512, MIMETYPE_TEXT);
 
         if (http_code != 200) {
             rc = RETURN_EPERM;

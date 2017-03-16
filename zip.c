@@ -176,7 +176,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     char *content = NULL;
 
     if (!cache_url || (strcmp(url, cache_url) != 0)) {
-        http_code = get_request(&content, &content_length, url, MIMETYPE_ZIP);
+        http_code = get_request(&content, &content_length, url, 1024 * 512, MIMETYPE_ZIP);
 
         switch (http_code) {
         case 503:
