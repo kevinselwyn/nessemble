@@ -185,7 +185,7 @@ unsigned int lib_install(char *lib) {
         goto cleanup;
     }
 
-    if ((rc = get_json(&lib_zip_url, "resource", lib_url)) != RETURN_OK) {
+    if ((rc = get_json_url(&lib_zip_url, "resource", lib_url)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -263,7 +263,7 @@ unsigned int lib_info(char *lib) {
             goto cleanup;
         }
 
-        if ((rc = get_json(&readme_url, "readme", lib_url)) != RETURN_OK) {
+        if ((rc = get_json_url(&readme_url, "readme", lib_url)) != RETURN_OK) {
             goto cleanup;
         }
 
@@ -302,8 +302,8 @@ cleanup:
 
 unsigned int lib_list() {
     unsigned int rc = RETURN_OK;
-    size_t length = 0;
-    char *lib_dir = NULL;
+    char path[1024];
+    char *lib_dir = NULL, *lib_path = NULL, *lib_desc = NULL;
     struct dirent *ep;
     DIR *dp = NULL;
     struct stat s;
@@ -312,27 +312,43 @@ unsigned int lib_list() {
         goto cleanup;
     }
 
-    dp = opendir(lib_dir);
-
-    if (!dp) {
+    if ((dp = opendir(lib_dir)) == NULL) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     while ((ep = readdir(dp)) != NULL) {
-        stat(ep->d_name, &s);
+        memset(path, '\0', 1024);
+        sprintf(path, "%s/%s", lib_dir, ep->d_name);
 
-        if ((s.st_mode & S_IFDIR) != 0) {
-            length = strlen(ep->d_name);
-
-            if (strcmp(ep->d_name + (length - 4), ".asm") != 0) {
-                continue;
-            }
-
-            ep->d_name[length - 4] = '\0';
-
-            printf("%s\n", ep->d_name);
+        if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0) {
+            continue;
         }
+
+        if (stat(path, &s) != 0) {
+            continue;
+        }
+
+        if (!S_ISDIR(s.st_mode)) {
+            continue;
+        }
+
+        printf("%s", ep->d_name);
+
+        if ((rc = get_lib_file_path(&lib_path, ep->d_name, "package.json")) != RETURN_OK) {
+            printf("\n");
+            continue;
+        }
+
+        if ((rc = get_json_file(&lib_desc, "description", lib_path)) != RETURN_OK) {
+            printf("\n");
+            continue;
+        }
+
+        printf(" - %s\n", lib_desc);
+
+        nessemble_free(lib_path);
+        nessemble_free(lib_desc);
     }
 
     UNUSED(closedir(dp));

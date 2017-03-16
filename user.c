@@ -103,7 +103,7 @@ unsigned int user_create() {
     }
 
     if (http_code != 200) {
-        if ((rc = get_json_value(&error, "error", response)) != RETURN_OK) {
+        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
             error_program_log("Could not read response");
         } else {
             error_program_log(error);
@@ -182,7 +182,7 @@ unsigned int user_login() {
     }
 
     if (http_code != 200) {
-        if ((rc = get_json_value(&error, "error", response)) != RETURN_OK) {
+        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
             error_program_log("Could not read response");
         } else {
             error_program_log(error);
@@ -192,7 +192,7 @@ unsigned int user_login() {
         goto cleanup;
     }
 
-    if ((rc = get_json_value(&token, "token", response)) != RETURN_OK) {
+    if ((rc = get_json_buffer(&token, "token", response)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -233,7 +233,7 @@ unsigned int user_logout() {
     }
 
     if (http_code != 200) {
-        if ((rc = get_json_value(&error, "error", response)) != RETURN_OK) {
+        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
             error_program_log("Could not read response");
         } else {
             error_program_log(error);

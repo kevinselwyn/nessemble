@@ -48,7 +48,7 @@ static unsigned int parse_text(char **output, char *text) {
     return rc;
 }
 
-unsigned int get_json_value(char **value, char *key, char *json) {
+unsigned int get_json_buffer(char **value, char *key, char *json) {
     int token_count = 0;
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0, string_length = 0;
@@ -96,7 +96,24 @@ cleanup:
     return rc;
 }
 
-unsigned int get_json(char **value, char *key, char *url) {
+unsigned int get_json_file(char **value, char *key, char *filename) {
+    unsigned int rc = RETURN_OK;
+    unsigned int file_length = 0;
+    char *file_data = NULL;
+
+    if ((rc = load_file(&file_data, &file_length, filename)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    rc = get_json_buffer(&*value, key, file_data);
+
+cleanup:
+    nessemble_free(file_data);
+
+    return rc;
+}
+
+unsigned int get_json_url(char **value, char *key, char *url) {
     unsigned int rc = RETURN_OK, http_code = 0, text_length = 0;
     char *text = NULL;
 
@@ -121,7 +138,7 @@ unsigned int get_json(char **value, char *key, char *url) {
         goto cleanup;
     }
 
-    if ((rc = get_json_value(&*value, key, text)) != RETURN_OK) {
+    if ((rc = get_json_buffer(&*value, key, text)) != RETURN_OK) {
         goto cleanup;
     }
 
