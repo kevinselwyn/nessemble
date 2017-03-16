@@ -95,7 +95,7 @@ unsigned int user_create() {
         goto cleanup;
     }
 
-    http_code = post_request(&response, &response_length, url, data, MIMETYPE_JSON, http_headers);
+    http_code = post_request(&response, &response_length, url, data, 1024, MIMETYPE_JSON, http_headers);
 
     if (!response || response_length == 0) {
         rc = RETURN_EPERM;
@@ -174,7 +174,7 @@ unsigned int user_login() {
         goto cleanup;
     }
 
-    http_code = post_request(&response, &response_length, url, data, MIMETYPE_JSON, http_headers);
+    http_code = post_request(&response, &response_length, url, data, 1024, MIMETYPE_JSON, http_headers);
 
     if (!response || response_length == 0) {
         rc = RETURN_EPERM;
@@ -225,7 +225,7 @@ unsigned int user_logout() {
         goto cleanup;
     }
 
-    http_code = post_request(&response, &response_length, url, "{}", MIMETYPE_JSON, http_headers);
+    http_code = post_request(&response, &response_length, url, "{}", 1024, MIMETYPE_JSON, http_headers);
 
     if (!response || response_length == 0) {
         rc = RETURN_EPERM;

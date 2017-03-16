@@ -14,14 +14,14 @@
 #include <netdb.h>
 #endif /* IS_WINDOWS */
 
-static unsigned int do_request(char **request, unsigned int *request_length, char *url, char *data, char *method, char *mime_type, struct http_header http_headers) {
+static unsigned int do_request(char **request, unsigned int *request_length, char *url, char *data, unsigned int data_length, char *method, char *mime_type, struct http_header http_headers) {
     unsigned int port = 80, protocol = PROTOCOL_HTTP;
     unsigned int i = 0, l = 0, index = 0;
     unsigned int code = 0, length = 0;
     int sockfd = 0, bytes = 0, sent = 0, received = 0, total = 0;
     int content_type_index = 0, response_index = 0, content_length_index = 0;
-    char message[2048], response[4096], code_str[4];
-    char *host = NULL, *uri = NULL;
+    char message[2048], code_str[4];
+    char *response = NULL, *host = NULL, *uri = NULL;
     char *output = NULL;
     struct hostent *server;
     struct sockaddr_in serv_addr;
@@ -159,8 +159,13 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
         sent += bytes;
     } while (sent < total);
 
-    memset(response, 0, sizeof(response));
-    total = (int)sizeof(response) - 1;
+    if (data_length == 0) {
+        data_length = 4096;
+    }
+
+    response = (char *)malloc(sizeof(char) * data_length);
+
+    total = data_length;
     received = 0;
 
     timeout.tv_sec = 1;
@@ -261,12 +266,12 @@ cleanup:
     return code;
 }
 
-unsigned int get_request(char **request, unsigned int *request_length, char *url, char *mime_type) {
+unsigned int get_request(char **request, unsigned int *request_length, char *url, unsigned int data_length, char *mime_type) {
     struct http_header http_headers = { 0, {}, {} };
 
-    return do_request(&*request, request_length, url, NULL, "GET", mime_type, http_headers);
+    return do_request(&*request, request_length, url, NULL, data_length, "GET", mime_type, http_headers);
 }
 
-unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, char *mime_type, struct http_header http_headers) {
-    return do_request(&*request, request_length, url, data, "POST", mime_type, http_headers);
+unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, unsigned int data_length, char *mime_type, struct http_header http_headers) {
+    return do_request(&*request, request_length, url, data, data_length, "POST", mime_type, http_headers);
 }
