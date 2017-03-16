@@ -156,10 +156,9 @@ char *nessemble_getpass(const char *prompt) {
 
 char *nessemble_realpath(const char *path, char *resolved_path) {
 #ifdef IS_WINDOWS
-    int rc = RETURN_OK;
     char *lppPart = NULL;
 
-    if ((rc = GetFullPathName(path, 1024, resolved_path, &lppPart)) == 0) {
+    if (GetFullPathName(path, 1024, resolved_path, &lppPart) == 0) {
         return NULL;
     }
 

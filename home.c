@@ -4,7 +4,6 @@
 
 #ifdef IS_WINDOWS
 #include <windows.h>
-#include <shlobj.h>
 #else /* IS_WINDOWS */
 #include <pwd.h>
 #endif /* IS_WINDOWS */
