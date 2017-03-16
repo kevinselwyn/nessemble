@@ -18,8 +18,6 @@ def test_generator(filename):
     """Test generator"""
 
     def test(self):
-        """Specific test"""
-
         child = subprocess.Popen(['python', filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         data = child.communicate()[0]
         rc = child.returncode
