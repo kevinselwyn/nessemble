@@ -329,11 +329,7 @@ int main(int argc, char *argv[]) {
     if (!outfilename || strcmp(outfilename, "-") == 0) {
         nessemble_free(outfilename);
 
-#ifdef IS_WINDOWS
-        outfilename = nessemble_strdup("CON");
-#else /* IS_WINDOWS */
-        outfilename = nessemble_strdup(SEP "dev" SEP "stdout");
-#endif /* IS_WINDOWS */
+        outfilename = nessemble_strdup(STDOUT_FILE);
     }
 
     if (!outfilename) {
