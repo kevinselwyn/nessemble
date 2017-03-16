@@ -624,8 +624,9 @@ unsigned int get_request(char **request, unsigned int *request_length, char *url
 unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, char *mime_type, struct http_header http_headers);
 
 /* JSON */
-unsigned int get_json_value(char **value, char *key, char *json);
-unsigned int get_json(char **value, char *key, char *filename);
+unsigned int get_json_buffer(char **value, char *key, char *json);
+unsigned int get_json_file(char **value, char *key, char *filename);
+unsigned int get_json_url(char **value, char *key, char *filename);
 unsigned int get_json_search(char *url, char *term);
 
 /* ZIP */
