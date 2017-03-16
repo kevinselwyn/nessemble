@@ -12,14 +12,23 @@
 /* PLATFORMS */
 #if defined(WIN32) || defined(_WIN32) || (__MINGW32__)
 #define IS_WINDOWS
+#define SEP         "\\"
+#define SEP_CHAR    '\\'
+#define STDOUT_FILE "CON"
 #endif /* WIN32 || _WIN32 || __MINGW32__ */
 
 #if defined(__linux__)
 #define IS_LINUX
+#define SEP         "/"
+#define SEP_CHAR    '/'
+#define STDOUT_FILE SEP "dev" SEP "stdout"
 #endif /* __linux__ */
 
 #if defined(__APPLE__)
 #define IS_MAC
+#define SEP         "/"
+#define SEP_CHAR    '/'
+#define STDOUT_FILE SEP "dev" SEP "stdout"
 #endif /* __APPLE__ */
 
 /* UNUSED */
@@ -39,15 +48,6 @@
 #ifndef FALSE
 #define FALSE 0
 #endif /* FALSE */
-
-/* SEPARATORS */
-#ifdef IS_WINDOWS
-#define SEP      "\\"
-#define SEP_CHAR '\\'
-#else /* IS_WINDOWS */
-#define SEP      "/"
-#define SEP_CHAR '/'
-#endif /* IS_WINDOWS */
 
 /* MATH */
 #define PI 3.14159265358979323846
@@ -553,10 +553,6 @@ float easeOutBounce(float t, float b, float c, float d);
 float easeInOutBounce(float t, float b, float c, float d);
 
 /* UTILS */
-#ifdef IS_WINDOWS
-//int clock_gettime(int X, struct timeval *tv);
-#endif /* IS_WINDOWS */
-
 void *nessemble_malloc(size_t size);
 void nessemble_free(void *ptr);
 void nessemble_fclose(FILE *file);

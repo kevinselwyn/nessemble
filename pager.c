@@ -5,13 +5,14 @@
 
 unsigned int pager_buffer(char *buffer) {
     unsigned int rc = RETURN_OK;
-    int pfds[2] = { 0, 0 };
-    char *arguments[2];
-    pid_t pid;
 
 #ifdef IS_WINDOWS
     printf("%s", buffer);
 #else /* IS_WINDOWS */
+    int pfds[2] = { 0, 0 };
+    char *arguments[2];
+    pid_t pid;
+
     if (pipe(pfds) < 0) {
         printf("%s", buffer);
         goto cleanup;
@@ -41,9 +42,10 @@ unsigned int pager_buffer(char *buffer) {
         printf("%s", buffer);
         rc = RETURN_OK;
     }
-#endif /* IS_WINDOWS */
 
 cleanup:
+#endif /* IS_WINDOWS */
+
     return rc;
 }
 
