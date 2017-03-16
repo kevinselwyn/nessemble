@@ -50,7 +50,8 @@
 #endif /* FALSE */
 
 /* MATH */
-#define PI 3.14159265358979323846
+#define PI             3.14159265358979323846
+#define CRC_TABLE_SIZE 256
 
 /* RETURN CODES */
 #define RETURN_OK    0
@@ -136,6 +137,25 @@
 #define IF_IFDEF  1
 #define IF_IFNDEF 2
 
+/* JSON */
+#define JSON_TOKEN_MAX 128
+
+/* LIST */
+#define CONSTANTS       "[constants]"
+#define LABELS          "[labels]"
+#define MAX_LIST_COUNT  65536
+#define MAX_LIST_LENGTH 256
+
+/* CONFIG */
+#define CONFIG_FILENAME    "config"
+#define CONFIG_LINE_COUNT  10
+#define CONFIG_LINE_LENGTH 256
+#define CONFIG_TYPES       1
+
+/* MACRO */
+#define MAX_MACRO_NAME 1024
+#define MAX_MACRO_TEXT 1024 * 1024
+
 /* SIMULATE */
 #define REGISTER_A  1
 #define REGISTER_X  2
@@ -154,6 +174,16 @@
 #define USAGE_FLAG_COUNT            14
 #define USAGE_COMMAND_COUNT         12
 #define SIMULATION_USAGE_FLAG_COUNT 16
+
+/* ZIP */
+#define TAR_BLOCK_SIZE 512
+#define ZIP_BUF_SIZE   512 * 1024
+#define ZIP_INSIZE     (1 << 12)
+#define ZIP_OUTSIZE    (1 << 16)
+
+/* PNG */
+#define COLOR_COUNT_2BIT 0x04
+#define COLOR_COUNT_FULL 0x40
 
 /* MAYBE UNDEFINED */
 #ifndef CLOCK_MONOTONIC

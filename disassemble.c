@@ -5,10 +5,6 @@
 #include "nessemble.h"
 #include "png.h"
 
-#define _GNU_SOURCE
-#include <stdlib.h>
-int fileno(FILE *file);
-
 static unsigned int reassemblable = FALSE;
 static unsigned int disassemble_ines_header = FALSE;
 static unsigned int disassemble_inesprg = 0;

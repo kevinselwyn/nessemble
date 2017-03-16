@@ -6,11 +6,6 @@
 #include <sys/stat.h>
 #include "nessemble.h"
 
-#define CONFIG_FILENAME    "config"
-#define CONFIG_LINE_COUNT  10
-#define CONFIG_LINE_LENGTH 256
-#define CONFIG_TYPES       1
-
 struct config_type {
     char *type;
 };

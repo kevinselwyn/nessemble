@@ -8,14 +8,6 @@
 
 #ifdef IS_WINDOWS
 #include <windows.h>
-#else /* IS_WINDOWS */
-#include <string.h>
-char *strstr(const char *haystack, const char *needle);
-#define _GNU_SOURCE
-#include <string.h>
-int fileno(FILE *file);
-char *strcasestr(const char *haystack, const char *needle);
-char *realpath(const char *path, char *resolved_path);
 #endif /* IS_WINDOWS */
 
 void *nessemble_malloc(size_t size) {

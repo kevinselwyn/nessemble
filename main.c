@@ -6,10 +6,6 @@
 #include <getopt.h>
 #include "nessemble.h"
 
-#define _GNU_SOURCE
-#include <stdlib.h>
-int fileno(FILE *file);
-
 /**
  * Main function
  * @param {int} argc - Argument count

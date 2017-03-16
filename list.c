@@ -3,12 +3,6 @@
 #include <string.h>
 #include "nessemble.h"
 
-#define MAX_LIST_COUNT  65536
-#define MAX_LIST_LENGTH 256
-
-#define CONSTANTS "[constants]"
-#define LABELS    "[labels]"
-
 static unsigned int list_index = 0;
 static char *list_strings[MAX_LIST_COUNT];
 

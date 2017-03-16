@@ -4,13 +4,7 @@
 #include "nessemble.h"
 #include "third-party/udeflate/deflate.h"
 
-#define ZIP_BUF_SIZE   512 * 1024
-#define TAR_BLOCK_SIZE 512
-
-#define IN_SIZE  (1 << 12)
-#define OUT_SIZE (1 << 16)
-
-static char input[IN_SIZE], output[OUT_SIZE];
+static char input[ZIP_INSIZE], output[ZIP_OUTSIZE];
 
 static unsigned int i_in, i_out;
 
@@ -20,7 +14,7 @@ unsigned int cache_content_length = 0;
 int udeflate_read_bits(int n_bits) {
     int next = 0, i = 0, ret = 0;
 
-    if ((((i_in + n_bits + 7) & (~7)) >> 3) > (unsigned int)IN_SIZE) {
+    if ((((i_in + n_bits + 7) & (~7)) >> 3) > (unsigned int)ZIP_INSIZE) {
 		return -EINVAL;
     }
 
@@ -35,7 +29,7 @@ int udeflate_read_bits(int n_bits) {
 int udeflate_read_huffman_bits(int n_bits) {
     int next = 0, i = 0, ret = 0;
 
-	if ((((i_in + n_bits + 7) & (~7)) >> 3) > (unsigned int)IN_SIZE) {
+	if ((((i_in + n_bits + 7) & (~7)) >> 3) > (unsigned int)ZIP_INSIZE) {
 		return -EINVAL;
     }
 
@@ -50,7 +44,7 @@ int udeflate_read_huffman_bits(int n_bits) {
 int udeflate_peek_huffman_bits(int n_bits) {
     int next = 0, i = 0, tmp_i_in = 0, ret = 0;
 
-	if ((((i_in + n_bits + 7) & (~7)) >> 3) > (unsigned int)IN_SIZE) {
+	if ((((i_in + n_bits + 7) & (~7)) >> 3) > (unsigned int)ZIP_INSIZE) {
 		return -EINVAL;
     }
 
@@ -67,7 +61,7 @@ int udeflate_peek_huffman_bits(int n_bits) {
 int udeflate_read_next_byte() {
     int ret = 0;
 
-	if ((((i_in + 7) & (~7)) >> 3) + 1 > (unsigned int)IN_SIZE) {
+	if ((((i_in + 7) & (~7)) >> 3) + 1 > (unsigned int)ZIP_INSIZE) {
 		return -EINVAL;
     }
 
@@ -81,7 +75,7 @@ int udeflate_read_next_byte() {
 }
 
 int udeflate_write_byte(uint8_t data) {
-	if ((i_out + 1) > (unsigned int)OUT_SIZE) {
+	if ((i_out + 1) > (unsigned int)ZIP_OUTSIZE) {
 		return -EOVERFLOW;
     }
 
@@ -94,7 +88,7 @@ int udeflate_write_match(uint16_t len, uint16_t dist) {
     int i = 0;
     char *ptr = NULL;
 
-	if ((i_out + (unsigned int)len) > (unsigned int)OUT_SIZE) {
+	if ((i_out + (unsigned int)len) > (unsigned int)ZIP_OUTSIZE) {
 		return -EOVERFLOW;
     }
 
@@ -112,11 +106,11 @@ int udeflate_write_match(uint16_t len, uint16_t dist) {
 }
 
 int udeflate_write_input_bytes(uint16_t len) {
-	if ((i_out + (unsigned int)len) > (unsigned int)OUT_SIZE) {
+	if ((i_out + (unsigned int)len) > (unsigned int)ZIP_OUTSIZE) {
 		return -EOVERFLOW;
     }
 
-	if (((i_in >> 3) + (unsigned int)len) > (unsigned int)IN_SIZE) {
+	if (((i_in >> 3) + (unsigned int)len) > (unsigned int)ZIP_INSIZE) {
 		return -EINVAL;
     }
 
@@ -236,8 +230,8 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
     i_in = 0;
     i_out = 0;
-    memset(input, '\0', IN_SIZE);
-    memset(output, '\0', OUT_SIZE);
+    memset(input, '\0', ZIP_INSIZE);
+    memset(output, '\0', ZIP_OUTSIZE);
 
 cleanup:
     nessemble_free(content);

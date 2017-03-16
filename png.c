@@ -10,10 +10,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "third-party/stb/stb_image_write.h"
 
-#define COLOR_COUNT_1BPS 0x04
-#define COLOR_COUNT_FULL 0x40
-
-static int colors_1bps[COLOR_COUNT_1BPS] = { 0x00, 0x55, 0xAA, 0xFF };
+static int colors_1bps[COLOR_COUNT_2BIT] = { 0x00, 0x55, 0xAA, 0xFF };
 static int colors_full[COLOR_COUNT_FULL] = {
     0x7C7C7C, 0x0000FC, 0x0000BC, 0x4428BC, 0x940084, 0xA80020, 0xA81000, 0x881400,
     0x503000, 0x007800, 0x006800, 0x005800, 0x004058, 0x000000, 0x000000, 0x000000,
@@ -74,7 +71,7 @@ int get_color(unsigned char *rgb, int color_mode) {
 
     avg /= color_mode;
 
-    for (i = 0, l = COLOR_COUNT_1BPS; i < l; i++) {
+    for (i = 0, l = COLOR_COUNT_2BIT; i < l; i++) {
         if (abs(colors_1bps[i] - avg) < diff) {
             diff = abs(colors_1bps[i] - avg);
             color = i;
