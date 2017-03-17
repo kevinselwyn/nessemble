@@ -15,7 +15,8 @@ int main(int argc, char *argv[]) {
     int option_index = 0, c = 0, empty_byte = 0xFF;
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0, byte = 0, piped = FALSE;
-    char *exec = NULL, *filename = NULL, *outfilename = NULL, *listname = NULL, *recipe = NULL;
+    char *exec = NULL, *filename = NULL, *outfilename = NULL;
+    char *listname = NULL, *recipe = NULL;
     char *registry = NULL, *config = NULL;
     FILE *file = NULL, *outfile = NULL;
 
@@ -24,7 +25,7 @@ int main(int argc, char *argv[]) {
 
     // parse args
     while (TRUE == 1) {
-        c = getopt_long(argc, argv, "cCde:f:hlLo:rRsuv", commandline_options, &option_index);
+        c = getopt_long(argc, argv, "cCde:f:hlLo:p:rRsuv", commandline_options, &option_index);
 
         if (c == -1) {
             break;
@@ -74,6 +75,14 @@ int main(int argc, char *argv[]) {
             }
 
             listname = nessemble_strdup(optarg);
+            break;
+        case 'p':
+            if (optarg == NULL) {
+                rc = usage(exec);
+                goto cleanup;
+            }
+
+            pseudoname = nessemble_strdup(optarg);
             break;
         case 'c':
             flags |= FLAG_CHECK;
@@ -529,6 +538,7 @@ cleanup:
     nessemble_free(outfilename);
     nessemble_free(cwd_path);
     nessemble_free(listname);
+    nessemble_free(pseudoname);
     nessemble_free(registry);
     nessemble_free(config);
     nessemble_fclose(file);

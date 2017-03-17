@@ -215,3 +215,45 @@ int has_label(char *name) {
 
     return FALSE;
 }
+
+unsigned int pseudo_parse(char **exec, char *pseudo) {
+    unsigned int rc = RETURN_OK;
+    size_t pseudo_length = 0;
+    char buffer[1024], *val = NULL, *output = NULL;
+    FILE *pseudo_file = NULL;
+
+    pseudo_file = fopen(pseudoname, "r");
+
+    if (!pseudo_file) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    pseudo_length = strlen(pseudo);
+
+    while (fgets(buffer, 1024, pseudo_file) != NULL) {
+        if (strncmp(buffer, pseudo, pseudo_length) == 0) {
+            val = nessemble_strdup(buffer+(pseudo_length + 3));
+        }
+    }
+
+    pseudo_length = strlen(val);
+
+    if (val[pseudo_length - 1] == '\n') {
+        val[pseudo_length - 1] = '\0';
+        pseudo_length -= 1;
+    }
+
+    pseudo_length += strlen(cwd_path) + 1;
+
+    output = (char *)nessemble_malloc(sizeof(char) * (pseudo_length + 1));
+
+    sprintf(output, "%s/%s", cwd_path, val);
+
+cleanup:
+    *exec = output;
+
+    nessemble_free(val);
+
+    return rc;
+}
