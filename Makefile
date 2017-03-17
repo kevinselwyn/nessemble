@@ -101,7 +101,7 @@ $(EXEC): $(OBJS) $(HDRS)
 	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_LIB_FLAGS)
 
 test: all
-	@./test.sh
+	@python test.py
 
 splint: all
 	splint -I/usr/include -I/usr/include/x86_64-linux-gnu -warnposix $(FLAGS) $(FILES)
