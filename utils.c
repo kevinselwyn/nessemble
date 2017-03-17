@@ -407,7 +407,7 @@ unsigned int get_libpath(char **path, char *string) {
 
     strcpy(fullpath, home);
     strcat(fullpath, SEP "." PROGRAM_NAME SEP);
-    strncat(fullpath, string + 1, string_length - 2);
+    strncat(fullpath, string + 1, string_length - 6);
     strcat(fullpath, SEP "lib.asm");
 
     if (access(fullpath, F_OK) == -1) {
