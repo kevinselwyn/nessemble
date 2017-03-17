@@ -6,7 +6,7 @@
 static unsigned int api_endpoint(char **url, unsigned int num, ...) {
     unsigned int rc = RETURN_EPERM;
     unsigned int i = 0, l = 0, length = 0;
-    char *registry = NULL, *output = NULL;
+    char *arg = NULL, *registry = NULL, *output = NULL;
     va_list argptr;
 
     if ((rc = get_registry(&registry)) != RETURN_OK) {
@@ -27,8 +27,18 @@ static unsigned int api_endpoint(char **url, unsigned int num, ...) {
 
     va_start(argptr, num);
 
-    for (i = 0, l = num; i < l; i++) {
-        sprintf(output+strlen(output), "/%s", va_arg(argptr, char *));
+    if (num > 0) {
+        for (i = 0, l = num; i < l; i++) {
+            arg = va_arg(argptr, char *);
+
+            if (arg[0] == '.') {
+                sprintf(output+strlen(output), "%s", arg);
+            } else {
+                sprintf(output+strlen(output), "/%s", arg);
+            }
+        }
+    } else {
+        sprintf(output+strlen(output), "/");
     }
 
     va_end(argptr);
@@ -45,6 +55,28 @@ unsigned int api_user(char **url, char *endpoint) {
     unsigned int rc = RETURN_OK;
 
     if ((rc = api_endpoint(&*url, 2, "user", endpoint)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+cleanup:
+    return rc;
+}
+
+unsigned int api_lib(char **url, char *lib) {
+    unsigned int rc = RETURN_OK;
+
+    if ((rc = api_endpoint(&*url, 2, lib, ".json")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+cleanup:
+    return rc;
+}
+
+unsigned int api_search(char **url, char *term) {
+    unsigned int rc = RETURN_OK;
+
+    if ((rc = api_endpoint(&*url, term && term[0] != '.' ? 2 : 0, "search", term)) != RETURN_OK) {
         goto cleanup;
     }
 

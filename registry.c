@@ -39,56 +39,6 @@ unsigned int set_registry(char *registry) {
     return rc;
 }
 
-static unsigned int get_lib_url(char **lib_url, char *lib) {
-    unsigned int rc = RETURN_OK;
-    size_t length_registry = 0, length_lib = 0;
-    char *registry = NULL, *path = NULL;
-
-    if ((rc = get_registry(&registry)) != RETURN_OK) {
-        goto cleanup;
-    }
-
-    length_registry = strlen(registry);
-    length_lib = strlen(lib);
-    path = (char *)nessemble_malloc(sizeof(char) * (length_registry + length_lib + 6) + 1);
-
-    sprintf(path, "%s/%s.json", registry, lib);
-
-    *lib_url = path;
-
-cleanup:
-    nessemble_free(registry);
-
-    return rc;
-}
-
-static unsigned int get_lib_search_url(char **lib_search_url, char *term) {
-    unsigned int rc = RETURN_OK;
-    size_t length_registry = 0, length_lib = 0;
-    char *registry = NULL, *path = NULL;
-
-    if ((rc = get_registry(&registry)) != RETURN_OK) {
-        goto cleanup;
-    }
-
-    length_registry = strlen(registry);
-    length_lib = strlen(term);
-    path = (char *)nessemble_malloc(sizeof(char) * (length_registry + length_lib + 8) + 1);
-
-    if (strcmp(term, ".") == 0) {
-        sprintf(path, "%s/", registry);
-    } else {
-        sprintf(path, "%s/search/%s", registry, term);
-    }
-
-    *lib_search_url = path;
-
-cleanup:
-    nessemble_free(registry);
-
-    return rc;
-}
-
 static unsigned int get_lib_dir(char **lib_dir) {
     unsigned int rc = RETURN_OK;
     size_t length = 0;
@@ -181,7 +131,7 @@ unsigned int lib_install(char *lib) {
     char *lib_url = NULL, *lib_path = NULL, *lib_path_file = NULL, *lib_zip_url = NULL, *lib_data = NULL;
     FILE *lib_file = NULL;
 
-    if ((rc = get_lib_url(&lib_url, lib)) != RETURN_OK) {
+    if ((rc = api_lib(&lib_url, lib)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -259,7 +209,7 @@ unsigned int lib_info(char *lib) {
     char *lib_url = NULL, *readme = NULL, *readme_url = NULL;
 
     if (lib_is_installed(lib) == FALSE) {
-        if ((rc = get_lib_url(&lib_url, lib)) != RETURN_OK) {
+        if ((rc = api_lib(&lib_url, lib)) != RETURN_OK) {
             goto cleanup;
         }
 
@@ -363,7 +313,7 @@ unsigned int lib_search(char *term) {
     unsigned int rc = RETURN_OK;
     char *lib_search_url = NULL;
 
-    if ((rc = get_lib_search_url(&lib_search_url, term)) != RETURN_OK) {
+    if ((rc = api_search(&lib_search_url, term)) != RETURN_OK) {
         goto cleanup;
     }
 
