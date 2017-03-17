@@ -613,6 +613,8 @@ char *get_line(char **buffer, char *prompt);
 
 /* API */
 unsigned int api_user(char **url, char *endpoint);
+unsigned int api_lib(char **url, char *lib);
+unsigned int api_search(char **url, char *term);
 
 /* LIST */
 unsigned int output_list(char *filename);
