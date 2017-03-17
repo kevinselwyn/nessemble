@@ -2,29 +2,6 @@
 #include <unistd.h>
 #include "nessemble.h"
 
-static unsigned int user_url(char **url, char *endpoint) {
-    unsigned int rc = RETURN_OK;
-    size_t length_registry = 0, length_endpoint = 0;
-    char *registry = NULL, *path = NULL;
-
-    if ((rc = get_registry(&registry)) != RETURN_OK) {
-        goto cleanup;
-    }
-
-    length_registry = strlen(registry);
-    length_endpoint = strlen(endpoint);
-    path = (char *)nessemble_malloc(sizeof(char) * (length_registry + length_endpoint + 6) + 1);
-
-    sprintf(path, "%s/user/%s", registry, endpoint);
-
-    *url = path;
-
-cleanup:
-    nessemble_free(registry);
-
-    return rc;
-}
-
 static unsigned int user_auth(struct http_header *http_headers) {
     unsigned int rc = RETURN_OK;
     char *token = NULL;
@@ -91,7 +68,7 @@ unsigned int user_create() {
 
     sprintf(data, "{\n\t\"name\":\"%s\",\n\t\"email\":\"%s\",\n\t\"password\":\"%s\"\n}", user_name, user_email, user_password);
 
-    if ((rc = user_url(&url, "create")) != RETURN_OK) {
+    if ((rc = api_user(&url, "create")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -170,7 +147,7 @@ unsigned int user_login() {
     http_headers.keys[http_headers.count] = "Authorization";
     http_headers.vals[http_headers.count++] = nessemble_strdup(auth);
 
-    if ((rc = user_url(&url, "login")) != RETURN_OK) {
+    if ((rc = api_user(&url, "login")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -221,7 +198,7 @@ unsigned int user_logout() {
         goto cleanup;
     }
 
-    if ((rc = user_url(&url, "logout")) != RETURN_OK) {
+    if ((rc = api_user(&url, "logout")) != RETURN_OK) {
         goto cleanup;
     }
 
