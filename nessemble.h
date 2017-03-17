@@ -611,6 +611,9 @@ unsigned int tmp_save(FILE *file, char *filename);
 void tmp_delete(char *filename);
 char *get_line(char **buffer, char *prompt);
 
+/* API */
+unsigned int api_user(char **url, char *endpoint);
+
 /* LIST */
 unsigned int output_list(char *filename);
 unsigned int input_list(char *filename);
