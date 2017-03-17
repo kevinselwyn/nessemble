@@ -103,6 +103,7 @@ int include_stack_ptr = 0;
 ".rs"                      { return PSEUDO_RS; }
 ".segment"                 { return PSEUDO_SEGMENT; }
 ".word"                    { return PSEUDO_WORD; }
+\.[a-zA-Z]+                { yylval.sval = nessemble_strdup(yytext); return PSEUDO_CUSTOM; }
 
 <include>[ \t]*            { /* WHITESPACE */ }
 <include>[^ \t\n]+         { BEGIN(INITIAL); yylval.sval = nessemble_strdup(yytext); return QUOT_STRING; }

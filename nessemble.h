@@ -178,7 +178,7 @@
 #define FLG_CARRY     7
 
 /* USAGE */
-#define USAGE_FLAG_COUNT            14
+#define USAGE_FLAG_COUNT            15
 #define USAGE_COMMAND_COUNT         12
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
@@ -281,6 +281,9 @@ struct macro macros[MAX_MACROS];
 unsigned int macro_index;
 unsigned int length_args;
 unsigned int args[MAX_ARGS];
+
+/* PSEUDO */
+char *pseudoname;
 
 /* INCLUDE */
 char filename_stack[MAX_INCLUDE_DEPTH][PATH_MAX];
@@ -432,6 +435,8 @@ void pseudo_random();
 void pseudo_rsset(unsigned int address);
 void pseudo_rs(char *label, int size);
 void pseudo_segment(char *string);
+void pseudo_custom(char *pseudo);
+unsigned int pseudo_parse(char **exec, char *pseudo);
 
 /* OPCODE UTILS */
 int get_opcode(char *mnemonic, unsigned int mode);
