@@ -44,8 +44,10 @@ endif
 
 debug: CC_FLAGS += -g
 
-js: EXEC := $(NAME).js
-js: CC   := emcc
+js: EXEC         := $(NAME).js
+js: CC           := emcc
+js: CC_FLAGS     := -Wall -Wextra
+js: CC_LIB_FLAGS :=
 
 win32: EXEC     := $(NAME).exe
 win32: CC       := i686-w64-mingw32-gcc
