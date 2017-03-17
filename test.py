@@ -22,9 +22,6 @@ def test_generator(filename):
         data = child.communicate()[0]
         rc = child.returncode
 
-        if rc != 0:
-            print data
-
         self.assertEqual(rc, 0)
 
     return test
