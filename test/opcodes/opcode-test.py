@@ -54,8 +54,8 @@ def main():
         exit(1)
 
     # assemble
-    if os.path.exists('%s/%s/%s.rom' % (dirname, opcode, opcode)):
-        arguments = ['%s/nessemble' % (root), '%s/%s/%s.asm' % (dirname, opcode, opcode), '--output', '-']
+    if os.path.exists('%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode)):
+        arguments = ['%s%snessemble' % (root, os.sep), '%s%s%s%s%s.asm' % (dirname, os.sep, opcode, os.sep, opcode), '--output', '-']
         if flag:
             arguments.append(flag)
 
@@ -74,7 +74,7 @@ def main():
         tmp.write(data)
         tmp.seek(0)
 
-        if not filecmp.cmp('%s/%s/%s.rom' % (dirname, opcode, opcode), tmp.name):
+        if not filecmp.cmp('%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode), tmp.name):
             tmp.close()
             print 'failed assembly'
             exit(1)
@@ -83,7 +83,7 @@ def main():
 
         # assemble (valgrind)
         if valgrind:
-            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s/suppressions.supp' % (root), '--error-exitcode=2', '-q', '%s/nessemble' % (root), '%s/%s/%s.asm' % (dirname, opcode, opcode), '--output', '-']
+            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '%s%s%s%s%s.asm' % (dirname, os.sep, opcode, os.sep, opcode), '--output', '-']
             if flag:
                 arguments.append(flag)
 
@@ -96,8 +96,8 @@ def main():
                 exit(rc)
 
     # disassemble
-    if os.path.exists('%s/%s/%s-disassembled.txt' % (dirname, opcode, opcode)):
-        arguments = ['%s/nessemble' % (root), '%s/%s/%s.rom' % (dirname, opcode, opcode), '--disassemble', '--output', '-']
+    if os.path.exists('%s%s%s%s%s-disassembled.txt' % (dirname, os.sep, opcode, os.sep, opcode)):
+        arguments = ['%s%snessemble' % (root, os.sep), '%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode), '--disassemble', '--output', '-']
         if flag:
             arguments.append(flag)
 
@@ -116,7 +116,7 @@ def main():
         tmp.write(data)
         tmp.seek(0)
 
-        if not filecmp.cmp('%s/%s/%s-disassembled.txt' % (dirname, opcode, opcode), tmp.name):
+        if not filecmp.cmp('%s%s%s%s%s-disassembled.txt' % (dirname, os.sep, opcode, os.sep, opcode), tmp.name):
             tmp.close()
             print 'failed disassembly'
             exit(1)
@@ -125,7 +125,7 @@ def main():
 
         # disassemble (valgrind)
         if valgrind:
-            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s/suppressions.supp' % (root), '--error-exitcode=2', '-q', '%s/nessemble' % (root), '%s/%s/%s.rom' % (dirname, opcode, opcode), '--disassemble', '--output', '-']
+            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode), '--disassemble', '--output', '-']
             if flag:
                 arguments.append(flag)
 
@@ -138,8 +138,8 @@ def main():
                 exit(rc)
 
     # simulate
-    if os.path.exists('%s/%s/%s-simulated.txt' % (dirname, opcode, opcode)):
-        arguments = ['%s/nessemble' % (root), '--simulate', '%s/%s/%s.rom' % (dirname, opcode, opcode), '--recipe', '%s/%s/%s-recipe.txt' % (dirname, opcode, opcode), '--output', '-']
+    if os.path.exists('%s%s%s%s%s-simulated.txt' % (dirname, os.sep, opcode, os.sep, opcode)):
+        arguments = ['%s%snessemble' % (root, os.sep), '--simulate', '%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode), '--recipe', '%s%s%s%s%s-recipe.txt' % (dirname, os.sep, opcode, os.sep, opcode), '--output', '-']
         if flag:
             arguments.append(flag)
 
@@ -158,7 +158,7 @@ def main():
         tmp.write(data)
         tmp.seek(0)
 
-        if not filecmp.cmp('%s/%s/%s-simulated.txt' % (dirname, opcode, opcode), tmp.name):
+        if not filecmp.cmp('%s%s%s%s%s-simulated.txt' % (dirname, os.sep, opcode, os.sep, opcode), tmp.name):
             tmp.close()
             print 'failed simulation'
             exit(1)
@@ -167,7 +167,7 @@ def main():
 
         # simulate (valgrind)
         if valgrind:
-            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s/suppressions.supp' % (root), '--error-exitcode=2', '-q', '%s/nessemble' % (root), '--simulate', '%s/%s/%s.rom' % (dirname, opcode, opcode), '--recipe', '%s/%s/%s-recipe.txt' % (dirname, opcode, opcode), '--output', '-']
+            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '--simulate', '%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode), '--recipe', '%s%s%s%s%s-recipe.txt' % (dirname, os.sep, opcode, os.sep, opcode), '--output', '-']
             if flag:
                 arguments.append(flag)
 
