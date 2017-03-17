@@ -11,7 +11,9 @@ unsigned int get_registry(char **registry) {
     size_t length = 0;
     char *result = NULL;
 
-    rc = get_config(&result, "registry");
+    if ((rc = get_config(&result, "registry")) != RETURN_OK) {
+        goto cleanup;
+    }
 
     length = strlen(result);
 
@@ -19,6 +21,7 @@ unsigned int get_registry(char **registry) {
         result[length - 1] = '\0';
     }
 
+cleanup:
     *registry = result;
 
     return rc;

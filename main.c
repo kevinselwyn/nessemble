@@ -157,11 +157,12 @@ int main(int argc, char *argv[]) {
             if (optind + 1 < argc) {
                 rc = set_registry(argv[optind+1]);
             } else {
-                rc = get_registry(&registry);
-
-                if (registry) {
-                    printf("%s\n", registry);
+                if ((rc = get_registry(&registry)) != RETURN_OK) {
+                    printf("No registry set\n");
+                    goto cleanup;
                 }
+
+                printf("%s\n", registry);
             }
 
             goto cleanup;
