@@ -410,7 +410,7 @@ unsigned int get_libpath(char **path, char *string) {
     strncat(fullpath, string + 1, string_length - 6);
     strcat(fullpath, SEP "lib.asm");
 
-    if (access(fullpath, F_OK) == -1) {
+    if (file_exists(fullpath) == FALSE) {
         rc = RETURN_EPERM;
     }
 
@@ -420,6 +420,17 @@ cleanup:
     nessemble_free(home);
 
     return rc;
+}
+
+unsigned int file_exists(char *filename) {
+    unsigned int exists = FALSE;
+    struct stat buffer;
+
+    if (stat(filename, &buffer) == 0) {
+        exists = TRUE;
+    }
+
+    return exists;
 }
 
 /**

@@ -117,7 +117,7 @@ unsigned int init() {
         goto cleanup;
     }
 
-    if (access(input_filename, F_OK) != -1) {
+    if (file_exists(input_filename) == TRUE) {
         while (answer != 'y' && answer != 'Y') {
             printf("`%s` already exists. Overwrite? [Yn] ", input_filename);
 

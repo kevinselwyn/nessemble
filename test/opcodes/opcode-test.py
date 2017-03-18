@@ -44,7 +44,7 @@ def main():
         exit(1)
 
     try:
-        flags = sys.argv[2]
+        flags = sys.argv[2:]
     except IndexError:
         flags = None
 
