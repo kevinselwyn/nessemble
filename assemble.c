@@ -216,7 +216,7 @@ int has_label(char *name) {
     return FALSE;
 }
 
-unsigned int pseudo_parse(char **exec, char *pseudo) {
+unsigned int pseudo_parse(char **exec, char *pseudo, unsigned int *so) {
     unsigned int rc = RETURN_OK;
     size_t pseudo_length = 0;
     char buffer[1024], *val = NULL, *output = NULL;
@@ -244,11 +244,15 @@ unsigned int pseudo_parse(char **exec, char *pseudo) {
         pseudo_length -= 1;
     }
 
+    if (strcmp(val+(pseudo_length - 3), ".so") == 0) {
+        *so = TRUE;
+    }
+
     pseudo_length += strlen(cwd_path) + 1;
 
     output = (char *)nessemble_malloc(sizeof(char) * (pseudo_length + 1));
 
-    sprintf(output, "%s/%s", cwd_path, val);
+    sprintf(output, "%s" SEP "%s", cwd_path, val);
 
 cleanup:
     *exec = output;

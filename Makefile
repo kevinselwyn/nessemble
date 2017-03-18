@@ -42,6 +42,8 @@ endif
 
 # TARGET-SPECIFIC
 
+all: CC_FLAGS += -ldl
+
 debug: CC_FLAGS += -g
 
 js: EXEC         := $(NAME).js
