@@ -21,7 +21,13 @@ void pseudo_custom(char *pseudo) {
         goto cleanup;
     }
 
+    if (access(exec, F_OK) == -1) {
+        yyerror("Command for custom pseudo-instruction `%s` does not exist", pseudo);
+        goto cleanup;
+    }
+
     if (so == FALSE) {
+        int rc = 0;
         unsigned int command_length = 0, output_length = 0;
         char buffer[1024];
         char *command = NULL;
@@ -56,8 +62,8 @@ void pseudo_custom(char *pseudo) {
         }
 
         if (pipe) {
-            if (pclose(pipe) != 0) {
-                yyerror("Command for custom pseudo-instruction `%s` failed", pseudo);
+            if ((rc = pclose(pipe)) != 0) {
+                yyerror("Command for custom pseudo-instruction `%s` failed (%d)", pseudo, rc);
                 goto cleanup;
             }
         }
