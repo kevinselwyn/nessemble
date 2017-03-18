@@ -104,6 +104,7 @@
 %token <sval> QUOT_STRING
 %token <sval> PSEUDO_MACRO_DEF
 %token <sval> PSEUDO_MACRO_APPEND
+%token <sval> PSEUDO_CUSTOM
 
 %token <cval> CHAR_REG
 
@@ -118,6 +119,7 @@
 %type <sval> pseudo_macro
 %type <sval> pseudo_out
 %type <sval> pseudo_segment
+%type <sval> pseudo_custom
 
 %type <ival> number
 %type <ival> number_bank
@@ -267,6 +269,7 @@ pseudo
     | pseudo_rsset     { pseudo_rsset($1); }
     | pseudo_rs        { /* NOTHING */ }
     | pseudo_segment   { pseudo_segment($1); }
+    | pseudo_custom    { pseudo_custom($1); }
     ;
 
 pseudo_ascii
@@ -459,6 +462,11 @@ pseudo_rs
 
 pseudo_segment
     : PSEUDO_SEGMENT QUOT_STRING { $$ = $2; }
+    ;
+
+pseudo_custom
+    : PSEUDO_CUSTOM number       { ints[length_ints++] = $2; $$ = $1; }
+    | pseudo_custom COMMA number { ints[length_ints++] = $3; $$ = $1; }
     ;
 
 /* Constant */

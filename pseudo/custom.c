@@ -1,0 +1,116 @@
+#include <string.h>
+#include "../nessemble.h"
+
+#ifndef WIN32
+#include <dlfcn.h>
+#endif /* WIN32 */
+
+/**
+ * custom pseudo instruction
+ */
+void pseudo_custom(char *pseudo) {
+    unsigned int i = 0, l = 0, so = FALSE;
+    char *exec = NULL;
+
+    if (pseudo_parse(&exec, pseudo, &so) != RETURN_OK) {
+        yyerror("Unknown custom pseudo-instruction `%s`", pseudo);
+        goto cleanup;
+    }
+
+    if (!exec) {
+        goto cleanup;
+    }
+
+    if (access(exec, F_OK) == -1) {
+        yyerror("Command for custom pseudo-instruction `%s` does not exist", pseudo);
+        goto cleanup;
+    }
+
+    if (so == FALSE) {
+        int rc = 0;
+        unsigned int command_length = 0, output_length = 0;
+        char buffer[1024];
+        char *command = NULL;
+        FILE *pipe = NULL;
+
+        command_length = (unsigned int)strlen(exec) + (length_ints * 4);
+
+#ifndef WIN32
+        command_length += 12;
+#endif /* WIN32 */
+
+        command = (char *)nessemble_malloc(sizeof(char) * (command_length));
+
+        strcpy(command, exec);
+
+        for (i = 0, l = length_ints; i < l; i++) {
+            sprintf(command+strlen(command), " %u", ints[i] & 0xFF);
+        }
+
+#ifndef WIN32
+        strcat(command, " 2>/dev/null");
+#endif /* WIN32 */
+
+        if ((pipe = popen(command, "r")) == NULL) {
+            goto cleanup;
+        }
+
+        output_length = (unsigned int)fread(buffer, 1, 1024, pipe);
+
+        for (i = 0, l = output_length; i < l; i++) {
+            write_byte((unsigned int)buffer[i] & 0xFF);
+        }
+
+        if (pipe) {
+            if ((rc = pclose(pipe)) != 0) {
+                yyerror("Command for custom pseudo-instruction `%s` failed (%d)", pseudo, rc);
+                goto cleanup;
+            }
+        }
+
+        nessemble_free(command);
+    }
+#ifndef WIN32
+    else {
+        void *handle = NULL;
+        int (*custom)(int **, int *, int, int *);
+        int custom_length = 0;
+        int *custom_output = NULL;
+
+        handle = dlopen(exec, RTLD_LAZY);
+
+        if (!handle) {
+            goto cleanup;
+        }
+
+        custom = dlsym(handle, "custom");
+
+        if (dlerror() != NULL) {
+            goto cleanup;
+        }
+
+        if ((*custom)(&custom_output, &custom_length, (int)length_ints, (int *)ints) != 0) {
+            goto cleanup;
+        }
+
+        if (!custom_output) {
+            goto cleanup;
+        }
+
+        if (custom_length >= 1) {
+            for (i = 0, l = (unsigned int)custom_length; i < l; i++) {
+                write_byte((unsigned int)custom_output[i] & 0xFF);
+            }
+        }
+
+        nessemble_free(custom_output);
+
+        UNUSED(dlclose(handle));
+    }
+#endif /* WIN32 */
+
+cleanup:
+    nessemble_free(exec);
+
+    length_ints = 0;
+}

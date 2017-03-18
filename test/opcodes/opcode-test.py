@@ -44,9 +44,9 @@ def main():
         exit(1)
 
     try:
-        flag = sys.argv[2]
+        flags = sys.argv[2]
     except IndexError:
-        flag = None
+        flags = None
 
     valgrind = which('valgrind')
 
@@ -56,8 +56,8 @@ def main():
     # assemble
     if os.path.exists('%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode)):
         arguments = ['%s%snessemble' % (root, os.sep), '%s%s%s%s%s.asm' % (dirname, os.sep, opcode, os.sep, opcode), '--output', '-']
-        if flag:
-            arguments.append(flag)
+        if flags:
+            arguments.extend(flags)
 
         child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stds = child.communicate()
@@ -84,8 +84,8 @@ def main():
         # assemble (valgrind)
         if valgrind:
             arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '%s%s%s%s%s.asm' % (dirname, os.sep, opcode, os.sep, opcode), '--output', '-']
-            if flag:
-                arguments.append(flag)
+            if flags:
+                arguments.extend(flags)
 
             child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             data = child.communicate()[0]
@@ -98,8 +98,8 @@ def main():
     # disassemble
     if os.path.exists('%s%s%s%s%s-disassembled.txt' % (dirname, os.sep, opcode, os.sep, opcode)):
         arguments = ['%s%snessemble' % (root, os.sep), '%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode), '--disassemble', '--output', '-']
-        if flag:
-            arguments.append(flag)
+        if flags:
+            arguments.extend(flags)
 
         child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stds = child.communicate()
@@ -126,8 +126,8 @@ def main():
         # disassemble (valgrind)
         if valgrind:
             arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode), '--disassemble', '--output', '-']
-            if flag:
-                arguments.append(flag)
+            if flags:
+                arguments.extend(flags)
 
             child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             data = child.communicate()[0]
@@ -140,8 +140,8 @@ def main():
     # simulate
     if os.path.exists('%s%s%s%s%s-simulated.txt' % (dirname, os.sep, opcode, os.sep, opcode)):
         arguments = ['%s%snessemble' % (root, os.sep), '--simulate', '%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode), '--recipe', '%s%s%s%s%s-recipe.txt' % (dirname, os.sep, opcode, os.sep, opcode), '--output', '-']
-        if flag:
-            arguments.append(flag)
+        if flags:
+            arguments.extend(flags)
 
         child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stds = child.communicate()
@@ -168,8 +168,8 @@ def main():
         # simulate (valgrind)
         if valgrind:
             arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '--simulate', '%s%s%s%s%s.rom' % (dirname, os.sep, opcode, os.sep, opcode), '--recipe', '%s%s%s%s%s-recipe.txt' % (dirname, os.sep, opcode, os.sep, opcode), '--output', '-']
-            if flag:
-                arguments.append(flag)
+            if flags:
+                arguments.extend(flags)
 
             child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             data = child.communicate()[0]
