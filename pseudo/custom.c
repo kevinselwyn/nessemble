@@ -21,7 +21,7 @@ void pseudo_custom(char *pseudo) {
         goto cleanup;
     }
 
-    if (access(exec, F_OK) == -1) {
+    if (file_exists(exec) == FALSE) {
         yyerror("Command for custom pseudo-instruction `%s` does not exist", pseudo);
         goto cleanup;
     }

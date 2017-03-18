@@ -114,7 +114,7 @@ static unsigned int lib_is_installed(char *lib) {
         goto cleanup;
     }
 
-    if (access(lib_path, F_OK) == -1) {
+    if (file_exists(lib_path) == FALSE) {
         goto cleanup;
     }
 
@@ -278,7 +278,7 @@ unsigned int lib_list() {
             continue;
         }
 
-        if (stat(path, &s) != 0) {
+        if (file_exists(path) == FALSE) {
             continue;
         }
 

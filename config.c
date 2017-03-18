@@ -43,7 +43,7 @@ unsigned int open_config(FILE **file, char **filename) {
 
     strcat(config_path, SEP CONFIG_FILENAME);
 
-    if (access(config_path, F_OK) == -1) {
+    if (file_exists(config_path) == FALSE) {
         config = fopen(config_path, "w+");
     } else {
         config = fopen(config_path, "r+");
