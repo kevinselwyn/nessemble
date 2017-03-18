@@ -436,7 +436,7 @@ void pseudo_rsset(unsigned int address);
 void pseudo_rs(char *label, int size);
 void pseudo_segment(char *string);
 void pseudo_custom(char *pseudo);
-unsigned int pseudo_parse(char **exec, char *pseudo);
+unsigned int pseudo_parse(char **exec, char *pseudo, unsigned int *so);
 
 /* OPCODE UTILS */
 int get_opcode(char *mnemonic, unsigned int mode);
