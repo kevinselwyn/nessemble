@@ -232,8 +232,13 @@ static void error_signal_handler(int signal, siginfo_t *si, void *arg) {
     UNUSED(signal);
     UNUSED(arg);
 
-    printf("An unexpected error has occurred: %s (%p)\n\n", signal_names[si->si_signo], si->si_addr);
-    printf("Please report this error to the maintainer:\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n");
+    printf("An unexpected error has occurred: %s", signal_names[si->si_signo]);
+
+    if (si->si_addr) {
+        printf(" (%p)", si->si_addr);
+    }
+
+    printf("\n\nPlease report this error to the maintainer:\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n");
     printf("  " PROGRAM_ISSUES "\n");
 
     longjmp(error_jmp, 1);
