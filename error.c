@@ -6,6 +6,41 @@
 #include "nessemble.h"
 #include "error.h"
 
+static char *signal_names[32] = {
+    NULL,
+    "SIGHUP",
+    "SIGINT",
+    "SIGQUIT",
+    "SIGILL",
+    "SIGTRAP",
+    "SIGABRT",
+    "SIGEMT",
+    "SIGFPE",
+    "SIGKILL",
+    "SIGBUS",
+    "SIGSEGV",
+    "SIGSYS",
+    "SIGPIPE",
+    "SIGALRM",
+    "SIGTERM",
+    "SIGURG",
+    "SIGSTOP",
+    "SIGTSTP",
+    "SIGCONT",
+    "SIGCHLD",
+    "SIGTTIN",
+    "SIGTTOU",
+    "SIGIO",
+    "SIGXCPU,"
+    "SIGXFSZ",
+    "SIGVTALRM",
+    "SIGPROF",
+    "SIGWINCH",
+    "SIGINFO",
+    "SIGUSR1",
+    "SIGUSR2"
+};
+
 /**
  * Trigger fatal error
  * @param {const char *} fmt - Format string
@@ -194,19 +229,10 @@ void error_program_output(const char *fmt, ...) {
 
 #ifndef IS_WINDOWS
 static void error_signal_handler(int signal, siginfo_t *si, void *arg) {
-    size_t length = 0;
-    char *signame = NULL;
-
     UNUSED(signal);
     UNUSED(arg);
 
-    length = strlen(sys_signame[si->si_signo]);
-    signame = (char *)nessemble_malloc(sizeof(char) * ((length + 3) + 1));
-
-    sprintf(signame, "SIG%s", sys_signame[si->si_signo]);
-    nessemble_uppercase(signame);
-
-    printf("An unexpected error has occurred: %s (%p)\n\n", signame, si->si_addr);
+    printf("An unexpected error has occurred: %s (%p)\n\n", signal_names[si->si_signo], si->si_addr);
     printf("Please report this error to the maintainer:\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n");
     printf("  " PROGRAM_ISSUES "\n");
 
@@ -223,7 +249,7 @@ void error_signal() {
     sa.sa_sigaction = error_signal_handler;
     sa.sa_flags = SA_SIGINFO;
 
-    for (i = 0, l = 32; i < l; i++) {
+    for (i = 1, l = 32; i < l; i++) {
         sigaction(i, &sa, NULL);
     }
 }
