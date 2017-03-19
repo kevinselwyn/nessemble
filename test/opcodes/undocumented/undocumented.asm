@@ -37,7 +37,7 @@
     ISC [$44, X]
     ISC [$44], Y
 
-    KIL
+    ;KIL
 
     LAR $4400, Y
 
