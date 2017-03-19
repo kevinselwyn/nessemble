@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "nessemble.h"
@@ -18,7 +19,14 @@ unsigned int get_home(char **home) {
 
     *home = path;
 #else /* IS_WINDOWS */
-    struct passwd *pw = getpwuid(getuid());
+    uid_t uid = getuid();
+    struct passwd *pw;
+
+    if (uid == 0) {
+        uid = atoi(getenv("SUDO_UID"));
+    }
+
+    pw = getpwuid(uid);
 
     if (!pw) {
         error_program_log("Could not find home directory");
