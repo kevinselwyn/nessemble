@@ -175,11 +175,28 @@ void do_dop(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_isc(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    unsigned int tmp = 0, address = 0;
+
+    address = get_address(opcode_index, value);
+    tmp = get_byte(address);
+
+    tmp = (tmp + 1) & 0xFF;
+    set_byte(address, tmp);
+
+    tmp = (get_register(REGISTER_A) - tmp) & 0xFF;
+    set_register(REGISTER_A, tmp);
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_CARRY, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+    set_flag(FLG_OVERFLOW, (tmp >> 6) & 1);
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_kil(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    set_register(REGISTER_PC, -1);
 }
 
 void do_lar(unsigned int opcode_index, unsigned int value) {
