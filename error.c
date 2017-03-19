@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <signal.h>
 #include "nessemble.h"
 #include "error.h"
 
@@ -190,3 +191,40 @@ void error_program_output(const char *fmt, ...) {
         free(message);
     }
 }
+
+#ifndef IS_WINDOWS
+static void error_signal_handler(int signal, siginfo_t *si, void *arg) {
+    size_t length = 0;
+    char *signame = NULL;
+
+    UNUSED(signal);
+    UNUSED(arg);
+
+    length = strlen(sys_signame[si->si_signo]);
+    signame = (char *)nessemble_malloc(sizeof(char) * ((length + 3) + 1));
+
+    sprintf(signame, "SIG%s", sys_signame[si->si_signo]);
+    nessemble_uppercase(signame);
+
+    printf("An unexpected error has occurred: %s (%p)\n\n", signame, si->si_addr);
+    printf("Please report this error to the maintainer:\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n");
+    printf("  " PROGRAM_ISSUES "\n");
+
+    longjmp(error_jmp, 1);
+}
+
+void error_signal() {
+    unsigned int i = 0, l = 0;
+    struct sigaction sa;
+
+    memset(&sa, '\0', sizeof(struct sigaction));
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_sigaction = error_signal_handler;
+    sa.sa_flags = SA_SIGINFO;
+
+    for (i = 0, l = 32; i < l; i++) {
+        sigaction(i, &sa, NULL);
+    }
+}
+#endif /* IS_WINDOWS */
