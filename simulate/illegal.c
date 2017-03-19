@@ -196,6 +196,9 @@ void do_isc(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_kil(unsigned int opcode_index, unsigned int value) {
+    UNUSED(opcode_index);
+    UNUSED(value);
+
     set_register(REGISTER_PC, -1);
 }
 
