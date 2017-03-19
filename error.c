@@ -2,8 +2,44 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <signal.h>
 #include "nessemble.h"
 #include "error.h"
+
+static char *signal_names[32] = {
+    NULL,
+    "SIGHUP",
+    "SIGINT",
+    "SIGQUIT",
+    "SIGILL",
+    "SIGTRAP",
+    "SIGABRT",
+    "SIGEMT",
+    "SIGFPE",
+    "SIGKILL",
+    "SIGBUS",
+    "SIGSEGV",
+    "SIGSYS",
+    "SIGPIPE",
+    "SIGALRM",
+    "SIGTERM",
+    "SIGURG",
+    "SIGSTOP",
+    "SIGTSTP",
+    "SIGCONT",
+    "SIGCHLD",
+    "SIGTTIN",
+    "SIGTTOU",
+    "SIGIO",
+    "SIGXCPU,"
+    "SIGXFSZ",
+    "SIGVTALRM",
+    "SIGPROF",
+    "SIGWINCH",
+    "SIGINFO",
+    "SIGUSR1",
+    "SIGUSR2"
+};
 
 /**
  * Trigger fatal error
@@ -190,3 +226,31 @@ void error_program_output(const char *fmt, ...) {
         free(message);
     }
 }
+
+#ifndef IS_WINDOWS
+static void error_signal_handler(int signal, siginfo_t *si, void *arg) {
+    UNUSED(signal);
+    UNUSED(arg);
+
+    printf("An unexpected error has occurred: %s (%p)\n\n", signal_names[si->si_signo], si->si_addr);
+    printf("Please report this error to the maintainer:\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n");
+    printf("  " PROGRAM_ISSUES "\n");
+
+    longjmp(error_jmp, 1);
+}
+
+void error_signal() {
+    unsigned int i = 0, l = 0;
+    struct sigaction sa;
+
+    memset(&sa, '\0', sizeof(struct sigaction));
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_sigaction = error_signal_handler;
+    sa.sa_flags = SA_SIGINFO;
+
+    for (i = 1, l = 32; i < l; i++) {
+        sigaction(i, &sa, NULL);
+    }
+}
+#endif /* IS_WINDOWS */
