@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include <time.h>
+#include <setjmp.h>
 
 /*
  * DEFINES
@@ -42,11 +43,14 @@
 #define UNUSED(x) (void)(x)
 
 /* PROGRAM */
-#define PROGRAM_NAME      "nessemble"
-#define PROGRAM_VERSION   "1.0.1"
-#define PROGRAM_COPYRIGHT "2017"
-#define PROGRAM_AUTHOR    "Kevin Selwyn"
-#define PROGRAM_LANGUAGE  "en-US"
+#define PROGRAM_NAME         "nessemble"
+#define PROGRAM_VERSION      "1.0.1"
+#define PROGRAM_COPYRIGHT    "2017"
+#define PROGRAM_AUTHOR       "Kevin Selwyn"
+#define PROGRAM_AUTHOR_EMAIL "kevinselwyn@gmail.com"
+#define PROGRAM_LANGUAGE     "en-US"
+#define PROGRAM_REPO         "https://github.com/kevinselwyn/nessemble"
+#define PROGRAM_ISSUES       PROGRAM_REPO "/issues"
 
 /* BOOLEAN */
 #ifndef TRUE
@@ -308,6 +312,7 @@ unsigned int length_ints;
 unsigned int ints[MAX_INTS];
 
 /* ERROR REPORTING */
+jmp_buf error_jmp;
 char linebuf[512];
 char yycolno;
 
@@ -599,6 +604,7 @@ float easeInOutBounce(float t, float b, float c, float d);
 void *nessemble_malloc(size_t size);
 void nessemble_free(void *ptr);
 void nessemble_fclose(FILE *file);
+void nessemble_uppercase(char *str);
 char *nessemble_strdup(char *str);
 const char *nessemble_strcasestr(const char *s1, const char *s2);
 int nessemble_mkdir(const char *dirname, int mode);
@@ -644,6 +650,7 @@ void error_free();
 void yyerror(const char *fmt, ...);
 void error_program_log(const char *fmt, ...);
 void error_program_output(const char *fmt, ...);
+void error_signal();
 
 /* INIT */
 unsigned int init();

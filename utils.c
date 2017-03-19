@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include "nessemble.h"
@@ -33,6 +34,13 @@ void nessemble_free(void *ptr) {
 void nessemble_fclose(FILE *file) {
     if (file) {
         (void)fclose(file);
+    }
+}
+
+void nessemble_uppercase(char *str) {
+    while (*str) {
+        *str = toupper(*str);
+        str++;
     }
 }
 

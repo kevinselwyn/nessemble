@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <setjmp.h>
 #include "nessemble.h"
 
 /**
@@ -19,6 +20,15 @@ int main(int argc, char *argv[]) {
     char *listname = NULL, *recipe = NULL;
     char *registry = NULL, *config = NULL;
     FILE *file = NULL, *outfile = NULL;
+
+#ifndef IS_WINDOWS
+    // setup error catch
+    if (setjmp(error_jmp) != 0) {
+        goto cleanup;
+    }
+
+    error_signal();
+#endif /* IS_WINDOWS */
 
     // exec
     exec = argv[0];
