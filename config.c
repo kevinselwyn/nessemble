@@ -16,7 +16,7 @@ struct config_type config_types[CONFIG_TYPES] = {
 
 unsigned int open_config(FILE **file, char **filename) {
     unsigned int rc = RETURN_OK;
-    char *home = NULL, *config_path = NULL;
+    char *home = NULL, *config_path = NULL, *lib_path = NULL;
     size_t length = 0;
     FILE *config = NULL;
     DIR *dir = NULL;
@@ -26,14 +26,22 @@ unsigned int open_config(FILE **file, char **filename) {
     }
 
     length = strlen(home) + 18;
-    config_path = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
+    config_path = (char *)nessemble_malloc(sizeof(char) * length + 1);
     sprintf(config_path, "%s" SEP "%s", home, "." PROGRAM_NAME);
+
+    lib_path = (char *)nessemble_malloc(sizeof(char) * (length + 5) + 1);
+    sprintf(lib_path, "%s" SEP "libs", config_path);
 
     dir = opendir(config_path);
 
     if (!dir) {
         if (nessemble_mkdir(config_path, 0777) != 0) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        if (nessemble_mkdir(lib_path, 0777) != 0) {
             rc = RETURN_EPERM;
             goto cleanup;
         }
@@ -45,6 +53,9 @@ unsigned int open_config(FILE **file, char **filename) {
 
     if (file_exists(config_path) == FALSE) {
         config = fopen(config_path, "w+");
+
+        fprintf(config, "registry\t%s", CONFIG_API_DEFAULT);
+        (void)fseek(config, 0, SEEK_SET);
     } else {
         config = fopen(config_path, "r+");
     }
@@ -61,6 +72,7 @@ unsigned int open_config(FILE **file, char **filename) {
 
 cleanup:
     nessemble_free(home);
+    nessemble_free(lib_path);
 
     return rc;
 }

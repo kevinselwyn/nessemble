@@ -154,6 +154,7 @@
 #define MAX_LIST_LENGTH 256
 
 /* CONFIG */
+#define CONFIG_API_DEFAULT "http://localhost:8000"
 #define CONFIG_FILENAME    "config"
 #define CONFIG_LINE_COUNT  10
 #define CONFIG_LINE_LENGTH 256

@@ -402,11 +402,11 @@ unsigned int get_libpath(char **path, char *string) {
     }
 
     string_length = strlen(string);
-    path_length = strlen(home) + 19 + string_length - 1;
+    path_length = strlen(home) + 24 + string_length - 1;
     fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
 
     strcpy(fullpath, home);
-    strcat(fullpath, SEP "." PROGRAM_NAME SEP);
+    strcat(fullpath, SEP "." PROGRAM_NAME SEP "libs" SEP);
     strncat(fullpath, string + 1, string_length - 6);
     strcat(fullpath, SEP "lib.asm");
 

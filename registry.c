@@ -51,10 +51,10 @@ static unsigned int get_lib_dir(char **lib_dir) {
         goto cleanup;
     }
 
-    length = strlen(home) + 11;
+    length = strlen(home) + 16;
     dir = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
-    sprintf(dir, "%s" SEP "%s", home, "." PROGRAM_NAME);
+    sprintf(dir, "%s" SEP "%s", home, "." PROGRAM_NAME SEP "libs");
 
     *lib_dir = dir;
 
@@ -73,10 +73,10 @@ static unsigned int get_lib_path(char **lib_path, char *lib) {
         goto cleanup;
     }
 
-    length = strlen(home) + strlen(lib) + 16;
+    length = strlen(home) + strlen(lib) + 21;
     path = (char *)nessemble_malloc(sizeof(char) * length + 1);
 
-    sprintf(path, "%s" SEP "%s" SEP "%s" SEP, home, "." PROGRAM_NAME, lib);
+    sprintf(path, "%s" SEP "%s" SEP "%s" SEP, home, "." PROGRAM_NAME SEP "libs", lib);
 
     *lib_path = path;
 
@@ -281,6 +281,8 @@ unsigned int lib_list() {
         if (file_exists(path) == FALSE) {
             continue;
         }
+
+        UNUSED(stat(path, &s));
 
         if (!S_ISDIR(s.st_mode)) {
             continue;
