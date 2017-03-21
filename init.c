@@ -41,7 +41,8 @@ unsigned int init() {
         }
 
         if (input_prg < 0) {
-            printf("Choose a positive number of CHR banks\n");
+            printf("Choose a positive number of CHR banks");
+            printf("\n");
             continue;
         }
 
@@ -62,7 +63,8 @@ unsigned int init() {
         }
 
         if (input_chr < 0) {
-            printf("Choose a positive number of CHR banks\n");
+            printf("Choose a positive number of CHR banks");
+            printf("\n");
             continue;
         }
 
@@ -84,7 +86,8 @@ unsigned int init() {
         }
 
         if (input_mapper < 0 || input_mapper > 0xFF) {
-            printf("Choose a mapper between 0-255\n");
+            printf("Choose a mapper between 0-255");
+            printf("\n");
             continue;
         }
 
@@ -105,7 +108,8 @@ unsigned int init() {
         }
 
         if (input_mirroring < 0 || input_mirroring > 0x0F) {
-            printf("Choose a mirroring between 0-15\n");
+            printf("Choose a mirroring between 0-15");
+            printf("\n");
             continue;
         }
 
@@ -155,7 +159,8 @@ unsigned int init() {
         fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.chr %u\n", i);
     }
 
-    printf("Created `%s`\n", input_filename);
+    printf("Created `%s`", input_filename);
+    printf("\n");
 
 cleanup:
     nessemble_free(input_filename);

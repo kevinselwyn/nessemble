@@ -18,8 +18,8 @@ YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 UNAME        := $(shell uname -s)
 
 FILES        := main.c api.c assemble.c config.c coverage.c disassemble.c
-FILES        += download.c error.c home.c init.c instructions.c json.c list.c
-FILES        += macro.c math.c midi.c opcodes.c pager.c png.c reference.c
+FILES        += download.c error.c home.c i18n.c init.c instructions.c json.c
+FILES        += list.c macro.c math.c midi.c opcodes.c pager.c png.c reference.c
 FILES        += registry.c simulate.c usage.c user.c utils.c wav.c zip.c
 FILES        += $(shell ls pseudo/*.c) $(shell ls simulate/*.c)
 FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
@@ -87,6 +87,13 @@ opcodes.c: opcodes.csv
 %.h: %.txt
 	./utils/xxd.py -i $< > $@
 
+%.h: %.json
+	./utils/xxd.py -i $< > $@
+
+i18n.c: strings.h
+
+strings.h: ${strings.json:json=h}
+
 init.c: init.h
 
 init.h: ${init.txt:txt=h}
@@ -116,4 +123,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h strings.h

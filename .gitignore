@@ -8,6 +8,7 @@ opcodes.c
 reference/**/*.h
 y.tab.*
 *.o
+strings.h
 suite_*
 third-party/**/*.o
 *.db

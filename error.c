@@ -142,7 +142,8 @@ unsigned int error_exit() {
             line = 1;
         }
 
-        fprintf(stderr, "Error in `%s` on line %d: %s\n", filename_stack[include_stack_ptr]+length, line, errors[error_index-1].message);
+        fprintf(stderr, "Error in `%s` on line %d: %s", filename_stack[include_stack_ptr]+length, line, errors[error_index-1].message);
+        fprintf(stderr, "\n");
 
         rc = RETURN_EPERM;
     }
@@ -204,6 +205,7 @@ void error_program_log(const char *fmt, ...) {
 }
 
 void error_program_output(const char *fmt, ...) {
+    unsigned int i = 0, l = 0;
     char *message = NULL;
     va_list argptr;
     va_start(argptr, fmt);
@@ -222,9 +224,11 @@ void error_program_output(const char *fmt, ...) {
         fprintf(stderr, "%s\n", message);
     }
 
-    if (message) {
-        free(message);
+    for (i = 0, l = program_error_index; i < l; i++) {
+        nessemble_free(program_errors[i].message);
     }
+
+    nessemble_free(message);
 }
 
 #ifndef IS_WINDOWS
@@ -238,7 +242,9 @@ static void error_signal_handler(int signal, siginfo_t *si, void *arg) {
         printf(" (%p)", si->si_addr);
     }
 
-    printf("\n\nPlease report this error to the maintainer:\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n");
+    printf("\n\n");
+    printf("Please report this error to the maintainer:");
+    printf("\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n");
     printf("  " PROGRAM_ISSUES "\n");
 
     longjmp(error_jmp, 1);

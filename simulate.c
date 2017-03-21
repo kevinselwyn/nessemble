@@ -113,7 +113,7 @@ unsigned int simulate(char *input, char *recipe) {
                 break;
             }
 
-            printf("nessemble> ");
+            printf(PROGRAM_NAME "> ");
 
             if (fgets(buffer, BUF_SIZE, stdin) == NULL) {
                 break;
@@ -739,7 +739,8 @@ unsigned int at_breakpoint() {
 
     for (i = 0, l = breakpoint_index; i < l; i++) {
         if (get_register(REGISTER_PC) == breakpoints[i].address) {
-            printf("Breakpoint `%s` reached at 0x%04X\n", breakpoints[i].name, breakpoints[i].address);
+            printf("Breakpoint `%s` reached at 0x%04X", breakpoints[i].name, breakpoints[i].address);
+            printf("\n");
 
             at = TRUE;
         }
