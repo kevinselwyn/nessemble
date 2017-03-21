@@ -1,6 +1,0 @@
-OAMADDR ($2003)
-
-Description: OAM address port
-Access:      Write
-
-Write the address of OAM you want to access here. Most games just write $00 here and then use OAMDMA. (DMA is implemented in the 2A03/7 chip and works by repeatedly writing to OAMDATA)

@@ -510,7 +510,7 @@ def reference(path=''):
 
         for row in result:
             if not row[2]:
-                output = row[3]
+                output = row[3].replace('\\n', '\n')
             else:
                 output += '  %s\n' % (row[2])
 

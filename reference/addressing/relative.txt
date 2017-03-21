@@ -1,7 +1,0 @@
-Relative
-
-The offset specified is added to the current address stored in the Program Counter (PC). Offsets can range from -128 to +127.
-
-Example:
-
-BPL $2D
