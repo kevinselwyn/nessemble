@@ -1,6 +1,0 @@
-PPUDATA ($2007)
-
-Description: PPU data port
-Access:      Read, Write
-
-VRAM read/write data register. After access, the video memory address will increment by an amount determined by $2000:2.

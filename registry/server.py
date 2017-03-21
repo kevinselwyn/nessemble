@@ -2,11 +2,12 @@
 # pylint: disable=C0103,C0301,C0326,R0914
 """Nessemble registry server"""
 
-import csv
 import datetime
 import json
 import md5
+import os
 import random
+import sqlite3
 import StringIO
 import tarfile
 import tempfile
@@ -476,69 +477,70 @@ def user_logout():
 
     return registry_response({})
 
+@app.route('/reference', methods=['GET'])
+@app.route('/reference/<path:path>', methods=['GET'])
+def reference(path=''):
+    paths = path.split('/')
+    output = ''
+    sql = []
+    sql_and = []
+    sql_data = {}
+
+    session = Session()
+
+    if not len(paths[0]):
+        result = session.execute('SELECT * FROM reference WHERE parent_id = :parent_id', {
+            'parent_id': 0
+        })
+
+        for row in result:
+            output += '  %s\n' % (row[2])
+    else:
+        sql.append('SELECT r%d.* FROM reference as r1' % (len(paths) + 1))
+
+        for i in range(0, len(paths)):
+            sql.append('INNER JOIN reference AS r%d on r%d.parent_id = r%d.id' % (i + 2, i + 2, i + 1))
+
+        for i in range(0, len(paths)):
+            sql_and.append('r%d.term = :term%d' % (i + 1, i + 1))
+            sql_data['term%d' % (i + 1)] = paths[i]
+
+        sql.append('WHERE %s' % (' AND '.join(sql_and)))
+        result = session.execute(' '.join(sql), sql_data)
+
+        for row in result:
+            if not row[2]:
+                output = row[3].replace('\\n', '\n')
+            else:
+                output += '  %s\n' % (row[2])
+
+    if not len(output):
+        abort(404)
+
+    return registry_response(output, mimetype='text/plain')
+
 #----------------#
 # Import/Export
 
 def db_import(filename=None):
     """Import database"""
 
-    csvfile = open(filename, 'rb')
-    reader = csv.reader(csvfile)
+    os.unlink('registry.db')
 
-    columns = next(reader)
-    rows = []
+    con = sqlite3.connect('registry.db')
 
-    for row in reader:
-        lib_id = row[0]
-        user_id = row[1]
-        readme = row[2]
-        lib = row[3]
-        name = row[4]
-        description = row[5]
-        version = row[6]
-        lib_license = row[7]
-        tags = row[8]
-
-        rows.append(Lib(id=lib_id, \
-            user_id=user_id, \
-            readme=readme, \
-            lib=lib, \
-            name=name, \
-            description=description, \
-            version=version, \
-            license=lib_license, \
-            tags=tags))
-
-    session = Session()
-    session.add_all(rows)
-    session.commit()
-
-    return
+    with open(filename, 'r') as f:
+        sql = f.read()
+        con.executescript(sql)
 
 def db_export():
     """Export database"""
 
-    session = Session()
-    result = session.query(Lib).all()
+    con = sqlite3.connect('registry.db')
 
-    csvfile = open('registry.csv', 'wb')
-    writer = csv.writer(csvfile)
-
-    result = session.query(Lib).all()
-
-    writer.writerow([column.name for column in Lib.__table__.columns])
-
-    for lib in result:
-        writer.writerow([
-            lib.id, \
-            lib.user_id, \
-            lib.readme, \
-            lib.lib, \
-            lib.name, \
-            lib.description, \
-            lib.version, \
-            lib.license, \
-            lib.tags])
+    with open('registry.sql', 'w') as f:
+        for line in con.iterdump():
+            f.write('%s\n' % line)
 
 #----------------#
 # Main
@@ -550,8 +552,8 @@ def main():
     parser.add_argument('--host', '-H', dest='host', type=str, default=HOSTNAME, required=False, help='Host')
     parser.add_argument('--port', '-P', dest='port', type=int, default=PORT, required=False, help='Port')
     parser.add_argument('--debug', '-D', dest='debug', action='store_true', required=False, help='Debug mode')
-    parser.add_argument('--import', '-i', dest='db_import', type=str, help='Import CSV')
-    parser.add_argument('--export', '-e', dest='db_export', action='store_true', help='Export CSV')
+    parser.add_argument('--import', '-i', dest='db_import', type=str, help='Import SQL')
+    parser.add_argument('--export', '-e', dest='db_export', action='store_true', help='Export SQL')
 
     args = parser.parse_args()
 

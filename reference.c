@@ -1,106 +1,74 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 #include "nessemble.h"
-#include "reference.h"
 
-static int get_category_id(char *category) {
-    int id = -1;
-    unsigned int i = 0, l = 0;
+unsigned int reference(unsigned int terms, ...) {
+    unsigned int rc = RETURN_OK, http_code = 0, i = 0, l = 0;
+    unsigned int url_length = 0, endpoint_length = 0, text_length = 0;
+    char *arg = NULL, *url = NULL, *endpoint = NULL, *text = NULL;
+    va_list argptr;
 
-    for (i = 0, l = MAX_CATEGORIES; i < l; i++) {
-        if (!categories[i].name) {
-            continue;
-        }
+    va_start(argptr, terms);
 
-        if (strcmp(categories[i].name, category) == 0) {
-            id = (int)i;
-            break;
+    for (i = 0, l = terms; i < l; i++) {
+        arg = va_arg(argptr, char *);
+        endpoint_length += (unsigned int)strlen(arg) + 1;
+    }
+
+    endpoint = (char *)nessemble_malloc(sizeof(char) * (endpoint_length + 1));
+
+    va_start(argptr, terms);
+
+    for (i = 0, l = terms; i < l; i++) {
+        arg = va_arg(argptr, char *);
+
+        if (i == 0) {
+            sprintf(endpoint+strlen(endpoint), "%s", arg);
+        } else {
+            sprintf(endpoint+strlen(endpoint), "/%s", arg);
         }
     }
 
-    return id;
-}
+    va_end(argptr);
 
-static int get_term_id(char *term, char *category) {
-    int id = -1, category_id = -1;
-    unsigned int i = 0, l = 0;
-
-    category_id = get_category_id(category);
-
-    if (category_id == -1) {
+    if ((rc = api_reference(&url, endpoint)) != RETURN_OK) {
         goto cleanup;
     }
 
-    for (i = 0, l = MAX_TERMS; i < l; i++) {
-        if (!categories[category_id].terms[i].name) {
-            continue;
-        }
+    url_length = (unsigned int)strlen(url);
 
-        if (strcmp(categories[category_id].terms[i].name, term) == 0) {
-            id = (int)i;
-            break;
-        }
+    if (url[url_length - 1] == '/') {
+        url[url_length - 1] = '\0';
     }
 
-cleanup:
-    return id;
-}
+    http_code = get_request(&text, &text_length, url, 0, MIMETYPE_TEXT);
 
-unsigned int reference(char *category, char *term) {
-    int category_id = -1, term_id = -1;
-    unsigned int rc = RETURN_OK, i = 0, l = 0, len = 0;
-
-    if (!category) {
-        printf("Categories:\n");
-
-        for (i = 0, l = MAX_CATEGORIES; i < l; i++) {
-            if (!categories[i].name) {
-                continue;
+    if (http_code != 200) {
+        if (http_code != 500) {
+            for (i = 0, l = endpoint_length; i < l; i++) {
+                if (endpoint[i] == '/') {
+                    endpoint[i] = ' ';
+                }
             }
 
-            printf("  %s\n", categories[i].name);
+            if (endpoint_length > 0) {
+                error_program_log("Could not find info for '%s'", endpoint);
+            } else {
+                error_program_log("Could not find info");
+            }
         }
-
-        goto cleanup;
-    }
-
-    category_id = get_category_id(category);
-
-    if (category_id == -1) {
-        printf("Unknown reference category `%s`\n", category);
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (!term) {
-        printf("Terms in %s:\n", category);
-
-        for (i = 0, l = MAX_TERMS; i < l; i++) {
-            if (!categories[category_id].terms[i].name) {
-                continue;
-            }
-
-            printf("  %s\n", categories[category_id].terms[i].name);
+    if (terms >= 2) {
+        if ((rc = pager_buffer(text)) != RETURN_OK) {
+            goto cleanup;
         }
-
-        goto cleanup;
-    }
-
-    term_id = get_term_id(term, category);
-
-    if (term_id == -1) {
-        printf("Unknown `%s` term `%s`\n", category, term);
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
-    len = *categories[category_id].terms[term_id].len;
-    categories[category_id].terms[term_id].description[len-1] = '\0';
-
-    if ((rc = pager_buffer((char *)categories[category_id].terms[term_id].description)) != RETURN_OK) {
-        goto cleanup;
+    } else {
+        printf("%s\n", text);
     }
 
 cleanup:

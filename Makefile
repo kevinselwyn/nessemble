@@ -28,10 +28,6 @@ SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
 HDRS         := $(NAME).h init.h license.h
 OBJS         := ${SRCS:c=o}
 
-REFERENCE    := $(shell ls reference/registers/*.txt | sed 's/.txt/.h/g')
-REFERENCE    += $(shell ls reference/addressing/*.txt | sed 's/.txt/.h/g')
-REFERENCE    += $(shell ls reference/mappers/*.txt | sed 's/.txt/.h/g')
-
 # PLATFORM-SPECIFIC
 
 ifeq ($(UNAME), Darwin)
@@ -91,8 +87,6 @@ opcodes.c: opcodes.csv
 %.h: %.txt
 	./utils/xxd.py -i $< > $@
 
-reference.c: ${REFERENCE:txt=h} reference.h
-
 init.c: init.h
 
 init.h: ${init.txt:txt=h}
@@ -122,4 +116,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h $(REFERENCE)
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h

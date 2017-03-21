@@ -83,3 +83,14 @@ unsigned int api_search(char **url, char *term) {
 cleanup:
     return rc;
 }
+
+unsigned int api_reference(char **url, char *endpoint) {
+    unsigned int rc = RETURN_OK;
+
+    if ((rc = api_endpoint(&*url, 2, "reference", endpoint)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+cleanup:
+    return rc;
+}

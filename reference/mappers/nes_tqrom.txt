@@ -1,8 +1,0 @@
-NES-TQROM (Mapper 119)
-
-Games:
-
-High Speed
-High Speed (PAL)
-Pinbot
-Pinbot (PAL)
