@@ -15,7 +15,7 @@
 int main(int argc, char *argv[]) {
     int option_index = 0, c = 0, empty_byte = 0xFF;
     unsigned int rc = RETURN_OK;
-    unsigned int i = 0, l = 0, byte = 0, piped = FALSE;
+    unsigned int i = 0, l = 0, byte = 0, piped = FALSE, ref_count = 0;
     char *exec = NULL, *filename = NULL, *outfilename = NULL;
     char *listname = NULL, *recipe = NULL;
     char *registry = NULL, *config = NULL;
@@ -145,7 +145,18 @@ int main(int argc, char *argv[]) {
         }
 
         if (strcmp(argv[optind], "reference") == 0) {
-            rc = reference(argv[optind+1], argv[optind+2]);
+            if (argv[optind+1] == NULL) {
+                ref_count = 0;
+            } else if (argv[optind+2] == NULL) {
+                ref_count = 1;
+            } else {
+                ref_count = 2;
+            }
+
+            if ((rc = reference(ref_count, argv[optind+1], argv[optind+2])) != RETURN_OK) {
+                error_program_output("Could not get reference info");
+            }
+
             goto cleanup;
         }
 

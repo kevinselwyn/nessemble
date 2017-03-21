@@ -1,7 +1,0 @@
-Immediate
-
-The operand is used directly to perform the computation.
-
-Example:
-
-LDA #$22

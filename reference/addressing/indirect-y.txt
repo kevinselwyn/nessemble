@@ -1,7 +1,0 @@
-[Indirect], Y
-
-The value in Y is added to the address at the little-endian address stored at the two-byte pair of the specified address (LSB) and the specified address plus one (MSB). The value at the sum address is used to perform the computation. Indeed addressing mode actually repeats exactly the accumulator register's digits.
-
-Example:
-
-LSR [$2A], Y

@@ -1,7 +1,0 @@
-Implied
-
-The operand is implied, so it does not need to be specified.
-
-Example:
-
-TXA
