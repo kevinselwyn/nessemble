@@ -61,7 +61,7 @@ unsigned int open_config(FILE **file, char **filename) {
     }
 
     if (!config) {
-        error_program_log("Could not open `" CONFIG_FILENAME "`");
+        error_program_log("Could not open `%s`", CONFIG_FILENAME);
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -140,7 +140,7 @@ unsigned int set_config(char *result, char *item) {
         config = fopen(config_path, "a");
 
         if (!config) {
-            error_program_log("Could not open `" CONFIG_FILENAME "`");
+            error_program_log("Could not open `%s`", CONFIG_FILENAME);
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -157,7 +157,7 @@ unsigned int set_config(char *result, char *item) {
     config = fopen(config_path, "w+");
 
     if (!config) {
-        error_program_log("Could not open `" CONFIG_FILENAME "`");
+        error_program_log("Could not open `%s`", CONFIG_FILENAME);
 
         rc = RETURN_EPERM;
         goto cleanup;

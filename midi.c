@@ -389,8 +389,10 @@ struct midi_data read_midi(char *filename) {
         goto cleanup;
     }
 
-    fprintf(stderr, "Tracks:  %u\n", midi.track_count);
-    fprintf(stderr, "Quarter: %u\n\n", midi.quarter);
+    fprintf(stderr, "Tracks:  %u", midi.track_count);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Quarter: %u", midi.quarter);
+    fprintf(stderr, "\n\n");
 
     midi.tracks = (struct midi_track *)nessemble_malloc(sizeof(struct midi_track) * midi.track_count);
 

@@ -694,4 +694,7 @@ unsigned int user_create();
 unsigned int user_login();
 unsigned int user_logout();
 
+/* I18N */
+char *translate(char *id);
+
 #endif /* _NESSEMBLE_H */

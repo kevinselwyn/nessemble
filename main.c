@@ -188,7 +188,8 @@ int main(int argc, char *argv[]) {
                 rc = set_registry(argv[optind+1]);
             } else {
                 if ((rc = get_registry(&registry)) != RETURN_OK) {
-                    printf("No registry set\n");
+                    printf("No registry set");
+                    printf("\n");
                     goto cleanup;
                 }
 
@@ -206,7 +207,8 @@ int main(int argc, char *argv[]) {
                         goto cleanup;
                     }
 
-                    printf("Installed `%s`\n", argv[optind]);
+                    printf("Installed `%s`", argv[optind]);
+                    printf("\n");
                 }
             } else {
                 rc = usage(exec);
@@ -223,7 +225,8 @@ int main(int argc, char *argv[]) {
                         goto cleanup;
                     }
 
-                    printf("Uninstalled `%s`\n", argv[optind]);
+                    printf("Uninstalled `%s`", argv[optind]);
+                    printf("\n");
                 }
             } else {
                 rc = usage(exec);
@@ -272,7 +275,8 @@ int main(int argc, char *argv[]) {
                 goto cleanup;
             }
 
-            printf("User created\n");
+            printf("User created");
+            printf("\n");
 
             goto cleanup;
         }
@@ -283,7 +287,8 @@ int main(int argc, char *argv[]) {
                 goto cleanup;
             }
 
-            printf("Login successful\n");
+            printf("Login successful");
+            printf("\n");
 
             goto cleanup;
         }
@@ -294,7 +299,8 @@ int main(int argc, char *argv[]) {
                 goto cleanup;
             }
 
-            printf("Logout successful\n");
+            printf("Logout successful");
+            printf("\n");
 
             goto cleanup;
         }
@@ -474,7 +480,8 @@ int main(int argc, char *argv[]) {
 
     // check
     if (is_flag_check() == TRUE) {
-        printf("No errors\n");
+        printf("No errors");
+        printf("\n");
         goto cleanup;
     }
 
@@ -570,6 +577,7 @@ cleanup:
     }
 
     error_free();
+    translate_free();
 
     return (int)rc;
 }
