@@ -1,7 +1,0 @@
-[Indirect, X]
-
-The value in X is added to the specified zero page address for a sum address. The little-endian address stored at the two-byte pair of sum address (LSB) and sum address plus one (MSB) is loaded and the value at that address is used to perform the computation.
-
-Example:
-
-STA [$15, X]

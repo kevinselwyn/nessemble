@@ -363,7 +363,7 @@ unsigned int get_home(char **home);
 unsigned int get_coverage();
 
 /* REFERENCE */
-unsigned int reference(char *category, char *term);
+unsigned int reference(unsigned int terms, ...);
 
 /* INCLUDE UTILS */
 void include_file_pop();
@@ -635,6 +635,7 @@ char *get_line(char **buffer, char *prompt);
 unsigned int api_user(char **url, char *endpoint);
 unsigned int api_lib(char **url, char *lib);
 unsigned int api_search(char **url, char *term);
+unsigned int api_reference(char **url, char *endpoint);
 
 /* LIST */
 unsigned int output_list(char *filename);
