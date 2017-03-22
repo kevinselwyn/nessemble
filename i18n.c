@@ -21,8 +21,6 @@ void translate_init() {
         return;
     }
 
-    fprintf(stderr, "%s\n", path);
-
     setlocale(LC_ALL, "");
     bindtextdomain(PROGRAM_NAME, path);
     textdomain(PROGRAM_NAME);
