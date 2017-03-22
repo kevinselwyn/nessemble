@@ -52,7 +52,7 @@ void fatal(const char *fmt, ...) {
     va_list argptr;
     va_start(argptr, fmt);
 
-    fprintf(stderr, "Fatal error: ");
+    fprintf(stderr, "%s", _("Fatal error: "));
     UNUSED(vfprintf(stderr, fmt, argptr));
     fprintf(stderr, "\n");
 
@@ -81,7 +81,7 @@ void warning(const char *fmt, ...) {
         line = 1;
     }
 
-    fprintf(stderr, "Warning in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, line);
+    fprintf(stderr, _("Warning in `%s` on line %d: "), filename_stack[include_stack_ptr]+length, line);
     UNUSED(vfprintf(stderr, fmt, argptr));
     fprintf(stderr, "\n");
 
@@ -142,7 +142,7 @@ unsigned int error_exit() {
             line = 1;
         }
 
-        fprintf(stderr, "Error in `%s` on line %d: %s", filename_stack[include_stack_ptr]+length, line, errors[error_index-1].message);
+        fprintf(stderr, _("Error in `%s` on line %d: %s"), filename_stack[include_stack_ptr]+length, line, errors[error_index-1].message);
         fprintf(stderr, "\n");
 
         rc = RETURN_EPERM;
@@ -182,7 +182,7 @@ void yyerror(const char *fmt, ...) {
         line = 1;
     }
 
-    fprintf(stderr, "Error in `%s` on line %d: ", filename_stack[include_stack_ptr]+length, line);
+    fprintf(stderr, _("Error in `%s` on line %d: "), filename_stack[include_stack_ptr]+length, line);
     UNUSED(vfprintf(stderr, fmt, argptr));
     fprintf(stderr, "\n");
 
@@ -236,16 +236,13 @@ static void error_signal_handler(int signal, siginfo_t *si, void *arg) {
     UNUSED(signal);
     UNUSED(arg);
 
-    printf("An unexpected error has occurred: %s", signal_names[si->si_signo]);
+    printf(_("An unexpected error has occurred: %s"), signal_names[si->si_signo]);
 
     if (si->si_addr) {
         printf(" (%p)", si->si_addr);
     }
 
-    printf("\n\n");
-    printf("Please report this error to the maintainer:");
-    printf("\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n");
-    printf("  " PROGRAM_ISSUES "\n");
+    printf("\n\n%s\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n  " PROGRAM_ISSUES "\n", _("Please report this error to the maintainer:"));
 
     longjmp(error_jmp, 1);
 }

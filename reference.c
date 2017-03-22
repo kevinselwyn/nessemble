@@ -53,9 +53,9 @@ unsigned int reference(unsigned int terms, ...) {
             }
 
             if (endpoint_length > 0) {
-                error_program_log("Could not find info for '%s'", endpoint);
+                error_program_log(_("Could not find info for `%s`"), endpoint);
             } else {
-                error_program_log("Could not find info");
+                error_program_log(_("Could not find info"));
             }
         }
 

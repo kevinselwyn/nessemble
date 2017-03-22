@@ -21,6 +21,8 @@ int main(int argc, char *argv[]) {
     char *registry = NULL, *config = NULL;
     FILE *file = NULL, *outfile = NULL;
 
+    translate_init();
+
 #ifndef IS_WINDOWS
     // setup error catch
     if (setjmp(error_jmp) != 0) {
@@ -138,7 +140,7 @@ int main(int argc, char *argv[]) {
     while (optind < argc) {
         if (strcmp(argv[optind], "init") == 0) {
             if ((rc = init()) != RETURN_OK) {
-                error_program_output("Could not initialize project");
+                error_program_output(_("Could not initialize project"));
             }
 
             goto cleanup;
@@ -154,7 +156,7 @@ int main(int argc, char *argv[]) {
             }
 
             if ((rc = reference(ref_count, argv[optind+1], argv[optind+2])) != RETURN_OK) {
-                error_program_output("Could not get reference info");
+                error_program_output(_("Could not get reference info"));
             }
 
             goto cleanup;
@@ -163,15 +165,15 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[optind], "config") == 0) {
             if (optind + 2 < argc) {
                 if ((rc = set_config(argv[optind+2], argv[optind+1])) != RETURN_OK) {
-                    error_program_output("Could not set `%s` config", argv[optind+1]);
+                    error_program_output(_("Could not set `%s` config"), argv[optind+1]);
                 }
             } else if (optind + 1 < argc) {
                 if ((rc = get_config(&config, argv[optind+1])) != RETURN_OK) {
-                    error_program_output("Could not get `%s` config", argv[optind+1]);
+                    error_program_output(_("Could not get `%s` config"), argv[optind+1]);
                 }
             } else {
                 if ((rc = list_config(&config)) != RETURN_OK) {
-                    error_program_output("Could not list config");
+                    error_program_output(_("Could not list config"));
                     goto cleanup;
                 }
             }
@@ -188,8 +190,7 @@ int main(int argc, char *argv[]) {
                 rc = set_registry(argv[optind+1]);
             } else {
                 if ((rc = get_registry(&registry)) != RETURN_OK) {
-                    printf("No registry set");
-                    printf("\n");
+                    printf("%s\n", _("No registry set"));
                     goto cleanup;
                 }
 
@@ -203,11 +204,11 @@ int main(int argc, char *argv[]) {
             if (optind + 1 < argc) {
                 while (++argv != NULL && argv[optind] != NULL) {
                     if ((rc = lib_install(argv[optind])) != RETURN_OK) {
-                        error_program_output("Could not install `%s`", argv[optind]);
+                        error_program_output(_("Could not install `%s`"), argv[optind]);
                         goto cleanup;
                     }
 
-                    printf("Installed `%s`", argv[optind]);
+                    printf(_("Installed `%s`"), argv[optind]);
                     printf("\n");
                 }
             } else {
@@ -221,11 +222,11 @@ int main(int argc, char *argv[]) {
             if (optind + 1 < argc) {
                 while (++argv != NULL && argv[optind] != NULL) {
                     if ((rc = lib_uninstall(argv[optind])) != RETURN_OK) {
-                        error_program_output("Could not uninstall `%s`", argv[optind]);
+                        error_program_output(_("Could not uninstall `%s`"), argv[optind]);
                         goto cleanup;
                     }
 
-                    printf("Uninstalled `%s`", argv[optind]);
+                    printf(_("Uninstalled `%s`"), argv[optind]);
                     printf("\n");
                 }
             } else {
@@ -238,7 +239,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[optind], "info") == 0) {
             if (optind + 1 < argc) {
                 if ((rc = lib_info(argv[optind+1])) != RETURN_OK) {
-                    error_program_output("Could not find info for `%s`", argv[optind+1]);
+                    error_program_output(_("Could not find info for `%s`"), argv[optind+1]);
                     goto cleanup;
                 }
             } else {
@@ -259,7 +260,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[optind], "search") == 0) {
             if (optind + 1 < argc) {
                 if ((rc = lib_search(argv[optind+1])) != RETURN_OK) {
-                    error_program_output("Could not search");
+                    error_program_output(_("Could not search"));
                     goto cleanup;
                 }
             } else {
@@ -271,19 +272,18 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[optind], "adduser") == 0) {
             if ((rc = user_create()) != RETURN_OK) {
-                error_program_output("Could not add user");
+                error_program_output(_("Could not add user"));
                 goto cleanup;
             }
 
-            printf("User created");
-            printf("\n");
+            printf("%s\n", _("User created"));
 
             goto cleanup;
         }
 
         if (strcmp(argv[optind], "login") == 0) {
             if ((rc = user_login()) != RETURN_OK) {
-                error_program_output("Could not login");
+                error_program_output(_("Could not login"));
                 goto cleanup;
             }
 
@@ -295,12 +295,11 @@ int main(int argc, char *argv[]) {
 
         if (strcmp(argv[optind], "logout") == 0) {
             if ((rc = user_logout()) != RETURN_OK) {
-                error_program_output("Could not logout");
+                error_program_output(_("Could not logout"));
                 goto cleanup;
             }
 
-            printf("Logout successful");
-            printf("\n");
+            printf("%s\n", _("Logout successful"));
 
             goto cleanup;
         }
@@ -326,7 +325,7 @@ int main(int argc, char *argv[]) {
     } else {
         // get cwd
         if (!nessemble_realpath(filename, cwd)) {
-            error_program_output("Could not open `%s`", filename);
+            error_program_output(_("Could not open `%s`"), filename);
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -335,7 +334,7 @@ int main(int argc, char *argv[]) {
         cwd_path = nessemble_strdup(cwd);
 
         if (!cwd_path) {
-            error_program_output("Could not open `%s`", filename);
+            error_program_output(_("Could not open `%s`"), filename);
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -352,7 +351,7 @@ int main(int argc, char *argv[]) {
     // simulate
     if (is_flag_simulate() == TRUE) {
         if ((rc = simulate(cwd, !recipe ? "" : recipe)) != RETURN_OK) {
-            error_program_output("Could not simulate");
+            error_program_output(_("Could not simulate"));
         }
 
         goto cleanup;
@@ -366,7 +365,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!outfilename) {
-        error_program_output("Could not find output");
+        error_program_output(_("Could not find output"));
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -375,7 +374,7 @@ int main(int argc, char *argv[]) {
     // disassemble
     if (is_flag_disassemble() == TRUE) {
         if ((rc = disassemble(cwd, outfilename, listname)) != RETURN_OK) {
-            error_program_output("Could not disassemble `%s`", filename);
+            error_program_output(_("Could not disassemble `%s`"), filename);
         }
 
         goto cleanup;
@@ -385,7 +384,7 @@ int main(int argc, char *argv[]) {
     file = fopen(cwd, "r");
 
     if (!file) {
-        error_program_output("Could not open `%s`\n", cwd);
+        error_program_output(_("Could not open `%s`"), cwd);
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -422,7 +421,7 @@ int main(int argc, char *argv[]) {
 
     // restart
     if (fseek(yyin, 0, SEEK_SET) != 0) {
-        error_program_output("Could not rewind input file");
+        error_program_output(_("Could not rewind input file"));
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -480,8 +479,7 @@ int main(int argc, char *argv[]) {
 
     // check
     if (is_flag_check() == TRUE) {
-        printf("No errors");
-        printf("\n");
+        printf("%s\n", _("No errors"));
         goto cleanup;
     }
 
@@ -493,7 +491,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!outfile) {
-        error_program_output("Could not open `%s`", outfilename);
+        error_program_output(_("Could not open `%s`"), outfilename);
 
         rc = RETURN_EPERM;
         goto cleanup;

@@ -42,6 +42,9 @@
 /* UNUSED */
 #define UNUSED(x) (void)(x)
 
+/* I18N */
+#define _(STRING) translate(STRING)
+
 /* PROGRAM */
 #define PROGRAM_NAME         "nessemble"
 #define PROGRAM_VERSION      "1.0.1"
@@ -358,6 +361,7 @@ unsigned int license();
 
 /* HOME */
 unsigned int get_home(char **home);
+unsigned int get_home_path(char **path, unsigned int num, ...);
 
 /* COVERAGE */
 unsigned int get_coverage();
@@ -695,6 +699,8 @@ unsigned int user_login();
 unsigned int user_logout();
 
 /* I18N */
+void translate_init();
+void translate_free();
 char *translate(char *id);
 
 #endif /* _NESSEMBLE_H */

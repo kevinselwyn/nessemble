@@ -155,7 +155,7 @@ void include_file_push(char *filename) {
     // error on too big include depth
     if (include_stack_ptr >= MAX_INCLUDE_DEPTH) {
         include_stack_ptr--;
-        error("Too many nested includes");
+        error(_("Too many nested includes"));
         return;
     }
 
@@ -165,7 +165,7 @@ void include_file_push(char *filename) {
     // check if opened
     if (!yyin) {
         include_stack_ptr--;
-        error("Could not include `%s`", filename+length);
+        error(_("Could not include `%s`"), filename+length);
         return;
     }
 

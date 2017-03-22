@@ -7,7 +7,7 @@ static unsigned int user_auth(struct http_header *http_headers) {
     char *token = NULL;
 
     if ((rc = get_config(&token, "login")) != RETURN_OK) {
-        error_program_log("User not logged in");
+        error_program_log(_("User not logged in"));
         goto cleanup;
     }
 
@@ -32,7 +32,7 @@ unsigned int user_create() {
     memset(data, '\0', 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
 
-    while (get_line(&buffer, "Name: ") != NULL) {
+    while (get_line(&buffer, _("Name: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -44,7 +44,7 @@ unsigned int user_create() {
         break;
     }
 
-    while (get_line(&buffer, "Email: ") != NULL) {
+    while (get_line(&buffer, _("Email: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -56,7 +56,7 @@ unsigned int user_create() {
         break;
     }
 
-    while ((user_password = nessemble_getpass("Password: ")) != NULL) {
+    while ((user_password = nessemble_getpass(_("Password: "))) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -81,7 +81,7 @@ unsigned int user_create() {
 
     if (http_code != 200) {
         if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
-            error_program_log("Could not read response");
+            error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
         }
@@ -114,7 +114,7 @@ unsigned int user_login() {
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
     auth = (char *)nessemble_malloc(sizeof(char) * 1024);
 
-    while (get_line(&buffer, "Email: ") != NULL) {
+    while (get_line(&buffer, _("Email: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -126,7 +126,7 @@ unsigned int user_login() {
         break;
     }
 
-    while ((user_password = nessemble_getpass("Password: ")) != NULL) {
+    while ((user_password = nessemble_getpass(_("Password: "))) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -160,7 +160,7 @@ unsigned int user_login() {
 
     if (http_code != 200) {
         if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
-            error_program_log("Could not read response");
+            error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
         }
@@ -211,7 +211,7 @@ unsigned int user_logout() {
 
     if (http_code != 200) {
         if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
-            error_program_log("Could not read response");
+            error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
         }

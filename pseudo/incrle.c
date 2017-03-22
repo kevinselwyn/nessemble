@@ -13,17 +13,17 @@ void pseudo_incrle(char *string) {
     char *path = NULL, *bin_data = NULL;
 
     if (get_fullpath(&path, string) != 0) {
-        yyerror("Could not get full path of %s", string);
+        yyerror(_("Could not get full path of %s"), string);
         goto cleanup;
     }
 
     if (!path) {
-        yyerror("Could not get full path of %s", string);
+        yyerror(_("Could not get full path of %s"), string);
         goto cleanup;
     }
 
     if (load_file(&bin_data, &bin_length, path) != RETURN_OK) {
-        yyerror("Could not read `%s`", path);
+        yyerror(_("Could not read `%s`"), path);
         goto cleanup;
     }
 

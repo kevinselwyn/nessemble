@@ -58,7 +58,7 @@ unsigned int get_json_buffer(char **value, char *key, char *json) {
     token_count = jsmn_parse(&parser, json, strlen(json), tokens, JSON_TOKEN_MAX);
 
     if (token_count <= 0 || tokens[0].type != JSMN_OBJECT) {
-        error_program_log("Could not parse JSON");
+        error_program_log(_("Could not parse JSON"));
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -117,12 +117,12 @@ unsigned int get_json_url(char **value, char *key, char *url) {
 
     switch ((http_code = get_request(&text, &text_length, url, 1024 * 512, MIMETYPE_JSON))) {
     case 503:
-        error_program_log("Could not reach the registry");
+        error_program_log(_("Could not reach the registry"));
 
         rc = RETURN_EPERM;
         goto cleanup;
     case 404:
-        error_program_log("Library does not exist");
+        error_program_log(_("Library does not exist"));
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -158,12 +158,12 @@ unsigned int get_json_search(char *url, char *term) {
 
     switch (get_request(&text, &text_length, url, 1024 * 512, MIMETYPE_JSON)) {
     case 503:
-        error_program_log("Could not reach the registry");
+        error_program_log(_("Could not reach the registry"));
 
         rc = RETURN_EPERM;
         goto cleanup;
     case 404:
-        error_program_log("Library does not exist");
+        error_program_log(_("Library does not exist"));
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -181,7 +181,7 @@ unsigned int get_json_search(char *url, char *term) {
     token_count = jsmn_parse(&parser, text, strlen(text), tokens, JSON_TOKEN_MAX);
 
     if (token_count <= 0 || tokens[0].type != JSMN_OBJECT) {
-        error_program_log("Could not parse JSON");
+        error_program_log(_("Could not parse JSON"));
 
         rc = RETURN_EPERM;
         goto cleanup;

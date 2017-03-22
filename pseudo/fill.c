@@ -8,7 +8,7 @@ void pseudo_fill() {
     unsigned int count = 0, value = 0;
 
     if (length_ints < 1) {
-        yyerror("Not enough .fill arguments");
+        yyerror(_("Not enough .fill arguments"));
         goto cleanup;
     }
 

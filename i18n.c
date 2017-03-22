@@ -4,55 +4,41 @@
 #include "strings.h"
 #include "nessemble.h"
 
+#ifndef IS_WINDOWS
+#include <libintl.h>
+#include <locale.h>
+#endif /* IS_WINDOWS */
+
 static char *translated;
 
-void translate_free() {
-    if (translated) {
-        free(translated);
+void translate_init() {
+    translated = (char *)nessemble_malloc(sizeof(char) * 256);
+
+#ifndef IS_WINDOWS
+    char *path = NULL;
+
+    if (get_home_path(&path, 2, "." PROGRAM_NAME, "locale") != RETURN_OK) {
+        return;
     }
+
+    fprintf(stderr, "%s\n", path);
+
+    setlocale(LC_ALL, "");
+    bindtextdomain(PROGRAM_NAME, path);
+    textdomain(PROGRAM_NAME);
+
+    nessemble_free(path);
+#endif /* IS_WINDOWS */
+}
+
+void translate_free() {
+    nessemble_free(translated);
 }
 
 char *translate(char *id) {
-    unsigned int next = FALSE;
-    char *current_line = NULL, *next_line = NULL, *output = NULL;
-    char whitespace[32], key[128], val[128];
-
-    translate_free();
-
-    translated = (char *)malloc(sizeof(char) * 128);
-    memset(translated, '\0', 128);
-
-    current_line = strings_json;
-
-    while (current_line) {
-        next_line = strchr(current_line, '\n');
-
-        if (next_line) {
-            *next_line = '\0';
-        }
-
-        sscanf(current_line, "%[^\"]\"%[^\"]\": \"%[^\"]\"", whitespace, key, val);
-
-        if (next == TRUE && key[0] != '\0' && strcmp(key, "str") == 0) {
-            memcpy(translated, val, 128);
-            goto cleanup;
-        }
-
-        if (key[0] != '\0' && strcmp(key, "id") == 0 && strcmp(val, id) == 0) {
-            next = TRUE;
-        }
-
-        if (next_line) {
-            *next_line = '\n';
-        }
-
-        current_line = next_line ? (next_line + 1) : NULL;
-
-        memset(whitespace, '\0', 32);
-        memset(key, '\0', 128);
-        memset(val, '\0', 128);
-    }
-
-cleanup:
-    return translated;
+#ifdef IS_WINDOWS
+    return id;
+#else
+    return gettext(id);
+#endif
 }

@@ -16,22 +16,17 @@ struct config_type config_types[CONFIG_TYPES] = {
 
 unsigned int open_config(FILE **file, char **filename) {
     unsigned int rc = RETURN_OK;
-    char *home = NULL, *config_path = NULL, *lib_path = NULL;
-    size_t length = 0;
+    char *config_path = NULL, *lib_path = NULL;
     FILE *config = NULL;
     DIR *dir = NULL;
 
-    if ((rc = get_home(&home)) != RETURN_OK) {
+    if ((rc = get_home_path(&config_path, 1, "." PROGRAM_NAME)) != RETURN_OK) {
         goto cleanup;
     }
 
-    length = strlen(home) + 18;
-
-    config_path = (char *)nessemble_malloc(sizeof(char) * length + 1);
-    sprintf(config_path, "%s" SEP "%s", home, "." PROGRAM_NAME);
-
-    lib_path = (char *)nessemble_malloc(sizeof(char) * (length + 5) + 1);
-    sprintf(lib_path, "%s" SEP "libs", config_path);
+    if ((rc = get_home_path(&lib_path, 2, "." PROGRAM_NAME, "libs")) != RETURN_OK) {
+        goto cleanup;
+    }
 
     dir = opendir(config_path);
 
@@ -61,7 +56,7 @@ unsigned int open_config(FILE **file, char **filename) {
     }
 
     if (!config) {
-        error_program_log("Could not open `%s`", CONFIG_FILENAME);
+        error_program_log(_("Could not open `%s`"), CONFIG_FILENAME);
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -71,7 +66,6 @@ unsigned int open_config(FILE **file, char **filename) {
     *filename = config_path;
 
 cleanup:
-    nessemble_free(home);
     nessemble_free(lib_path);
 
     return rc;
@@ -104,7 +98,7 @@ unsigned int get_config(char **result, char *item) {
     }
 
     if (found == FALSE) {
-        error_program_log("No `%s` set", item);
+        error_program_log(_("No `%s` set"), item);
 
         rc = RETURN_EPERM;
     }
@@ -140,7 +134,7 @@ unsigned int set_config(char *result, char *item) {
         config = fopen(config_path, "a");
 
         if (!config) {
-            error_program_log("Could not open `%s`", CONFIG_FILENAME);
+            error_program_log(_("Could not open `%s`"), CONFIG_FILENAME);
 
             rc = RETURN_EPERM;
             goto cleanup;
@@ -157,7 +151,7 @@ unsigned int set_config(char *result, char *item) {
     config = fopen(config_path, "w+");
 
     if (!config) {
-        error_program_log("Could not open `%s`", CONFIG_FILENAME);
+        error_program_log(_("Could not open `%s`"), CONFIG_FILENAME);
 
         rc = RETURN_EPERM;
         goto cleanup;
