@@ -44,45 +44,23 @@ unsigned int set_registry(char *registry) {
 
 static unsigned int get_lib_dir(char **lib_dir) {
     unsigned int rc = RETURN_OK;
-    size_t length = 0;
-    char *home = NULL, *dir = NULL;
 
-    if ((rc = get_home(&home)) != RETURN_OK) {
+    if ((rc = get_home_path(&*lib_dir, 2, "." PROGRAM_NAME, "libs")) != RETURN_OK) {
         goto cleanup;
     }
 
-    length = strlen(home) + 16;
-    dir = (char *)nessemble_malloc(sizeof(char) * length + 1);
-
-    sprintf(dir, "%s" SEP "%s", home, "." PROGRAM_NAME SEP "libs");
-
-    *lib_dir = dir;
-
 cleanup:
-    nessemble_free(home);
-
     return rc;
 }
 
 static unsigned int get_lib_path(char **lib_path, char *lib) {
     unsigned int rc = RETURN_OK;
-    size_t length = 0;
-    char *home = NULL, *path = NULL;
 
-    if ((rc = get_home(&home)) != RETURN_OK) {
+    if ((rc = get_home_path(&*lib_path, 3, "." PROGRAM_NAME, "libs", lib)) != RETURN_OK) {
         goto cleanup;
     }
 
-    length = strlen(home) + strlen(lib) + 21;
-    path = (char *)nessemble_malloc(sizeof(char) * length + 1);
-
-    sprintf(path, "%s" SEP "%s" SEP "%s" SEP, home, "." PROGRAM_NAME SEP "libs", lib);
-
-    *lib_path = path;
-
 cleanup:
-    nessemble_free(home);
-
     return rc;
 }
 
@@ -190,7 +168,7 @@ unsigned int lib_uninstall(char *lib) {
     }
 
     if (lib_is_installed(lib) == FALSE) {
-        error_program_log("`%s` is not installed", lib);
+        error_program_log(_("`%s` is not installed"), lib);
 
         rc = RETURN_EPERM;
         goto cleanup;

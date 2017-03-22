@@ -108,13 +108,13 @@ unsigned int usage(char *exec) {
     int length = (int)strlen(exec);
     unsigned int rc = RETURN_USAGE;
 
-    printf("Usage: %s [options] <infile.asm>\n", exec);
-    printf("%*s<command> [args]\n\n", length + 8, " ");
-    printf("Options:\n");
+    printf("%s: %s [%s] <infile.asm>\n", _("Usage"), exec, _("options"));
+    printf("%*s<%s> [%s]\n\n", length + strlen(_("Usage")) + 3, " ", _("command"), _("args"));
+    printf("%s:\n", _("Options"));
 
     print_usage(usage_flags, USAGE_FLAG_COUNT);
 
-    printf("\nCommands:\n");
+    printf("\n%s:\n", _("Commands"));
 
     print_usage(usage_commands, USAGE_COMMAND_COUNT);
 
@@ -125,7 +125,7 @@ unsigned int usage(char *exec) {
  * Simulation usage
  */
 void usage_simulate() {
-    printf("Options:\n\n");
+    printf("%s:\n\n", _("Options"));
 
     print_usage(simulation_usage_flags, SIMULATION_USAGE_FLAG_COUNT);
 
@@ -138,7 +138,7 @@ void usage_simulate() {
 unsigned int version() {
     unsigned int rc = RETURN_USAGE;
 
-    printf(PROGRAM_NAME " v" PROGRAM_VERSION "\n\nCopyright " PROGRAM_COPYRIGHT " " PROGRAM_AUTHOR "\n");
+    printf(PROGRAM_NAME " v" PROGRAM_VERSION "\n\n%s " PROGRAM_COPYRIGHT " " PROGRAM_AUTHOR "\n", _("Copyright"));
 
     return rc;
 }

@@ -6,11 +6,13 @@ lex.yy.c
 nessemble
 opcodes.c
 reference/**/*.h
-y.tab.*
-*.o
 strings.h
-suite_*
 third-party/**/*.o
+y.tab.*
 *.db
-*.pyc
 *.exe
+*.mo
+*.o
+*.po
+*.pot
+*.pyc
