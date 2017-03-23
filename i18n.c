@@ -26,7 +26,7 @@ void translate_init() {
     bindtextdomain(PROGRAM_NAME, translated_path);
     textdomain(PROGRAM_NAME);
 
-    nessemble_free(path);
+    nessemble_free(translated_path);
 #else /* IS_WINDOWS */
     char lang[16];
 
