@@ -517,7 +517,7 @@ unsigned int disassemble(char *input, char *output, char *listname) {
     outfile = fopen(output, "w");
 
     if (!outfile) {
-        error_program_log("Could not open `%s`", output);
+        error_program_log(_("Could not open `%s`"), output);
 
         rc = RETURN_EPERM;
         goto cleanup;

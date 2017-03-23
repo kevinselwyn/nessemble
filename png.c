@@ -32,7 +32,7 @@ struct png_data read_png(char *filename) {
     struct png_data png;
 
     if ((data = stbi_load(filename, &width, &height, &n, 3)) == NULL) {
-        error("Could not load PNG");
+        error(_("Could not load PNG"));
         return png;
     }
 

@@ -2,6 +2,7 @@
 # pylint: disable=C0103
 """Better xxd"""
 
+import os
 import re
 import argparse
 
@@ -11,7 +12,7 @@ def xxd(infile):
     output = []
     data = []
     slug = re.sub('[^a-zA-Z0-9]', '_', infile)
-    guard = '_%s' % (slug.replace('_txt', '_h').upper())
+    guard = '_%s' % (slug.replace('_' + os.path.splitext(infile)[1][1:], '_h').upper())
     length = 0
 
     output.append('#ifndef %s' % (guard))

@@ -174,12 +174,12 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
         switch (http_code) {
         case 503:
-            error_program_log("Could not reach the registry");
+            error_program_log(_("Could not reach the registry"));
 
             rc = RETURN_EPERM;
             goto cleanup;
         case 404:
-            error_program_log("Library does not exist");
+            error_program_log(_("Library does not exist"));
 
             rc = RETURN_EPERM;
             goto cleanup;

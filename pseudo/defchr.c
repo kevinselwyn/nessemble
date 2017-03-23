@@ -9,7 +9,7 @@ void pseudo_defchr() {
     unsigned int byte = 0, bit = 0;
 
     if (length_ints != 8) {
-        yyerror("Too few arguments. %d provided, need 8", length_ints);
+        yyerror(_("Too few arguments. %d provided, need 8"), length_ints);
     }
 
     while (bit < 2) {

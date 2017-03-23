@@ -13,7 +13,7 @@ void pseudo_custom(char *pseudo) {
     char *exec = NULL;
 
     if (pseudo_parse(&exec, pseudo, &so) != RETURN_OK) {
-        yyerror("Unknown custom pseudo-instruction `%s`", pseudo);
+        yyerror(_("Unknown custom pseudo-instruction `%s`"), pseudo);
         goto cleanup;
     }
 
@@ -22,7 +22,7 @@ void pseudo_custom(char *pseudo) {
     }
 
     if (file_exists(exec) == FALSE) {
-        yyerror("Command for custom pseudo-instruction `%s` does not exist", pseudo);
+        yyerror(_("Command for custom pseudo-instruction `%s` does not exist"), pseudo);
         goto cleanup;
     }
 
@@ -63,7 +63,7 @@ void pseudo_custom(char *pseudo) {
 
         if (pipe) {
             if ((rc = pclose(pipe)) != 0) {
-                yyerror("Command for custom pseudo-instruction `%s` failed (%d)", pseudo, rc);
+                yyerror(_("Command for custom pseudo-instruction `%s` failed (%d)"), pseudo, rc);
                 goto cleanup;
             }
         }
