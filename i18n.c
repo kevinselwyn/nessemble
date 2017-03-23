@@ -25,8 +25,6 @@ void translate_init() {
     setlocale(LC_ALL, "");
     bindtextdomain(PROGRAM_NAME, translated_path);
     textdomain(PROGRAM_NAME);
-
-    nessemble_free(translated_path);
 #else /* IS_WINDOWS */
     char lang[16];
 
