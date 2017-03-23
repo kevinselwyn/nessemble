@@ -306,6 +306,38 @@ unsigned int fgetu32_big(FILE *fp) {
     return (a << 24) | (b << 16) | (c << 8) | d;
 }
 
+unsigned int getu16_little(char *str) {
+    unsigned int a = (unsigned int)str[0];
+    unsigned int b = (unsigned int)str[1];
+
+    return a | (b << 8);
+}
+
+unsigned int getu16_big(char *str) {
+    unsigned int a = (unsigned int)str[0];
+    unsigned int b = (unsigned int)str[1];
+
+    return (a << 8) | b;
+}
+
+unsigned int getu32_little(char *str) {
+    unsigned int a = (unsigned int)str[0] & 0xFF;
+    unsigned int b = (unsigned int)str[1] & 0xFF;
+    unsigned int c = (unsigned int)str[2] & 0xFF;
+    unsigned int d = (unsigned int)str[3] & 0xFF;
+
+    return a | (b << 8) | (c << 16) | (d << 24);
+}
+
+unsigned int getu32_big(char *str) {
+    unsigned int a = (unsigned int)str[0];
+    unsigned int b = (unsigned int)str[1];
+    unsigned int c = (unsigned int)str[2];
+    unsigned int d = (unsigned int)str[3];
+
+    return (a << 24) | (b << 16) | (c << 8) | d;
+}
+
 /**
  * Hash string
  * @param {char *} string - String to hash
