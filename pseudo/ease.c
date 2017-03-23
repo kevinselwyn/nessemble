@@ -48,7 +48,7 @@ void pseudo_ease(char *type) {
     }
 
     if (found != TRUE) {
-        error("Invalid easing type `%s`", type+1);
+        error(_("Invalid easing type `%s`"), type+1);
     }
 
     length_ints = 0;

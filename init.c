@@ -15,7 +15,7 @@ unsigned int init() {
 
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
 
-    while (get_line(&buffer, "Filename: ") != NULL) {
+    while (get_line(&buffer, _("Filename: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -27,7 +27,7 @@ unsigned int init() {
         break;
     }
 
-    while (get_line(&buffer, "PRG Banks: ") != NULL) {
+    while (get_line(&buffer, _("PRG Banks: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -41,14 +41,14 @@ unsigned int init() {
         }
 
         if (input_prg < 0) {
-            printf("Choose a positive number of CHR banks\n");
+            printf("%s\n", _("Choose a positive number of CHR banks"));
             continue;
         }
 
         break;
     }
 
-    while (get_line(&buffer, "CHR Banks: ") != NULL) {
+    while (get_line(&buffer, _("CHR Banks: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -62,7 +62,7 @@ unsigned int init() {
         }
 
         if (input_chr < 0) {
-            printf("Choose a positive number of CHR banks\n");
+            printf("%s\n", _("Choose a positive number of CHR banks"));
             continue;
         }
 
@@ -70,7 +70,7 @@ unsigned int init() {
     }
 
 
-    while (get_line(&buffer, "Mapper (0-255): ") != NULL) {
+    while (get_line(&buffer, _("Mapper (0-255): ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -84,14 +84,14 @@ unsigned int init() {
         }
 
         if (input_mapper < 0 || input_mapper > 0xFF) {
-            printf("Choose a mapper between 0-255\n");
+            printf("%s\n", _("Choose a mapper between 0-255"));
             continue;
         }
 
         break;
     }
 
-    while (get_line(&buffer, "Mirroring (0-15): ") != NULL) {
+    while (get_line(&buffer, _("Mirroring (0-15): ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -105,7 +105,7 @@ unsigned int init() {
         }
 
         if (input_mirroring < 0 || input_mirroring > 0x0F) {
-            printf("Choose a mirroring between 0-15\n");
+            printf("%s\n", _("Choose a mirroring between 0-15"));
             continue;
         }
 
@@ -119,7 +119,7 @@ unsigned int init() {
 
     if (file_exists(input_filename) == TRUE) {
         while (answer != 'y' && answer != 'Y') {
-            printf("`%s` already exists. Overwrite? [Yn] ", input_filename);
+            printf(_("`%s` already exists. Overwrite? [Yn] "), input_filename);
 
             if (scanf(" %c", &answer) != 1) {
                 goto cleanup;
@@ -134,7 +134,7 @@ unsigned int init() {
     output = fopen(input_filename, "w+");
 
     if (!output) {
-        error_program_log("Could not open `%s`", input_filename);
+        error_program_log(_("Could not open `%s`"), input_filename);
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -155,7 +155,8 @@ unsigned int init() {
         fprintf(output, "\n;;;;;;;;;;;;;;;;\n\n.chr %u\n", i);
     }
 
-    printf("Created `%s`\n", input_filename);
+    printf(_("Created `%s`"), input_filename);
+    printf("\n");
 
 cleanup:
     nessemble_free(input_filename);

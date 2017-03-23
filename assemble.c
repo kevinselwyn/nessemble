@@ -103,7 +103,7 @@ void write_byte(unsigned int byte) {
     if (is_segment_prg() == TRUE) {
         if (pass == 1) {
             if (prg_offsets[prg_index] >= BANK_PRG) {
-                warning("Overflowing PRG Bank %d", prg_index);
+                warning(_("Overflowing PRG Bank %d"), prg_index);
             }
         }
 
@@ -113,7 +113,7 @@ void write_byte(unsigned int byte) {
     if (is_segment_chr() == TRUE) {
         if (pass == 1) {
             if (chr_offsets[chr_index] >= BANK_CHR) {
-                warning("Overflowing CHR Bank %d", prg_index);
+                warning(_("Overflowing CHR Bank %d"), prg_index);
             }
         }
 
@@ -174,7 +174,7 @@ int get_symbol(char *name) {
     }
 
     if (pass == 2 && symbol_id != -1 && symbols[symbol_id].type == SYMBOL_UNDEFINED) {
-        error("Symbol `%s` was not defined", symbols[symbol_id].name);
+        error(_("Symbol `%s` was not defined"), symbols[symbol_id].name);
     }
 
     return symbol_id;

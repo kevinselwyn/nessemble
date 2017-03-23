@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include "nessemble.h"
 
@@ -29,7 +30,7 @@ unsigned int get_home(char **home) {
     pw = getpwuid(uid);
 
     if (!pw) {
-        error_program_log("Could not find home directory");
+        error_program_log(_("Could not find home directory"));
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -41,5 +42,41 @@ unsigned int get_home(char **home) {
 #endif /* IS_WINDOWS */
 
 cleanup:
+    return rc;
+}
+
+unsigned int get_home_path(char **path, unsigned int num, ...) {
+    unsigned int rc = RETURN_OK, i = 0, l = 0, length = 0;
+    char *arg = NULL, *home = NULL, *output = NULL;
+    va_list argptr;
+
+    if ((rc = get_home(&home)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    length = (unsigned int)strlen(home);
+
+    va_start(argptr, num);
+
+    for (i = 0, l = num; i < l; i++) {
+        arg = va_arg(argptr, char *);
+        length += (unsigned int)strlen(arg) + 1;
+    }
+
+    output = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+    sprintf(output, "%s", home);
+
+    va_start(argptr, num);
+
+    for (i = 0, l = num; i < l; i++) {
+        arg = va_arg(argptr, char *);
+        sprintf(output+strlen(output), SEP "%s", arg);
+    }
+
+    va_end(argptr);
+
+cleanup:
+    *path = output;
+
     return rc;
 }

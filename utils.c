@@ -17,7 +17,7 @@ void *nessemble_malloc(size_t size) {
     mem = malloc(sizeof(char) * size);
 
     if (!mem) {
-        fatal("Memory error");
+        fatal(_("Memory error"));
     }
 
     memset(mem, 0, size);
@@ -306,6 +306,38 @@ unsigned int fgetu32_big(FILE *fp) {
     return (a << 24) | (b << 16) | (c << 8) | d;
 }
 
+unsigned int getu16_little(char *str) {
+    unsigned int a = (unsigned int)str[0];
+    unsigned int b = (unsigned int)str[1];
+
+    return a | (b << 8);
+}
+
+unsigned int getu16_big(char *str) {
+    unsigned int a = (unsigned int)str[0];
+    unsigned int b = (unsigned int)str[1];
+
+    return (a << 8) | b;
+}
+
+unsigned int getu32_little(char *str) {
+    unsigned int a = (unsigned int)str[0] & 0xFF;
+    unsigned int b = (unsigned int)str[1] & 0xFF;
+    unsigned int c = (unsigned int)str[2] & 0xFF;
+    unsigned int d = (unsigned int)str[3] & 0xFF;
+
+    return a | (b << 8) | (c << 16) | (d << 24);
+}
+
+unsigned int getu32_big(char *str) {
+    unsigned int a = (unsigned int)str[0];
+    unsigned int b = (unsigned int)str[1];
+    unsigned int c = (unsigned int)str[2];
+    unsigned int d = (unsigned int)str[3];
+
+    return (a << 24) | (b << 16) | (c << 8) | d;
+}
+
 /**
  * Hash string
  * @param {char *} string - String to hash
@@ -373,7 +405,7 @@ unsigned int get_fullpath(char **path, char *string) {
 
     if (string[0] == '<') {
         if ((rc = get_libpath(path, string)) != RETURN_OK) {
-            error("Could not include library `%s`", string);
+            error(_("Could not include library `%s`"), string);
         }
 
         goto cleanup;
@@ -402,21 +434,19 @@ cleanup:
  */
 unsigned int get_libpath(char **path, char *string) {
     unsigned int rc = RETURN_OK;
-    size_t string_length = 0, path_length = 0;
-    char *home = NULL, *fullpath = NULL;
+    size_t string_length = 0;
+    char old = '\0';
+    char *fullpath = NULL;
 
-    if ((rc = get_home(&home)) != RETURN_OK) {
+    string_length = strlen(string);
+    old = string[string_length-5];
+    string[string_length-5] = '\0';
+
+    if ((rc = get_home_path(&fullpath, 4, "." PROGRAM_NAME, "libs", string+1, "lib.asm")) != RETURN_OK) {
         goto cleanup;
     }
 
-    string_length = strlen(string);
-    path_length = strlen(home) + 24 + string_length - 1;
-    fullpath = (char *)nessemble_malloc(sizeof(char) * (path_length + 1));
-
-    strcpy(fullpath, home);
-    strcat(fullpath, SEP "." PROGRAM_NAME SEP "libs" SEP);
-    strncat(fullpath, string + 1, string_length - 6);
-    strcat(fullpath, SEP "lib.asm");
+    string[string_length-5] = old;
 
     if (file_exists(fullpath) == FALSE) {
         rc = RETURN_EPERM;
@@ -425,8 +455,6 @@ unsigned int get_libpath(char **path, char *string) {
     *path = fullpath;
 
 cleanup:
-    nessemble_free(home);
-
     return rc;
 }
 
@@ -454,14 +482,14 @@ unsigned int load_file(char **data, unsigned int *data_length, char *filename) {
     infile = fopen(filename, "r");
 
     if (!infile) {
-        error_program_log("Could not open `%s`", filename);
+        error_program_log(_("Could not open `%s`"), filename);
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     if ((fstat(fileno(infile), &stbuf) != 0) || (!S_ISREG(stbuf.st_mode))) {
-        error_program_log("Could not get filesize");
+        error_program_log(_("Could not get filesize"));
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -470,7 +498,7 @@ unsigned int load_file(char **data, unsigned int *data_length, char *filename) {
     insize = (unsigned int)stbuf.st_size;
 
     if (insize == 0) {
-        error_program_log("`%s` is empty", filename);
+        error_program_log(_("`%s` is empty"), filename);
 
         insize = 0;
         rc = RETURN_EPERM;
@@ -480,7 +508,7 @@ unsigned int load_file(char **data, unsigned int *data_length, char *filename) {
     indata = (char *)nessemble_malloc(sizeof(char) * (insize + 1));
 
     if (fread(indata, 1, (size_t)insize, infile) != (size_t)insize) {
-        error_program_log("Could not read `%s`", filename);
+        error_program_log(_("Could not read `%s`"), filename);
 
         insize = 0;
         rc = RETURN_EPERM;

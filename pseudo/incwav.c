@@ -10,12 +10,12 @@ void pseudo_incwav(char *string) {
     wave_src wav = { { 0, 0, 0, 0, 0, 0 } , NULL, 0, 0 };
 
     if (get_fullpath(&path, string) != 0) {
-        yyerror("Could not get full path of %s", string);
+        yyerror(_("Could not get full path of %s"), string);
         goto cleanup;
     }
 
     if (!path) {
-        yyerror("Could not get full path of %s", string);
+        yyerror(_("Could not get full path of %s"), string);
         goto cleanup;
     }
 
@@ -24,7 +24,7 @@ void pseudo_incwav(char *string) {
     }
 
     if (wav.fmt.channels != 1) {
-        error("WAV is not mono");
+        error(_("WAV is not mono"));
         goto cleanup;
     }
 

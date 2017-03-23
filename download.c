@@ -33,13 +33,13 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     } else if (strncmp(url, "https:", 6) == 0) {
         protocol = PROTOCOL_HTTPS;
     } else {
-        error_program_log("Protocol is not supported");
+        error_program_log(_("Protocol is not supported"));
         code = 500;
         goto cleanup;
     }
 
     if (protocol == PROTOCOL_HTTPS) {
-        error_program_log("HTTPS is not supported");
+        error_program_log(_("HTTPS is not supported"));
         code = 500;
     }
 
@@ -104,7 +104,7 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     WSADATA wsa;
 
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-        error_program_log("Could not initialize Winsock");
+        error_program_log(_("Could not initialize %s"), "Winsock");
         code = 500;
         goto cleanup;
     }
@@ -113,7 +113,7 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (sockfd < 0) {
-        error_program_log("Could not open socket");
+        error_program_log(_("Could not open socket"));
         code = 500;
         goto cleanup;
     }
@@ -121,7 +121,7 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     server = gethostbyname(host);
 
     if (!server) {
-        error_program_log("Could not find host `%s`", host);
+        error_program_log(_("Could not find host `%s`"), host);
         code = 404;
         goto cleanup;
     }
@@ -132,7 +132,7 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, (size_t)server->h_length);
 
     if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        error_program_log("Could not connect to host `%s`", host);
+        error_program_log(_("Could not connect to host `%s`"), host);
         code = 500;
         goto cleanup;
     }
@@ -210,13 +210,13 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     code = (unsigned int)atoi(code_str);
 
     if (code != 200) {
-        error_program_log("HTTP code `%u` returned", code);
+        error_program_log(_("HTTP code `%u` returned"), code);
     }
 
     content_type_index = nessemble_strcasestr(response, "Content-Type") - response;
 
     if (content_type_index == 0) {
-        error_program_log("Could not read `Content-Type`");
+        error_program_log(_("Could not read `Content-Type`"));
         code = 500;
         goto cleanup;
     }
@@ -224,7 +224,7 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     content_type_index += 14;
 
     if (strncmp(response+content_type_index, mime_type, strlen(mime_type)) != 0) {
-        error_program_log("Incorrect Content-Type `%s`", mime_type);
+        error_program_log(_("Incorrect Content-Type `%s`"), mime_type);
         code = 500;
         goto cleanup;
     }
@@ -232,7 +232,7 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     content_length_index = nessemble_strcasestr(response, "Content-Length") - response;
 
     if (content_length_index == 0) {
-        error_program_log("Invalid `Content-Length`");
+        error_program_log(_("Invalid `Content-Length`"));
         code = 500;
         goto cleanup;
     }
@@ -242,7 +242,7 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     response_index = strstr(response, "\r\n\r\n") - response;
 
     if (response_index == 0) {
-        error_program_log("No response found");
+        error_program_log(_("No response found"));
         code = 500;
         goto cleanup;
     }

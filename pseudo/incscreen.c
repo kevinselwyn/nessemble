@@ -14,7 +14,7 @@ void pseudo_incscreen(char *string, char *type) {
     struct png_data png;
 
     if (get_fullpath(&path, string) != 0) {
-        yyerror("Could not get full path of %s", string);
+        yyerror(_("Could not get full path of %s"), string);
         goto cleanup;
     }
 
@@ -26,11 +26,11 @@ void pseudo_incscreen(char *string, char *type) {
 
     // validate width/height
     if (png.width != SCREEN_WIDTH) {
-        yyerror("Incorrect screen width (must be %d)", SCREEN_WIDTH);
+        yyerror(_("Incorrect screen width (must be %d)"), SCREEN_WIDTH);
     }
 
     if (png.height != SCREEN_HEIGHT) {
-        yyerror("Incorrect screen height (must be %d)", SCREEN_HEIGHT);
+        yyerror(_("Incorrect screen height (must be %d)"), SCREEN_HEIGHT);
     }
 
     // get pixels
