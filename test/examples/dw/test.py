@@ -12,7 +12,8 @@ def main():
     dirname = os.path.dirname(os.path.realpath(__file__))
     example = 'dw'
 
-    child = subprocess.Popen(['python', '%s/../examples-test.py' % (dirname), example], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    arguments = ['python', '%s%s..%sexamples-test.py' % (dirname, os.sep, os.sep), example]
+    child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     data = child.communicate()[0]
     rc = child.returncode
 

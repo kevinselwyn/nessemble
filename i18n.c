@@ -12,15 +12,15 @@
 #include <sys/stat.h>
 #endif /* IS_WINDOWS */
 
-static char *translated;
 static char *translated_path;
 
+#ifdef IS_WINDOWS
+static char *translated;
 static unsigned int translatable;
 static char *translated_data;
+#endif /* IS_WINDOWS */
 
 void translate_init() {
-    translated = (char *)nessemble_malloc(sizeof(char) * 256);
-
 #ifndef IS_WINDOWS
     if (get_home_path(&translated_path, 2, "." PROGRAM_NAME, "locale") != RETURN_OK) {
         return;
@@ -29,12 +29,15 @@ void translate_init() {
     setlocale(LC_ALL, "");
     bindtextdomain(PROGRAM_NAME, translated_path);
     textdomain(PROGRAM_NAME);
+
+    nessemble_free(translated_path);
 #else /* IS_WINDOWS */
     char translated_lang[16];
     size_t translated_data_length = 0;
     FILE *translated_file = NULL;
     struct stat stbuf;
 
+    translated = (char *)nessemble_malloc(sizeof(char) * 256);
     translatable = TRUE;
 
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, &translated_lang[0], 16);
@@ -72,9 +75,11 @@ void translate_init() {
 }
 
 void translate_free() {
+#ifdef IS_WINDOWS
     nessemble_free(translated);
     nessemble_free(translated_path);
     nessemble_free(translated_data);
+#endif /* IS_WINDOWS */
 }
 
 char *translate(char *id) {

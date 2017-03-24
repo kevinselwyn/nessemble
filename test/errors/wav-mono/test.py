@@ -12,7 +12,8 @@ def main():
     dirname = os.path.dirname(os.path.realpath(__file__))
     err_name = 'wav-mono'
 
-    child = subprocess.Popen(['python', '%s/../errors-test.py' % (dirname), err_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    arguments = ['python', '%s%s..%serrors-test.py' % (dirname, os.sep, os.sep), err_name]
+    child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     data = child.communicate()[0]
     rc = child.returncode
 

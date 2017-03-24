@@ -77,6 +77,7 @@ def main():
         if not filecmp.cmp('%s%s%s%s%s.rom' % (dirname, os.sep, example, os.sep, example), tmp.name):
             tmp.close()
             print 'failed assembly'
+            print ' '.join(arguments)
             exit(1)
 
         tmp.close()
@@ -91,8 +92,9 @@ def main():
             data = child.communicate()[0]
             rc = child.returncode
 
-            if rc != 0:
+            if rc == 2:
                 print 'memory leak assembly'
+                print ' '.join(arguments)
                 exit(rc)
 
     # disassemble
@@ -119,6 +121,7 @@ def main():
         if not filecmp.cmp('%s%s%s%s%s-disassembled.txt' % (dirname, os.sep, example, os.sep, example), tmp.name):
             tmp.close()
             print 'failed disassembly'
+            print ' '.join(arguments)
             exit(1)
 
         tmp.close()
@@ -133,8 +136,9 @@ def main():
             data = child.communicate()[0]
             rc = child.returncode
 
-            if rc != 0:
+            if rc == 2:
                 print 'memory leak disassembly'
+                print ' '.join(arguments)
                 exit(rc)
 
     # simulate
@@ -161,6 +165,7 @@ def main():
         if not filecmp.cmp('%s%s%s%s%s-simulated.txt' % (dirname, os.sep, example, os.sep, example), tmp.name):
             tmp.close()
             print 'failed simulation'
+            print ' '.join(arguments)
             exit(1)
 
         tmp.close()
@@ -175,8 +180,9 @@ def main():
             data = child.communicate()[0]
             rc = child.returncode
 
-            if rc != 0:
+            if rc == 2:
                 print 'memory leak simulation'
+                print ' '.join(arguments)
                 exit(rc)
 
 if __name__ == '__main__':

@@ -39,9 +39,10 @@ endif
 
 # TARGET-SPECIFIC
 
-all: CC_FLAGS += -ldl
+all: CC_LIB_FLAGS += -ldl
 
-debug: CC_FLAGS += -g
+debug: CC_FLAGS     += -g
+debug: CC_LIB_FLAGS += -ldl
 
 js: EXEC         := $(NAME).js
 js: CC           := emcc
