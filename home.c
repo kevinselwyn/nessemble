@@ -78,5 +78,7 @@ unsigned int get_home_path(char **path, unsigned int num, ...) {
 cleanup:
     *path = output;
 
+    nessemble_free(home);
+
     return rc;
 }

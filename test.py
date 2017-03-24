@@ -29,13 +29,13 @@ def test_generator(filename):
 def main():
     """Main function"""
 
-    dirname = '%s/test' % (os.path.dirname(os.path.realpath(__file__)))
+    dirname = '%s%stest' % (os.path.dirname(os.path.realpath(__file__)), os.sep)
 
     for root, dirnames, filenames in os.walk(dirname):
         for filename in filenames:
             if filename == 'test.py':
                 path = os.path.join(root, filename)
-                name = '/'.join(os.path.dirname(path).split('/')[-2:])
+                name = os.sep.join(os.path.dirname(path).split(os.sep)[-2:])
 
                 tests.append([name, path])
 

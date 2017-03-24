@@ -12,7 +12,8 @@ def main():
     dirname = os.path.dirname(os.path.realpath(__file__))
     opcode = 'inc'
 
-    child = subprocess.Popen(['python', '%s/../opcode-test.py' % (dirname), opcode], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    arguments = ['python', '%s%s..%sopcode-test.py' % (dirname, os.sep, os.sep), opcode]
+    child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     data = child.communicate()[0]
     rc = child.returncode
 
