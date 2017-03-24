@@ -1,9 +1,9 @@
 #include <string.h>
 #include "../nessemble.h"
 
-#ifndef WIN32
+#ifndef IS_WINDOWS
 #include <dlfcn.h>
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 
 /**
  * custom pseudo instruction
@@ -35,9 +35,9 @@ void pseudo_custom(char *pseudo) {
 
         command_length = (unsigned int)strlen(exec) + (length_ints * 4);
 
-#ifndef WIN32
+#ifndef IS_WINDOWS
         command_length += 12;
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 
         command = (char *)nessemble_malloc(sizeof(char) * (command_length));
 
@@ -47,9 +47,9 @@ void pseudo_custom(char *pseudo) {
             sprintf(command+strlen(command), " %u", ints[i] & 0xFF);
         }
 
-#ifndef WIN32
+#ifndef IS_WINDOWS
         strcat(command, " 2>/dev/null");
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 
         if ((pipe = popen(command, "r")) == NULL) {
             goto cleanup;
@@ -70,7 +70,7 @@ void pseudo_custom(char *pseudo) {
 
         nessemble_free(command);
     }
-#ifndef WIN32
+#ifndef IS_WINDOWS
     else {
         void *handle = NULL;
         int (*custom)(int **, int *, int, int *);
@@ -107,7 +107,7 @@ void pseudo_custom(char *pseudo) {
 
         UNUSED(dlclose(handle));
     }
-#endif /* WIN32 */
+#endif /* IS_WINDOWS */
 
 cleanup:
     nessemble_free(exec);
