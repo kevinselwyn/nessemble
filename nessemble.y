@@ -317,8 +317,8 @@ pseudo_dw
     ;
 
 pseudo_ease
-    : PSEUDO_EASE QUOT_STRING { $$ = $2; }
-    | pseudo_ease number      { ints[length_ints++] = $2; $$ = $1; }
+    : PSEUDO_EASE QUOT_STRING  { $$ = $2; }
+    | pseudo_ease COMMA number { ints[length_ints++] = $3; $$ = $1; }
     ;
 
 pseudo_else
