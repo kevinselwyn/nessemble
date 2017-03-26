@@ -57,11 +57,11 @@ char *nessemble_strdup(char *str) {
 }
 
 const char *nessemble_strcasestr(const char *s1, const char *s2) {
-#if defined(IS_WINDOWS) || defined(IS_JAVASCRIPT)
-    return strstr(s1, s2);
-#else /* IS_WINDOWS || IS_JAVASCRIPT */
+#ifndef IS_WINDOWS
     return strcasestr(s1, s2);
-#endif /* IS_WINDOWS || IS_JAVASCRIPT */
+#else /* IS_WINDOWS */
+    return strstr(s1, s2);
+#endif /* IS_WINDOWS */
 }
 
 int nessemble_mkdir(const char *dirname, int mode) {
