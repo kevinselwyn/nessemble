@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include "nessemble.h"
-#include "download.h"
 
 #ifdef IS_WINDOWS
 #include <winsock2.h>
@@ -14,7 +13,7 @@
 #include <netdb.h>
 #endif /* IS_WINDOWS */
 
-static unsigned int do_request(char **request, unsigned int *request_length, char *url, char *data, unsigned int data_length, char *method, char *mime_type, struct http_header http_headers) {
+static unsigned int do_request(struct download_option download_options) {
     unsigned int port = 80, protocol = PROTOCOL_HTTP;
     unsigned int i = 0, l = 0, index = 0;
     unsigned int code = 0, length = 0;
@@ -27,6 +26,16 @@ static unsigned int do_request(char **request, unsigned int *request_length, cha
     struct sockaddr_in serv_addr;
     struct timeval timeout;
     fd_set set;
+
+    // options
+    char **request = download_options.response;
+    unsigned int *request_length = download_options.response_length;
+    char *url = download_options.url;
+    char *data = download_options.data;
+    unsigned int data_length = download_options.data_length;
+    char *method = download_options.method;
+    char *mime_type = download_options.mime_type;
+    struct http_header http_headers = download_options.http_headers;
 
     if (strncmp(url, "http:", 5) == 0) {
         protocol = PROTOCOL_HTTP;
@@ -266,12 +275,22 @@ cleanup:
     return code;
 }
 
-unsigned int get_request(char **request, unsigned int *request_length, char *url, unsigned int data_length, char *mime_type) {
+unsigned int get_request(struct download_option download_options) {
     struct http_header http_headers = { 0, {}, {} };
 
-    return do_request(&*request, request_length, url, NULL, data_length, "GET", mime_type, http_headers);
+    if (!download_options.method) {
+        download_options.method = "GET";
+    }
+
+    download_options.http_headers = http_headers;
+
+    return do_request(download_options);
 }
 
-unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, unsigned int data_length, char *mime_type, struct http_header http_headers) {
-    return do_request(&*request, request_length, url, data, data_length, "POST", mime_type, http_headers);
+unsigned int post_request(struct download_option download_options) {
+    if (!download_options.method) {
+        download_options.method = "POST";
+    }
+
+    return do_request(download_options);
 }

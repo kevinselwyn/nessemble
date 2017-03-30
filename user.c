@@ -27,6 +27,7 @@ unsigned int user_create() {
     char *url = NULL, *response = NULL, *error = NULL, *buffer = NULL;
     char *user_name = NULL, *user_email = NULL, *user_password = NULL;
     char data[1024];
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
     struct http_header http_headers = { 0, {}, {} };
 
     memset(data, '\0', 1024);
@@ -72,7 +73,16 @@ unsigned int user_create() {
         goto cleanup;
     }
 
-    http_code = post_request(&response, &response_length, url, data, 1024, MIMETYPE_JSON, http_headers);
+    // options
+    download_options.response = &response;
+    download_options.response_length = &response_length;
+    download_options.url = url;
+    download_options.data = data;
+    download_options.data_length = 1024;
+    download_options.mime_type = MIMETYPE_JSON;
+    download_options.http_headers = http_headers;
+
+    http_code = post_request(download_options);
 
     if (!response || response_length == 0) {
         rc = RETURN_EPERM;
@@ -108,6 +118,7 @@ unsigned int user_login() {
     char *base64 = NULL, *auth = NULL;
     char *user_email = NULL, *user_password = NULL;
     char data[1024];
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
     struct http_header http_headers = { 0, {}, {} };
 
     memset(data, '\0', 1024);
@@ -151,7 +162,16 @@ unsigned int user_login() {
         goto cleanup;
     }
 
-    http_code = post_request(&response, &response_length, url, data, 1024, MIMETYPE_JSON, http_headers);
+    // options
+    download_options.response = &response;
+    download_options.response_length = &response_length;
+    download_options.url = url;
+    download_options.data = data;
+    download_options.data_length = 1024;
+    download_options.mime_type = MIMETYPE_JSON;
+    download_options.http_headers = http_headers;
+
+    http_code = post_request(download_options);
 
     if (!response || response_length == 0) {
         rc = RETURN_EPERM;
@@ -192,6 +212,7 @@ unsigned int user_logout() {
     unsigned int rc = RETURN_OK;
     unsigned int http_code = 0, response_length = 0;
     char *url = NULL, *response = NULL, *error = NULL;
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
     struct http_header http_headers = { 0, {}, {} };
 
     if ((rc = user_auth(&http_headers)) != RETURN_OK) {
@@ -202,7 +223,16 @@ unsigned int user_logout() {
         goto cleanup;
     }
 
-    http_code = post_request(&response, &response_length, url, "{}", 1024, MIMETYPE_JSON, http_headers);
+    // options
+    download_options.response = &response;
+    download_options.response_length = &response_length;
+    download_options.url = url;
+    download_options.data = "{}";
+    download_options.data_length = 1024;
+    download_options.mime_type = MIMETYPE_JSON;
+    download_options.http_headers = http_headers;
+
+    http_code = post_request(download_options);
 
     if (!response || response_length == 0) {
         rc = RETURN_EPERM;

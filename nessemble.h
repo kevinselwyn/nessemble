@@ -160,6 +160,12 @@
 #define CONFIG_LINE_LENGTH 256
 #define CONFIG_TYPES       1
 
+/* DOWNLOAD */
+enum {
+    PROTOCOL_HTTP,
+    PROTOCOL_HTTPS
+};
+
 /* MACRO */
 #define MAX_MACRO_NAME 1024
 #define MAX_MACRO_TEXT 1024 * 1024
@@ -246,11 +252,20 @@ struct easing {
     float (*func)(float t, float b, float c, float d);
 };
 
-/* HTPP HEADERS */
+/* HTTP HEADERS */
 struct http_header {
     unsigned int count;
     char *keys[16];
     char *vals[16];
+};
+
+/* DOWNLOAD */
+struct download_option {
+    unsigned int *response_length;
+    unsigned int data_length;
+    char **response;
+    char *url, *data, *method, *mime_type;
+    struct http_header http_headers;
 };
 
 /*
@@ -674,8 +689,8 @@ unsigned int lib_list();
 unsigned int lib_search(char *term);
 
 /* DOWNLOAD */
-unsigned int get_request(char **request, unsigned int *request_length, char *url, unsigned int data_length, char *mime_type);
-unsigned int post_request(char **request, unsigned int *request_length, char *url, char *data, unsigned int data_length, char *mime_type, struct http_header http_headers);
+unsigned int get_request(struct download_option download_options);
+unsigned int post_request(struct download_option download_options);
 
 /* JSON */
 unsigned int get_json_buffer(char **value, char *key, char *json);

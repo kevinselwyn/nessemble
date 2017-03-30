@@ -166,13 +166,19 @@ cleanup:
 }
 
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url) {
-    unsigned int rc = RETURN_OK, http_code = 0, content_length = 0, index = 0;
+    unsigned int rc = RETURN_OK, content_length = 0, index = 0;
     char *content = NULL;
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
 
     if (!cache_url || (strcmp(url, cache_url) != 0)) {
-        http_code = get_request(&content, &content_length, url, 1024 * 512, MIMETYPE_ZIP);
+        // options
+        download_options.response = &content;
+        download_options.response_length = &content_length;
+        download_options.url = url;
+        download_options.data_length = 1024 * 512;
+        download_options.mime_type = MIMETYPE_ZIP;
 
-        switch (http_code) {
+        switch (get_request(download_options)) {
         case 503:
             error_program_log(_("Could not reach the registry"));
 

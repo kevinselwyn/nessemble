@@ -186,8 +186,9 @@ cleanup:
 }
 
 unsigned int lib_info(char *lib) {
-    unsigned int rc = RETURN_OK, readme_length = 0, http_code = 0;
+    unsigned int rc = RETURN_OK, readme_length = 0;
     char *lib_url = NULL, *readme = NULL, *readme_url = NULL;
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
 
     if (lib_is_installed(lib) == FALSE) {
         if ((rc = api_lib(&lib_url, lib)) != RETURN_OK) {
@@ -198,9 +199,14 @@ unsigned int lib_info(char *lib) {
             goto cleanup;
         }
 
-        http_code = get_request(&readme, &readme_length, readme_url, 1024 * 512, MIMETYPE_TEXT);
+        // options
+        download_options.response = &readme;
+        download_options.response_length = &readme_length;
+        download_options.url = readme_url;
+        download_options.data_length = 1024 * 512;
+        download_options.mime_type = MIMETYPE_TEXT;
 
-        if (http_code != 200) {
+        if (get_request(download_options) != 200) {
             rc = RETURN_EPERM;
             goto cleanup;
         }

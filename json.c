@@ -112,10 +112,18 @@ cleanup:
 }
 
 unsigned int get_json_url(char **value, char *key, char *url) {
-    unsigned int rc = RETURN_OK, http_code = 0, text_length = 0;
+    unsigned int rc = RETURN_OK, text_length = 0;
     char *text = NULL;
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
 
-    switch ((http_code = get_request(&text, &text_length, url, 1024 * 512, MIMETYPE_JSON))) {
+    // options
+    download_options.response = &text;
+    download_options.response_length = &text_length;
+    download_options.url = url;
+    download_options.data_length = 1024 * 512;
+    download_options.mime_type = MIMETYPE_JSON;
+
+    switch (get_request(download_options)) {
     case 503:
         error_program_log(_("Could not reach the registry"));
 
@@ -155,8 +163,16 @@ unsigned int get_json_search(char *url, char *term) {
     char *results[200];
     jsmn_parser parser;
     jsmntok_t tokens[JSON_TOKEN_MAX];
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
 
-    switch (get_request(&text, &text_length, url, 1024 * 512, MIMETYPE_JSON)) {
+    // options
+    download_options.response = &text;
+    download_options.response_length = &text_length;
+    download_options.url = url;
+    download_options.data_length = 1024 * 512;
+    download_options.mime_type = MIMETYPE_JSON;
+
+    switch (get_request(download_options)) {
     case 503:
         error_program_log(_("Could not reach the registry"));
 
