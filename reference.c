@@ -7,6 +7,7 @@ unsigned int reference(unsigned int terms, ...) {
     unsigned int rc = RETURN_OK, http_code = 0, i = 0, l = 0;
     unsigned int url_length = 0, endpoint_length = 0, text_length = 0;
     char *arg = NULL, *url = NULL, *endpoint = NULL, *text = NULL;
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
     va_list argptr;
 
     va_start(argptr, terms);
@@ -42,9 +43,14 @@ unsigned int reference(unsigned int terms, ...) {
         url[url_length - 1] = '\0';
     }
 
-    http_code = get_request(&text, &text_length, url, 0, MIMETYPE_TEXT);
+    // options
+    download_options.response = &text;
+    download_options.response_length = &text_length;
+    download_options.url = url;
+    download_options.data_length = 0;
+    download_options.mime_type = MIMETYPE_TEXT;
 
-    if (http_code != 200) {
+    if ((http_code = get_request(download_options)) != 200) {
         if (http_code != 500) {
             for (i = 0, l = endpoint_length; i < l; i++) {
                 if (endpoint[i] == '/') {
@@ -68,7 +74,7 @@ unsigned int reference(unsigned int terms, ...) {
             goto cleanup;
         }
     } else {
-        printf("%s\n", text);
+        printf("%s", text);
     }
 
 cleanup:
