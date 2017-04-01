@@ -1,0 +1,3 @@
+nessemble v1.0.1
+
+Copyright 2017 Kevin Selwyn
