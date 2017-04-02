@@ -19,7 +19,7 @@ Options:
   -h, --help                   print this message
 
 Commands:
-  init                             initialize new project
+  init [<arg> ...]                 initialize new project
   reference [<category>] [<term>]  get reference info about assembly terms
   config [<key>] [<val>]           list/get/set config info
   registry [<url>]                 get/set registry url

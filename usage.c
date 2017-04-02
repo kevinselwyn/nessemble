@@ -42,7 +42,7 @@ static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
 };
 
 static struct usage_flag usage_commands[USAGE_COMMAND_COUNT] = {
-    { "init", "initialize new project" },
+    { "init [<arg> ...]", "initialize new project" },
     { "reference [<category>] [<term>]", "get reference info about assembly terms" },
     { "config [<key>] [<val>]", "list/get/set config info" },
     { "registry [<url>]", "get/set registry url" },
@@ -109,7 +109,7 @@ unsigned int usage(char *exec) {
     unsigned int rc = RETURN_USAGE;
 
     printf("%s: %s [%s] <infile.asm>\n", _("Usage"), exec, _("options"));
-    printf("%*s<%s> [%s]\n\n", length + strlen(_("Usage")) + 3, " ", _("command"), _("args"));
+    printf("%*s<%s> [%s]\n\n", (int)(length + strlen(_("Usage")) + 3), " ", _("command"), _("args"));
     printf("%s:\n", _("Options"));
 
     print_usage(usage_flags, USAGE_FLAG_COUNT);

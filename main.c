@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
 
     while (optind < argc) {
         if (strcmp(argv[optind], "init") == 0) {
-            if ((rc = init()) != RETURN_OK) {
+            if ((rc = init(argv+(optind + 1))) != RETURN_OK) {
                 error_program_output(_("Could not initialize project"));
             }
 

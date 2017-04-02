@@ -5,9 +5,9 @@
 #include "nessemble.h"
 #include "init.h"
 
-unsigned int init() {
+unsigned int init(char *opts[]) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
-    int input_prg = 0, input_chr = 0, input_mapper = 0, input_mirroring = 0;
+    int input_prg = -1, input_chr = -1, input_mapper = -1, input_mirroring = -1;
     size_t length = 0;
     char answer = '\0';
     char *buffer = NULL, *input_filename = NULL;
@@ -15,7 +15,11 @@ unsigned int init() {
 
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
 
-    while (get_line(&buffer, _("Filename: ")) != NULL) {
+    if (opts[0]) {
+        input_filename = nessemble_strdup(opts[0]);
+    }
+
+    while (!input_filename && get_line(&buffer, _("Filename: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -27,7 +31,11 @@ unsigned int init() {
         break;
     }
 
-    while (get_line(&buffer, _("PRG Banks: ")) != NULL) {
+    if (opts[1]) {
+        input_prg = atoi(opts[1]);
+    }
+
+    while (input_prg == -1 && get_line(&buffer, _("PRG Banks: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -48,7 +56,11 @@ unsigned int init() {
         break;
     }
 
-    while (get_line(&buffer, _("CHR Banks: ")) != NULL) {
+    if (opts[2]) {
+        input_chr = atoi(opts[2]);
+    }
+
+    while (input_chr == -1 && get_line(&buffer, _("CHR Banks: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -69,8 +81,11 @@ unsigned int init() {
         break;
     }
 
+    if (opts[3]) {
+        input_mapper = atoi(opts[3]);
+    }
 
-    while (get_line(&buffer, _("Mapper (0-255): ")) != NULL) {
+    while (input_mapper == -1 && get_line(&buffer, _("Mapper (0-255): ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -91,7 +106,11 @@ unsigned int init() {
         break;
     }
 
-    while (get_line(&buffer, _("Mirroring (0-15): ")) != NULL) {
+    if (opts[4]) {
+        input_mirroring = atoi(opts[4]);
+    }
+
+    while (input_mirroring == -1 && get_line(&buffer, _("Mirroring (0-15): ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
