@@ -65,13 +65,13 @@ def main():
             print ' '.join(arguments)
             cleanup(1)
 
+        os.unlink('%s%sexample.txt' % (root, os.sep))
+
         # valgrind
         if valgrind:
             arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep)]
             if flags:
                 arguments.extend(flags)
-
-            print ' '.join(arguments)
 
             child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             child.communicate()
