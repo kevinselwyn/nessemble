@@ -132,7 +132,7 @@ unsigned int lib_install(char *lib) {
         }
 
         lib_path_file = (char *)nessemble_malloc(sizeof(char) * (strlen(lib_path) + strlen(lib_files[i]) + 1));
-        sprintf(lib_path_file, "%s%s", lib_path, lib_files[i]);
+        sprintf(lib_path_file, "%s" SEP "%s", lib_path, lib_files[i]);
 
         lib_file = fopen(lib_path_file, "w+");
 
