@@ -39,23 +39,23 @@ endif
 
 # TARGET-SPECIFIC
 
-all: CC_LIB_FLAGS += -ldl
+all: CC_LIB_FLAGS += -ldl -llua5.1 -I/usr/include/lua5.1
 
 debug: CC_FLAGS     += -g
-debug: CC_LIB_FLAGS += -ldl
+debug: CC_LIB_FLAGS += -ldl -llua5.1 -I/usr/include/lua5.1
 
 js: EXEC         := $(NAME).js
 js: CC           := emcc
 js: CC_FLAGS     := -Wall -Wextra
 js: CC_LIB_FLAGS :=
 
-win32: EXEC     := $(NAME).exe
-win32: CC       := i686-w64-mingw32-gcc
-win32: CC_FLAGS := -lws2_32
+win32: EXEC         := $(NAME).exe
+win32: CC           := i686-w64-mingw32-gcc
+win32: CC_FLAGS     := -lws2_32
 
-win64: EXEC     := $(NAME).exe
-win64: CC       := x86_64-w64-mingw32-gcc
-win64: CC_FLAGS := -lws2_32
+win64: EXEC         := $(NAME).exe
+win64: CC           := x86_64-w64-mingw32-gcc
+win64: CC_FLAGS     := -lws2_32
 
 # TARGETS
 
@@ -84,7 +84,7 @@ opcodes.c: opcodes.csv
 	./utils/opcodes.py -i $< > $@
 
 %.o: %.c
-	$(CC) -O -c $< $(CC_FLAGS) -o $@
+	$(CC) -O -c $< $(CC_FLAGS) $(CC_LIB_FLAGS) -o $@
 
 %.h: %.txt
 	./utils/xxd.py -i $< > $@
