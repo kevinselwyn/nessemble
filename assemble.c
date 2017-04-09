@@ -254,6 +254,7 @@ cleanup:
     *exec = output;
 
     nessemble_free(val);
+    nessemble_fclose(pseudo_file);
 
     return rc;
 }

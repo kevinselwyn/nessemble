@@ -24,6 +24,7 @@ FILES        += list.c macro.c math.c midi.c opcodes.c pager.c png.c reference.c
 FILES        += registry.c simulate.c usage.c user.c utils.c wav.c zip.c
 FILES        += $(shell ls pseudo/*.c) $(shell ls simulate/*.c)
 FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
+FILES        += third-party/duktape/duktape.c
 
 SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
 HDRS         := $(NAME).h init.h license.h
@@ -39,10 +40,14 @@ endif
 
 # TARGET-SPECIFIC
 
-all: CC_LIB_FLAGS += -ldl -llua5.1 -I/usr/include/lua5.1
+all: CC_LIB_FLAGS += -ldl
+all: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
+all: CC_LIB_FLAGS += -lpython2.7 -I/usr/include/python2.7
 
 debug: CC_FLAGS     += -g
-debug: CC_LIB_FLAGS += -ldl -llua5.1 -I/usr/include/lua5.1
+debug: CC_LIB_FLAGS += -ldl
+debug: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
+debug: CC_LIB_FLAGS += -lpython2.7 -I/usr/include/python2.7
 
 js: EXEC         := $(NAME).js
 js: CC           := emcc

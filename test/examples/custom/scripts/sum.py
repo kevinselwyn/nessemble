@@ -1,19 +1,7 @@
-#!/usr/bin/env python
-# coding=utf-8
-"""sum custom pseudo-instruction"""
-
-import sys
-
-def main():
+def custom(*args):
     output = 0
 
-    for num in sys.argv[1:]:
-        output += int(num)
+    for arg in args:
+        output += int(arg)
 
-    for char in str(output):
-        sys.stdout.write(chr(int(char)))
-
-    exit(0)
-
-if __name__ == '__main__':
-    main()
+    return chr(output % 256)

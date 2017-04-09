@@ -7,7 +7,7 @@ sudo apt-get -y update
 sudo apt-get -y install git make bison flex
 
 # libraries
-sudo apt-get -y install liblua5.1-0-dev
+sudo apt-get -y install liblua5.1-0-dev python-dev
 
 # debug tools
 sudo apt-get -y install bc gdb splint valgrind
