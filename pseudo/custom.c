@@ -1,7 +1,9 @@
 #include <string.h>
 #include "../nessemble.h"
+#include "../third-party/duktape/duktape.h"
 
 #ifndef IS_WINDOWS
+#include <Python.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
@@ -36,8 +38,83 @@ void pseudo_custom(char *pseudo) {
         goto cleanup;
     }
 
-    if (ext != NULL && strcmp(ext, "lua") == 0) {
+    if (ext != NULL && strcmp(ext, "js") == 0) {
+        unsigned int exec_len = 0;
+        char *exec_data = NULL;
+
+        duk_context *ctx = duk_create_heap_default();
+
+        if (load_file(&exec_data, &exec_len, exec) != RETURN_OK) {
+            goto cleanup;
+        }
+
+        duk_push_string(ctx, exec_data);
+        duk_eval(ctx);
+
+        duk_get_global_string(ctx, "custom");
+
+        for (i = 0, l = length_ints; i < l; i++) {
+            duk_push_int(ctx, ints[i]);
+        }
+
+        duk_call(ctx, length_ints);
+
+        return_str = (char *)duk_get_string(ctx, -1);
+        return_len = (size_t)duk_get_length(ctx, -1);
+
+        for (i = 0, l = (unsigned int)return_len; i < l; i++) {
+            write_byte((unsigned int)return_str[i] & 0xFF);
+        }
+
+        duk_destroy_heap(ctx);
+        nessemble_free(exec_data);
 #ifndef IS_WINDOWS
+    } else if (ext != NULL && strcmp(ext, "py") == 0) {
+        unsigned int exec_len = 0;
+        char *exec_data = NULL;
+        PyObject *pMainString, *pMain, *pFunc, *pArgs, *pResult, *pValue;
+
+        if (pass == 1) {
+            Py_Initialize();
+        }
+
+        pMainString = PyString_FromString("__main__");
+        pMain = PyImport_Import(pMainString);
+
+        if (load_file(&exec_data, &exec_len, exec) != RETURN_OK) {
+            goto cleanup;
+        }
+
+        PyRun_SimpleString(exec_data);
+
+        pFunc = PyObject_GetAttrString(pMain, "custom");
+
+        if (!pFunc) {
+            goto cleanup;
+        }
+
+        pArgs = PyTuple_New(length_ints);
+
+        for (i = 0, l = length_ints; i < l; i++) {
+            pValue = PyInt_FromLong(ints[i]);
+            PyTuple_SetItem(pArgs, i, pValue);
+        }
+
+        pResult = PyObject_CallObject(pFunc, pArgs);
+
+        long int py_return_len = 0;
+        PyString_AsStringAndSize(pResult, &return_str, &py_return_len);
+
+        for (i = 0, l = (unsigned int)py_return_len; i < l; i++) {
+            write_byte((unsigned int)return_str[i]);
+        }
+
+        if (pass == 2) {
+            Py_Finalize();
+        }
+
+        nessemble_free(exec_data);
+    } else if (ext != NULL && strcmp(ext, "lua") == 0) {
         lua_State *L;
 
         L = luaL_newstate();
@@ -68,13 +145,9 @@ void pseudo_custom(char *pseudo) {
         }
 
         lua_close(L);
-#endif /* IS_WINDOWS */
     } else if (ext != NULL && strcmp(ext, "so") == 0) {
-#ifndef IS_WINDOWS
         void *handle = NULL;
-        int (*custom)(int **, int *, int, int *);
-        int custom_length = 0;
-        int *custom_output = NULL;
+        int (*custom)(char **, size_t *, unsigned int *, int);
 
         handle = dlopen(exec, RTLD_LAZY);
 
@@ -88,21 +161,21 @@ void pseudo_custom(char *pseudo) {
             goto cleanup;
         }
 
-        if ((*custom)(&custom_output, &custom_length, (int)length_ints, (int *)ints) != 0) {
+        if ((*custom)(&return_str, &return_len, ints, length_ints) != 0) {
             goto cleanup;
         }
 
-        if (!custom_output) {
+        if (!return_str) {
             goto cleanup;
         }
 
-        if (custom_length >= 1) {
-            for (i = 0, l = (unsigned int)custom_length; i < l; i++) {
-                write_byte((unsigned int)custom_output[i] & 0xFF);
+        if (return_len >= 1) {
+            for (i = 0, l = (unsigned int)return_len; i < l; i++) {
+                write_byte((unsigned int)return_str[i] & 0xFF);
             }
         }
 
-        nessemble_free(custom_output);
+        nessemble_free(return_str);
 
         UNUSED(dlclose(handle));
 #endif /* IS_WINDOWS */
@@ -153,6 +226,7 @@ void pseudo_custom(char *pseudo) {
 
 cleanup:
     nessemble_free(exec);
+    nessemble_free(ext);
 
     length_ints = 0;
 }

@@ -16,3 +16,4 @@ y.tab.*
 *.po
 *.pot
 *.pyc
+*.so
