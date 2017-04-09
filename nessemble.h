@@ -454,7 +454,7 @@ void pseudo_rsset(unsigned int address);
 void pseudo_rs(char *label, int size);
 void pseudo_segment(char *string);
 void pseudo_custom(char *pseudo);
-unsigned int pseudo_parse(char **exec, char *pseudo, unsigned int *so);
+unsigned int pseudo_parse(char **exec, char *pseudo);
 
 /* OPCODE UTILS */
 int get_opcode(char *mnemonic, unsigned int mode);
@@ -646,6 +646,7 @@ unsigned int load_file(char **data, unsigned int *data_length, char *filename);
 unsigned int tmp_save(FILE *file, char *filename);
 void tmp_delete(char *filename);
 char *get_line(char **buffer, char *prompt);
+unsigned int parse_extension(char **extension, char *filename);
 
 /* API */
 unsigned int api_user(char **url, char *endpoint);

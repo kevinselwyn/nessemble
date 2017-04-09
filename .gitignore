@@ -10,9 +10,11 @@ strings.h
 third-party/**/*.o
 y.tab.*
 *.db
+*.dSYM
 *.exe
 *.mo
 *.o
 *.po
 *.pot
 *.pyc
+*.so
