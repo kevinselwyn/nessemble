@@ -52,7 +52,8 @@ void pseudo_custom(char *pseudo) {
         duk_context *ctx = duk_create_heap_default();
 
         if (load_file(&exec_data, &exec_len, exec) != RETURN_OK) {
-            goto cleanup;
+            yyerror(_("Could not load file `%s`"), exec);
+            goto cleanup_js;
         }
 
         duk_push_string(ctx, exec_data);
@@ -64,7 +65,16 @@ void pseudo_custom(char *pseudo) {
             duk_push_int(ctx, ints[i]);
         }
 
-        duk_call(ctx, length_ints);
+        if (duk_pcall(ctx, length_ints) != 0) {
+            if (strlen(exec) > 56) {
+                fprintf(stderr, "...%.56s", exec+(strlen(exec)-56));
+            } else {
+                fprintf(stderr, "%s", exec);
+            }
+
+            fprintf(stderr, ": %s\n", duk_safe_to_string(ctx, -1));
+            goto cleanup_js;
+        }
 
         return_str = (char *)duk_get_string(ctx, -1);
         return_len = (size_t)duk_get_length(ctx, -1);
@@ -73,6 +83,7 @@ void pseudo_custom(char *pseudo) {
             write_byte((unsigned int)return_str[i] & 0xFF);
         }
 
+cleanup_js:
         duk_destroy_heap(ctx);
         nessemble_free(exec_data);
 #ifndef IS_WINDOWS
@@ -81,15 +92,14 @@ void pseudo_custom(char *pseudo) {
         char *exec_data = NULL;
         PyObject *pMainString, *pMain, *pFunc, *pArgs, *pResult, *pValue;
 
-        if (pass == 1) {
-            Py_Initialize();
-        }
+        Py_Initialize();
 
         pMainString = PyString_FromString("__main__");
         pMain = PyImport_Import(pMainString);
 
         if (load_file(&exec_data, &exec_len, exec) != RETURN_OK) {
-            goto cleanup;
+            yyerror(_("Could not load file `%s`"), exec);
+            goto cleanup_py;
         }
 
         PyRun_SimpleString(exec_data);
@@ -97,7 +107,15 @@ void pseudo_custom(char *pseudo) {
         pFunc = PyObject_GetAttrString(pMain, "custom");
 
         if (!pFunc) {
-            goto cleanup;
+            if (strlen(exec) > 56) {
+                fprintf(stderr, "...%.56s", exec+(strlen(exec)-56));
+            } else {
+                fprintf(stderr, "%s", exec);
+            }
+
+            fprintf(stderr, ": Can't fetch function `custom`\n");
+
+            goto cleanup_py;
         }
 
         pArgs = PyTuple_New(length_ints);
@@ -116,10 +134,8 @@ void pseudo_custom(char *pseudo) {
             write_byte((unsigned int)return_str[i]);
         }
 
-        if (pass == 2) {
-            Py_Finalize();
-        }
-
+cleanup_py:
+        Py_Finalize();
         nessemble_free(exec_data);
     } else if (ext != NULL && strcmp(ext, "lua") == 0) {
         lua_State *L;
@@ -164,21 +180,29 @@ cleanup_lua:
         handle = dlopen(exec, RTLD_LAZY);
 
         if (!handle) {
-            goto cleanup;
+            goto cleanup_so;
         }
 
         custom = dlsym(handle, "custom");
 
         if (dlerror() != NULL) {
-            goto cleanup;
+            if (strlen(exec) > 56) {
+                fprintf(stderr, "...%.56s", exec+(strlen(exec)-56));
+            } else {
+                fprintf(stderr, "%s", exec);
+            }
+
+            fprintf(stderr, ": Can't fetch function `custom`\n");
+
+            goto cleanup_so;
         }
 
         if ((*custom)(&return_str, &return_len, ints, length_ints) != 0) {
-            goto cleanup;
+            goto cleanup_so;
         }
 
         if (!return_str) {
-            goto cleanup;
+            goto cleanup_so;
         }
 
         if (return_len >= 1) {
@@ -187,8 +211,8 @@ cleanup_lua:
             }
         }
 
+cleanup_so:
         nessemble_free(return_str);
-
         UNUSED(dlclose(handle));
 #endif /* IS_WINDOWS */
     } else {
