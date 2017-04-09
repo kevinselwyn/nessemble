@@ -41,7 +41,12 @@ endif
 # TARGET-SPECIFIC
 
 all: CC_LIB_FLAGS += -ldl
+
+ifeq ($(UNAME), Darwin)
+all: CC_LIB_FLAGS += -llua -I/usr/include/lua5.1
+else
 all: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
+endif
 all: CC_LIB_FLAGS += -lpython2.7 -I/usr/include/python2.7
 
 debug: CC_FLAGS     += -g
