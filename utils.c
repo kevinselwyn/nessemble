@@ -558,6 +558,19 @@ char *get_line(char **buffer, char *prompt) {
     return fgets(*buffer, 256, stdin);
 }
 
+unsigned int parse_extension(char **extension, char *filename) {
+    unsigned int rc = RETURN_OK;
+    char *dot = strrchr(filename, '.');
+
+    if (dot == NULL || dot == filename) {
+        *extension = nessemble_strdup("");
+        return rc;
+    }
+
+    *extension = nessemble_strdup(dot+1);
+    return rc;
+}
+
 /**
  * Test if undocumented flag is active
  * @return {unsigned int} True if flag active, false if not

@@ -24,6 +24,7 @@ FILES        += list.c macro.c math.c midi.c opcodes.c pager.c png.c reference.c
 FILES        += registry.c simulate.c usage.c user.c utils.c wav.c zip.c
 FILES        += $(shell ls pseudo/*.c) $(shell ls simulate/*.c)
 FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
+FILES        += third-party/duktape/duktape.c
 
 SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
 HDRS         := $(NAME).h init.h license.h
@@ -41,21 +42,30 @@ endif
 
 all: CC_LIB_FLAGS += -ldl
 
+ifeq ($(UNAME), Darwin)
+all: CC_LIB_FLAGS += -llua -I/usr/include/lua5.1
+else
+all: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
+endif
+all: CC_LIB_FLAGS += -lpython2.7 -I/usr/include/python2.7
+
 debug: CC_FLAGS     += -g
 debug: CC_LIB_FLAGS += -ldl
+debug: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
+debug: CC_LIB_FLAGS += -lpython2.7 -I/usr/include/python2.7
 
 js: EXEC         := $(NAME).js
 js: CC           := emcc
 js: CC_FLAGS     := -Wall -Wextra
 js: CC_LIB_FLAGS :=
 
-win32: EXEC     := $(NAME).exe
-win32: CC       := i686-w64-mingw32-gcc
-win32: CC_FLAGS := -lws2_32
+win32: EXEC         := $(NAME).exe
+win32: CC           := i686-w64-mingw32-gcc
+win32: CC_FLAGS     := -lws2_32
 
-win64: EXEC     := $(NAME).exe
-win64: CC       := x86_64-w64-mingw32-gcc
-win64: CC_FLAGS := -lws2_32
+win64: EXEC         := $(NAME).exe
+win64: CC           := x86_64-w64-mingw32-gcc
+win64: CC_FLAGS     := -lws2_32
 
 # TARGETS
 
@@ -84,7 +94,7 @@ opcodes.c: opcodes.csv
 	./utils/opcodes.py -i $< > $@
 
 %.o: %.c
-	$(CC) -O -c $< $(CC_FLAGS) -o $@
+	$(CC) -O -c $< $(CC_FLAGS) $(CC_LIB_FLAGS) -o $@
 
 %.h: %.txt
 	./utils/xxd.py -i $< > $@
