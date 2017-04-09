@@ -3,7 +3,13 @@
 #include "../third-party/duktape/duktape.h"
 
 #ifndef IS_WINDOWS
+
+#ifdef IS_MAC
+#include <Python/Python.h>
+#else /* IS_MAC */
 #include <Python.h>
+#endif /* IS_MAC */
+
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
@@ -14,6 +20,7 @@
  * custom pseudo instruction
  */
 void pseudo_custom(char *pseudo) {
+    int error = 0;
     unsigned int i = 0, l = 0;
     size_t return_len = 0;
     char *exec = NULL, *ext = NULL;
@@ -120,12 +127,12 @@ void pseudo_custom(char *pseudo) {
         L = luaL_newstate();
         luaL_openlibs(L);
 
-        if (luaL_loadfile(L, exec) != 0) {
-            goto cleanup;
+        if ((error = luaL_loadfile(L, exec)) != 0) {
+            goto cleanup_lua;
         }
 
-        if (lua_pcall(L, 0, 0, 0) != 0) {
-            goto cleanup;
+        if ((error = lua_pcall(L, 0, 0, 0)) != 0) {
+            goto cleanup_lua;
         }
 
         lua_getglobal(L, "custom");
@@ -134,14 +141,19 @@ void pseudo_custom(char *pseudo) {
             lua_pushnumber(L, ints[i]);
         }
 
-        if (lua_pcall(L, length_ints, 1, 0) != 0) {
-            goto cleanup;
+        if ((error = lua_pcall(L, length_ints, 1, 0)) != 0) {
+            goto cleanup_lua;
         }
 
         return_str = (char *)lua_tolstring(L, -1, &return_len);
 
         for (i = 0, l = (unsigned int)return_len; i < l; i++) {
             write_byte((unsigned int)return_str[i] & 0xFF);
+        }
+
+cleanup_lua:
+        if (error != 0) {
+            fprintf(stderr, "%s\n", lua_tostring(L, -1));
         }
 
         lua_close(L);
