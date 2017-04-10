@@ -32,6 +32,13 @@
 #define STDOUT_FILE SEP "dev" SEP "stdout"
 #endif /* __APPLE__ */
 
+#if defined(__EMSCRIPTEN__)
+#define IS_JAVASCRIPT
+#define SEP         "/"
+#define SEP_CHAR    '/'
+#define STDOUT_FILE SEP "dev" SEP "stdout"
+#endif /* __EMSCRIPTEN__ */
+
 /* UNUSED */
 #define UNUSED(x) (void)(x)
 

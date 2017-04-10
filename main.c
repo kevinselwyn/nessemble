@@ -23,14 +23,14 @@ int main(int argc, char *argv[]) {
 
     translate_init();
 
-#ifndef IS_WINDOWS
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
     // setup error catch
     if (setjmp(error_jmp) != 0) {
         goto cleanup;
     }
 
     error_signal();
-#endif /* IS_WINDOWS */
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
     // exec
     exec = argv[0];
