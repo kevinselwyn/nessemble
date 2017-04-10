@@ -2,19 +2,17 @@
 #include "../nessemble.h"
 #include "../third-party/duktape/duktape.h"
 
-#ifndef IS_WINDOWS
-
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
 #ifdef IS_MAC
 #include <Python/Python.h>
 #else /* IS_MAC */
 #include <Python.h>
 #endif /* IS_MAC */
-
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
 #include <dlfcn.h>
-#endif /* IS_WINDOWS */
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 /**
  * custom pseudo instruction
@@ -86,7 +84,7 @@ void pseudo_custom(char *pseudo) {
 cleanup_js:
         duk_destroy_heap(ctx);
         nessemble_free(exec_data);
-#ifndef IS_WINDOWS
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
     } else if (ext != NULL && strcmp(ext, "py") == 0) {
         unsigned int exec_len = 0;
         char *exec_data = NULL;
@@ -214,7 +212,7 @@ cleanup_lua:
 cleanup_so:
         nessemble_free(return_str);
         UNUSED(dlclose(handle));
-#endif /* IS_WINDOWS */
+#endif /* !IS_WINDOWS && !IS_JAVSCRIPT */
     } else {
         int rc = 0;
         unsigned int command_length = 0, output_length = 0;
