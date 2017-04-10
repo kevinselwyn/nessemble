@@ -7,8 +7,11 @@
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 unsigned int scripting_lua(char *exec) {
+    unsigned int rc = RETURN_OK;
+
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
     int error = 0;
-    unsigned int rc = RETURN_OK, i = 0, l = 0;
+    unsigned int i = 0, l = 0;
     size_t return_len = 0;
     char *return_str = NULL;
 
@@ -51,5 +54,6 @@ cleanup:
 
     lua_close(L);
 
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
     return rc;
 }
