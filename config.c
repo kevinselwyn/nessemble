@@ -49,7 +49,7 @@ unsigned int open_config(FILE **file, char **filename) {
     if (file_exists(config_path) == FALSE) {
         config = fopen(config_path, "w+");
 
-        fprintf(config, "registry\t%s", CONFIG_API_DEFAULT);
+        fprintf(config, "registry\t%s\n", CONFIG_API_DEFAULT);
         (void)fseek(config, 0, SEEK_SET);
     } else {
         config = fopen(config_path, "r+");
