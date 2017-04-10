@@ -88,7 +88,7 @@ static unsigned int lib_is_installed(char *lib) {
     unsigned int installed = FALSE;
     char *lib_path = NULL;
 
-    if (get_lib_file_path(&lib_path, lib, "lib.asm") != RETURN_OK) {
+    if (get_lib_file_path(&lib_path, lib, SEP "lib.asm") != RETURN_OK) {
         goto cleanup;
     }
 
@@ -220,7 +220,7 @@ unsigned int lib_info(char *lib) {
             goto cleanup;
         }
     } else {
-        if ((rc = get_lib_file_path(&lib_url, lib, "README.md")) != RETURN_OK) {
+        if ((rc = get_lib_file_path(&lib_url, lib, SEP "README.md")) != RETURN_OK) {
             goto cleanup;
         }
 
@@ -274,7 +274,7 @@ unsigned int lib_list() {
 
         printf("%s", ep->d_name);
 
-        if ((rc = get_lib_file_path(&lib_path, ep->d_name, "package.json")) != RETURN_OK) {
+        if ((rc = get_lib_file_path(&lib_path, ep->d_name, SEP "package.json")) != RETURN_OK) {
             printf("\n");
             continue;
         }
