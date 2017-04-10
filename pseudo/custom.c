@@ -1,11 +1,32 @@
 #include <string.h>
 #include "../nessemble.h"
 
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+#define CUSTOM_SCRIPT_COUNT 4
+#else /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#define CUSTOM_SCRIPT_COUNT 1
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+
+struct custom_script {
+    char *ext;
+    unsigned int (*func)(char *);
+};
+
+struct custom_script custom_scripts[CUSTOM_SCRIPT_COUNT] = {
+    { "js",  &scripting_js  },
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+    { "py",  &scripting_py  },
+    { "lua", &scripting_lua },
+    { "so",  &scripting_so  }
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+};
+
 /**
  * custom pseudo instruction
  */
 void pseudo_custom(char *pseudo) {
     char *exec = NULL, *ext = NULL;
+    unsigned int i = 0, l = 0, found = FALSE;
 
     if (pseudo_parse(&exec, pseudo) != RETURN_OK) {
         yyerror(_("Unknown custom pseudo-instruction `%s`"), pseudo);
@@ -26,25 +47,19 @@ void pseudo_custom(char *pseudo) {
         goto cleanup;
     }
 
-    if (ext != NULL && strcmp(ext, "js") == 0) {
-        if (scripting_js(exec) != RETURN_OK) {
-            goto cleanup;
+    if (ext != NULL) {
+        for (i = 0, l = CUSTOM_SCRIPT_COUNT; i < l; i++) {
+            if (strcmp(custom_scripts[i].ext, ext) == 0) {
+                found = TRUE;
+
+                if ((*custom_scripts[i].func)(exec) != RETURN_OK) {
+                    goto cleanup;
+                }
+            }
         }
-#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-    } else if (ext != NULL && strcmp(ext, "py") == 0) {
-        if (scripting_py(exec) != RETURN_OK) {
-            goto cleanup;
-        }
-    } else if (ext != NULL && strcmp(ext, "lua") == 0) {
-        if (scripting_lua(exec) != RETURN_OK) {
-            goto cleanup;
-        }
-    } else if (ext != NULL && strcmp(ext, "so") == 0) {
-        if (scripting_so(exec) != RETURN_OK) {
-            goto cleanup;
-        }
-#endif /* !IS_WINDOWS && !IS_JAVSCRIPT */
-    } else {
+    }
+
+    if (found == FALSE) {
         if (scripting_cmd(exec) != RETURN_OK) {
             yyerror(_("Command for custom pseudo-instruction `%s` failed"), pseudo);
             goto cleanup;
