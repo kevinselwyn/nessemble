@@ -12,6 +12,7 @@ y.tab.*
 *.db
 *.dSYM
 *.exe
+*.js
 *.mo
 *.o
 *.po
