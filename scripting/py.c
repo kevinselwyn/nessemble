@@ -9,7 +9,10 @@
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 unsigned int scripting_py(char *exec) {
-    unsigned int rc = RETURN_OK, i = 0, l = 0;
+    unsigned int rc = RETURN_OK;
+
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+    unsigned int i = 0, l = 0;
     unsigned int exec_len = 0;
     long int return_len = 0;
     char *exec_data = NULL, *return_str = NULL;
@@ -63,5 +66,6 @@ cleanup:
     Py_Finalize();
     nessemble_free(exec_data);
 
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
     return rc;
 }

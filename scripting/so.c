@@ -6,9 +6,12 @@
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 unsigned int scripting_so(char *exec) {
+    unsigned int rc = RETURN_OK;
+
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
     void *handle = NULL;
     int (*custom)(char **, size_t *, unsigned int *, int);
-    unsigned int rc = RETURN_OK, i = 0, l = 0;
+    unsigned int i = 0, l = 0;
     size_t return_len = 0;
     char *return_str = NULL;
 
@@ -54,5 +57,6 @@ cleanup:
     UNUSED(dlclose(handle));
     nessemble_free(return_str);
 
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
     return rc;
 }
