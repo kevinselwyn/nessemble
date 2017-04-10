@@ -22,7 +22,8 @@ FILES        := main.c api.c assemble.c config.c coverage.c disassemble.c
 FILES        += download.c error.c home.c i18n.c init.c instructions.c json.c
 FILES        += list.c macro.c math.c midi.c opcodes.c pager.c png.c reference.c
 FILES        += registry.c simulate.c usage.c user.c utils.c wav.c zip.c
-FILES        += $(shell ls pseudo/*.c) $(shell ls simulate/*.c)
+FILES        += $(shell ls pseudo/*.c) $(shell ls scripting/*.c)
+FILES        += $(shell ls simulate/*.c)
 FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
 FILES        += third-party/duktape/duktape.c
 

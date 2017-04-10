@@ -723,4 +723,11 @@ void translate_init();
 void translate_free();
 char *translate(char *id);
 
+/* SCRIPTING */
+unsigned int scripting_cmd(char *exec);
+unsigned int scripting_js(char *exec);
+unsigned int scripting_lua(char *exec);
+unsigned int scripting_py(char *exec);
+unsigned int scripting_so(char *exec);
+
 #endif /* _NESSEMBLE_H */
