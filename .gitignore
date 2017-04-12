@@ -4,6 +4,7 @@ init.h
 license.h
 lex.yy.c
 nessemble
+nessemble.js
 opcodes.c
 reference/**/*.h
 strings.h
@@ -12,7 +13,6 @@ y.tab.*
 *.db
 *.dSYM
 *.exe
-*.js
 *.mo
 *.o
 *.po
