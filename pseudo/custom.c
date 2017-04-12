@@ -71,4 +71,10 @@ cleanup:
     nessemble_free(ext);
 
     length_ints = 0;
+
+    for (i = 0, l = length_texts; i < l; i++) {
+        nessemble_free(texts[i]);
+    }
+
+    length_texts = 0;
 }

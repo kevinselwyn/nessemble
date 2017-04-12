@@ -86,6 +86,7 @@
 #define MAX_MACROS        1024
 #define MAX_BANKS         256
 #define MAX_INTS          256
+#define MAX_TEXTS         256
 #define MAX_ARGS          10
 #define MAX_NESTED_IFS    10
 #define TRAINER_MAX       512
@@ -328,6 +329,8 @@ char *cwd_path;
 /* INPUT */
 unsigned int length_ints;
 unsigned int ints[MAX_INTS];
+unsigned int length_texts;
+char *texts[MAX_TEXTS];
 
 /* ERROR REPORTING */
 jmp_buf error_jmp;

@@ -217,16 +217,18 @@ int has_label(char *name) {
 }
 
 unsigned int pseudo_parse(char **exec, char *pseudo) {
-    unsigned int rc = RETURN_OK;
+    unsigned int rc = RETURN_OK, found = FALSE;
+    unsigned int global_found = FALSE, global_check = FALSE;
     size_t pseudo_length = 0;
-    char buffer[1024], *val = NULL, *output = NULL;
+    char buffer[1024], *val = NULL, *output = NULL, *scripts = NULL;
     FILE *pseudo_file = NULL;
 
     pseudo_file = fopen(pseudoname, "r");
 
+global_recheck:
     if (!pseudo_file) {
         rc = RETURN_EPERM;
-        goto cleanup;
+        goto global_check;
     }
 
     pseudo_length = strlen(pseudo);
@@ -234,9 +236,41 @@ unsigned int pseudo_parse(char **exec, char *pseudo) {
     while (fgets(buffer, 1024, pseudo_file) != NULL) {
         if (strncmp(buffer, pseudo, pseudo_length) == 0) {
             val = nessemble_strdup(buffer+(pseudo_length + 3));
+            found = TRUE;
         }
     }
 
+    if (global_check == TRUE) {
+        if (found == FALSE) {
+            goto cleanup;
+        }
+
+        goto global_continue;
+    }
+
+    if (found != TRUE) {
+global_check:
+        global_check = TRUE;
+
+        if ((rc = get_home_path(&scripts, 3, "." PROGRAM_NAME, "scripts", "scripts.txt")) != RETURN_OK) {
+            goto cleanup;
+        }
+
+        if (file_exists(scripts) == FALSE) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        nessemble_fclose(pseudo_file);
+        pseudo_file = fopen(scripts, "r");
+        nessemble_free(scripts);
+
+        global_found = TRUE;
+
+        goto global_recheck;
+    }
+
+global_continue:
     pseudo_length = strlen(val);
 
     if (val[pseudo_length - 1] == '\n') {
@@ -246,9 +280,14 @@ unsigned int pseudo_parse(char **exec, char *pseudo) {
 
     pseudo_length += strlen(cwd_path) + 1;
 
-    output = (char *)nessemble_malloc(sizeof(char) * (pseudo_length + 1));
-
-    sprintf(output, "%s" SEP "%s", cwd_path, val);
+    if (global_found) {
+        if ((rc = get_home_path(&output, 3, "." PROGRAM_NAME, "scripts", val))) {
+            goto cleanup;
+        }
+    } else {
+        output = (char *)nessemble_malloc(sizeof(char) * (pseudo_length + 1));
+        sprintf(output, "%s" SEP "%s", cwd_path, val);
+    }
 
 cleanup:
     *exec = output;
