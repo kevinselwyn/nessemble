@@ -30,6 +30,20 @@ unsigned int scripting_lua(char *exec) {
         goto cleanup;
     }
 
+    for (i = 0, l = length_texts; i < l; i++) {
+        lua_getglobal(L, "funcs");
+        lua_getfield(L, -1, "add_string");
+
+        if (!lua_isnil(L, -1)) {
+            lua_pushstring(L, texts[i]);
+
+            if ((error = lua_pcall(L, 1, 0, 0) != 0)) {
+                rc = RETURN_EPERM;
+                goto cleanup;
+            }
+        }
+    }
+
     lua_getglobal(L, "custom");
 
     for (i = 0, l = length_ints; i < l; i++) {
