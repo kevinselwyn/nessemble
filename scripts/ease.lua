@@ -1,22 +1,14 @@
---| Register functions to be used in C
-
-funcs = {}
-
-local function register_handler(key, fn)
-    funcs[key] = fn
-end
-
 --| String variables
 
 local strings = {}
 local string_index = 0
 
---| Register `add_string` function
+--| `add_string` function
 
-register_handler("add_string", function (str)
+function add_string(str)
     strings[string_index] = string.gsub(str, "\"", "")
     string_index = string_index + 1
-end)
+end
 
 --| Easing functions
 
@@ -149,6 +141,11 @@ function custom(...)
     end
 
     arg_func = easing_funcs[arg_ease]
+
+    if arg_func == nil
+    then
+        return arg_result
+    end
 
     if arg[0] ~= nil
     then

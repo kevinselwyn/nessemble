@@ -223,6 +223,10 @@ unsigned int pseudo_parse(char **exec, char *pseudo) {
     char buffer[1024], *val = NULL, *output = NULL, *scripts = NULL;
     FILE *pseudo_file = NULL;
 
+    if (!pseudoname) {
+        goto global_check;
+    }
+
     pseudo_file = fopen(pseudoname, "r");
 
 global_recheck:
@@ -263,7 +267,6 @@ global_check:
 
         nessemble_fclose(pseudo_file);
         pseudo_file = fopen(scripts, "r");
-        nessemble_free(scripts);
 
         global_found = TRUE;
 
@@ -294,6 +297,7 @@ cleanup:
 
     nessemble_free(val);
     nessemble_fclose(pseudo_file);
+    nessemble_free(scripts);
 
     return rc;
 }

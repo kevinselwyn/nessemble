@@ -19,6 +19,25 @@ unsigned int scripting_js(char *exec) {
     duk_push_string(ctx, exec_data);
     duk_eval(ctx);
 
+    duk_get_global_string(ctx, "add_string");
+
+    for (i = 0, l = length_texts; i < l; i++) {
+        duk_push_string(ctx, texts[i]);
+
+        if (duk_pcall(ctx, 1) != 0) {
+            if (strlen(exec) > 56) {
+                fprintf(stderr, "...%.56s", exec+(strlen(exec)-56));
+            } else {
+                fprintf(stderr, "%s", exec);
+            }
+
+            fprintf(stderr, ": %s\n", duk_safe_to_string(ctx, -1));
+
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+    }
+
     duk_get_global_string(ctx, "custom");
 
     for (i = 0, l = length_ints; i < l; i++) {

@@ -1,1 +1,1 @@
-.ease = ease.lua
+.ease = ease.js
