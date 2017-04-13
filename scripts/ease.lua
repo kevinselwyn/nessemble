@@ -137,14 +137,14 @@ function custom(...)
 
     if arg_ease == nil
     then
-        return arg_result
+        error("Missing easing type")
     end
 
     arg_func = easing_funcs[arg_ease]
 
     if arg_func == nil
     then
-        return arg_result
+        error("Invalid easing type `" .. arg_ease .. "`")
     end
 
     if arg[0] ~= nil

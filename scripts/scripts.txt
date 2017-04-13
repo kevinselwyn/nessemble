@@ -1,1 +1,1 @@
-.ease = ease.js
+.ease = ease.so

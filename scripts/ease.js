@@ -113,13 +113,13 @@ var custom = function () {
         result = [];
 
     if (!ease) {
-        return result.join('');
+        throw new Error("Missing easing type");
     }
 
     func = easing_funcs[ease];
 
     if (!func) {
-        return result.join('');
+        throw new Error("Invalid easing type `" + ease + "`");
     }
 
     if (arg[0]) {
