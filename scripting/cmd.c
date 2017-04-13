@@ -10,6 +10,10 @@ unsigned int scripting_cmd(char *exec) {
 
     command_length = (unsigned int)strlen(exec) + (length_ints * 4);
 
+    for (i = 0, l = length_texts; i < l; i++) {
+        command_length += (unsigned int)strlen(texts[i]) + 1;
+    }
+
 #ifndef IS_WINDOWS
     command_length += 12;
 #endif /* IS_WINDOWS */
@@ -17,6 +21,10 @@ unsigned int scripting_cmd(char *exec) {
     command = (char *)nessemble_malloc(sizeof(char) * (command_length));
 
     strcpy(command, exec);
+
+    for (i = 0, l = length_texts; i < l; i++) {
+        sprintf(command+strlen(command), " %s", texts[i]);
+    }
 
     for (i = 0, l = length_ints; i < l; i++) {
         sprintf(command+strlen(command), " %u", ints[i] & 0xFF);
