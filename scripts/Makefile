@@ -1,9 +1,11 @@
+NAME     := ease
 CC       := gcc
 CC_FLAGS := -shared -fPIC -lm
 
-all: build
+all: $(NAME).so
 
-build: ease.so
-
-ease.so: ease.c
+$(NAME).so: $(NAME).c
 	$(CC) -o $@ $< $(CC_FLAGS)
+
+clean:
+	rm -f $(NAME).so
