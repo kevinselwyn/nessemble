@@ -1,7 +1,12 @@
-def custom(*args):
+import sys
+
+def main(argc, argv):
     output = 0
 
-    for arg in args:
-        output += int(arg)
+    for i in range(1, argc):
+        output += int(argv[i])
 
-    return chr(output % 256)
+    sys.stdout.write(chr(output % 256))
+
+if __name__ == '__main__':
+    main(len(sys.argv), sys.argv)

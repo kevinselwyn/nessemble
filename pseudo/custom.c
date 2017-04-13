@@ -2,7 +2,7 @@
 #include "../nessemble.h"
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-#define CUSTOM_SCRIPT_COUNT 4
+#define CUSTOM_SCRIPT_COUNT 3
 #else /* !IS_WINDOWS && !IS_JAVASCRIPT */
 #ifdef IS_WINDOWS
 #define CUSTOM_SCRIPT_COUNT 2
@@ -21,7 +21,6 @@ struct custom_script custom_scripts[CUSTOM_SCRIPT_COUNT] = {
 #ifndef IS_JAVASCRIPT
     { "lua", &scripting_lua },
 #ifndef IS_WINDOWS
-    { "py",  &scripting_py  },
     { "so",  &scripting_so  }
 #endif /* IS_WINDOWS */
 #endif /* IS_JAVASCRIPT */
