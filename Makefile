@@ -8,6 +8,8 @@ CC_FLAGS     := -Wall -Wextra
 CC_LIB_FLAGS := -lm
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
+AR           := ar rcu
+RANLIB       := ranlib
 LEX          := flex
 LEX_OUT      := lex.yy
 LEX_FLAGS    := --outfile=$(LEX_OUT).c
@@ -64,11 +66,15 @@ win32: EXEC     := $(NAME).exe
 win32: CC       := i686-w64-mingw32-gcc
 win32: CC_FLAGS := -lws2_32 -Ilua-5.1.5/src
 win32: CC_FILES := lua-5.1.5/src/liblua.a
+win32: AR       := i686-w64-mingw32-ar rcu
+win32: RANLIB   := i686-w64-mingw32-ranlib
 
 win64: EXEC     := $(NAME).exe
 win64: CC       := x86_64-w64-mingw32-gcc
 win64: CC_FLAGS := -lws2_32 -Ilua-5.1.5/src
 win64: CC_FILES := lua-5.1.5/src/liblua.a
+win64: AR       := x86_64-w64-mingw32-ar rcu
+win64: RANLIB   := x86_64-w64-mingw32-ranlib
 
 # TARGETS
 
@@ -140,7 +146,7 @@ liblua: lua-5.1.5/src/liblua.a
 
 lua-5.1.5/src/liblua.a: lua-5.1.5.tar.gz
 	tar -xzf $<
-	make -C lua-5.1.5/src generic CC="$(CC)"
+	make -C lua-5.1.5/src generic CC="$(CC)" AR="$(AR)" RANLIB="$(RANLIB)"
 
 lua-5.1.5.tar.gz:
 	curl -O "https://www.lua.org/ftp/$@"

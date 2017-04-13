@@ -18,8 +18,7 @@ unsigned int scripting_so(char *exec) {
     handle = dlopen(exec, RTLD_LAZY);
 
     if (!handle) {
-        rc = RETURN_EPERM;
-        goto cleanup;
+        yyerror(_("Could not open `%s`"), exec);
     }
 
     custom = dlsym(handle, "custom");
@@ -44,7 +43,10 @@ unsigned int scripting_so(char *exec) {
     }
 
 cleanup:
-    UNUSED(dlclose(handle));
+    if (handle) {
+        UNUSED(dlclose(handle));
+    }
+
     nessemble_free(return_str);
 
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
