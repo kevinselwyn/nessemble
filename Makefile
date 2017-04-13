@@ -193,6 +193,8 @@ uninstall:
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h
-	$(RM) $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h strings.h
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js
+	$(RM) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c
+	$(RM) $(OBJS)
+	$(RM) opcodes.c init.h license.h strings.h
 	$(RM) lua-5.1.5 lua-5.1.5.tar.gz
