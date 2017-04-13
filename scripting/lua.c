@@ -1,3 +1,4 @@
+#include <string.h>
 #include "../nessemble.h"
 
 #ifndef IS_JAVASCRIPT
@@ -17,7 +18,7 @@ unsigned int scripting_lua(char *exec) {
     int error = 0;
     unsigned int i = 0, l = 0;
     size_t return_len = 0;
-    char *return_str = NULL;
+    char *return_str = NULL, *error_str = NULL;
 
     lua_State *L;
 
@@ -66,7 +67,10 @@ unsigned int scripting_lua(char *exec) {
 
 cleanup:
     if (error != 0) {
-        fprintf(stderr, "%s\n", lua_tostring(L, -1));
+        error_str = strchr(lua_tostring(L, -1), ':');
+        error_str = strchr(error_str+2, ':');
+
+        yyerror(error_str+2);
     }
 
     lua_close(L);

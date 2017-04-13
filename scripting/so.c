@@ -10,7 +10,7 @@ unsigned int scripting_so(char *exec) {
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
     void *handle = NULL;
-    int (*custom)(char **, size_t *, unsigned int *, int);
+    int (*custom)(char **, size_t *, unsigned int *, int, char *[], int);
     unsigned int i = 0, l = 0;
     size_t return_len = 0;
     char *return_str = NULL;
@@ -25,21 +25,11 @@ unsigned int scripting_so(char *exec) {
     custom = dlsym(handle, "custom");
 
     if (dlerror() != NULL) {
-        if (strlen(exec) > 56) {
-            fprintf(stderr, "...%.56s", exec+(strlen(exec)-56));
-        } else {
-            fprintf(stderr, "%s", exec);
-        }
-
-        fprintf(stderr, ": Can't fetch function `custom`\n");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
+        yyerror(_("Could not fetch function `custom`"));
     }
 
-    if ((*custom)(&return_str, &return_len, ints, length_ints) != 0) {
-        rc = RETURN_EPERM;
-        goto cleanup;
+    if ((*custom)(&return_str, &return_len, ints, length_ints, texts, length_texts) != 0) {
+        yyerror(return_str);
     }
 
     if (!return_str) {

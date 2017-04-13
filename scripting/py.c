@@ -35,16 +35,7 @@ unsigned int scripting_py(char *exec) {
     pFunc = PyObject_GetAttrString(pMain, "custom");
 
     if (!pFunc) {
-        if (strlen(exec) > 56) {
-            fprintf(stderr, "...%.56s", exec+(strlen(exec)-56));
-        } else {
-            fprintf(stderr, "%s", exec);
-        }
-
-        fprintf(stderr, ": Can't fetch function `custom`\n");
-
-        rc = RETURN_EPERM;
-        goto cleanup;
+        yyerror(_("Could not fetch function `custom`"));
     }
 
     pArgs = PyTuple_New(length_ints);
