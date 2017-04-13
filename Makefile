@@ -2,7 +2,7 @@ NAME         := nessemble
 VERSION      := 1.0.1
 EXEC         := $(NAME)
 BIN_DIR      := /usr/local/bin
-RM           := rm -f
+RM           := rm -rf
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra
 CC_LIB_FLAGS := -lm
@@ -60,13 +60,15 @@ js: CC           := emcc
 js: CC_FLAGS     := -Wall -Wextra
 js: CC_LIB_FLAGS :=
 
-win32: EXEC         := $(NAME).exe
-win32: CC           := i686-w64-mingw32-gcc
-win32: CC_FLAGS     := -lws2_32
+win32: EXEC     := $(NAME).exe
+win32: CC       := i686-w64-mingw32-gcc
+win32: CC_FLAGS := -lws2_32 -Ilua-5.1.5/src
+win32: CC_FILES := lua-5.1.5/src/liblua.a
 
-win64: EXEC         := $(NAME).exe
-win64: CC           := x86_64-w64-mingw32-gcc
-win64: CC_FLAGS     := -lws2_32
+win64: EXEC     := $(NAME).exe
+win64: CC       := x86_64-w64-mingw32-gcc
+win64: CC_FLAGS := -lws2_32 -Ilua-5.1.5/src
+win64: CC_FILES := lua-5.1.5/src/liblua.a
 
 # TARGETS
 
@@ -76,9 +78,9 @@ debug: $(EXEC)
 
 js: $(EXEC)
 
-win32: $(EXEC)
+win32: liblua $(EXEC)
 
-win64: $(EXEC)
+win64: liblua $(EXEC)
 
 # RECIPES
 
@@ -116,7 +118,9 @@ usage.c: license.h
 license.h: ${licence.txt:txt=h}
 
 $(EXEC): $(OBJS) $(HDRS)
-	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_LIB_FLAGS)
+	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS)
+
+# TESTING
 
 test: all
 	@python test.py
@@ -125,8 +129,23 @@ splint: all
 	splint -I/usr/include -I/usr/include/x86_64-linux-gnu \
 		   -warnposix $(FLAGS) $(FILES)
 
+# REGISTRY
+
 registry: all
 	python ./registry/server.py --debug
+
+# LIBLUA
+
+liblua: lua-5.1.5/src/liblua.a
+
+lua-5.1.5/src/liblua.a: lua-5.1.5.tar.gz
+	tar -xzf $<
+	make -C lua-5.1.5/src generic CC="$(CC)"
+
+lua-5.1.5.tar.gz:
+	curl -O "https://www.lua.org/ftp/$@"
+
+# TRANSLATION
 
 translate/nessemble.pot:
 	@mkdir -p translate
@@ -155,6 +174,8 @@ translate-install: translate/$(LANG)/nessemble.mo
 	@cp $< ~/.nessemble/locale/de/LC_MESSAGES/
 	@printf "Language installed: %s\n" $(LANG)
 
+# INSTALL/UNINSTALL
+
 install: all
 	strip $(EXEC)
 	install -m 0755 $(EXEC) $(BIN_DIR)
@@ -162,7 +183,10 @@ install: all
 uninstall:
 	rm -f $(BIN_DIR)/$(EXEC)
 
+# CLEAN
+
 .PHONY: clean
 clean:
 	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h
 	$(RM) $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h strings.h
+	$(RM) lua-5.1.5 lua-5.1.5.tar.gz

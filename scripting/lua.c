@@ -1,15 +1,19 @@
 #include "../nessemble.h"
 
-#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+#ifndef IS_JAVASCRIPT
+#ifndef IS_WINDOWS
 #include <lua.h>
+#else /* IS_WINDOWS */
+#include "lua.h"
+#endif
 #include <lauxlib.h>
 #include <lualib.h>
-#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#endif /* IS_JAVASCRIPT */
 
 unsigned int scripting_lua(char *exec) {
     unsigned int rc = RETURN_OK;
 
-#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+#ifndef IS_JAVASCRIPT
     int error = 0;
     unsigned int i = 0, l = 0;
     size_t return_len = 0;
@@ -31,8 +35,7 @@ unsigned int scripting_lua(char *exec) {
     }
 
     for (i = 0, l = length_texts; i < l; i++) {
-        lua_getglobal(L, "funcs");
-        lua_getfield(L, -1, "add_string");
+        lua_getglobal(L, "add_string");
 
         if (!lua_isnil(L, -1)) {
             lua_pushstring(L, texts[i]);
@@ -68,6 +71,6 @@ cleanup:
 
     lua_close(L);
 
-#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#endif /* IS_JAVASCRIPT */
     return rc;
 }

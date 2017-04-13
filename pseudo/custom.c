@@ -4,7 +4,11 @@
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
 #define CUSTOM_SCRIPT_COUNT 4
 #else /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#ifdef IS_WINDOWS
+#define CUSTOM_SCRIPT_COUNT 2
+#else /* IS_WINDOWS */
 #define CUSTOM_SCRIPT_COUNT 1
+#endif /* IS_WINDOWS */
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 struct custom_script {
@@ -14,11 +18,13 @@ struct custom_script {
 
 struct custom_script custom_scripts[CUSTOM_SCRIPT_COUNT] = {
     { "js",  &scripting_js  },
-#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-    { "py",  &scripting_py  },
+#ifndef IS_JAVASCRIPT
     { "lua", &scripting_lua },
+#ifndef IS_WINDOWS
+    { "py",  &scripting_py  },
     { "so",  &scripting_so  }
-#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#endif /* IS_WINDOWS */
+#endif /* IS_JAVASCRIPT */
 };
 
 /**
