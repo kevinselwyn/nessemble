@@ -14,7 +14,7 @@ unsigned int scripting_so(char *exec) {
 
 #ifndef IS_JAVASCRIPT
     void *handle = NULL;
-    int (*custom)(char **, size_t *, unsigned int *, int, char *[], int);
+    int (*custom)(char **, size_t *, unsigned int[], int, char *[], int);
     unsigned int i = 0, l = 0;
     size_t return_len = 0;
     char *return_str = NULL;
