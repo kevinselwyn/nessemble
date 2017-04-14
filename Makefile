@@ -23,7 +23,8 @@ UNAME        := $(shell uname -s)
 FILES        := main.c api.c assemble.c config.c coverage.c disassemble.c
 FILES        += download.c error.c home.c i18n.c init.c instructions.c json.c
 FILES        += list.c macro.c math.c midi.c opcodes.c pager.c png.c reference.c
-FILES        += registry.c simulate.c usage.c user.c utils.c wav.c zip.c
+FILES        += registry.c scripts.c simulate.c usage.c user.c utils.c wav.c
+FILES        += zip.c
 FILES        += $(shell ls pseudo/*.c) $(shell ls scripting/*.c)
 FILES        += $(shell ls simulate/*.c)
 FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
@@ -111,6 +112,9 @@ opcodes.c: opcodes.csv
 %.h: %.json
 	./utils/xxd.py -i $< > $@
 
+%.h: %.tar.gz
+	./utils/xxd.py -b -i $< > $@
+
 i18n.c: strings.h
 
 strings.h: ${strings.json:json=h}
@@ -122,6 +126,13 @@ init.h: ${init.txt:txt=h}
 usage.c: license.h
 
 license.h: ${licence.txt:txt=h}
+
+scripts.tar.gz:
+	tar -czf $@ $(shell ls scripts/*)
+
+scripts.h: ${scripts.tar.gz:tar.gz=h}
+
+scripts.c: scripts.tar.gz scripts.h
 
 $(EXEC): $(OBJS) $(HDRS)
 	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS)
@@ -196,5 +207,5 @@ clean:
 	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js
 	$(RM) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c
 	$(RM) $(OBJS)
-	$(RM) opcodes.c init.h license.h strings.h
+	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
 	$(RM) lua-5.1.5 lua-5.1.5.tar.gz

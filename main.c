@@ -146,6 +146,14 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
 
+        if (strcmp(argv[optind], "scripts") == 0) {
+            if ((rc = install_scripts()) != RETURN_OK) {
+                error_program_output(_("Could not install scripts"));
+            }
+
+            goto cleanup;
+        }
+
         if (strcmp(argv[optind], "reference") == 0) {
             if (argv[optind+1] == NULL) {
                 ref_count = 0;
