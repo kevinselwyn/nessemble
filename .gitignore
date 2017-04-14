@@ -8,6 +8,7 @@ nessemble
 nessemble.js
 opcodes.c
 reference/**/*.h
+scripts.h
 strings.h
 third-party/**/*.o
 y.tab.*
@@ -21,3 +22,4 @@ y.tab.*
 *.pot
 *.pyc
 *.so
+*.tar.gz

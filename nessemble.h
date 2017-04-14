@@ -191,13 +191,13 @@ enum {
 
 /* USAGE */
 #define USAGE_FLAG_COUNT            15
-#define USAGE_COMMAND_COUNT         12
+#define USAGE_COMMAND_COUNT         13
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
 /* ZIP */
 #define TAR_BLOCK_SIZE 512
 #define ZIP_BUF_SIZE   512 * 1024
-#define ZIP_INSIZE     (1 << 12)
+#define ZIP_INSIZE     (1 << 16)
 #define ZIP_OUTSIZE    (1 << 16)
 
 /* PNG */
@@ -682,6 +682,9 @@ unsigned int get_json_url(char **value, char *key, char *filename);
 unsigned int get_json_search(char *url, char *term);
 
 /* ZIP */
+unsigned int untar_list(char ***filenames, size_t *filenames_count, char *tar, unsigned int tar_length);
+unsigned int untar(char **data, size_t *data_length, char *tar, unsigned int tar_length, char *filename);
+unsigned int get_ungzip(char **data, size_t *data_length, char *buffer, unsigned int buffer_length);
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url);
 
 /* PAGER */
@@ -699,6 +702,7 @@ void translate_free();
 char *translate(char *id);
 
 /* SCRIPTING */
+unsigned int install_scripts();
 unsigned int scripting_cmd(char *exec);
 unsigned int scripting_js(char *exec);
 unsigned int scripting_lua(char *exec);
