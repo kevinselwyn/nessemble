@@ -5,7 +5,7 @@
 #define CUSTOM_SCRIPT_COUNT 3
 #else /* !IS_WINDOWS && !IS_JAVASCRIPT */
 #ifdef IS_WINDOWS
-#define CUSTOM_SCRIPT_COUNT 2
+#define CUSTOM_SCRIPT_COUNT 3
 #else /* IS_WINDOWS */
 #define CUSTOM_SCRIPT_COUNT 1
 #endif /* IS_WINDOWS */
@@ -22,6 +22,8 @@ struct custom_script custom_scripts[CUSTOM_SCRIPT_COUNT] = {
     { "lua", &scripting_lua },
 #ifndef IS_WINDOWS
     { "so",  &scripting_so  }
+#else /* IS_WINDOWS */
+    { "dll", &scripting_so }
 #endif /* IS_WINDOWS */
 #endif /* IS_JAVASCRIPT */
 };
