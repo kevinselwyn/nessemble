@@ -12,6 +12,7 @@ strings.h
 third-party/**/*.o
 y.tab.*
 *.db
+*.dll
 *.dSYM
 *.exe
 *.mo
