@@ -120,14 +120,15 @@ def main(argc, argv):
 
     if len(arg) < 1:
         sys.stdout.write('Missing easing type')
-        exit(0)
+        exit(1)
 
     ease = arg[0]
-    func = easing_funcs[ease]
 
-    if not func:
+    if not ease in easing_funcs:
         sys.stdout.write('Invalid easing type `%s`' % (ease))
-        exit(0)
+        exit(1)
+
+    func = easing_funcs[ease]
 
     if len(arg) > 2:
         start = arg[1]
@@ -154,6 +155,7 @@ def main(argc, argv):
         result.append(chr(int(value) % 256))
 
     sys.stdout.write(''.join(result))
+    return 0
 
 if __name__ == '__main__':
     main(len(sys.argv), sys.argv)

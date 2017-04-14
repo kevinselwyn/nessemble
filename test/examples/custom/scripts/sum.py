@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 
 def main(argc, argv):
@@ -7,6 +8,7 @@ def main(argc, argv):
         output += int(argv[i])
 
     sys.stdout.write(chr(output % 256))
+    exit(0)
 
 if __name__ == '__main__':
     main(len(sys.argv), sys.argv)
