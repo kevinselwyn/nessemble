@@ -127,7 +127,7 @@ struct easing easings[EASING_COUNT] = {
     { "easeInOutBounce", &easeInOutBounce }
 };
 
-int custom(char **return_str, size_t *return_len, unsigned int *ints, int length_ints, char *texts[], int length_texts) {
+int custom(char **return_str, size_t *return_len, unsigned int ints[], int length_ints, char *texts[], int length_texts) {
     int rc = 0, i = 0, j = 0, k = 0, l = 0;
     int result_index = 0, func_found = 0;
     int start = 0, end = 16, steps = 16;
