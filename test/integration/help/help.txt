@@ -20,6 +20,7 @@ Options:
 
 Commands:
   init [<arg> ...]                 initialize new project
+  scripts                          install scripts
   reference [<category>] [<term>]  get reference info about assembly terms
   config [<key>] [<val>]           list/get/set config info
   registry [<url>]                 get/set registry url

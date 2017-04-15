@@ -34,7 +34,11 @@ def which(program):
 def cleanup(rc):
     root = os.getcwd()
 
-    os.unlink('%s%sexample.txt' % (root, os.sep))
+    try:
+        os.unlink('%s%sexample.txt' % (root, os.sep))
+    except OSError:
+        pass
+
     exit(rc)
 
 def main():
@@ -43,7 +47,7 @@ def main():
     root = os.getcwd()
     dirname = os.path.dirname(os.path.realpath(__file__))
     example = 'init'
-    flags = ['init', 'example.txt', '1', '1', '0', '0']
+    flags = ['init', '%s%sexample.txt' % (root, os.sep), '1', '1', '0', '0']
 
     valgrind = which('valgrind')
 
