@@ -122,7 +122,41 @@ int udeflate_write_input_bytes(uint16_t len) {
 	return 0;
 }
 
-static unsigned int untar(char **data, size_t *data_length, char *tar, unsigned int tar_length, char *filename) {
+unsigned int untar_list(char ***filenames, size_t *filenames_count, char *tar, unsigned int tar_length) {
+    unsigned int rc = RETURN_OK, i = 0, l = 0;
+    unsigned int size = 0, remaining = 0;
+    size_t output_filenames_count = 0;
+    char block[512], tar_filename[100];
+    char **output_filenames = NULL;
+
+    output_filenames = (char **)nessemble_malloc(sizeof(char *) * 100);
+
+    l = tar_length;
+
+    while (i < l) {
+        memcpy(block, tar+i, TAR_BLOCK_SIZE);
+        memcpy(tar_filename, block, 100);
+
+        if (tar_filename[0] == '\0') {
+            break;
+        }
+
+        i += TAR_BLOCK_SIZE;
+        size = (unsigned int)oct2int(block+124);
+        remaining = (((size / TAR_BLOCK_SIZE) + 1) * TAR_BLOCK_SIZE) - size;
+
+        output_filenames[output_filenames_count++] = nessemble_strdup(tar_filename);
+
+        i += size + remaining;
+    }
+
+    *filenames = output_filenames;
+    *filenames_count = output_filenames_count;
+
+    return rc;
+}
+
+unsigned int untar(char **data, size_t *data_length, char *tar, unsigned int tar_length, char *filename) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
     unsigned int size = 0, remaining = 0;
     char block[512], tar_filename[100];
@@ -165,9 +199,38 @@ cleanup:
     return rc;
 }
 
+unsigned int get_ungzip(char **data, size_t *data_length, char *buffer, unsigned int buffer_length) {
+    unsigned int rc = RETURN_OK;
+    size_t data_output_length = 0;
+    char *data_output = NULL;
+
+    memcpy(input, buffer, (size_t)buffer_length);
+
+    if (deflate() < 0) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    data_output = (char *)nessemble_malloc(sizeof(char) * (i_out + 1));
+    memcpy(data_output, output, i_out);
+    data_output_length = (size_t)i_out;
+
+cleanup:
+    *data = data_output;
+    *data_length = data_output_length;
+
+    i_in = 0;
+    i_out = 0;
+    memset(input, '\0', ZIP_INSIZE);
+    memset(output, '\0', ZIP_OUTSIZE);
+
+    return rc;
+}
+
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url) {
     unsigned int rc = RETURN_OK, content_length = 0, index = 0;
-    char *content = NULL;
+    size_t tar_data_length = 0;
+    char *content = NULL, *tar_data = NULL;
     struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
 
     if (!cache_url || (strcmp(url, cache_url) != 0)) {
@@ -223,21 +286,13 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
     index++;
 
-    memcpy(input, content+index, (size_t)(content_length - index));
-
-    if (deflate() < 0) {
-        rc = RETURN_EPERM;
+    if ((rc = get_ungzip(&tar_data, &tar_data_length, content+index, content_length - index)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if ((rc = untar(&*data, &*data_length, output, i_out, filename)) != RETURN_OK) {
+    if ((rc = untar(&*data, &*data_length, tar_data, tar_data_length, filename)) != RETURN_OK) {
         goto cleanup;
     }
-
-    i_in = 0;
-    i_out = 0;
-    memset(input, '\0', ZIP_INSIZE);
-    memset(output, '\0', ZIP_OUTSIZE);
 
 cleanup:
     nessemble_free(content);

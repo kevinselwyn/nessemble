@@ -43,6 +43,7 @@ static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
 
 static struct usage_flag usage_commands[USAGE_COMMAND_COUNT] = {
     { "init [<arg> ...]", "initialize new project" },
+    { "scripts", "install scripts" },
     { "reference [<category>] [<term>]", "get reference info about assembly terms" },
     { "config [<key>] [<val>]", "list/get/set config info" },
     { "registry [<url>]", "get/set registry url" },

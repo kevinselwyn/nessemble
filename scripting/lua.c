@@ -1,19 +1,24 @@
+#include <string.h>
 #include "../nessemble.h"
 
-#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+#ifndef IS_JAVASCRIPT
+#ifndef IS_WINDOWS
 #include <lua.h>
+#else /* IS_WINDOWS */
+#include "lua.h"
+#endif
 #include <lauxlib.h>
 #include <lualib.h>
-#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#endif /* IS_JAVASCRIPT */
 
 unsigned int scripting_lua(char *exec) {
     unsigned int rc = RETURN_OK;
 
-#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+#ifndef IS_JAVASCRIPT
     int error = 0;
     unsigned int i = 0, l = 0;
     size_t return_len = 0;
-    char *return_str = NULL;
+    char *return_str = NULL, *error_str = NULL;
 
     lua_State *L;
 
@@ -28,6 +33,19 @@ unsigned int scripting_lua(char *exec) {
     if ((error = lua_pcall(L, 0, 0, 0)) != 0) {
         rc = RETURN_EPERM;
         goto cleanup;
+    }
+
+    for (i = 0, l = length_texts; i < l; i++) {
+        lua_getglobal(L, "add_string");
+
+        if (!lua_isnil(L, -1)) {
+            lua_pushstring(L, texts[i]);
+
+            if ((error = lua_pcall(L, 1, 0, 0) != 0)) {
+                rc = RETURN_EPERM;
+                goto cleanup;
+            }
+        }
     }
 
     lua_getglobal(L, "custom");
@@ -49,11 +67,14 @@ unsigned int scripting_lua(char *exec) {
 
 cleanup:
     if (error != 0) {
-        fprintf(stderr, "%s\n", lua_tostring(L, -1));
+        error_str = strchr(lua_tostring(L, -1), ':');
+        error_str = strchr(error_str+2, ':');
+
+        yyerror(error_str+2);
     }
 
     lua_close(L);
 
-#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#endif /* IS_JAVASCRIPT */
     return rc;
 }
