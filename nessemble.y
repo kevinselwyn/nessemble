@@ -57,7 +57,6 @@
 %token PSEUDO_DB
 %token PSEUDO_DEFCHR
 %token PSEUDO_DW
-%token PSEUDO_EASE
 %token PSEUDO_ELSE
 %token PSEUDO_ENDENUM
 %token PSEUDO_ENDIF
@@ -111,7 +110,6 @@
 %token FEOF
 %token UNKNOWN
 
-%type <sval> pseudo_ease
 %type <sval> pseudo_ifdef
 %type <sval> pseudo_ifndef
 %type <sval> pseudo_incwav
@@ -236,7 +234,6 @@ pseudo
     | pseudo_db        { pseudo_db(); }
     | pseudo_defchr    { pseudo_defchr(); }
     | pseudo_dw        { pseudo_dw(); }
-    | pseudo_ease      { pseudo_ease($1); }
     | pseudo_else      { pseudo_else(); }
     | pseudo_endenum   { pseudo_endenum(); }
     | pseudo_endif     { pseudo_endif(); }
@@ -314,11 +311,6 @@ pseudo_dw_alias
 pseudo_dw
     : pseudo_dw_alias number { ints[length_ints++] = $2; }
     | pseudo_dw COMMA number { ints[length_ints++] = $3; }
-    ;
-
-pseudo_ease
-    : PSEUDO_EASE QUOT_STRING  { $$ = $2; }
-    | pseudo_ease COMMA number { ints[length_ints++] = $3; $$ = $1; }
     ;
 
 pseudo_else
@@ -465,8 +457,10 @@ pseudo_segment
     ;
 
 pseudo_custom
-    : PSEUDO_CUSTOM number       { ints[length_ints++] = $2; $$ = $1; }
-    | pseudo_custom COMMA number { ints[length_ints++] = $3; $$ = $1; }
+    : PSEUDO_CUSTOM number            { ints[length_ints++] = $2; $$ = $1; }
+    | PSEUDO_CUSTOM QUOT_STRING       { texts[length_texts++] = nessemble_strdup($2); $$ = $1; }
+    | pseudo_custom COMMA number      { ints[length_ints++] = $3; $$ = $1; }
+    | pseudo_custom COMMA QUOT_STRING { texts[length_texts++] = nessemble_strdup($3); $$ = $1; }
     ;
 
 /* Constant */

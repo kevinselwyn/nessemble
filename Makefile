@@ -2,12 +2,14 @@ NAME         := nessemble
 VERSION      := 1.0.1
 EXEC         := $(NAME)
 BIN_DIR      := /usr/local/bin
-RM           := rm -f
+RM           := rm -rf
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra
 CC_LIB_FLAGS := -lm
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
+AR           := ar rcu
+RANLIB       := ranlib
 LEX          := flex
 LEX_OUT      := lex.yy
 LEX_FLAGS    := --outfile=$(LEX_OUT).c
@@ -21,7 +23,8 @@ UNAME        := $(shell uname -s)
 FILES        := main.c api.c assemble.c config.c coverage.c disassemble.c
 FILES        += download.c error.c home.c i18n.c init.c instructions.c json.c
 FILES        += list.c macro.c math.c midi.c opcodes.c pager.c png.c reference.c
-FILES        += registry.c simulate.c usage.c user.c utils.c wav.c zip.c
+FILES        += registry.c scripts.c simulate.c usage.c user.c utils.c wav.c
+FILES        += zip.c
 FILES        += $(shell ls pseudo/*.c) $(shell ls scripting/*.c)
 FILES        += $(shell ls simulate/*.c)
 FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
@@ -60,13 +63,19 @@ js: CC           := emcc
 js: CC_FLAGS     := -Wall -Wextra
 js: CC_LIB_FLAGS :=
 
-win32: EXEC         := $(NAME).exe
-win32: CC           := i686-w64-mingw32-gcc
-win32: CC_FLAGS     := -lws2_32
+win32: EXEC     := $(NAME).exe
+win32: CC       := i686-w64-mingw32-gcc
+win32: CC_FLAGS := -lws2_32 -Ilua-5.1.5/src
+win32: CC_FILES := lua-5.1.5/src/liblua.a
+win32: AR       := i686-w64-mingw32-ar rcu
+win32: RANLIB   := i686-w64-mingw32-ranlib
 
-win64: EXEC         := $(NAME).exe
-win64: CC           := x86_64-w64-mingw32-gcc
-win64: CC_FLAGS     := -lws2_32
+win64: EXEC     := $(NAME).exe
+win64: CC       := x86_64-w64-mingw32-gcc
+win64: CC_FLAGS := -lws2_32 -Ilua-5.1.5/src
+win64: CC_FILES := lua-5.1.5/src/liblua.a
+win64: AR       := x86_64-w64-mingw32-ar rcu
+win64: RANLIB   := x86_64-w64-mingw32-ranlib
 
 # TARGETS
 
@@ -76,9 +85,9 @@ debug: $(EXEC)
 
 js: $(EXEC)
 
-win32: $(EXEC)
+win32: liblua $(EXEC)
 
-win64: $(EXEC)
+win64: liblua $(EXEC)
 
 # RECIPES
 
@@ -103,6 +112,9 @@ opcodes.c: opcodes.csv
 %.h: %.json
 	./utils/xxd.py -i $< > $@
 
+%.h: %.tar.gz
+	./utils/xxd.py -b -i $< > $@
+
 i18n.c: strings.h
 
 strings.h: ${strings.json:json=h}
@@ -115,8 +127,17 @@ usage.c: license.h
 
 license.h: ${licence.txt:txt=h}
 
+scripts.tar.gz:
+	tar -czf $@ $(shell ls scripts/*)
+
+scripts.h: ${scripts.tar.gz:tar.gz=h}
+
+scripts.c: scripts.tar.gz scripts.h
+
 $(EXEC): $(OBJS) $(HDRS)
-	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_LIB_FLAGS)
+	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS)
+
+# TESTING
 
 test: all
 	@python test.py
@@ -125,8 +146,23 @@ splint: all
 	splint -I/usr/include -I/usr/include/x86_64-linux-gnu \
 		   -warnposix $(FLAGS) $(FILES)
 
+# REGISTRY
+
 registry: all
 	python ./registry/server.py --debug
+
+# LIBLUA
+
+liblua: lua-5.1.5/src/liblua.a
+
+lua-5.1.5/src/liblua.a: lua-5.1.5.tar.gz
+	tar -xzf $<
+	make -C lua-5.1.5/src generic CC="$(CC)" AR="$(AR)" RANLIB="$(RANLIB)"
+
+lua-5.1.5.tar.gz:
+	curl -O "https://www.lua.org/ftp/$@"
+
+# TRANSLATION
 
 translate/nessemble.pot:
 	@mkdir -p translate
@@ -155,6 +191,8 @@ translate-install: translate/$(LANG)/nessemble.mo
 	@cp $< ~/.nessemble/locale/de/LC_MESSAGES/
 	@printf "Language installed: %s\n" $(LANG)
 
+# INSTALL/UNINSTALL
+
 install: all
 	strip $(EXEC)
 	install -m 0755 $(EXEC) $(BIN_DIR)
@@ -162,7 +200,12 @@ install: all
 uninstall:
 	rm -f $(BIN_DIR)/$(EXEC)
 
+# CLEAN
+
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(YACC_OUT).c $(YACC_OUT).h
-	$(RM) $(LEX_OUT).c opcodes.c $(OBJS) init.h license.h strings.h
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js
+	$(RM) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c
+	$(RM) $(OBJS)
+	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
+	$(RM) lua-5.1.5 lua-5.1.5.tar.gz

@@ -86,6 +86,7 @@
 #define MAX_MACROS        1024
 #define MAX_BANKS         256
 #define MAX_INTS          256
+#define MAX_TEXTS         256
 #define MAX_ARGS          10
 #define MAX_NESTED_IFS    10
 #define TRAINER_MAX       512
@@ -137,9 +138,6 @@
 #define SYMBOL_CONSTANT  0x02
 #define SYMBOL_RS        0x03
 #define SYMBOL_ENUM      0x04
-
-/* EASING */
-#define EASING_COUNT 12
 
 /* INCLUDE */
 #define INCLUDE_NONE   0
@@ -193,13 +191,13 @@ enum {
 
 /* USAGE */
 #define USAGE_FLAG_COUNT            15
-#define USAGE_COMMAND_COUNT         12
+#define USAGE_COMMAND_COUNT         13
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
 /* ZIP */
 #define TAR_BLOCK_SIZE 512
 #define ZIP_BUF_SIZE   512 * 1024
-#define ZIP_INSIZE     (1 << 12)
+#define ZIP_INSIZE     (1 << 16)
 #define ZIP_OUTSIZE    (1 << 16)
 
 /* PNG */
@@ -252,12 +250,6 @@ struct usage_flag {
 };
 
 struct option commandline_options[USAGE_FLAG_COUNT+1];
-
-/* EASING */
-struct easing {
-    char *type;
-    float (*func)(float t, float b, float c, float d);
-};
 
 /* HTTP HEADERS */
 struct http_header {
@@ -328,6 +320,8 @@ char *cwd_path;
 /* INPUT */
 unsigned int length_ints;
 unsigned int ints[MAX_INTS];
+unsigned int length_texts;
+char *texts[MAX_TEXTS];
 
 /* ERROR REPORTING */
 jmp_buf error_jmp;
@@ -336,9 +330,6 @@ char yycolno;
 
 /* INES */
 extern struct ines_header ines;
-
-/* EASING */
-extern struct easing easings[EASING_COUNT];
 
 /* IO */
 unsigned int *rom;
@@ -428,7 +419,6 @@ void pseudo_color();
 void pseudo_db();
 void pseudo_defchr();
 void pseudo_dw();
-void pseudo_ease(char *type);
 void pseudo_else();
 void pseudo_endenum();
 void pseudo_endif();
@@ -603,21 +593,6 @@ void do_xas(unsigned int opcode_index, unsigned int value);
 
 /* MATH */
 unsigned int crc_32(unsigned int *buffer, unsigned int length);
-float easeInQuad(float t, float b, float c, float d);
-float easeOutQuad(float t, float b, float c, float d);
-float easeInOutQuad(float t, float b, float c, float d);
-float easeInCubic(float t, float b, float c, float d);
-float easeOutCubic(float t, float b, float c, float d);
-float easeInOutCubic(float t, float b, float c, float d);
-float easeInQuint(float t, float b, float c, float d);
-float easeOutQuint(float t, float b, float c, float d);
-float easeInOutQuint(float t, float b, float c, float d);
-float easeInExpo(float t, float b, float c, float d);
-float easeOutExpo(float t, float b, float c, float d);
-float easeInOutExpo(float t, float b, float c, float d);
-float easeInBounce(float t, float b, float c, float d);
-float easeOutBounce(float t, float b, float c, float d);
-float easeInOutBounce(float t, float b, float c, float d);
 
 /* UTILS */
 void *nessemble_malloc(size_t size);
@@ -707,6 +682,9 @@ unsigned int get_json_url(char **value, char *key, char *filename);
 unsigned int get_json_search(char *url, char *term);
 
 /* ZIP */
+unsigned int untar_list(char ***filenames, size_t *filenames_count, char *tar, unsigned int tar_length);
+unsigned int untar(char **data, size_t *data_length, char *tar, unsigned int tar_length, char *filename);
+unsigned int get_ungzip(char **data, size_t *data_length, char *buffer, unsigned int buffer_length);
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url);
 
 /* PAGER */
@@ -724,10 +702,10 @@ void translate_free();
 char *translate(char *id);
 
 /* SCRIPTING */
+unsigned int install_scripts();
 unsigned int scripting_cmd(char *exec);
 unsigned int scripting_js(char *exec);
 unsigned int scripting_lua(char *exec);
-unsigned int scripting_py(char *exec);
 unsigned int scripting_so(char *exec);
 
 #endif /* _NESSEMBLE_H */

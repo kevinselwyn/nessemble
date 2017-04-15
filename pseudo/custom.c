@@ -2,9 +2,13 @@
 #include "../nessemble.h"
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-#define CUSTOM_SCRIPT_COUNT 4
+#define CUSTOM_SCRIPT_COUNT 3
 #else /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#ifdef IS_WINDOWS
+#define CUSTOM_SCRIPT_COUNT 3
+#else /* IS_WINDOWS */
 #define CUSTOM_SCRIPT_COUNT 1
+#endif /* IS_WINDOWS */
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 struct custom_script {
@@ -14,11 +18,14 @@ struct custom_script {
 
 struct custom_script custom_scripts[CUSTOM_SCRIPT_COUNT] = {
     { "js",  &scripting_js  },
-#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-    { "py",  &scripting_py  },
+#ifndef IS_JAVASCRIPT
     { "lua", &scripting_lua },
+#ifndef IS_WINDOWS
     { "so",  &scripting_so  }
-#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#else /* IS_WINDOWS */
+    { "dll", &scripting_so }
+#endif /* IS_WINDOWS */
+#endif /* IS_JAVASCRIPT */
 };
 
 /**
@@ -71,4 +78,10 @@ cleanup:
     nessemble_free(ext);
 
     length_ints = 0;
+
+    for (i = 0, l = length_texts; i < l; i++) {
+        nessemble_free(texts[i]);
+    }
+
+    length_texts = 0;
 }

@@ -4,10 +4,10 @@
 sudo apt-get -y update
 
 # build tools
-sudo apt-get -y install git make bison flex
+sudo apt-get -y install git make curl bison flex
 
 # libraries
-sudo apt-get -y install liblua5.1-0-dev python-dev
+sudo apt-get -y install liblua5.1-0-dev
 
 # debug tools
 sudo apt-get -y install bc gdb splint valgrind
