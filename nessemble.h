@@ -653,7 +653,7 @@ void error_program_output(const char *fmt, ...);
 void error_signal();
 
 /* INIT */
-unsigned int init();
+unsigned int init(int optc, char *optv[]);
 
 /* CONFIG */
 unsigned int open_config(FILE **file, char **filename);

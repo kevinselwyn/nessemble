@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
-    error_signal();
+    //error_signal();
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
     // exec
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
 
     while (optind < argc) {
         if (strcmp(argv[optind], "init") == 0) {
-            if ((rc = init(argv+(optind + 1))) != RETURN_OK) {
+            if ((rc = init(argc-(optind + 1), argv+(optind + 1))) != RETURN_OK) {
                 error_program_output(_("Could not initialize project"));
             }
 
