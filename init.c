@@ -5,7 +5,7 @@
 #include "nessemble.h"
 #include "init.h"
 
-unsigned int init(char *opts[]) {
+unsigned int init(int optc, char *optv[]) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
     int input_prg = -1, input_chr = -1, input_mapper = -1, input_mirroring = -1;
     size_t length = 0;
@@ -15,8 +15,8 @@ unsigned int init(char *opts[]) {
 
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
 
-    if (opts[0]) {
-        input_filename = nessemble_strdup(opts[0]);
+    if (optc >= 1) {
+        input_filename = nessemble_strdup(optv[0]);
     }
 
     while (!input_filename && get_line(&buffer, _("Filename: ")) != NULL) {
@@ -31,8 +31,8 @@ unsigned int init(char *opts[]) {
         break;
     }
 
-    if (opts[1]) {
-        input_prg = atoi(opts[1]);
+    if (optc >= 2) {
+        input_prg = atoi(optv[1]);
     }
 
     while (input_prg == -1 && get_line(&buffer, _("PRG Banks: ")) != NULL) {
@@ -56,8 +56,8 @@ unsigned int init(char *opts[]) {
         break;
     }
 
-    if (opts[2]) {
-        input_chr = atoi(opts[2]);
+    if (optc >= 3) {
+        input_chr = atoi(optv[2]);
     }
 
     while (input_chr == -1 && get_line(&buffer, _("CHR Banks: ")) != NULL) {
@@ -81,8 +81,8 @@ unsigned int init(char *opts[]) {
         break;
     }
 
-    if (opts[3]) {
-        input_mapper = atoi(opts[3]);
+    if (optc >= 4) {
+        input_mapper = atoi(optv[3]);
     }
 
     while (input_mapper == -1 && get_line(&buffer, _("Mapper (0-255): ")) != NULL) {
@@ -106,8 +106,8 @@ unsigned int init(char *opts[]) {
         break;
     }
 
-    if (opts[4]) {
-        input_mirroring = atoi(opts[4]);
+    if (optc >= 5) {
+        input_mirroring = atoi(optv[4]);
     }
 
     while (input_mirroring == -1 && get_line(&buffer, _("Mirroring (0-15): ")) != NULL) {
