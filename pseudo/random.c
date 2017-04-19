@@ -2,6 +2,18 @@
 #include <time.h>
 #include "../nessemble.h"
 
+static unsigned long int custom_rand_next = 1;
+
+static void custom_srand(unsigned int seed) {
+    custom_rand_next = seed;
+}
+
+static int custom_rand(void) {
+    custom_rand_next = custom_rand_next * 1103515245 + 12345;
+
+    return (unsigned int)(custom_rand_next / 65536) % 32768;
+}
+
 /**
  * .random pseudo instruction
  * @param {unsigned int} seed - Seed value
@@ -30,10 +42,10 @@ void pseudo_random() {
     }
 #endif /* IS_WINDOWS */
 
-    srand(seed);
+    custom_srand(seed);
 
     for (i = 0, l = count; i < l; i++) {
-        write_byte((unsigned int)rand());
+        write_byte((unsigned int)custom_rand());
     }
 
     length_ints = 0;
