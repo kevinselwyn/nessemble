@@ -622,8 +622,14 @@ cleanup:
     nessemble_free(indata);
     nessemble_free(trn_filename);
     nessemble_free(chr_filename);
-    nessemble_fclose(outfile);
-    nessemble_fclose(trnfile);
+
+    if (is_stdout(output) == TRUE) {
+        fflush(trnfile);
+        fflush(outfile);
+    } else {
+        nessemble_fclose(trnfile);
+        nessemble_fclose(outfile);
+    }
 
     return rc;
 }
