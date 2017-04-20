@@ -3600,6 +3600,7 @@ static void *stbi__jpeg_load(stbi__context *s, int *x, int *y, int *comp, int re
    stbi__setup_jpeg(j);
    result = load_jpeg_image(j, x,y,comp,req_comp);
    STBI_FREE(j);
+   STBI_NOTUSED(ri);
    return result;
 }
 

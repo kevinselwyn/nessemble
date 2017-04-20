@@ -7,7 +7,7 @@ void pseudo_incpal(char *string) {
     unsigned int x = 0;
     char *path = NULL;
     unsigned char *rgb = NULL;
-    struct png_data png;
+    struct png_data png = { 0, 0, NULL };
 
     if (get_fullpath(&path, string) != 0) {
         yyerror(_("Could not get full path of %s"), string);

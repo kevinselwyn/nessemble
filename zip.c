@@ -231,7 +231,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     unsigned int rc = RETURN_OK, content_length = 0, index = 0;
     size_t tar_data_length = 0;
     char *content = NULL, *tar_data = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
 
     if (!cache_url || (strcmp(url, cache_url) != 0)) {
         // options
