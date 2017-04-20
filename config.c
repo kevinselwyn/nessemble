@@ -14,37 +14,58 @@ struct config_type config_types[CONFIG_TYPES] = {
     { "registry" }
 };
 
-unsigned int open_config(FILE **file, char **filename) {
+unsigned int create_config() {
     unsigned int rc = RETURN_OK;
     char *config_path = NULL, *lib_path = NULL;
-    FILE *config = NULL;
-    DIR *dir = NULL;
+    DIR *config_dir = NULL, *lib_dir = NULL;
 
     if ((rc = get_home_path(&config_path, 1, "." PROGRAM_NAME)) != RETURN_OK) {
         goto cleanup;
+    }
+
+    config_dir = opendir(config_path);
+
+    if (!config_dir) {
+        if (nessemble_mkdir(config_path, 0777) != 0) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
     }
 
     if ((rc = get_home_path(&lib_path, 2, "." PROGRAM_NAME, "libs")) != RETURN_OK) {
         goto cleanup;
     }
 
-    dir = opendir(config_path);
+    lib_dir = opendir(lib_path);
 
-    if (!dir) {
-        if (nessemble_mkdir(config_path, 0777) != 0) {
-            rc = RETURN_EPERM;
-            goto cleanup;
-        }
-
+    if (!lib_dir) {
         if (nessemble_mkdir(lib_path, 0777) != 0) {
             rc = RETURN_EPERM;
             goto cleanup;
         }
-    } else {
-        UNUSED(closedir(dir));
     }
 
-    strcat(config_path, SEP CONFIG_FILENAME);
+cleanup:
+    nessemble_free(config_path);
+    nessemble_free(lib_path);
+    UNUSED(closedir(config_dir));
+    UNUSED(closedir(lib_dir));
+
+    return rc;
+}
+
+unsigned int open_config(FILE **file, char **filename) {
+    unsigned int rc = RETURN_OK;
+    char *config_path = NULL;
+    FILE *config = NULL;
+
+    if ((rc = create_config()) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = get_home_path(&config_path, 2, "." PROGRAM_NAME, CONFIG_FILENAME)) != RETURN_OK) {
+        goto cleanup;
+    }
 
     if (file_exists(config_path) == FALSE) {
         config = fopen(config_path, "w+");
@@ -66,8 +87,6 @@ unsigned int open_config(FILE **file, char **filename) {
     *filename = config_path;
 
 cleanup:
-    nessemble_free(lib_path);
-
     return rc;
 }
 
