@@ -3,8 +3,15 @@
 #include <stdarg.h>
 #include <string.h>
 #include <signal.h>
+#include <unistd.h>
 #include "nessemble.h"
 #include "error.h"
+
+#ifndef IS_WINDOWS
+#include <execinfo.h>
+#endif /* IS_WINDOWS */
+
+#define ERROR_BACKTRACE_SIZE 10
 
 static char *signal_names[32] = {
     NULL,
@@ -233,6 +240,9 @@ void error_program_output(const char *fmt, ...) {
 
 #ifndef IS_WINDOWS
 static void error_signal_handler(int signal, siginfo_t *si, void *arg) {
+    void *array[ERROR_BACKTRACE_SIZE];
+    size_t size = 0;
+
     UNUSED(signal);
     UNUSED(arg);
 
@@ -242,7 +252,10 @@ static void error_signal_handler(int signal, siginfo_t *si, void *arg) {
         printf(" (%p)", si->si_addr);
     }
 
-    printf("\n\n%s\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n  " PROGRAM_ISSUES "\n", _("Please report this error to the maintainer:"));
+    printf("\n\n%s\n  " PROGRAM_AUTHOR " (" PROGRAM_AUTHOR_EMAIL ")\n  " PROGRAM_ISSUES "\n\n", _("Please report this error to the maintainer:"));
+
+    size = backtrace(array, ERROR_BACKTRACE_SIZE);
+    backtrace_symbols_fd(array, size, STDERR_FILENO);
 
     longjmp(error_jmp, 1);
 }

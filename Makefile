@@ -54,7 +54,12 @@ endif
 
 debug: CC_FLAGS     += -g
 debug: CC_LIB_FLAGS += -ldl
+
+ifeq ($(UNAME), Darwin)
+debug: CC_LIB_FLAGS += -llua -I/usr/include/lua5.1
+else
 debug: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
+endif
 
 js: EXEC         := $(NAME).js
 js: CC           := emcc
