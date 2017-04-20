@@ -29,7 +29,7 @@ void free_png(struct png_data png) {
 struct png_data read_png(char *filename) {
     int width = 0, height = 0, n = 0;
     unsigned char *data = NULL;
-    struct png_data png;
+    struct png_data png = { 0, 0, NULL };
 
     if ((data = stbi_load(filename, &width, &height, &n, 3)) == NULL) {
         error(_("Could not load PNG"));

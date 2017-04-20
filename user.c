@@ -27,7 +27,7 @@ unsigned int user_create() {
     char *url = NULL, *response = NULL, *error = NULL, *buffer = NULL;
     char *user_name = NULL, *user_email = NULL, *user_password = NULL;
     char data[1024];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
     struct http_header http_headers = { 0, {}, {} };
 
     memset(data, '\0', 1024);
@@ -118,7 +118,7 @@ unsigned int user_login() {
     char *base64 = NULL, *auth = NULL;
     char *user_email = NULL, *user_password = NULL;
     char data[1024];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
     struct http_header http_headers = { 0, {}, {} };
 
     memset(data, '\0', 1024);
@@ -212,7 +212,7 @@ unsigned int user_logout() {
     unsigned int rc = RETURN_OK;
     unsigned int http_code = 0, response_length = 0;
     char *url = NULL, *response = NULL, *error = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
     struct http_header http_headers = { 0, {}, {} };
 
     if ((rc = user_auth(&http_headers)) != RETURN_OK) {

@@ -114,7 +114,7 @@ cleanup:
 unsigned int get_json_url(char **value, char *key, char *url) {
     unsigned int rc = RETURN_OK, text_length = 0;
     char *text = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
 
     // options
     download_options.response = &text;
@@ -163,7 +163,7 @@ unsigned int get_json_search(char *url, char *term) {
     char *results[200];
     jsmn_parser parser;
     jsmntok_t tokens[JSON_TOKEN_MAX];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
 
     // options
     download_options.response = &text;

@@ -188,7 +188,7 @@ cleanup:
 unsigned int lib_info(char *lib) {
     unsigned int rc = RETURN_OK, readme_length = 0;
     char *lib_url = NULL, *readme = NULL, *readme_url = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
 
     if (lib_is_installed(lib) == FALSE) {
         if ((rc = api_lib(&lib_url, lib)) != RETURN_OK) {

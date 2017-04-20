@@ -346,7 +346,7 @@ struct midi_data read_midi(char *filename) {
     unsigned int track = 0, i = 0, j = 0, k = 0, l = 0;
     size_t length = 0;
 	FILE *file = NULL;
-	struct midi_data midi;
+	struct midi_data midi = { { }, 0, 0, 0, 0, NULL };
 
 	file = fopen(filename, "rb");
 
