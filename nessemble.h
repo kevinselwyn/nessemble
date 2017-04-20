@@ -596,6 +596,7 @@ unsigned int crc_32(unsigned int *buffer, unsigned int length);
 
 /* UTILS */
 void *nessemble_malloc(size_t size);
+void *nessemble_realloc(void *ptr, size_t size);
 void nessemble_free(void *ptr);
 void nessemble_fclose(FILE *file);
 void nessemble_uppercase(char *str);
@@ -656,6 +657,7 @@ void error_signal();
 unsigned int init(int optc, char *optv[]);
 
 /* CONFIG */
+unsigned int create_config();
 unsigned int open_config(FILE **file, char **filename);
 void close_config(FILE *file, char *filename);
 unsigned int get_config(char **result, char *item);

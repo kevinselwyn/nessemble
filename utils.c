@@ -25,6 +25,18 @@ void *nessemble_malloc(size_t size) {
     return mem;
 }
 
+void *nessemble_realloc(void *ptr, size_t size) {
+    void *mem = NULL;
+
+    mem = realloc(ptr, sizeof(char) * size);
+
+    if (!mem) {
+        fatal(_("Memory error"));
+    }
+
+    return mem;
+}
+
 void nessemble_free(void *ptr) {
     if (ptr) {
         free(ptr);

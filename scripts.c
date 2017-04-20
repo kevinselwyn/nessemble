@@ -16,11 +16,17 @@ unsigned int install_scripts() {
         goto cleanup;
     }
 
+    if ((rc = create_config()) != RETURN_OK) {
+        goto cleanup;
+    }
+
     if ((rc = get_home_path(&path, 2, "." PROGRAM_NAME, "scripts")) != RETURN_OK) {
         goto cleanup;
     }
 
     if (nessemble_mkdir(path, 0777) != 0) {
+        nessemble_free(path);
+
         goto cleanup;
     }
 
@@ -48,5 +54,13 @@ unsigned int install_scripts() {
     }
 
 cleanup:
+    nessemble_free(tar);
+
+    for (i = 0, l = (unsigned int)tar_filenames_count; i < l; i++) {
+        nessemble_free(tar_filenames[i]);
+    }
+
+    nessemble_free(tar_filenames);
+
     return rc;
 }
