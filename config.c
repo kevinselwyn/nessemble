@@ -48,8 +48,14 @@ unsigned int create_config() {
 cleanup:
     nessemble_free(config_path);
     nessemble_free(lib_path);
-    UNUSED(closedir(config_dir));
-    UNUSED(closedir(lib_dir));
+
+    if (config_dir) {
+        UNUSED(closedir(config_dir));
+    }
+
+    if (lib_dir) {
+        UNUSED(closedir(lib_dir));
+    }
 
     return rc;
 }
