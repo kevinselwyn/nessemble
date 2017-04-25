@@ -7,12 +7,14 @@ lua-5*
 nessemble
 nessemble.js
 opcodes.c
+package
 reference/**/*.h
 scripts.h
 strings.h
 third-party/**/*.o
 y.tab.*
 *.db
+*.deb
 *.dll
 *.dSYM
 *.exe
