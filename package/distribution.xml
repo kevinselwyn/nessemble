@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <pkg-ref id="com.${IDENTIFIER}.${NAME}" />
+    <options customize="never" require-scripts="false" />
+    <readme file="README.md" />
+    <license file="COPYING" />
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.${IDENTIFIER}.${NAME}" />
+        </line>
+    </choices-outline>
+    <choice id="default" />
+    <choice id="com.${IDENTIFIER}.${NAME}" visible="false">
+        <pkg-ref id="com.${IDENTIFIER}.${NAME}" />
+    </choice>
+    <pkg-ref id="com.${IDENTIFIER}.${NAME}" version="${VERSION}" onConclusion="none" auth="Root">${NAME}.pkg</pkg-ref>
+</installer-gui-script>
