@@ -20,8 +20,10 @@ y.tab.*
 *.exe
 *.mo
 *.o
+*.pkg
 *.po
 *.pot
 *.pyc
 *.so
 *.tar.gz
+*.xml
