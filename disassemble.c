@@ -598,7 +598,7 @@ unsigned int disassemble(char *input, char *output, char *listname) {
         disassemble_data(outfile, indata, insize, 0);
     }
 
-    // output chr
+    /* output chr */
     if (is_stdout(output) == TRUE) {
         goto cleanup;
     }

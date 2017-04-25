@@ -203,45 +203,45 @@ void do_kil(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_lar(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_lax(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_rla(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_rra(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_slo(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_sre(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_sxa(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_sya(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_top(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_xaa(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }
 
 void do_xas(unsigned int opcode_index, unsigned int value) {
-    // TODO: Undocumented
+    /* TODO: Undocumented */
 }

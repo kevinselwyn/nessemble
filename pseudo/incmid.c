@@ -17,7 +17,7 @@ void pseudo_incmid(char *string) {
 
     midi = read_midi(path);
 
-    UNUSED(midi); // TODO: use
+    UNUSED(midi); /* TODO: use */
 
     if (error_exists() != RETURN_OK) {
         goto cleanup;

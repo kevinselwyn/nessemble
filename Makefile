@@ -4,7 +4,7 @@ EXEC         := $(NAME)
 BIN_DIR      := /usr/local/bin
 RM           := rm -rf
 CC           := gcc
-CC_FLAGS     := -Wall -Wextra
+CC_FLAGS     := -Wall -Wextra -std=c89
 CC_LIB_FLAGS := -lm
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
@@ -37,9 +37,11 @@ OBJS         := ${SRCS:c=o}
 # PLATFORM-SPECIFIC
 
 ifeq ($(UNAME), Darwin)
-	CC_FLAGS += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments -lintl
+all: CC_FLAGS += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments -lintl
+debug: CC_FLAGS += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments -lintl
 else
-	CC_FLAGS += -lfl -lrt
+all: CC_FLAGS += -lfl -lrt
+debug: CC_FLAGS += -lfl -lrt
 endif
 
 # TARGET-SPECIFIC
@@ -47,9 +49,11 @@ endif
 all: CC_LIB_FLAGS += -ldl
 
 ifeq ($(UNAME), Darwin)
-all: CC_LIB_FLAGS += -llua -I/usr/include/lua5.1
+all:   CC_LIB_FLAGS += -llua -I/usr/include/lua5.1
+debug: CC_LIB_FLAGS += -llua -I/usr/include/lua5.1
 else
-all: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
+all:   CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
+debug: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
 endif
 
 debug: CC_FLAGS     += -g
@@ -68,14 +72,14 @@ js: CC_LIB_FLAGS :=
 
 win32: EXEC     := $(NAME).exe
 win32: CC       := i686-w64-mingw32-gcc
-win32: CC_FLAGS := -lws2_32 -Ilua-5.1.5/src
+win32: CC_FLAGS := -Wall -Wextra -lws2_32 -Ilua-5.1.5/src
 win32: CC_FILES := lua-5.1.5/src/liblua.a
 win32: AR       := i686-w64-mingw32-ar rcu
 win32: RANLIB   := i686-w64-mingw32-ranlib
 
 win64: EXEC     := $(NAME).exe
 win64: CC       := x86_64-w64-mingw32-gcc
-win64: CC_FLAGS := -lws2_32 -Ilua-5.1.5/src
+win64: CC_FLAGS := -Wall -Wextra -lws2_32 -Ilua-5.1.5/src
 win64: CC_FILES := lua-5.1.5/src/liblua.a
 win64: AR       := x86_64-w64-mingw32-ar rcu
 win64: RANLIB   := x86_64-w64-mingw32-ranlib

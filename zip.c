@@ -234,7 +234,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
 
     if (!cache_url || (strcmp(url, cache_url) != 0)) {
-        // options
+        /* options */
         download_options.response = &content;
         download_options.response_length = &content_length;
         download_options.url = url;

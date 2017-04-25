@@ -2,7 +2,7 @@
 #include <string.h>
 #include "nessemble.h"
 
-// https://github.com/bfirsh/jsnes/blob/master/source/cpu.js
+/* https://github.com/bfirsh/jsnes/blob/master/source/cpu.js */
 
 struct flgs {
     unsigned int negative, overflow, brk, decimal, interrupt, zero, carry;
@@ -61,17 +61,17 @@ unsigned int simulate(char *input, char *recipe) {
         goto cleanup;
     }
 
-    // nes test
+    /* nes test */
     if (strncmp(indata, "NES", 3) == 0) {
         header = 1;
     }
 
-    // load rom
+    /* load rom */
     for (i = 0, l = 0x10000; i < l; i++) {
         set_byte(i, 0xFF);
     }
 
-    // load banks
+    /* load banks */
     if (header == 1) {
         inesprg = (int)indata[4];
 
@@ -87,7 +87,7 @@ unsigned int simulate(char *input, char *recipe) {
         memcpy(rom_data + get_register(REGISTER_PC), indata, insize);
     }
 
-    // simulate
+    /* simulate */
     if (recipe != NULL && strcmp(recipe, "") != 0) {
         recipe_file = fopen(recipe, "r");
 

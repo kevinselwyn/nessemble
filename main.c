@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     translate_init();
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-    // setup error catch
+    /* setup error catch */
     if (setjmp(error_jmp) != 0) {
         goto cleanup;
     }
@@ -32,10 +32,10 @@ int main(int argc, char *argv[]) {
     error_signal();
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
-    // exec
+    /* exec */
     exec = argv[0];
 
-    // parse args
+    /* parse args */
     while (TRUE == 1) {
         c = getopt_long(argc, argv, "cCde:f:hlLo:p:rRsuv", commandline_options, &option_index);
 
@@ -331,7 +331,7 @@ int main(int argc, char *argv[]) {
             goto cleanup;
         }
     } else {
-        // get cwd
+        /* get cwd */
         if (!nessemble_realpath(filename, cwd)) {
             error_program_output(_("Could not open `%s`"), filename);
 
@@ -356,7 +356,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // simulate
+    /* simulate */
     if (is_flag_simulate() == TRUE) {
         if ((rc = simulate(cwd, !recipe ? "" : recipe)) != RETURN_OK) {
             error_program_output(_("Could not simulate"));
@@ -365,7 +365,7 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
-    // output
+    /* output */
     if (!outfilename || strcmp(outfilename, "-") == 0) {
         nessemble_free(outfilename);
 
@@ -379,7 +379,7 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
-    // disassemble
+    /* disassemble */
     if (is_flag_disassemble() == TRUE) {
         if ((rc = disassemble(cwd, outfilename, listname)) != RETURN_OK) {
             error_program_output(_("Could not disassemble `%s`"), filename);
@@ -388,7 +388,7 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
-    // open file
+    /* open file */
     file = fopen(cwd, "r");
 
     if (!file) {
@@ -398,16 +398,16 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
-    // save filename
+    /* save filename */
     strcpy(filename_stack[include_stack_ptr], cwd);
 
     yyin = file;
 
-    // segment
+    /* segment */
     strcpy(segment, "PRG0");
     segment_type = SEGMENT_PRG;
 
-    // offsets
+    /* offsets */
     for (i = 0, l = MAX_BANKS; i < l; i++) {
         prg_offsets[i] = 0x00;
         chr_offsets[i] = 0x00;
@@ -427,7 +427,7 @@ int main(int argc, char *argv[]) {
 
     /* PASS 2 */
 
-    // restart
+    /* restart */
     if (fseek(yyin, 0, SEEK_SET) != 0) {
         error_program_output(_("Could not rewind input file"));
 
@@ -435,34 +435,34 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
-    // get offset max
+    /* get offset max */
     if (is_flag_nes() == TRUE) {
         offset_max = (int)((ines.prg * BANK_PRG) + (ines.chr * BANK_CHR));
     }
 
-    // create rom
+    /* create rom */
     rom = (unsigned int *)nessemble_malloc(sizeof(unsigned int) * offset_max);
     coverage = (unsigned int *)nessemble_malloc(sizeof(unsigned int) * offset_max);
 
-    // set all bytes to empty_byte
+    /* set all bytes to empty_byte */
     for (i = 0, l = (unsigned int)offset_max; i < l; i++) {
         rom[i] = empty_byte;
         coverage[i] = FALSE;
     }
 
-    // set all trainer bytes to empty_byte
+    /* set all trainer bytes to empty_byte */
     for (i = 0, l = TRAINER_MAX; i < l; i++) {
         trainer[i] = empty_byte;
     }
 
-    // clear offsets
+    /* clear offsets */
     offset_trainer = 0;
 
-    // segments
+    /* segments */
     strcpy(segment, "PRG0");
     segment_type = SEGMENT_PRG;
 
-    // offsets
+    /* offsets */
     prg_index = 0;
     chr_index = 0;
 
@@ -471,7 +471,7 @@ int main(int argc, char *argv[]) {
         chr_offsets[i] = 0x00;
     }
 
-    // reset lineno
+    /* reset lineno */
     yylineno = 1;
     include_stack_ptr = 0;
 
@@ -485,13 +485,13 @@ int main(int argc, char *argv[]) {
 
     /* DONE */
 
-    // check
+    /* check */
     if (is_flag_check() == TRUE) {
         printf("%s\n", _("No errors"));
         goto cleanup;
     }
 
-    // write output
+    /* write output */
     if (is_stdout(outfilename) == TRUE) {
         outfile = stdout;
     } else {
@@ -505,57 +505,57 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
-    // write nes header
+    /* write nes header */
     if (is_flag_nes() == TRUE) {
-        UNUSED(fwrite("NES", 3, 1, outfile)); // 0-2
+        UNUSED(fwrite("NES", 3, 1, outfile)); /* 0-2 */
 
         byte = 0x1A;
-        UNUSED(fwrite(&byte, 1, 1, outfile)); // 3
+        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 3 */
 
-        UNUSED(fwrite(&ines.prg, 1, 1, outfile)); // 4
-        UNUSED(fwrite(&ines.chr, 1, 1, outfile)); // 5
+        UNUSED(fwrite(&ines.prg, 1, 1, outfile)); /* 4 */
+        UNUSED(fwrite(&ines.chr, 1, 1, outfile)); /* 5 */
 
         byte = 0;
         byte |= ines.mir & 0x01;
         byte |= (ines.trn & 0x01) << 0x02;
         byte |= (ines.map & 0x0F) << 0x04;
 
-        UNUSED(fwrite(&byte, 1, 1, outfile)); // 6
+        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 6 */
 
         byte = 0;
         byte |= (ines.map & 0xF0);
 
-        UNUSED(fwrite(&byte, 1, 1, outfile)); // 7
+        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 7 */
 
         byte = 0;
 
-        UNUSED(fwrite(&byte, 1, 1, outfile)); // 8
-        UNUSED(fwrite(&byte, 1, 1, outfile)); // 9
-        UNUSED(fwrite(&byte, 1, 1, outfile)); // 10
+        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 8 */
+        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 9 */
+        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 10 */
 
         for (i = 11, l = 16; i < l; i++) {
-            UNUSED(fwrite(&byte, 1, 1, outfile)); // 11-15
+            UNUSED(fwrite(&byte, 1, 1, outfile)); /* 11-15 */
         }
     }
 
-    // write trainer
+    /* write trainer */
     if (ines.trn == 1) {
         for (i = 0, l = TRAINER_MAX; i < l; i++) {
             UNUSED(fwrite(trainer+i, 1, 1, outfile));
         }
     }
 
-    // write rom data
+    /* write rom data */
     for (i = 0, l = (unsigned int)offset_max; i < l; i++) {
         UNUSED(fwrite(rom+i, 1, 1, outfile));
     }
 
-    // write list
+    /* write list */
     if ((rc = output_list(listname)) != RETURN_OK) {
         goto cleanup;
     }
 
-    // write coverage
+    /* write coverage */
     if (is_flag_coverage() == TRUE && is_flag_nes() == TRUE && is_stdout(outfilename) == FALSE) {
         if ((rc = get_coverage()) != RETURN_OK) {
             goto cleanup;

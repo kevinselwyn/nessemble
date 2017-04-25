@@ -5,7 +5,7 @@
  * @param {int} address - Organization address
  */
 void pseudo_org(unsigned int address) {
-    // TODO: add check for too high an address
+    /* TODO: add check for too high an address */
 
     if (is_segment_prg() == TRUE) {
         if (ines.prg < 2) {

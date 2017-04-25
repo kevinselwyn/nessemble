@@ -149,7 +149,7 @@ char *nessemble_getpass(const char *prompt) {
 
     fputs(prompt, stdout);
 
-    // hide cursor
+    /* hide cursor */
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO info;
     info.dwSize = 100;

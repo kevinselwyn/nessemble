@@ -116,7 +116,7 @@ unsigned int get_json_url(char **value, char *key, char *url) {
     char *text = NULL;
     struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
 
-    // options
+    /* options */
     download_options.response = &text;
     download_options.response_length = &text_length;
     download_options.url = url;
@@ -165,7 +165,7 @@ unsigned int get_json_search(char *url, char *term) {
     jsmntok_t tokens[JSON_TOKEN_MAX];
     struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
 
-    // options
+    /* options */
     download_options.response = &text;
     download_options.response_length = &text_length;
     download_options.url = url;

@@ -199,7 +199,7 @@ unsigned int lib_info(char *lib) {
             goto cleanup;
         }
 
-        // options
+        /* options */
         download_options.response = &readme;
         download_options.response_length = &readme_length;
         download_options.url = readme_url;

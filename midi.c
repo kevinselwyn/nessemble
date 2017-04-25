@@ -19,7 +19,7 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
     data = track->data;
     length = track->length;
 
-    // pass 1
+    /* pass 1 */
     i = 0;
     event_count = 0;
 
@@ -36,9 +36,9 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
             byte[1] = (unsigned int)data[i+1] & 0xFF;
 
             if (byte[1] == MIDI_META_EVENT_TRACK_COPYRIGHT) {
-                //event_count++;
-                //i += 3 + byte[2];
-                //continue;
+                /* event_count++; */
+                /* i += 3 + byte[2]; */
+                /* continue; */
             }
 
             if (byte[1] == MIDI_META_EVENT_TRACK_NAME) {
@@ -123,7 +123,7 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
         goto cleanup;
     }
 
-    // pass 2
+    /* pass 2 */
     i = 0;
     event_count = 0;
 
@@ -140,11 +140,11 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
             byte[1] = (unsigned int)data[i+1] & 0xFF;
 
             if (byte[1] == MIDI_META_EVENT_TRACK_COPYRIGHT) {
-                ////fprintf(stderr, "MIDI_META_EVENT_TRACK_COPYRIGHT\n");
-                //event_count++;
-                //byte[2] = (unsigned int)data[i+2] & 0xFF;
-                //i += 3 + byte[2];
-                //continue;
+                /* fprintf(stderr, "MIDI_META_EVENT_TRACK_COPYRIGHT\n"); */
+                /* event_count++; */
+                /* byte[2] = (unsigned int)data[i+2] & 0xFF; */
+                /* i += 3 + byte[2]; */
+                /* continue; */
             }
 
             if (byte[1] == MIDI_META_EVENT_TRACK_NAME) {
@@ -225,19 +225,19 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
             }
 
             if (byte[1] == MIDI_META_EVENT_TIME_SIGNATURE) {
-                //fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_TIME_SIGNATURE\n", byte[1]);
+                /* fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_TIME_SIGNATURE\n", byte[1]); */
 
                 byte[3] = (unsigned int)data[i+3] & 0xFF;
-                //fprintf(stderr, "  Numerator:   %d\n", byte[3]);
+                /* fprintf(stderr, "  Numerator:   %d\n", byte[3]); */
 
                 byte[4] = (unsigned int)data[i+4] & 0xFF;
-                //fprintf(stderr, "  Denominator: %d\n", byte[4]);
+                /* fprintf(stderr, "  Denominator: %d\n", byte[4]); */
 
                 byte[5] = (unsigned int)data[i+5] & 0xFF;
-                //fprintf(stderr, "  Clocks:      %d\n", byte[5]);
+                /* fprintf(stderr, "  Clocks:      %d\n", byte[5]); */
 
                 byte[6] = (unsigned int)data[i+6] & 0xFF;
-                //fprintf(stderr, "  32nds:       %d\n", byte[6]);
+                /* fprintf(stderr, "  32nds:       %d\n", byte[6]); */
 
                 event_count++;
                 i += 7;
@@ -245,13 +245,13 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
             }
 
             if (byte[1] == MIDI_META_EVENT_KEY_SIGNATURE) {
-                //fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_KEY_SIGNATURE\n", byte[1]);
+                /* fprintf(stderr, "0xFF 0x%02X - MIDI_META_EVENT_KEY_SIGNATURE\n", byte[1]); */
 
                 byte[3] = (unsigned int)data[i+3] & 0xFF;
-                //fprintf(stderr, "  Sharps/Flats: %d\n", byte[3]);
+                /* fprintf(stderr, "  Sharps/Flats: %d\n", byte[3]); */
 
                 byte[4] = (unsigned int)data[i+4] & 0xFF;
-                //fprintf(stderr, "  Minor:        %d\n", byte[4]);
+                /* fprintf(stderr, "  Minor:        %d\n", byte[4]); */
 
                 event_count++;
                 i += 5;
@@ -259,25 +259,25 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
             }
 
             if (byte[1] == MIDI_META_EVENT_END) {
-                //fprintf(stderr, "MIDI_META_EVENT_END\n");
+                /* fprintf(stderr, "MIDI_META_EVENT_END\n"); */
                 event_count++;
                 i += 3;
                 break;
             }
 
-            //fprintf(stderr, "Unknown event 0xFF 0x%02X\n", byte[1]);
+            /* fprintf(stderr, "Unknown event 0xFF 0x%02X\n", byte[1]); */
             break;
         }
 
         if ((status >> 4) == 0x08) {
-            //fprintf(stderr, "MIDI_EVENT_NOTE_OFF\n");
+            /* fprintf(stderr, "MIDI_EVENT_NOTE_OFF\n"); */
 
             byte[1] = (unsigned int)data[i+1] & 0xFF;
             byte[2] = (unsigned int)data[i+2] & 0xFF;
 
-            //fprintf(stderr, "  Note Off Channel %d\n", status & 0x0F);
-            //fprintf(stderr, "  Note Off Key %d\n", byte[1]);
-            //fprintf(stderr, "  Note Off Velocity %d\n", byte[2]);
+            /* fprintf(stderr, "  Note Off Channel %d\n", status & 0x0F); */
+            /* fprintf(stderr, "  Note Off Key %d\n", byte[1]); */
+            /* fprintf(stderr, "  Note Off Velocity %d\n", byte[2]); */
 
             event_count++;
             i += 3;
@@ -285,14 +285,14 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
         }
 
         if ((status >> 4) == 0x09) {
-            //fprintf(stderr, "MIDI_EVENT_NOTE_ON\n");
+            /* fprintf(stderr, "MIDI_EVENT_NOTE_ON\n"); */
 
             byte[1] = (unsigned int)data[i+1] & 0xFF;
             byte[2] = (unsigned int)data[i+2] & 0xFF;
 
-            //fprintf(stderr, "  Note On Channel %d\n", status & 0x0F);
-            //fprintf(stderr, "  Note On Key %d\n", byte[1]);
-            //fprintf(stderr, "  Note On Velocity %d\n", byte[2]);
+            /* fprintf(stderr, "  Note On Channel %d\n", status & 0x0F); */
+            /* fprintf(stderr, "  Note On Key %d\n", byte[1]); */
+            /* fprintf(stderr, "  Note On Velocity %d\n", byte[2]); */
 
             event_count++;
             i += 3;
@@ -300,14 +300,14 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
         }
 
         if ((status >> 4) == 0x0B) {
-            //fprintf(stderr, "MIDI_EVENT_PRESSURE\n");
+            /* fprintf(stderr, "MIDI_EVENT_PRESSURE\n"); */
 
             byte[1] = (unsigned int)data[i+1] & 0xFF;
             byte[2] = (unsigned int)data[i+2] & 0xFF;
 
-            //fprintf(stderr, "  Pressure Channel %d\n", status & 0x0F);
-            //fprintf(stderr, "  Pressure Value 1 %d\n", byte[1]);
-            //fprintf(stderr, "  Pressure Value 2 %d\n", byte[2]);
+            /* fprintf(stderr, "  Pressure Channel %d\n", status & 0x0F); */
+            /* fprintf(stderr, "  Pressure Value 1 %d\n", byte[1]); */
+            /* fprintf(stderr, "  Pressure Value 2 %d\n", byte[2]); */
 
             event_count++;
             i += 2;
@@ -315,12 +315,12 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
         }
 
         if ((status >> 4) == 0x0C) {
-            //fprintf(stderr, "MIDI_EVENT_INSTRUMENT\n");
+            /* fprintf(stderr, "MIDI_EVENT_INSTRUMENT\n"); */
 
             byte[1] = (unsigned int)data[i+1] & 0xFF;
 
-            //fprintf(stderr, "  Instrument Channel %d\n", status & 0x0F);
-            //fprintf(stderr, "  Instrument Number %d\n", byte[1]);
+            /* fprintf(stderr, "  Instrument Channel %d\n", status & 0x0F); */
+            /* fprintf(stderr, "  Instrument Number %d\n", byte[1]); */
 
             event_count++;
             i += 2;
@@ -331,7 +331,7 @@ static unsigned int parse_events(struct midi_track *track, unsigned int /*@unuse
             continue;
         }
 
-        //fprintf(stderr, "Unknown event 0x%02X\n", status);
+        /* fprintf(stderr, "Unknown event 0x%02X\n", status); */
         break;
     }
 
@@ -416,7 +416,7 @@ struct midi_data read_midi(char *filename) {
         midi.tracks[track].data = (char *)nessemble_malloc(sizeof(char) * (midi.tracks[track].length + 1));
 
         if (!midi.tracks[track].data) {
-            //fprintf(stderr, "Memory error\n");
+            /* fprintf(stderr, "Memory error\n"); */
             goto cleanup;
         }
 

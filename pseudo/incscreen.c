@@ -24,7 +24,7 @@ void pseudo_incscreen(char *string, char *type) {
         goto cleanup;
     }
 
-    // validate width/height
+    /* validate width/height */
     if (png.width != SCREEN_WIDTH) {
         yyerror(_("Incorrect screen width (must be %d)"), SCREEN_WIDTH);
     }
@@ -33,7 +33,7 @@ void pseudo_incscreen(char *string, char *type) {
         yyerror(_("Incorrect screen height (must be %d)"), SCREEN_HEIGHT);
     }
 
-    // get pixels
+    /* get pixels */
     for (y = 0; y < png.height; y++) {
         for (x = 0; x < png.width; x++) {
             rgb = &(png.data[(x * color_mode) + (y * (png.width * color_mode))]);
@@ -43,8 +43,8 @@ void pseudo_incscreen(char *string, char *type) {
         }
     }
 
-    UNUSED(pixels); // TODO: use
-    UNUSED(type); // TODO: use
+    UNUSED(pixels); /* TODO: use */
+    UNUSED(type); /* TODO: use */
 
 cleanup:
     nessemble_free(path);
