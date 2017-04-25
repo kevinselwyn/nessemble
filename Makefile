@@ -18,10 +18,13 @@ YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 
-EMAIL        := "kevinselwyn@gmail.com"
-MAINTAINER   := "Kevin Selwyn"
-DESCRIPTION  := "A 6502 assembler for the Nintendo Entertainment System"
-IDENTIFIER   := "kevinselwyn"
+EMAIL        := kevinselwyn@gmail.com
+MAINTAINER   := Kevin Selwyn
+DESCRIPTION  := A 6502 assembler for the Nintendo Entertainment System
+IDENTIFIER   := kevinselwyn
+PACKAGE      := ./package
+PAYLOAD      := $(PACKAGE)/payload
+BUILD        := ./build
 
 UNAME        := $(shell uname -s)
 
@@ -214,56 +217,41 @@ ifeq ($(UNAME), Linux)
 ARCHITECTURE := $(shell dpkg --print-architecture)
 
 package: all
-	$(RM) ./package
-	mkdir -p ./package/usr/local/bin
-	cp $(EXEC) ./package/usr/local/bin
-	mkdir -p ./package/DEBIAN
-	printf "Package: %s\n" $(NAME)                         > ./package/DEBIAN/control
-	printf "Version: %s\n" $(VERSION)                     >> ./package/DEBIAN/control
-	printf "Section: base\n"                              >> ./package/DEBIAN/control
-	printf "Priority: optional\n"                         >> ./package/DEBIAN/control
-	printf "Architecture: %s\n" $(ARCHITECTURE)           >> ./package/DEBIAN/control
-	printf "Depends:\n"                                   >> ./package/DEBIAN/control
-	printf "Maintainer: %s <%s>\n" $(MAINTAINER) $(EMAIL) >> ./package/DEBIAN/control
-	printf "Description: %s\n" $(DESCRIPTION)             >> ./package/DEBIAN/control
-	dpkg-deb --build package $(NAME)-$(ARCHITECTURE).deb
-	$(RM) ./package/*
-	mv $(NAME)-$(ARCHITECTURE).deb ./package
+	$(RM) $(PAYLOAD)
+	mkdir -p $(BUILD)
+	mkdir -p $(PAYLOAD)/usr/local/bin
+	cp $(EXEC) $(PAYLOAD)/usr/local/bin
+	mkdir -p $(PAYLOAD)/DEBIAN
+	sed -e "s/\$${NAME}/$(NAME)/g" \
+		-e "s/\$${VERSION}/$(VERSION)/g" \
+		-e "s/\$${ARCHITECTURE}/$(ARCHITECTURE)/g" \
+		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
+		-e "s/\$${EMAIL}/$(EMAIL)/g" \
+		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
+	 	$(PACKAGE)/control > $(PAYLOAD)/DEBIAN/control
+	dpkg-deb --build $(PAYLOAD) $(BUILD)/$(NAME)-$(ARCHITECTURE).deb
+	$(RM) $(PAYLOAD)
 endif
 
 ifeq ($(UNAME), Darwin)
 package: all
-	$(RM) ./package
-	mkdir -p ./package/usr/local/bin
-	cp $(EXEC) ./package/usr/local/bin
-	printf "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"                             > distribution.xml
-	printf "<installer-gui-script minSpecVersion=\"1\">\n"                           >> distribution.xml
-	printf "    <pkg-ref id=\"com.%s.%s\"/>\n" $(IDENTIFIER) $(NAME)                 >> distribution.xml
-	printf "    <options customize=\"never\" require-scripts=\"false\"/>\n"          >> distribution.xml
-	printf "    <readme file=\"README.md\" />\n"                                     >> distribution.xml
-	printf "    <license file=\"COPYING\" />\n"                                      >> distribution.xml
-	printf "    <choices-outline>\n"                                                 >> distribution.xml
-	printf "        <line choice=\"default\">\n"                                     >> distribution.xml
-	printf "            <line choice=\"com.%s.%s\"/>\n" $(IDENTIFIER) $(NAME)        >> distribution.xml
-	printf "        </line>\n"                                                       >> distribution.xml
-	printf "    </choices-outline>\n"                                                >> distribution.xml
-	printf "    <choice id=\"default\"/>\n"                                          >> distribution.xml
-	printf "    <choice id=\"com.%s.%s\" visible=\"false\">\n" $(IDENTIFIER) $(NAME) >> distribution.xml
-	printf "        <pkg-ref id=\"com.%s.%s\"/>\n" $(IDENTIFIER) $(NAME)             >> distribution.xml
-	printf "    </choice>\n"                                                         >> distribution.xml
-	printf "    <pkg-ref id=\"com.%s.%s\" version=\"%s\" onConclusion=\"none\" auth=\"Root\">%s.pkg</pkg-ref>\n" $(IDENTIFIER) $(NAME) $(VERSION) $(NAME) >> distribution.xml
-	printf "</installer-gui-script>\n"                                               >> distribution.xml
-	pkgbuild --root ./package \
+	$(RM) $(PAYLOAD)
+	mkdir -p $(BUILD)
+	mkdir -p $(PAYLOAD)/usr/local/bin
+	cp $(EXEC) $(PAYLOAD)/usr/local/bin
+	sed -e "s/\$${NAME}/$(NAME)/g" \
+		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
+		-e "s/\$${VERSION}/$(VERSION)/g" \
+	 	$(PACKAGE)/distribution.xml > distribution.xml
+	pkgbuild --root $(PAYLOAD) \
 			 --identifier com.$(IDENTIFIER).$(NAME) \
 			 --version $(VERSION) \
 			 $(NAME).pkg
 	productbuild --distribution distribution.xml \
 				 --resources . \
 				 --package-path $(NAME).pkg \
-				 $(NAME)-$(VERSION).pkg
-	$(RM) $(NAME).pkg
-	$(RM) ./package/*
-	mv $(NAME)-$(VERSION).pkg ./package
+				 $(BUILD)/$(NAME)-$(VERSION).pkg
+	$(RM) $(PAYLOAD) $(NAME).pkg
 endif
 
 # CLEAN
@@ -275,4 +263,4 @@ clean:
 	$(RM) $(OBJS)
 	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
 	$(RM) lua-5.1.5 lua-5.1.5.tar.gz
-	$(RM) ./package *.xml
+	$(RM) $(BUILD) $(PAYLOAD) *.xml

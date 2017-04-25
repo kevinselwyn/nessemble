@@ -1,5 +1,6 @@
 .DS_Store
 .vagrant
+build
 init.h
 license.h
 lex.yy.c
@@ -7,7 +8,7 @@ lua-5*
 nessemble
 nessemble.js
 opcodes.c
-package
+package/payload
 reference/**/*.h
 scripts.h
 strings.h
