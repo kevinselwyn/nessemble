@@ -18,6 +18,10 @@ YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 
+EMAIL        := "kevinselwyn@gmail.com"
+MAINTAINER   := "Kevin Selwyn"
+DESCRIPTION  := "A 6502 assembler for the Nintendo Entertainment System"
+
 UNAME        := $(shell uname -s)
 
 FILES        := main.c api.c assemble.c config.c coverage.c disassemble.c
@@ -203,11 +207,31 @@ install: all
 uninstall:
 	rm -f $(BIN_DIR)/$(EXEC)
 
+# PACKAGE
+
+ifeq ($(UNAME), Linux)
+ARCHITECTURE := $(shell dpkg --print-architecture)
+
+package: all
+	mkdir -p ./package/usr/local/bin
+	cp $(EXEC) ./package/usr/local/bin
+	mkdir -p ./package/DEBIAN
+	printf "Package: %s\n" $(NAME)                         > ./package/DEBIAN/control
+	printf "Version: %s\n" $(VERSION)                     >> ./package/DEBIAN/control
+	printf "Section: base\n"                              >> ./package/DEBIAN/control
+	printf "Priority: optional\n"                         >> ./package/DEBIAN/control
+	printf "Architecture: %s\n" $(ARCHITECTURE)           >> ./package/DEBIAN/control
+	printf "Depends:\n"                                   >> ./package/DEBIAN/control
+	printf "Maintainer: %s <%s>\n" $(MAINTAINER) $(EMAIL) >> ./package/DEBIAN/control
+	printf "Description: %s\n" $(DESCRIPTION)             >> ./package/DEBIAN/control
+	dpkg-deb --build package $(NAME)-$(ARCHITECTURE).deb
+endif
+
 # CLEAN
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js *.deb
 	$(RM) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c
 	$(RM) $(OBJS)
 	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
