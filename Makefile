@@ -21,6 +21,7 @@ YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 EMAIL        := "kevinselwyn@gmail.com"
 MAINTAINER   := "Kevin Selwyn"
 DESCRIPTION  := "A 6502 assembler for the Nintendo Entertainment System"
+IDENTIFIER   := "kevinselwyn"
 
 UNAME        := $(shell uname -s)
 
@@ -227,12 +228,44 @@ package: all
 	dpkg-deb --build package $(NAME)-$(ARCHITECTURE).deb
 endif
 
+ifeq ($(UNAME), Darwin)
+package: all
+	mkdir -p ./package/usr/local/bin
+	cp $(EXEC) ./package/usr/local/bin
+	printf "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"                             > distribution.xml
+	printf "<installer-gui-script minSpecVersion=\"1\">\n"                           >> distribution.xml
+	printf "    <pkg-ref id=\"com.%s.%s\"/>\n" $(IDENTIFIER) $(NAME)                 >> distribution.xml
+	printf "    <options customize=\"never\" require-scripts=\"false\"/>\n"          >> distribution.xml
+	printf "    <readme file=\"README.md\" />\n"                                     >> distribution.xml
+	printf "    <license file=\"COPYING\" />\n"                                      >> distribution.xml
+	printf "    <choices-outline>\n"                                                 >> distribution.xml
+	printf "        <line choice=\"default\">\n"                                     >> distribution.xml
+	printf "            <line choice=\"com.%s.%s\"/>\n" $(IDENTIFIER) $(NAME)        >> distribution.xml
+	printf "        </line>\n"                                                       >> distribution.xml
+	printf "    </choices-outline>\n"                                                >> distribution.xml
+	printf "    <choice id=\"default\"/>\n"                                          >> distribution.xml
+	printf "    <choice id=\"com.%s.%s\" visible=\"false\">\n" $(IDENTIFIER) $(NAME) >> distribution.xml
+	printf "        <pkg-ref id=\"com.%s.%s\"/>\n" $(IDENTIFIER) $(NAME)             >> distribution.xml
+	printf "    </choice>\n"                                                         >> distribution.xml
+	printf "    <pkg-ref id=\"com.%s.%s\" version=\"%s\" onConclusion=\"none\" auth=\"Root\">%s.pkg</pkg-ref>\n" $(IDENTIFIER) $(NAME) $(VERSION) $(NAME) >> distribution.xml
+	printf "</installer-gui-script>\n"                                               >> distribution.xml
+	pkgbuild --root ./package \
+			 --identifier com.$(IDENTIFIER).$(NAME) \
+			 --version $(VERSION) \
+			 $(NAME).pkg
+	productbuild --distribution distribution.xml \
+				 --resources . \
+				 --package-path $(NAME).pkg \
+				 $(NAME)-$(VERSION).pkg
+endif
+
 # CLEAN
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js *.deb
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js
 	$(RM) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c
 	$(RM) $(OBJS)
 	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
 	$(RM) lua-5.1.5 lua-5.1.5.tar.gz
+	$(RM) *.deb *.xml
