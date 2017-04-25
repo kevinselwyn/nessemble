@@ -27,7 +27,7 @@ static unsigned int do_request(struct download_option download_options) {
     struct timeval timeout;
     fd_set set;
 
-    // options
+    /* options */
     char **request = download_options.response;
     unsigned int *request_length = download_options.response_length;
     char *url = download_options.url;

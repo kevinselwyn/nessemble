@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "nessemble.h"
 
-// ines
+/* ines */
 struct ines_header ines = { 1, 0, 0, 1, 0 };
 
 /**

@@ -73,7 +73,7 @@ unsigned int user_create() {
         goto cleanup;
     }
 
-    // options
+    /* options */
     download_options.response = &response;
     download_options.response_length = &response_length;
     download_options.url = url;
@@ -162,7 +162,7 @@ unsigned int user_login() {
         goto cleanup;
     }
 
-    // options
+    /* options */
     download_options.response = &response;
     download_options.response_length = &response_length;
     download_options.url = url;
@@ -223,7 +223,7 @@ unsigned int user_logout() {
         goto cleanup;
     }
 
-    // options
+    /* options */
     download_options.response = &response;
     download_options.response_length = &response_length;
     download_options.url = url;

@@ -7,7 +7,7 @@
 #include "y.tab.h"
 #include "nessemble.h"
 
-// include
+/* include */
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 int line_number_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ptr = 0;
@@ -145,39 +145,39 @@ void include_file_push(char *filename) {
 
     include_type = INCLUDE_FILE;
 
-    // save line number
+    /* save line number */
     line_number_stack[include_stack_ptr] = yylineno;
 
-    // push to include stack
+    /* push to include stack */
     include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 
-    // error on too big include depth
+    /* error on too big include depth */
     if (include_stack_ptr >= MAX_INCLUDE_DEPTH) {
         include_stack_ptr--;
         error(_("Too many nested includes"));
         return;
     }
 
-    // open file
+    /* open file */
     yyin = fopen(filename, "r");
 
-    // check if opened
+    /* check if opened */
     if (!yyin) {
         include_stack_ptr--;
         error(_("Could not include `%s`"), filename+length);
         return;
     }
 
-    // reset line number
+    /* reset line number */
     yylineno = 0;
 
-    // save filename
+    /* save filename */
     strcpy(filename_stack[include_stack_ptr], filename);
 
-    // switch to buffer
+    /* switch to buffer */
     yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
 
-    // continue with lexing
+    /* continue with lexing */
     BEGIN(INITIAL);
 }
 
@@ -185,19 +185,19 @@ void include_file_push(char *filename) {
  * Pops previous buffer after .include
  */
 void include_file_pop() {
-    // if all popped, end pass
+    /* if all popped, end pass */
     if (--include_stack_ptr < 0) {
         end_pass();
         return;
     }
 
-    // delete buffer
+    /* delete buffer */
     yy_delete_buffer(YY_CURRENT_BUFFER);
 
-    // switch to next buffer
+    /* switch to next buffer */
     yy_switch_to_buffer(include_stack[include_stack_ptr]);
 
-    // restore line number
+    /* restore line number */
     yylineno = line_number_stack[include_stack_ptr];
 }
 
@@ -219,13 +219,13 @@ void include_file_original() {
 void include_string_push(char *string) {
     include_type = INCLUDE_STRING;
 
-    // push to include stack
+    /* push to include stack */
     include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 
-    // switch to buffer
+    /* switch to buffer */
     yy_switch_to_buffer(yy_scan_string(string));
 
-    // continue with lexing
+    /* continue with lexing */
     BEGIN(INITIAL);
 }
 
@@ -235,9 +235,9 @@ void include_string_push(char *string) {
 void include_string_pop() {
     include_type = INCLUDE_FILE;
 
-    // delete buffer
+    /* delete buffer */
     yy_delete_buffer(YY_CURRENT_BUFFER);
 
-    // switch to next buffer
+    /* switch to next buffer */
     yy_switch_to_buffer(include_stack[--include_stack_ptr]);
 }

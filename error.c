@@ -271,7 +271,8 @@ void error_signal() {
     sa.sa_flags = SA_SIGINFO;
 
     for (i = 1, l = 32; i < l; i++) {
-        if (i == 9 || i == 17 || i == 19 || i == 20) { // don't catch SIGKILL or SIGSTOP or SIGCHLD
+        /* Don't catch SIGKILL or SIGSTOP or SIGCHLD */
+        if (i == 9 || i == 17 || i == 19 || i == 20) {
             continue;
         }
 

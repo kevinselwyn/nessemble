@@ -43,7 +43,7 @@ unsigned int reference(unsigned int terms, ...) {
         url[url_length - 1] = '\0';
     }
 
-    // options
+    /* options */
     download_options.response = &text;
     download_options.response_length = &text_length;
     download_options.url = url;
