@@ -214,6 +214,7 @@ ifeq ($(UNAME), Linux)
 ARCHITECTURE := $(shell dpkg --print-architecture)
 
 package: all
+	$(RM) ./package
 	mkdir -p ./package/usr/local/bin
 	cp $(EXEC) ./package/usr/local/bin
 	mkdir -p ./package/DEBIAN
@@ -226,10 +227,13 @@ package: all
 	printf "Maintainer: %s <%s>\n" $(MAINTAINER) $(EMAIL) >> ./package/DEBIAN/control
 	printf "Description: %s\n" $(DESCRIPTION)             >> ./package/DEBIAN/control
 	dpkg-deb --build package $(NAME)-$(ARCHITECTURE).deb
+	$(RM) ./package/*
+	mv $(NAME)-$(ARCHITECTURE).deb ./package
 endif
 
 ifeq ($(UNAME), Darwin)
 package: all
+	$(RM) ./package
 	mkdir -p ./package/usr/local/bin
 	cp $(EXEC) ./package/usr/local/bin
 	printf "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"                             > distribution.xml
@@ -257,6 +261,9 @@ package: all
 				 --resources . \
 				 --package-path $(NAME).pkg \
 				 $(NAME)-$(VERSION).pkg
+	$(RM) $(NAME).pkg
+	$(RM) ./package/*
+	mv $(NAME)-$(VERSION).pkg ./package
 endif
 
 # CLEAN
