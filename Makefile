@@ -275,4 +275,4 @@ clean:
 	$(RM) $(OBJS)
 	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
 	$(RM) lua-5.1.5 lua-5.1.5.tar.gz
-	$(RM) *.deb *.pkg *.xml
+	$(RM) ./package *.xml
