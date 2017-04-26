@@ -229,7 +229,7 @@ package: all
 		-e "s/\$${EMAIL}/$(EMAIL)/g" \
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
 	 	$(PACKAGE)/control > $(PAYLOAD)/DEBIAN/control
-	dpkg-deb --build $(PAYLOAD) $(BUILD)/$(NAME)-$(ARCHITECTURE).deb
+	dpkg-deb --build $(PAYLOAD) $(BUILD)/$(NAME)-$(VERSION)_$(ARCHITECTURE).deb
 	$(RM) $(PAYLOAD)
 endif
 
@@ -254,6 +254,26 @@ package: all
 	$(RM) $(PAYLOAD) $(NAME).pkg
 endif
 
+win32_package: ARCHITECTURE := win32
+win32_package: win32 win_package
+
+win64_package: ARCHITECTURE := win64
+win64_package: win64 win_package
+
+win_package:
+	$(RM) $(PAYLOAD)
+	mkdir -p $(BUILD)
+	mkdir -p $(PAYLOAD)
+	sed -e "s/\$${NAME}/$(NAME)/g" \
+		-e "s/\$${VERSION}/$(VERSION)/g" \
+		-e "s/\$${ID}/$(shell ./utils/guid.py --string $(VERSION))/g" \
+		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
+		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
+		-e "s/\$${GUID}/$(shell ./utils/guid.py --input $(NAME).exe)/g" \
+	 	$(PACKAGE)/msi.wxs > $(PAYLOAD)/$(NAME).wxs
+	wixl $(PAYLOAD)/$(NAME).wxs --output $(BUILD)/$(NAME)-$(VERSION)_$(ARCHITECTURE).msi
+	$(RM) $(PAYLOAD)
+
 # CLEAN
 
 .PHONY: clean
@@ -263,4 +283,4 @@ clean:
 	$(RM) $(OBJS)
 	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
 	$(RM) lua-5.1.5 lua-5.1.5.tar.gz
-	$(RM) $(BUILD) $(PAYLOAD) *.xml
+	$(RM) $(BUILD) $(PAYLOAD) *.wxs *.xml
