@@ -19,6 +19,7 @@ y.tab.*
 *.dll
 *.dSYM
 *.exe
+*.log
 *.mo
 *.o
 *.pkg
@@ -27,4 +28,3 @@ y.tab.*
 *.pyc
 *.so
 *.tar.gz
-*.xml
