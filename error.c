@@ -7,9 +7,9 @@
 #include "nessemble.h"
 #include "error.h"
 
-#ifndef IS_WINDOWS
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
 #include <execinfo.h>
-#endif /* IS_WINDOWS */
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 #define ERROR_BACKTRACE_SIZE 10
 
@@ -238,7 +238,7 @@ void error_program_output(const char *fmt, ...) {
     nessemble_free(message);
 }
 
-#ifndef IS_WINDOWS
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
 static void error_signal_handler(int signal, siginfo_t *si, void *arg) {
     void *array[ERROR_BACKTRACE_SIZE];
     size_t size = 0;
@@ -279,4 +279,4 @@ void error_signal() {
         sigaction(i, &sa, NULL);
     }
 }
-#endif /* IS_WINDOWS */
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
