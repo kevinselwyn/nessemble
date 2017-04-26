@@ -25,7 +25,7 @@ IDENTIFIER   := kevinselwyn
 PACKAGE      := ./package
 PAYLOAD      := $(PACKAGE)/payload
 BUILD        := ./build
-
+TMP          := $(shell mktemp)
 UNAME        := $(shell uname -s)
 
 FILES        := main.c api.c assemble.c config.c coverage.c disassemble.c
@@ -215,8 +215,10 @@ uninstall:
 
 ifeq ($(UNAME), Linux)
 ARCHITECTURE := $(shell dpkg --print-architecture)
+endif
 
 package: all
+ifeq ($(UNAME), Linux)
 	$(RM) $(PAYLOAD)
 	mkdir -p $(BUILD)
 	mkdir -p $(PAYLOAD)/usr/local/bin
@@ -234,7 +236,6 @@ package: all
 endif
 
 ifeq ($(UNAME), Darwin)
-package: all
 	$(RM) $(PAYLOAD)
 	mkdir -p $(BUILD)
 	mkdir -p $(PAYLOAD)/usr/local/bin
@@ -242,16 +243,16 @@ package: all
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
-	 	$(PACKAGE)/distribution.xml > distribution.xml
+	 	$(PACKAGE)/distribution.xml > $(TMP)
 	pkgbuild --root $(PAYLOAD) \
 			 --identifier com.$(IDENTIFIER).$(NAME) \
 			 --version $(VERSION) \
 			 $(NAME).pkg
-	productbuild --distribution distribution.xml \
+	productbuild --distribution $(TMP) \
 				 --resources . \
 				 --package-path $(NAME).pkg \
 				 $(BUILD)/$(NAME)-$(VERSION).pkg
-	$(RM) $(PAYLOAD) $(NAME).pkg
+	$(RM) $(TMP) $(PAYLOAD) $(NAME).pkg
 endif
 
 win32_package: ARCHITECTURE := win32
@@ -270,9 +271,9 @@ win_package:
 		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
 		-e "s/\$${GUID}/$(shell ./utils/guid.py --input $(NAME).exe)/g" \
-	 	$(PACKAGE)/msi.wxs > $(PAYLOAD)/$(NAME).wxs
-	wixl $(PAYLOAD)/$(NAME).wxs --output $(BUILD)/$(NAME)-$(VERSION)_$(ARCHITECTURE).msi
-	$(RM) $(PAYLOAD)
+	 	$(PACKAGE)/msi.wxs > $(TMP)
+	wixl $(TMP) --output $(BUILD)/$(NAME)-$(VERSION)_$(ARCHITECTURE).msi
+	$(RM) $(TMP) $(PAYLOAD)
 
 # CLEAN
 
@@ -283,4 +284,4 @@ clean:
 	$(RM) $(OBJS)
 	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
 	$(RM) lua-5.1.5 lua-5.1.5.tar.gz
-	$(RM) $(BUILD) $(PAYLOAD) *.wxs *.xml
+	$(RM) $(PAYLOAD)
