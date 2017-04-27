@@ -46,7 +46,7 @@ int include_stack_ptr = 0;
 "#"                        { return HASH; }
 ","                        { return COMMA; }
 "="                        { return EQU; }
-":"                        { return COLON; }
+":"                        { yylval.sval = nessemble_strdup(yytext); return COLON; }
 "("                        { return OPEN_PAREN; }
 ")"                        { return CLOSE_PAREN; }
 "["                        { return OPEN_BRACK; }
