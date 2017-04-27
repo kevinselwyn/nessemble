@@ -34,7 +34,6 @@
 %token HASH
 %token COMMA
 %token EQU
-%token COLON
 %token OPEN_PAREN
 %token CLOSE_PAREN
 %token OPEN_BRACK
@@ -100,6 +99,7 @@
 %token <ival> NUMBER_ARG
 
 %token <sval> TEXT
+%token <sval> COLON
 %token <sval> QUOT_STRING
 %token <sval> PSEUDO_MACRO_DEF
 %token <sval> PSEUDO_MACRO_APPEND
@@ -125,6 +125,7 @@
 %type <ival> number_defchr
 %type <ival> number_highlow
 %type <ival> label_text
+%type <ival> local_label_text
 %type <ival> label
 
 %type <uval> pseudo_checksum
@@ -200,9 +201,16 @@ number_highlow
 
 label_text
     : TEXT { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { if (get_symbol($1) != -1) { $$ = symbols[get_symbol($1)].value; } else { add_symbol($1, 1, SYMBOL_UNDEFINED); $$ = 1; } } if (error_exists() == TRUE) { YYBAIL; } }
+    ;
+
+local_label_text
+    : COLON PLUS  { if (pass == 2) { $$ = symbols[get_symbol_local(1)].value; } else { $$ = 1; } }
+    | COLON MINUS { if (pass == 2) { $$ = symbols[get_symbol_local(-1)].value; } else { $$ = 1; } }
+    ;
 
 label
     : label_text             { $$ = $1; }
+    | local_label_text       { $$ = $1; }
     | label ARROW label_text { $$ = $1 + $3; }
     ;
 
@@ -474,6 +482,7 @@ constant_decl
 
 label_decl
     : TEXT COLON { add_label($1); }
+    | COLON      { add_label($1); }
     ;
 
 /* Instruction */

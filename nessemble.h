@@ -407,6 +407,7 @@ void write_byte(unsigned int byte);
 /* SYMBOL UTILS */
 void add_symbol(char *name, unsigned int value, unsigned int type);
 int get_symbol(char *name);
+int get_symbol_local(int direction);
 void add_constant(char *name, unsigned int value);
 void add_label(char *name);
 int has_label(char *name);
