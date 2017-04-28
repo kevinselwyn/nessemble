@@ -143,7 +143,10 @@ void add_symbol(char *name, unsigned int value, unsigned int type) {
         }
 
         bank = prg_index;
-        symbol_id = get_symbol(name);
+
+        if (strcmp(name, ":") != 0) {
+            symbol_id = get_symbol(name);
+        }
 
         if (symbol_id != -1) {
             symbols[symbol_id].value = value;
@@ -175,6 +178,33 @@ int get_symbol(char *name) {
 
     if (pass == 2 && symbol_id != -1 && symbols[symbol_id].type == SYMBOL_UNDEFINED) {
         error(_("Symbol `%s` was not defined"), symbols[symbol_id].name);
+    }
+
+    return symbol_id;
+}
+
+/*
+ * Get symbol local
+ * @param {int} Symbol direction
+ */
+int get_symbol_local(int direction) {
+    int symbol_id = -1;
+    unsigned int i = 0, l = 0;
+    unsigned int offset = get_address_offset();
+
+    for (i = 0, l = symbol_index; i < l; i++) {
+        if (strcmp(symbols[i].name, ":") == 0) {
+            if (direction == -1) {
+                if (symbols[i].value < offset) {
+                    symbol_id = i;
+                }
+            } else {
+                if (symbols[i].value > offset) {
+                    symbol_id = i;
+                    break;
+                }
+            }
+        }
     }
 
     return symbol_id;
