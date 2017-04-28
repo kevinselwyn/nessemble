@@ -47,5 +47,6 @@ void pseudo_incscreen(char *string, char *type) {
     UNUSED(type); /* TODO: use */
 
 cleanup:
+    free_png(png);
     nessemble_free(path);
 }
