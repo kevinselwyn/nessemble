@@ -102,3 +102,36 @@ Example:
 ```
 nessemble infile.asm --list listfile.txt
 ```
+
+### -p, --pseudo &lt;pseudo.txt&gt;
+
+The `-p`/`--pseudo` flag sets the filename of the file that indicates what
+custom pseudo-instructions to enable.
+
+Example:
+
+```
+nessemble infile.asm --pseudo pseudo.txt
+```
+
+### -c, --check
+
+The `-c`/`--check` flag only checks the input assembly file for syntax errors.
+Nothing will be output beyond any syntax errors that may arise.
+
+```
+nessemble infile.asm --check
+```
+
+### -C, --coverage
+
+The `-C`/`--coverage` flag causes the assembler to output ROM coverage
+information (amount that the ROM banks have data written to them).
+
+Note: This only works when the `-f/--format` is `NES`, not when it is `RAW`.
+
+Example:
+
+```
+nessemble infile.asm --coverage
+```
