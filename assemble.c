@@ -143,7 +143,10 @@ void add_symbol(char *name, unsigned int value, unsigned int type) {
         }
 
         bank = prg_index;
-        symbol_id = get_symbol(name);
+
+        if (strcmp(name, ":") != 0) {
+            symbol_id = get_symbol(name);
+        }
 
         if (symbol_id != -1) {
             symbols[symbol_id].value = value;
