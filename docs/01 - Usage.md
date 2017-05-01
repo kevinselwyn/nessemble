@@ -197,8 +197,165 @@ nessemble --version
 The `-L`/`--license` flag prints the license for `nessemble`. See the section on
 [Licensing](#TODO) for more information.
 
+Example:
+
+```
+nessemble --license
+```
+
 ### -h, --help
 
 The `-h`/`--help` flag prints the usage for `nessemble`.
 
+Example:
+
+```
+nessemble --help
+```
+
 ## Commands
+
+### init [&lt;arg&gt; ...]
+
+The `init` command initializes a new project by guiding the user through the
+creation of a new project.
+
+Example:
+
+```
+nessemble init
+```
+
+### scripts
+
+The `scripts` command will install optional scripts that will extend the
+functionality of `nessemble`. See the section on [Extending](#TODO) to learn
+more about how to use custom pseudo-instructions.
+
+Example:
+
+```
+nessemble scripts
+```
+
+### reference [&lt;category&gt;] [&lt;term&gt;]
+
+The `reference` command will display reference information on various aspects
+of 6502 development (registers, addressing, etc).
+
+Example:
+
+```
+nessemble reference
+```
+
+### config [&lt;key&gt;] [&lt;val&gt;]
+
+The `config` command will get/set configuration options. Using `config` with no
+additional arguments will list all config options. Using `config` with just a
+`&lt;key&gt;` will list the value for just that key. Using `config` with a
+`&lt;key&gt;` AND a `&lt;val&gt;` will set the config key to that value.
+
+Example:
+
+```
+nessemble config
+```
+
+### registry [&lt;url&gt;]
+
+The `registry` command will get/set the registry URL. Using `registry` with no
+additional arguments will list the current registry URL. Using `registry` with
+a URL will set the registry URL to that value.
+
+Note: This command is just an alias for `config registry`.
+
+Example:
+
+```
+nessemble registry
+```
+
+### install &lt;package&gt;
+
+The `install` command will install a package that can be used in assembly
+projects. See the section on [Packages](#TODO) for more information on their
+usage.
+
+Example:
+
+```
+nessemble install foo
+```
+
+### uninstall &lt;package&gt;
+
+The `uninstall` command will uninstall a package.
+
+Example:
+
+```
+nessemble uninstall foo
+```
+
+### info &lt;package&gt;
+
+The `info` command will print info for a given package.
+
+Example:
+
+```
+nessemble info foo
+```
+
+### ls
+
+The `ls` command will list all installed packages.
+
+Example:
+
+```
+nessemble ls
+```
+
+### search &lt;term&gt;
+
+The `search` command will search for packages with titles, descriptions, or
+keywords that match the given term.
+
+Example:
+
+```
+nessemble search foo
+```
+
+### adduser
+
+The `adduser` command will guide the user in the creation of a new user in the
+registry.
+
+Example:
+
+```
+nessemble adduser
+```
+
+### login
+
+The `login` command will guide the user in the registry login process.
+
+Example:
+
+```
+nessemble login
+```
+
+### logout
+
+The `logout` command will log the user out of the registry.
+
+Example:
+
+```
+nessemble logout
+```
