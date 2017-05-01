@@ -106,7 +106,8 @@ nessemble infile.asm --list listfile.txt
 ### -p, --pseudo &lt;pseudo.txt&gt;
 
 The `-p`/`--pseudo` flag sets the filename of the file that indicates what
-custom pseudo-instructions to enable.
+custom pseudo-instructions to enable. See the section on [Extending](#TODO) to
+learn more about how to write custom pseudo-instructions.
 
 Example:
 
@@ -135,3 +136,69 @@ Example:
 ```
 nessemble infile.asm --coverage
 ```
+
+### -d, --disassemble
+
+The `-d`/`--disassemble` flag will disassemble any 6502 ROM. See the section on
+[Disassembling](#TODO) for a breakdown of the generated output.
+
+Example:
+
+```
+nessemble infile.rom --diassemble
+```
+
+### -R, --reassemble
+
+The `-R`/`--reassemble` flag can be used in conjunction with the
+`-d/--diassemble` flag to disassemble to a format appropriate for reassembly.
+
+Example:
+
+```
+nessemble --disassemble infile.rom --reassemble
+```
+
+### -s, --simulate &lt;infile.rom&gt;
+
+The `-s`/`--simulate` flag starts a 6502 simulator with the provided ROM. See
+the section on [Simulating](#TODO) for a breakdown of the syntax used.
+
+Example:
+
+```
+nessemble --simulate infile.rom
+```
+
+### -r, --recipe &lt;recipe.txt&lt;
+
+The `-r`/`--recipe` flag can be used in conjunction with the `-s/--simulate` flag
+to provide a recipe of instructions to be run by the simulator. See the section
+on [Simulating](#TODO) for a breakdown of the syntax used.
+
+Example:
+
+```
+nessemble --simulate infile.rom --recipe recipe.txt
+```
+
+### -v, --version
+
+The `-v`/`--version` flag prints the version of `nessemble`.
+
+Example:
+
+```
+nessemble --version
+```
+
+### -L, --license
+
+The `-L`/`--license` flag prints the license for `nessemble`. See the section on
+[Licensing](#TODO) for more information.
+
+### -h, --help
+
+The `-h`/`--help` flag prints the usage for `nessemble`.
+
+## Commands
