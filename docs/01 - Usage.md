@@ -152,6 +152,8 @@ nessemble infile.rom --diassemble
 
 The `-R`/`--reassemble` flag can be used in conjunction with the
 `-d/--diassemble` flag to disassemble to a format appropriate for reassembly.
+See the section on [Disassembling](#TODO) for a breakdown of the generated
+output.
 
 Example:
 
