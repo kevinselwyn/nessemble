@@ -12,8 +12,10 @@
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 #define ERROR_BACKTRACE_SIZE 10
+#define SIGNAL_COUNT         32
+#define SIGNAL_IGNORE_COUNT  5
 
-static char *signal_names[32] = {
+static char *signal_names[SIGNAL_COUNT] = {
     NULL,
     "SIGHUP",
     "SIGINT",
@@ -46,6 +48,14 @@ static char *signal_names[32] = {
     "SIGINFO",
     "SIGUSR1",
     "SIGUSR2"
+};
+
+static int signal_ignore[SIGNAL_IGNORE_COUNT] = {
+    9,  // SIGKILL
+    13, // SIGPIPE
+    17, // SIGSTOP
+    19, // SIGCONT
+    20  // SIGCHLD
 };
 
 /**
@@ -271,12 +281,11 @@ void error_signal() {
     sa.sa_flags = SA_SIGINFO;
 
     for (i = 1, l = 32; i < l; i++) {
-        /* Don't catch SIGKILL or SIGSTOP or SIGCHLD */
-        if (i == 9 || i == 17 || i == 19 || i == 20) {
-            continue;
-        }
-
         sigaction(i, &sa, NULL);
+    }
+
+    for (i = 0, l = SIGNAL_IGNORE_COUNT; i < l; i++) {
+        signal(signal_ignore[i], SIG_IGN);
     }
 }
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
