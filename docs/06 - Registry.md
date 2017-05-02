@@ -9,7 +9,7 @@ to be valid.
 |----------------------------------------|----------|-----------------------------------------------|
 | /                                      | GET      | List of all packages                          |
 | /search/&lt;string:term&gt;            | GET      | Search for packages by `term`                 |
-| /package/&lt;string:package&gt;/info   | GET      | Display information about package `package`   |
+| /package/&lt;string:package&gt;        | GET      | Display information about package `package`   |
 | /package/&lt;string:package&gt;/README | GET      | Display README for package `package`          |
 | /package/&lt;string:package&gt;/data   | GET      | A tarball containing all data for `package`   |
 | /user/create                           | POST     | Create a user in the registry                 |
