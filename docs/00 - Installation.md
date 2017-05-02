@@ -1,4 +1,4 @@
-# Getting Nessemble
+# Installation
 
 Download and install the latest release for your system:
 

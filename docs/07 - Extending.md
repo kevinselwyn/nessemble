@@ -1,4 +1,4 @@
-# Extending Nessemble
+# Extending
 
 `nessemble` can be extended to add custom pseudo-instructions using a number of
 scripting languages.

@@ -1,4 +1,4 @@
-# Using Nessemble
+# Usage
 
 ```
 Usage: nessemble [options] <infile.asm>
