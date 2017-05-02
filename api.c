@@ -65,7 +65,7 @@ cleanup:
 unsigned int api_lib(char **url, char *lib) {
     unsigned int rc = RETURN_OK;
 
-    if ((rc = api_endpoint(&*url, 2, lib, ".json")) != RETURN_OK) {
+    if ((rc = api_endpoint(&*url, 2, "package", lib)) != RETURN_OK) {
         goto cleanup;
     }
 
