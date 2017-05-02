@@ -18,6 +18,14 @@ YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
 
+EMAIL        := kevinselwyn@gmail.com
+MAINTAINER   := Kevin Selwyn
+DESCRIPTION  := A 6502 assembler for the Nintendo Entertainment System
+IDENTIFIER   := kevinselwyn
+PACKAGE      := ./package
+PAYLOAD      := $(PACKAGE)/payload
+BUILD        := ./build
+TMP          := $(shell mktemp)
 UNAME        := $(shell uname -s)
 
 FILES        := main.c api.c assemble.c config.c coverage.c disassemble.c
@@ -206,6 +214,70 @@ install: all
 uninstall:
 	rm -f $(BIN_DIR)/$(EXEC)
 
+# PACKAGE
+
+ifeq ($(UNAME), Linux)
+ARCHITECTURE := $(shell dpkg --print-architecture)
+endif
+
+package: all
+ifeq ($(UNAME), Linux)
+	$(RM) $(PAYLOAD)
+	mkdir -p $(BUILD)
+	mkdir -p $(PAYLOAD)/usr/local/bin
+	cp $(EXEC) $(PAYLOAD)/usr/local/bin
+	mkdir -p $(PAYLOAD)/DEBIAN
+	sed -e "s/\$${NAME}/$(NAME)/g" \
+		-e "s/\$${VERSION}/$(VERSION)/g" \
+		-e "s/\$${ARCHITECTURE}/$(ARCHITECTURE)/g" \
+		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
+		-e "s/\$${EMAIL}/$(EMAIL)/g" \
+		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
+	 	$(PACKAGE)/control > $(PAYLOAD)/DEBIAN/control
+	dpkg-deb --build $(PAYLOAD) $(BUILD)/$(NAME)-$(VERSION)_$(ARCHITECTURE).deb
+	$(RM) $(PAYLOAD)
+endif
+
+ifeq ($(UNAME), Darwin)
+	$(RM) $(PAYLOAD)
+	mkdir -p $(BUILD)
+	mkdir -p $(PAYLOAD)/usr/local/bin
+	cp $(EXEC) $(PAYLOAD)/usr/local/bin
+	sed -e "s/\$${NAME}/$(NAME)/g" \
+		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
+		-e "s/\$${VERSION}/$(VERSION)/g" \
+	 	$(PACKAGE)/distribution.xml > $(TMP)
+	pkgbuild --root $(PAYLOAD) \
+			 --identifier com.$(IDENTIFIER).$(NAME) \
+			 --version $(VERSION) \
+			 $(NAME).pkg
+	productbuild --distribution $(TMP) \
+				 --resources . \
+				 --package-path $(NAME).pkg \
+				 $(BUILD)/$(NAME)-$(VERSION).pkg
+	$(RM) $(TMP) $(PAYLOAD) $(NAME).pkg
+endif
+
+win32_package: ARCHITECTURE := win32
+win32_package: win32 win_package
+
+win64_package: ARCHITECTURE := win64
+win64_package: win64 win_package
+
+win_package:
+	$(RM) $(PAYLOAD)
+	mkdir -p $(BUILD)
+	mkdir -p $(PAYLOAD)
+	sed -e "s/\$${NAME}/$(NAME)/g" \
+		-e "s/\$${VERSION}/$(VERSION)/g" \
+		-e "s/\$${ID}/$(shell ./utils/guid.py --string $(VERSION))/g" \
+		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
+		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
+		-e "s/\$${GUID}/$(shell ./utils/guid.py --input $(NAME).exe)/g" \
+	 	$(PACKAGE)/msi.wxs > $(TMP)
+	wixl $(TMP) --output $(BUILD)/$(NAME)-$(VERSION)_$(ARCHITECTURE).msi
+	$(RM) $(TMP) $(PAYLOAD)
+
 # CLEAN
 
 .PHONY: clean
@@ -215,3 +287,4 @@ clean:
 	$(RM) $(OBJS)
 	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
 	$(RM) lua-5.1.5 lua-5.1.5.tar.gz
+	$(RM) $(PAYLOAD)
