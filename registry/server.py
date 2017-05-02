@@ -141,8 +141,8 @@ def get_package_json(package='', full=True, string=False):
     }
 
     if full:
-        output['readme'] = '%s%s.md' % (request.url_root, package)
-        output['resource'] = '%s%s.tar.gz' % (request.url_root, package)
+        output['readme'] = '%spackage/%s/README' % (request.url_root, package)
+        output['resource'] = '%spackage/%s/data' % (request.url_root, package)
 
     if string:
         return json.dumps(output, indent=4)
@@ -315,7 +315,7 @@ def list_packages():
             'name': lib.name,
             'description': lib.description,
             'tags': lib.tags.split(','),
-            'url': '%s%s.json' % (request.url_root, lib.name)
+            'url': '%spackage/%s' % (request.url_root, lib.name)
         })
 
     return registry_response(results)
@@ -340,12 +340,12 @@ def search_packages(term):
             'name': lib.name,
             'description': lib.description,
             'tags': lib.tags.split(','),
-            'url': '%s%s.json' % (request.url_root, lib.name)
+            'url': '%spackage/%s' % (request.url_root, lib.name)
         })
 
     return registry_response(results)
 
-@app.route('/<string:package>.json', methods=['GET'])
+@app.route('/package/<string:package>', methods=['GET'])
 def get_package(package):
     """Get package endpoint"""
 
@@ -356,7 +356,7 @@ def get_package(package):
 
     return registry_response(output)
 
-@app.route('/<string:package>.md', methods=['GET'])
+@app.route('/package/<string:package>/README', methods=['GET'])
 def get_readme(package):
     """Get package README endpoint"""
 
@@ -367,7 +367,7 @@ def get_readme(package):
 
     return registry_response(readme, mimetype='text/plain')
 
-@app.route('/<string:package>.tar.gz', methods=['GET'])
+@app.route('/package/<string:package>/data', methods=['GET'])
 def get_gz(package):
     """Get package zip endpoint"""
 
