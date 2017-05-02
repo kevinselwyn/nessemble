@@ -17,3 +17,42 @@ to be valid.
 | /user/logout                           | GET/POST | Log out of the registry                       |
 | /reference                             | GET      | Display reference categories                  |
 | /reference/<path:path>                 | GET      | Display reference information for term `path` |
+
+### GET /
+
+Request:
+
+```
+GET / HTTP/1.1
+Host: xxxxx
+User-Agent: nessemble/1.0.1
+Content-Type: application/json
+```
+
+Response:
+
+```
+HTTP/1.0 200 OK
+Content-Length: xxx
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Server: Nessemble
+X-Response-Time: x.xxx
+Date: Fri, 29 Aug 1997 22:14:00 GMT
+
+{
+    "libraries": [
+        {
+            "url": "http://xxxxx.xxx/foo",
+            "tags": [
+                "foo",
+                "bar",
+                "baz"
+            ],
+            "name": "foo",
+            "description": "Foo bar baz qux"
+        },
+        ...
+    ]
+}
+```
