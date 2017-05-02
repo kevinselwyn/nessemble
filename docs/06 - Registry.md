@@ -20,6 +20,8 @@ to be valid.
 
 ### GET /
 
+List of all packages.
+
 Request:
 
 ```
@@ -54,5 +56,89 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
         },
         ...
     ]
+}
+```
+
+### GET /search/&lt;string:term&gt;
+
+Search for packages by `term`.
+
+Request:
+
+```
+GET /search/foo HTTP/1.1
+Host: xxxxx
+User-Agent: nessemble/1.0.1
+Content-Type: application/json
+```
+
+Response:
+
+```
+HTTP/1.0 200 OK
+Content-Length: xxx
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Server: Nessemble
+X-Response-Time: x.xxx
+Date: Fri, 29 Aug 1997 22:14:00 GMT
+
+{
+    "libraries": [
+        {
+            "url": "http://xxxxx.xxx/foo",
+            "tags": [
+                "foo",
+                "bar",
+                "baz"
+            ],
+            "name": "foo",
+            "description": "Foo bar baz qux"
+        },
+        ...
+    ]
+}
+```
+
+### GET /package/&lt;string:package&gt;
+
+Display information about package `package`.
+
+Request:
+
+```
+GET /package/foo HTTP/1.1
+Host: xxxxx
+User-Agent: nessemble/1.0.1
+Content-Type: application/json
+```
+
+Response:
+
+```
+HTTP/1.0 200 OK
+Content-Length: xxx
+Content-Type: application/json
+Access-Control-Allow-Origin: *
+Server: Nessemble
+X-Response-Time: x.xxx
+Date: Fri, 29 Aug 1997 22:14:00 GMT
+
+{
+    "resource": "http://xxxxx.xxx/foo/data",
+    "name": "foo",
+    "license": "GPLv3",
+    "author": {
+        "name": "Joe Somebody",,
+        "email": "joe.somebody@email.com"
+    },
+    "tags": [
+        "foo",
+        "bar",
+        "baz"
+    ],
+    "version": "1.0.1",
+    "readme": "http://xxxxx.xxx/foo/README",
+    "description": "Foo bar baz qux"
 }
 ```
