@@ -12,8 +12,9 @@
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 #define ERROR_BACKTRACE_SIZE 10
+#define SIGNAL_COUNT         32
 
-static char *signal_names[32] = {
+static char *signal_names[SIGNAL_COUNT] = {
     NULL,
     "SIGHUP",
     "SIGINT",
@@ -271,8 +272,7 @@ void error_signal() {
     sa.sa_flags = SA_SIGINFO;
 
     for (i = 1, l = 32; i < l; i++) {
-        /* Don't catch SIGKILL or SIGSTOP or SIGCHLD */
-        if (i == 9 || i == 17 || i == 19 || i == 20) {
+        if (i == 9 || i == 13 || i == 17 || i == 19 || i == 20) {
             continue;
         }
 
