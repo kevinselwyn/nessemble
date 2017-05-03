@@ -293,6 +293,23 @@ def conflict_custom(message=False):
         'error': 'Conflict' if not message else message
     }, status=409, mimetype=abort_mimetype)
 
+@app.errorhandler(422)
+def unprocessable(error):
+    """Unprocessable error handler"""
+
+    return registry_response({
+        'status': 422,
+        'error': 'Unprocessable Entity'
+    }, status=422, mimetype=abort_mimetype)
+
+def unprocessable_custom(message=False):
+    """Unprocessable custom error handler"""
+
+    return registry_response({
+        'status': 422,
+        'error': 'Unprocessable Entity' if not message else message
+    }, status=422, mimetype=abort_mimetype)
+
 @app.errorhandler(500)
 def internal_server_error(error):
     """Internal Server Error error handler"""
@@ -385,6 +402,121 @@ def get_gz(package):
         abort(404)
 
     return registry_response(data, mimetype='application/tar+gzip')
+
+@app.route('/package/publish', methods=['POST'])
+def post_gz():
+    """Post package zip endpoint"""
+
+    global abort_mimetype
+
+    abort_mimetype = 'application/tar+gzip'
+
+    # get auth token
+
+    token = get_auth(request.headers)
+
+    if not token:
+        return unauthorized_custom('User is not logged in')
+
+    # get zip data
+
+    package_zip = request.data
+
+    if not package_zip:
+        abort(404)
+
+    # open zip file
+
+    temp = tempfile.NamedTemporaryFile()
+    with open(temp.name, 'w') as f:
+        f.write(package_zip)
+
+    tar = tarfile.open(temp.name, 'r:gz')
+
+    # check that all files are included
+
+    file_lib = None
+    file_readme = None
+    file_info = None
+
+    for member in tar.getmembers():
+        if member.isfile():
+            if member.name[-7:] == 'lib.asm':
+                file_lib = tar.extractfile(member)
+
+            if member.name[-9:] == 'README.md':
+                file_readme = tar.extractfile(member)
+
+            if member.name[-12:] == 'package.json':
+                file_info = tar.extractfile(member)
+
+    if not file_lib or not file_readme or not file_info:
+        missing = []
+
+        if not file_lib:
+            missing.append('lib.asm')
+
+        if not file_readme:
+            missing.append('README.md')
+
+        if not file_info:
+            missing.append('package.json')
+
+        return unprocessable_custom('Missing: ' + ', '.join(missing))
+
+    # read files
+
+    data_lib = file_lib.read()
+    data_readme = file_readme.read()
+    data_info = file_info.read()
+    json_info = None
+
+    # validate JSON
+
+    try:
+        json_info = json.loads(data_info)
+    except ValueError:
+        return unprocessable_custom('Invalid package.json')
+
+    session = Session()
+
+    # check if user is logged in
+
+    result = session.query(User).filter(User.login_token == token).all()
+    user = result[0]
+
+    if not user:
+        return unauthorized_custom('User is not logged in')
+
+    # make sure emails match
+
+    try:
+        if user.email != json_info['author']['email']:
+            return unprocessable_custom('Author email mismatch')
+    except KeyError:
+        return unprocessable_custom('Missing author.email in package.json')
+
+    # check that lib doesn't already exist
+
+    result = session.query(Lib).filter(Lib.name == json_info['name']).all()
+
+    if len(result):
+        return unprocessable_custom('Library already exists')
+
+    # add new lib
+
+    session.add(Lib(
+        user_id=user.id,
+        readme=data_readme,
+        lib=data_lib,
+        name=json_info['name'],
+        description=json_info['description'],
+        version=json_info['version'],
+        license=json_info['license'],
+        tags=','.join(json_info['tags'])))
+    session.commit()
+
+    return registry_response('{}', mimetype='application/tar+gzip')
 
 @app.route('/user/create', methods=['POST'])
 def user_create():
