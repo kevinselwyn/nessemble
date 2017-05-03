@@ -1,5 +1,5 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0326,R0914
+# pylint: disable=C0103,C0301,C0326,R0914,W0603
 """Nessemble registry server"""
 
 import datetime
@@ -30,6 +30,7 @@ PORT     = 5000
 # Variables
 
 app = Flask(__name__)
+abort_mimetype = 'application/json'
 
 #----------------#
 # Databases
@@ -44,9 +45,14 @@ Session = sessionmaker(bind=db)
 def registry_response(data, status=200, mimetype='application/json'):
     """Registry response"""
 
+    global abort_mimetype
+
     if mimetype == 'application/json':
         response = make_response(json.dumps(data, indent=4), status)
     else:
+        if isinstance(data, dict):
+            data = json.dumps(data, indent=4)
+
         response = make_response(data, status)
 
     response.headers.remove('Content-Type')
@@ -55,6 +61,8 @@ def registry_response(data, status=200, mimetype='application/json'):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Server', 'Nessemble')
     response.headers.add('X-Response-Time', g.request_time())
+
+    abort_mimetype = 'application/json'
 
     return response
 
@@ -141,8 +149,8 @@ def get_package_json(package='', full=True, string=False):
     }
 
     if full:
-        output['readme'] = '%s%s.md' % (request.url_root, package)
-        output['resource'] = '%s%s.tar.gz' % (request.url_root, package)
+        output['readme'] = '%spackage/%s/README' % (request.url_root, package)
+        output['resource'] = '%spackage/%s/data' % (request.url_root, package)
 
     if string:
         return json.dumps(output, indent=4)
@@ -232,7 +240,7 @@ def bad_request(error):
     return registry_response({
         'status': int(str(error)[:3]),
         'error': 'Bad Request'
-    }, status=400)
+    }, status=400, mimetype=abort_mimetype)
 
 def bad_request_custom(message=False):
     """Bad Request custom error handler"""
@@ -240,7 +248,7 @@ def bad_request_custom(message=False):
     return registry_response({
         'status': 400,
         'error': 'Bad Request' if not message else message
-    }, status=400)
+    }, status=400, mimetype=abort_mimetype)
 
 @app.errorhandler(401)
 def unauthorized(error):
@@ -249,7 +257,7 @@ def unauthorized(error):
     return registry_response({
         'status': int(str(error)[:3]),
         'error': 'Unauthorized'
-    }, status=401)
+    }, status=401, mimetype=abort_mimetype)
 
 def unauthorized_custom(message=False):
     """Unauthorized custom error handler"""
@@ -257,7 +265,7 @@ def unauthorized_custom(message=False):
     return registry_response({
         'status': 401,
         'error': 'Unauthorized' if not message else message
-    }, status=401)
+    }, status=401, mimetype=abort_mimetype)
 
 @app.errorhandler(404)
 def not_found(error):
@@ -266,7 +274,7 @@ def not_found(error):
     return registry_response({
         'status': int(str(error)[:3]),
         'error': 'Not Found'
-    }, status=404)
+    }, status=404, mimetype=abort_mimetype)
 
 @app.errorhandler(409)
 def conflict(error):
@@ -275,7 +283,7 @@ def conflict(error):
     return registry_response({
         'status': int(str(error)[:3]),
         'error': 'Conflict'
-    }, status=409)
+    }, status=409, mimetype=abort_mimetype)
 
 def conflict_custom(message=False):
     """Conflict custom error handler"""
@@ -283,7 +291,7 @@ def conflict_custom(message=False):
     return registry_response({
         'status': 409,
         'error': 'Conflict' if not message else message
-    }, status=409)
+    }, status=409, mimetype=abort_mimetype)
 
 @app.errorhandler(500)
 def internal_server_error(error):
@@ -292,7 +300,7 @@ def internal_server_error(error):
     return registry_response({
         'status': int(str(error)[:3]),
         'error': 'Internal Server Error'
-    }, status=500)
+    }, status=500, mimetype=abort_mimetype)
 
 #----------------#
 # Endpoints
@@ -315,7 +323,7 @@ def list_packages():
             'name': lib.name,
             'description': lib.description,
             'tags': lib.tags.split(','),
-            'url': '%s%s.json' % (request.url_root, lib.name)
+            'url': '%spackage/%s' % (request.url_root, lib.name)
         })
 
     return registry_response(results)
@@ -340,12 +348,12 @@ def search_packages(term):
             'name': lib.name,
             'description': lib.description,
             'tags': lib.tags.split(','),
-            'url': '%s%s.json' % (request.url_root, lib.name)
+            'url': '%spackage/%s' % (request.url_root, lib.name)
         })
 
     return registry_response(results)
 
-@app.route('/<string:package>.json', methods=['GET'])
+@app.route('/package/<string:package>', methods=['GET'])
 def get_package(package):
     """Get package endpoint"""
 
@@ -356,7 +364,7 @@ def get_package(package):
 
     return registry_response(output)
 
-@app.route('/<string:package>.md', methods=['GET'])
+@app.route('/package/<string:package>/README', methods=['GET'])
 def get_readme(package):
     """Get package README endpoint"""
 
@@ -367,7 +375,7 @@ def get_readme(package):
 
     return registry_response(readme, mimetype='text/plain')
 
-@app.route('/<string:package>.tar.gz', methods=['GET'])
+@app.route('/package/<string:package>/data', methods=['GET'])
 def get_gz(package):
     """Get package zip endpoint"""
 
@@ -480,6 +488,10 @@ def user_logout():
 @app.route('/reference', methods=['GET'])
 @app.route('/reference/<path:path>', methods=['GET'])
 def reference(path=''):
+    """Reference endpoint"""
+
+    global abort_mimetype
+
     paths = path.split('/')
     output = ''
     sql = []
@@ -515,6 +527,7 @@ def reference(path=''):
                 output += '  %s\n' % (row[2])
 
     if not len(output):
+        abort_mimetype = 'text/plain'
         abort(404)
 
     return registry_response(output, mimetype='text/plain')
