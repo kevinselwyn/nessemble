@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include "nessemble.h"
 
-static unsigned int user_auth(struct http_header *http_headers) {
+unsigned int user_auth(struct http_header *http_headers) {
     unsigned int rc = RETURN_OK;
     char *token = NULL;
 
