@@ -215,13 +215,7 @@ unsigned int lib_publish(char *filename, char **package) {
 
     http_code = post_request(download_options);
 
-    if (!response) {
-        error_program_log(_("Could not read response"));
-
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
+/*
     if (http_code != 200) {
         if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
@@ -232,8 +226,7 @@ unsigned int lib_publish(char *filename, char **package) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
-
-    fprintf(stderr, "%s\n", response);
+*/
 
 cleanup:
     return rc;

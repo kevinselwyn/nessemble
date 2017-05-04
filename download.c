@@ -16,9 +16,10 @@
 static unsigned int do_request(struct download_option download_options) {
     unsigned int port = 80, protocol = PROTOCOL_HTTP;
     unsigned int i = 0, l = 0, index = 0;
-    unsigned int code = 0, length = 0;
+    unsigned int code = 200, length = 0;
     int sockfd = 0, bytes = 0, sent = 0, received = 0, total = 0;
     int content_type_index = 0, response_index = 0, content_length_index = 0;
+    size_t message_length = 0;
     char message[2048], code_str[4];
     char *response = NULL, *host = NULL, *uri = NULL;
     char *output = NULL;
@@ -85,28 +86,30 @@ static unsigned int do_request(struct download_option download_options) {
         host[index] = '\0';
     }
 
-    sprintf(message, "%s %s HTTP/1.1\r\nHost: %s", method, uri, host);
+    message_length += sprintf(message, "%s %s HTTP/1.1\r\nHost: %s", method, uri, host);
 
     if (port != 80) {
-        sprintf(message+strlen(message), ":%u", port);
+        message_length += sprintf(message+message_length, ":%u", port);
     }
 
-    sprintf(message+strlen(message), "\r\nUser-Agent: " PROGRAM_NAME "/" PROGRAM_VERSION);
-    sprintf(message+strlen(message), "\r\nConnection: keep-alive");
-    sprintf(message+strlen(message), "\r\nCache-Control: no-cache");
-    sprintf(message+strlen(message), "\r\nAccept: */*");
-    sprintf(message+strlen(message), "\r\nAccept-Language: " PROGRAM_LANGUAGE ";q=0.8");
-    sprintf(message+strlen(message), "\r\nContent-Type: %s", mime_type);
+    message_length += sprintf(message+message_length, "\r\nUser-Agent: " PROGRAM_NAME "/" PROGRAM_VERSION);
+    message_length += sprintf(message+message_length, "\r\nConnection: keep-alive");
+    message_length += sprintf(message+message_length, "\r\nCache-Control: no-cache");
+    message_length += sprintf(message+message_length, "\r\nAccept: */*");
+    message_length += sprintf(message+message_length, "\r\nAccept-Language: " PROGRAM_LANGUAGE ";q=0.8");
+    message_length += sprintf(message+message_length, "\r\nContent-Type: %s", mime_type);
 
     for (i = 0, l = http_headers.count; i < l; i++) {
-        sprintf(message+strlen(message), "\r\n%s: %s", http_headers.keys[i], http_headers.vals[i]);
+        message_length += sprintf(message+message_length, "\r\n%s: %s", http_headers.keys[i], http_headers.vals[i]);
     }
 
     if (data) {
-        sprintf(message+strlen(message), "\r\nContent-Length: %lu\r\n\r\n", strlen(data));
-        sprintf(message+strlen(message), "%s", data);
+        message_length += sprintf(message+message_length, "\r\nContent-Length: %u\r\n\r\n", data_length);
+
+        memcpy(message+message_length, data, data_length);
+        message_length += data_length;
     } else {
-        sprintf(message+strlen(message), "\r\n\r\n");
+        message_length += sprintf(message+message_length, "\r\n\r\n");
     }
 
 #ifdef IS_WINDOWS
@@ -146,7 +149,7 @@ static unsigned int do_request(struct download_option download_options) {
         goto cleanup;
     }
 
-    total = (int)strlen(message);
+    total = (int)message_length;
     sent = 0;
 
     do {
@@ -157,6 +160,7 @@ static unsigned int do_request(struct download_option download_options) {
 #endif /* IS_WINDOWS */
 
         if (bytes < 0) {
+            error_program_log(_("Problem sending request"));
             code = 500;
             goto cleanup;
         }
@@ -195,6 +199,7 @@ static unsigned int do_request(struct download_option download_options) {
 #endif /* IS_WINDOWS */
 
         if (bytes < 0) {
+            error_program_log(_("Problem receiving response"));
             code = 500;
             goto cleanup;
         }
@@ -207,6 +212,7 @@ static unsigned int do_request(struct download_option download_options) {
     } while (received < total);
 
     if (received == total) {
+        error_program_log(_("Problem receiving response"));
         code = 500;
         goto cleanup;
     }

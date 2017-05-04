@@ -84,6 +84,10 @@ def get_auth(headers):
     # check if user exists
 
     result = session.query(User).filter(User.login_token == token).all()
+
+    if not result:
+        return False
+
     user = result[0]
 
     if not user:
@@ -431,7 +435,10 @@ def post_gz():
     with open(temp.name, 'w') as f:
         f.write(package_zip)
 
-    tar = tarfile.open(temp.name, 'r:gz')
+    try:
+        tar = tarfile.open(temp.name, 'r:gz')
+    except TypeError:
+        return unprocessable_custom('Invalid tarball')
 
     # check that all files are included
 
@@ -516,7 +523,7 @@ def post_gz():
         tags=','.join(json_info['tags'])))
     session.commit()
 
-    return registry_response('{}', mimetype='application/tar+gzip')
+    return registry_response(json_info, mimetype='application/tar+gzip')
 
 @app.route('/user/create', methods=['POST'])
 def user_create():
