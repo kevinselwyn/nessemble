@@ -188,7 +188,7 @@ cleanup:
 unsigned int lib_publish(char *filename, char **package) {
     unsigned int rc = RETURN_OK;
     unsigned int http_code = 0, response_length = 0, data_length = 0;
-    char *path = NULL, *url = NULL, *response = NULL, *data = NULL, *error = NULL;
+    char *url = NULL, *response = NULL, *data = NULL, *error = NULL;
     struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
     struct http_header http_headers = { 0, {}, {} };
 
@@ -215,7 +215,6 @@ unsigned int lib_publish(char *filename, char **package) {
 
     http_code = post_request(download_options);
 
-/*
     if (http_code != 200) {
         if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
@@ -226,7 +225,10 @@ unsigned int lib_publish(char *filename, char **package) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
-*/
+
+    if ((rc = get_json_buffer(&*package, "name", response)) != RETURN_OK) {
+        goto cleanup;
+    }
 
 cleanup:
     return rc;

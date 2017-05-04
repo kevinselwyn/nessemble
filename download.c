@@ -20,8 +20,8 @@ static unsigned int do_request(struct download_option download_options) {
     int sockfd = 0, bytes = 0, sent = 0, received = 0, total = 0;
     int content_type_index = 0, response_index = 0, content_length_index = 0;
     size_t message_length = 0;
-    char message[2048], code_str[4];
-    char *response = NULL, *host = NULL, *uri = NULL;
+    char message[2048], response[4096], code_str[4];
+    char *host = NULL, *uri = NULL;
     char *output = NULL;
     struct hostent *server;
     struct sockaddr_in serv_addr;
@@ -172,13 +172,7 @@ static unsigned int do_request(struct download_option download_options) {
         sent += bytes;
     } while (sent < total);
 
-    if (data_length == 0) {
-        data_length = 4096;
-    }
-
-    response = (char *)malloc(sizeof(char) * data_length);
-
-    total = data_length;
+    total = 4096;
     received = 0;
 
     timeout.tv_sec = 1;
