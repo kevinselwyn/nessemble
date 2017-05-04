@@ -185,6 +185,60 @@ cleanup:
     return rc;
 }
 
+unsigned int lib_publish(char *filename, char **package) {
+    unsigned int rc = RETURN_OK;
+    unsigned int http_code = 0, response_length = 0, data_length = 0;
+    char *path = NULL, *url = NULL, *response = NULL, *data = NULL, *error = NULL;
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
+    struct http_header http_headers = { 0, {}, {} };
+
+    if ((rc = user_auth(&http_headers)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = api_lib(&url, "publish")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = load_file(&data, &data_length, filename)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    /* options */
+    download_options.response = &response;
+    download_options.response_length = &response_length;
+    download_options.url = url;
+    download_options.data = data;
+    download_options.data_length = data_length;
+    download_options.mime_type = MIMETYPE_ZIP;
+    download_options.http_headers = http_headers;
+
+    http_code = post_request(download_options);
+
+    if (!response) {
+        error_program_log(_("Could not read response"));
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (http_code != 200) {
+        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
+            error_program_log(_("Could not read response"));
+        } else {
+            error_program_log(error);
+        }
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    fprintf(stderr, "%s\n", response);
+
+cleanup:
+    return rc;
+}
+
 unsigned int lib_info(char *lib) {
     unsigned int rc = RETURN_OK, readme_length = 0;
     char *lib_url = NULL, *readme = NULL, *readme_url = NULL;

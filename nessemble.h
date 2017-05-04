@@ -670,6 +670,7 @@ unsigned int get_registry();
 unsigned int set_registry(char *registry);
 unsigned int lib_install(char *lib);
 unsigned int lib_uninstall(char *lib);
+unsigned int lib_publish(char *filename, char **package);
 unsigned int lib_info(char *lib);
 unsigned int lib_list();
 unsigned int lib_search(char *term);
@@ -695,6 +696,7 @@ unsigned int pager_buffer(char *buffer);
 unsigned int pager_file(char *filename);
 
 /* USER */
+unsigned int user_auth(struct http_header *http_headers);
 unsigned int user_create();
 unsigned int user_login();
 unsigned int user_logout();
