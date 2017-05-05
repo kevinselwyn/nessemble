@@ -59,7 +59,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
                 "bar",
                 "baz"
             ],
-            "name": "foo",
+            "title": "foo",
             "description": "Foo bar baz qux"
         },
         ...
@@ -102,7 +102,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
                 "bar",
                 "baz"
             ],
-            "name": "foo",
+            "title": "foo",
             "description": "Foo bar baz qux"
         },
         ...
@@ -138,7 +138,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
     "resource": "http://xxxxx.xxx/foo/data",
-    "name": "foo",
+    "title": "foo",
     "license": "GPLv3",
     "author": {
         "name": "Joe Somebody",,
