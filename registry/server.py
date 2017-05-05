@@ -227,6 +227,75 @@ def get_package_zip(package=''):
 
     return data
 
+def validate_package(data):
+    """Validate package.json"""
+
+    invalid_titles = ['publish']
+
+    try:
+        package = json.loads(data)
+    except ValueError:
+        raise ValueError('Invalid package.json')
+
+    if not isinstance(package, dict):
+        raise ValueError('package.json must be an object')
+
+    if not 'title' in package:
+        raise ValueError('package.json missing `title` field')
+    else:
+        if not isinstance(package['title'], str) and not isinstance(package['title'], unicode):
+            raise ValueError('package.json field `title` must be a string')
+
+        if package['title'] in invalid_titles:
+            raise ValueError('package.json `title` is invalid or reserved')
+
+    if not 'description' in package:
+        raise ValueError('package.json missing `description` field')
+    else:
+        if not isinstance(package['description'], str) and not isinstance(package['description'], unicode):
+            raise ValueError('package.json field `description` must be a string')
+
+    if not 'version' in package:
+        raise ValueError('package.json missing `version` field')
+    else:
+        if not isinstance(package['version'], str) and not isinstance(package['version'], unicode):
+            raise ValueError('package.json field `version` must be a string')
+
+    if not 'license' in package:
+        raise ValueError('package.json missing `license` field')
+    else:
+        if not isinstance(package['license'], str) and not isinstance(package['license'], unicode):
+            raise ValueError('package.json field `license` must be a string')
+
+    if not 'author' in package:
+        raise ValueError('package.json missing `author` field')
+    else:
+        if not isinstance(package['author'], dict):
+            raise ValueError('package.json field `author` must be an object')
+
+        if not 'name' in package['author']:
+            raise ValueError('package.json missing `author.name` field')
+        else:
+            if not isinstance(package['author']['name'], str) and not isinstance(package['author']['name'], unicode):
+                raise ValueError('package.json field `author.name` must be a string')
+
+        if not 'email' in package['author']:
+            raise ValueError('package.json missing `author.email` field')
+        else:
+            if not isinstance(package['author']['email'], str) and not isinstance(package['author']['email'], unicode):
+                raise ValueError('package.json field `author.email` must be a string')
+
+    if not 'tags' in package:
+        raise ValueError('package.json missing `tags` field')
+    else:
+        if not isinstance(package['tags'], list):
+            raise ValueError('package.json field `tags` must be an array')
+
+        if not len(package['tags']):
+            raise ValueError('package.json field `tags` must not be empty')
+
+    return package
+
 @app.before_request
 def before_request():
     """Before request"""
@@ -481,9 +550,9 @@ def post_gz():
     # validate JSON
 
     try:
-        json_info = json.loads(data_info)
-    except ValueError:
-        return unprocessable_custom('Invalid package.json')
+        json_info = validate_package(data_info)
+    except ValueError as error:
+        return unprocessable_custom(error[0])
 
     session = Session()
 
@@ -497,11 +566,8 @@ def post_gz():
 
     # make sure emails match
 
-    try:
-        if user.email != json_info['author']['email']:
-            return unprocessable_custom('Author email mismatch')
-    except KeyError:
-        return unprocessable_custom('Missing author.email in package.json')
+    if user.email != json_info['author']['email']:
+        return unprocessable_custom('Author email mismatch')
 
     # check that lib doesn't already exist
 
