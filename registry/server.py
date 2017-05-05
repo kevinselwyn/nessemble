@@ -131,7 +131,7 @@ def get_package_json(package='', full=True, string=False):
     session = Session()
 
     result = session.query(Lib, User) \
-                .filter(Lib.name == package) \
+                .filter(Lib.title == package) \
                 .filter(Lib.user_id == User.id) \
                 .all()
 
@@ -141,7 +141,7 @@ def get_package_json(package='', full=True, string=False):
     lib, user = result[0]
 
     output = {
-        'name': lib.name,
+        'title': lib.title,
         'description': lib.description,
         'version': lib.version,
         'author': {
@@ -167,7 +167,7 @@ def get_package_readme(package=''):
     session = Session()
 
     result = session.query(Lib, User) \
-                .filter(Lib.name == package) \
+                .filter(Lib.title == package) \
                 .filter(Lib.user_id == User.id) \
                 .all()
 
@@ -188,7 +188,7 @@ def get_package_zip(package=''):
     session = Session()
 
     result = session.query(Lib, User) \
-                .filter(Lib.name == package) \
+                .filter(Lib.title == package) \
                 .filter(Lib.user_id == User.id) \
                 .all()
 
@@ -336,15 +336,15 @@ def list_packages():
     }
 
     result = session.query(Lib) \
-                .order_by(Lib.name) \
+                .order_by(Lib.title) \
                 .all()
 
     for lib in result:
         results['libraries'].append({
-            'name': lib.name,
+            'title': lib.title,
             'description': lib.description,
             'tags': lib.tags.split(','),
-            'url': '%spackage/%s' % (request.url_root, lib.name)
+            'url': '%spackage/%s' % (request.url_root, lib.title)
         })
 
     return registry_response(results)
@@ -360,16 +360,16 @@ def search_packages(term):
     }
 
     result = session.query(Lib) \
-                .filter(Lib.name.like(term)) \
-                .order_by(Lib.name) \
+                .filter(Lib.title.like(term)) \
+                .order_by(Lib.title) \
                 .all()
 
     for lib in result:
         results['results'].append({
-            'name': lib.name,
+            'title': lib.title,
             'description': lib.description,
             'tags': lib.tags.split(','),
-            'url': '%spackage/%s' % (request.url_root, lib.name)
+            'url': '%spackage/%s' % (request.url_root, lib.title)
         })
 
     return registry_response(results)
@@ -505,7 +505,7 @@ def post_gz():
 
     # check that lib doesn't already exist
 
-    result = session.query(Lib).filter(Lib.name == json_info['name']).all()
+    result = session.query(Lib).filter(Lib.title == json_info['title']).all()
 
     if len(result):
         return unprocessable_custom('Library already exists')
@@ -516,7 +516,7 @@ def post_gz():
         user_id=user.id,
         readme=data_readme,
         lib=data_lib,
-        name=json_info['name'],
+        title=json_info['title'],
         description=json_info['description'],
         version=json_info['version'],
         license=json_info['license'],

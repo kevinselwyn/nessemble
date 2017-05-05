@@ -226,7 +226,7 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
-    if ((rc = get_json_buffer(&*package, "name", response)) != RETURN_OK) {
+    if ((rc = get_json_buffer(&*package, "title", response)) != RETURN_OK) {
         goto cleanup;
     }
 
