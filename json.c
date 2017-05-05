@@ -204,7 +204,7 @@ unsigned int get_json_search(char *url, char *term) {
     }
 
     for (i = 1, l = token_count; i < l; i++) {
-        if (jsoneq(text, &tokens[i], "name") == 0) {
+        if (jsoneq(text, &tokens[i], "title") == 0) {
             string_length = tokens[i+1].end - tokens[i+1].start;
             results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
@@ -214,7 +214,9 @@ unsigned int get_json_search(char *url, char *term) {
 
             results_index++;
         }
+    }
 
+    for (i = 1, l = token_count; i < l; i++) {
         if (jsoneq(text, &tokens[i], "description") == 0) {
             string_length = tokens[i+1].end - tokens[i+1].start;
             results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));

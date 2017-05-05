@@ -1,14 +1,14 @@
 BEGIN TRANSACTION;
 CREATE TABLE libs (
-	id INTEGER NOT NULL, 
-	user_id INTEGER, 
-	readme TEXT, 
-	lib TEXT, 
-	name VARCHAR(128), 
-	description TEXT, 
-	version VARCHAR(32), 
-	license VARCHAR(128), 
-	tags TEXT, 
+	id INTEGER NOT NULL,
+	user_id INTEGER,
+	readme TEXT,
+	lib TEXT,
+	title VARCHAR(128),
+	description TEXT,
+	version VARCHAR(32),
+	license VARCHAR(128),
+	tags TEXT,
 	PRIMARY KEY (id)
 );
 INSERT INTO "libs" VALUES(1,1,'# controller\n\nRead from the game controllers\n\n## Explanation\n\nThe keypress state of the NES controllers are read in serially, bit-by-bit, using a shift register.\n\nThe shift register must be latched (brought high and then low) by writing to $4016, and then reading from $4016 for controller 1 and $4017 for controller 2.\n\nThis library reads that data into a single variable for `controller1` and `controller2`.\n\n## Variables\n\n1 byte in the zeropage should be assigned to `controller1`\nOptionally, an additional byte in the zeropage should be assigned to `controller2`\n\nTo set the number of controllers to read, define the `CONTROLLER_COUNT` constant as 1 or 2\n\n## Methods\n\n`controller1_read` - Read controller 1\n`controller2_read` - Read controller 2\n\n## Example\n\n```\nCONTROLLER_COUNT = 2\n\n;;;;;;;;\n\n.rsset $0000\n\ncontroller1 .rs 1\ncontroller2 .rs 1\n\n;;;;;;;;\n\n.include <controller.asm>\n\n;;;;;;;;\n\n    JSR controller1_read\n\n    LDA <controller1\n    LDA <controller2\n```\n\n','.ifndef CONTROLLER_COUNT ; 1 controller by default\nCONTROLLER_COUNT = 1\n.endif\n\n    JMP controller_guard\n\n.if CONTROLLER_COUNT >= 1 ; if 1 or more controllers\n\n.ifndef controller1\n    .out "Please reserve 1 byte in the zeropage for a `controller1` variable"\n.endif\n\ncontroller1_read:\n    ; latch controller\n    LDA #$01\n    STA $4016\n    LDA #$00\n    STA $4016\n\n    LDX #$08\ncontroller1_loop:\n    LDA $4016        ; read controller 1 keypress\n    LSR A            ; shift keypress into carry\n    ROL <controller1 ; rotate carry into controller1\n    DEX\n    BNE controller1_loop ; loop through the rest of the buttons\n\n    RTS\n\n.endif\n\n;;;;;;;;\n\n.if CONTROLLER_COUNT == 2 ; if 2 controllers\n\n.ifndef controller2\n    .out "Please reserve 1 byte in the zeropage for a `controller2` variable"\n.endif\n\ncontroller2_read:\n    ; latch controller\n    LDA #$01\n    STA $4016\n    LDA #$00\n    STA $4016\n\n    LDX #$08\ncontroller2_loop:\n    LDA $4017        ; read controller 2 keypress\n    LSR A            ; shift keypress into carry\n    ROL <controller2 ; rotate carry into controller2\n    DEX\n    BNE controller2_loop ; loop through the rest of the buttons\n\n    RTS\n\n.endif\n\ncontroller_guard:\n\n','controller','Read from the game controllers','1.0.1','GPLv3','controller,keypad,controls,input');
@@ -579,13 +579,13 @@ INSERT INTO "reference" VALUES(555,278,NULL,'DRAGON BALL PIRATE (Mapper 253)');
 INSERT INTO "reference" VALUES(556,279,NULL,'Unused mapper');
 INSERT INTO "reference" VALUES(557,280,NULL,'Unused mapper');
 CREATE TABLE users (
-	id INTEGER NOT NULL, 
-	name VARCHAR(128), 
-	email VARCHAR(128), 
-	password VARCHAR(128), 
-	date_created DATETIME, 
-	date_login DATETIME, 
-	login_token VARCHAR(128), 
+	id INTEGER NOT NULL,
+	name VARCHAR(128),
+	email VARCHAR(128),
+	password VARCHAR(128),
+	date_created DATETIME,
+	date_login DATETIME,
+	login_token VARCHAR(128),
 	PRIMARY KEY (id)
 );
 INSERT INTO "users" VALUES(1,'Kevin Selwyn','kevinselwyn@gmail.com','1a1dc91c907325c69271ddf0c944bc72','2017-03-14 10:29:03.225150','2017-03-17 10:04:56.231847',NULL);
