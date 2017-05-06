@@ -3,16 +3,19 @@
 """Nessemble registry server"""
 
 import datetime
+import hashlib
 import json
 import md5
 import os
 import random
 import sqlite3
 import StringIO
+import struct
 import tarfile
 import tempfile
 import time
 import argparse
+from collections import OrderedDict
 import semver
 from flask import Flask, abort, g, make_response, request
 from sqlalchemy import create_engine
@@ -84,7 +87,9 @@ def get_auth(headers):
 
     # check if user exists
 
-    result = session.query(User).filter(User.login_token == token).all()
+    result = session.query(User) \
+                    .filter(User.login_token == token) \
+                    .all()
 
     if not result:
         return False
@@ -97,9 +102,11 @@ def get_auth(headers):
     diff = datetime.datetime.now() - user.date_login
 
     if diff.days >= 1:
-        session.query(User).filter(User.id == user.id).update({
-            'login_token': None
-        })
+        session.query(User) \
+               .filter(User.id == user.id) \
+               .update({
+                   'login_token': None
+               })
         session.commit()
 
         return False
@@ -126,51 +133,93 @@ def missing_fields(data, fields, field_name='field'):
         'error': 'Missing %s: `%s`' % (field_name if len(missing) == 1 else ('%ss' % field_name), '`, `'.join(missing))
     }, 400)
 
-def get_package_json(package='', full=True, string=False):
+def get_package_json(package='', version=None, full=True, string=False):
     """Get package JSON"""
 
     session = Session()
 
     result = session.query(Lib, User) \
-                .filter(Lib.title == package) \
-                .filter(Lib.user_id == User.id) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title == package) \
+                    .filter(Lib.user_id == User.id)
+
+    if version:
+        result = result.filter(Lib.version == version)
+
+    result = result.all()
 
     if not result:
         return False
 
     lib, user = result[0]
 
-    output = {
-        'title': lib.title,
-        'description': lib.description,
-        'version': lib.version,
-        'author': {
-            'name': user.name,
-            'email': user.email
-        },
-        'license': lib.license,
-        'tags': lib.tags.split(',')
-    }
+    output = OrderedDict([
+        ('title', lib.title),
+        ('description', lib.description),
+        ('version', lib.version)
+    ])
 
     if full:
-        output['readme'] = '%spackage/%s/README' % (request.url_root, package)
-        output['resource'] = '%spackage/%s/data' % (request.url_root, package)
+        versions = OrderedDict()
+        results = session.query(Lib, User) \
+                         .order_by(Lib.title, Lib.id.desc()) \
+                         .filter(Lib.title == package) \
+                         .filter(Lib.user_id == User.id) \
+                         .all()
+
+        for result in results:
+            version_lib = result[0]
+            versions.update([
+                (version_lib.version, '%sZ' % (version_lib.date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3].ljust(23, '0')))
+            ])
+
+        output.update([
+            ('versions', versions)
+        ])
+
+    output.update([
+        ('author', {
+            'name': user.name,
+            'email': user.email
+        }),
+        ('license', lib.license),
+        ('tags', lib.tags.split(','))
+    ])
+
+    if full:
+        package_version = package
+
+        if version:
+            package_version = '%s/%s' % (package, version)
+
+        output.update([
+            ('date', '%sZ' % (lib.date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3].ljust(23, '0'))),
+            ('readme', '%spackage/%s/README' % (request.url_root, package_version)),
+            ('resource', '%spackage/%s/data' % (request.url_root, package_version)),
+            ('shasum', lib.shasum)
+        ])
 
     if string:
         return json.dumps(output, indent=4)
 
     return output
 
-def get_package_readme(package=''):
+def get_package_readme(package='', version=None):
     """Get package README"""
 
     session = Session()
 
     result = session.query(Lib, User) \
-                .filter(Lib.title == package) \
-                .filter(Lib.user_id == User.id) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title == package) \
+                    .filter(Lib.user_id == User.id)
+
+    if version:
+        result = result.filter(Lib.version == version)
+
+    result = result.all()
 
     if not result:
         return False
@@ -181,35 +230,46 @@ def get_package_readme(package=''):
 
     return output
 
-def get_package_zip(package=''):
+def get_package_zip(package='', version=None):
     """Get package zip"""
 
-    temp = tempfile.NamedTemporaryFile()
-    tar = tarfile.open(temp.name, 'w:gz')
     session = Session()
 
     result = session.query(Lib, User) \
-                .filter(Lib.title == package) \
-                .filter(Lib.user_id == User.id) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title == package) \
+                    .filter(Lib.user_id == User.id)
+
+    if version:
+        result = result.filter(Lib.version == version)
+
+    result = result.all()
 
     if not result:
         return False
 
     lib, _user = result[0]
 
+    temp_name = '%s%s%s.tar.gz' % (tempfile.gettempdir(), os.sep, package)
+    temp_time = time.mktime(lib.date.timetuple())
+
+    tar = tarfile.open(temp_name, 'w:gz')
+
     string_lib = StringIO.StringIO()
     string_lib.write(lib.lib.replace('\\n', '\n'))
     string_lib.seek(0)
     string_lib_info = tarfile.TarInfo(name='lib.asm')
     string_lib_info.size = len(string_lib.buf)
+    string_lib_info.mtime = temp_time
     tar.addfile(fileobj=string_lib, tarinfo=string_lib_info)
 
     string_json = StringIO.StringIO()
-    string_json.write(get_package_json(package, full=False, string=True))
+    string_json.write(get_package_json(package, version, full=False, string=True))
     string_json.seek(0)
     string_json_info = tarfile.TarInfo(name='package.json')
     string_json_info.size = len(string_json.buf)
+    string_json_info.mtime = temp_time
     tar.addfile(fileobj=string_json, tarinfo=string_json_info)
 
     string_readme = StringIO.StringIO()
@@ -217,14 +277,15 @@ def get_package_zip(package=''):
     string_readme.seek(0)
     string_readme_info = tarfile.TarInfo(name='README.md')
     string_readme_info.size = len(string_readme.buf)
+    string_readme_info.mtime = temp_time
     tar.addfile(fileobj=string_readme, tarinfo=string_readme_info)
 
     tar.close()
 
-    with open(temp.name, 'r') as f:
+    with open(temp_name, 'r') as f:
         data = f.read()
 
-    temp.close()
+    data = data[0:4] + struct.pack("<L", long(temp_time)) + data[8:]
 
     return data
 
@@ -406,21 +467,22 @@ def list_packages():
     """List packages endpoint"""
 
     session = Session()
-    results = {
-        'libraries': []
-    }
+    results = OrderedDict([
+        ('libraries', [])
+    ])
 
     result = session.query(Lib) \
-                .order_by(Lib.title) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .all()
 
     for lib in result:
-        results['libraries'].append({
-            'title': lib.title,
-            'description': lib.description,
-            'tags': lib.tags.split(','),
-            'url': '%spackage/%s' % (request.url_root, lib.title)
-        })
+        results['libraries'].append(OrderedDict([
+            ('title', lib.title),
+            ('description', lib.description),
+            ('tags', lib.tags.split(',')),
+            ('url', '%spackage/%s' % (request.url_root, lib.title))
+        ]))
 
     return registry_response(results)
 
@@ -430,22 +492,23 @@ def search_packages(term):
 
     term = '%%%s%%' % (term.lower())
     session = Session()
-    results = {
-        'results': []
-    }
+    results = OrderedDict([
+        ('results', [])
+    ])
 
     result = session.query(Lib) \
-                .filter(Lib.title.like(term)) \
-                .order_by(Lib.title) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title.like(term)) \
+                    .all()
 
     for lib in result:
-        results['results'].append({
-            'title': lib.title,
-            'description': lib.description,
-            'tags': lib.tags.split(','),
-            'url': '%spackage/%s' % (request.url_root, lib.title)
-        })
+        results['results'].append(OrderedDict([
+            ('title', lib.title),
+            ('description', lib.description),
+            ('tags', lib.tags.split(',')),
+            ('url', '%spackage/%s' % (request.url_root, lib.title))
+        ]))
 
     return registry_response(results)
 
@@ -454,6 +517,17 @@ def get_package(package):
     """Get package endpoint"""
 
     output = get_package_json(package)
+
+    if not output:
+        abort(404)
+
+    return registry_response(output)
+
+@app.route('/package/<string:package>/<string:version>', methods=['GET'])
+def get_package_version(package, version):
+    """Get package endpoint by version"""
+
+    output = get_package_json(package, version)
 
     if not output:
         abort(404)
@@ -471,11 +545,33 @@ def get_readme(package):
 
     return registry_response(readme, mimetype='text/plain')
 
+@app.route('/package/<string:package>/<string:version>/README', methods=['GET'])
+def get_readme_version(package, version):
+    """Get package README endpoint by version"""
+
+    readme = get_package_readme(package, version)
+
+    if not readme:
+        abort(404)
+
+    return registry_response(readme, mimetype='text/plain')
+
 @app.route('/package/<string:package>/data', methods=['GET'])
 def get_gz(package):
     """Get package zip endpoint"""
 
     data = get_package_zip(package)
+
+    if not data:
+        abort(404)
+
+    return registry_response(data, mimetype='application/tar+gzip')
+
+@app.route('/package/<string:package>/<string:version>/data', methods=['GET'])
+def get_gz_version(package, version):
+    """Get package zip endpoint by version"""
+
+    data = get_package_zip(package, version)
 
     if not data:
         abort(404)
@@ -564,7 +660,9 @@ def post_gz():
 
     # check if user is logged in
 
-    result = session.query(User).filter(User.login_token == token).all()
+    result = session.query(User) \
+                    .filter(User.login_token == token) \
+                    .all()
     user = result[0]
 
     if not user:
@@ -577,14 +675,24 @@ def post_gz():
 
     # check that lib doesn't already exist
 
-    result = session.query(Lib).filter(Lib.title == json_info['title']).all()
+    result = session.query(Lib) \
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title == json_info['title']) \
+                    .all()
 
     if result:
-        return unprocessable_custom('Library already exists')
+        lib = result[0]
+
+        if lib.user_id != user.id:
+            return unprocessable_custom('Library `%s` already exists' % (json_info['title']))
+
+        if semver.compare(json_info['version'], lib.version) != 1:
+            return unprocessable_custom('Cannot upgrade to version %s (currently at %s)' % (json_info['version'], lib.version))
 
     # add new lib
 
-    session.add(Lib(
+    lib = Lib(
         user_id=user.id,
         readme=data_readme,
         lib=data_lib,
@@ -592,7 +700,23 @@ def post_gz():
         description=json_info['description'],
         version=json_info['version'],
         license=json_info['license'],
-        tags=','.join(json_info['tags'])))
+        tags=','.join(json_info['tags']),
+        date=datetime.datetime.now(),
+        shasum=''
+    )
+
+    session.add(lib)
+    session.commit()
+
+    # update shasum
+
+    package_data = get_package_zip(lib.title)
+
+    session.query(Lib) \
+           .filter(Lib.id == lib.id) \
+           .update({
+               'shasum': hashlib.sha1(package_data).hexdigest()
+           })
     session.commit()
 
     return registry_response(json_info, mimetype='application/tar+gzip')
@@ -613,7 +737,9 @@ def user_create():
 
     # check if user exists
 
-    result = session.query(User).filter(User.email == user['email']).all()
+    result = session.query(User) \
+                    .filter(User.email == user['email']) \
+                    .all()
 
     if result:
         return conflict_custom('User already exists')
@@ -645,7 +771,9 @@ def user_login():
 
     # check if user exists
 
-    result = session.query(User).filter(User.email == auth['username']).all()
+    result = session.query(User) \
+                    .filter(User.email == auth['username']) \
+                    .all()
 
     if not result:
         return unauthorized_custom('User does not exist')
@@ -659,10 +787,12 @@ def user_login():
 
     login_token = '%X' % (random.getrandbits(128))
 
-    session.query(User).filter(User.id == user.id).update({
-        'date_login': datetime.datetime.now(),
-        'login_token': login_token
-    })
+    session.query(User) \
+           .filter(User.id == user.id) \
+           .update({
+               'date_login': datetime.datetime.now(),
+               'login_token': login_token
+           })
     session.commit()
 
     return registry_response({
@@ -684,14 +814,18 @@ def user_logout():
 
     # check if user exists
 
-    result = session.query(User).filter(User.login_token == token).all()
+    result = session.query(User) \
+                    .filter(User.login_token == token) \
+                    .all()
     user = result[0]
 
     # log out
 
-    session.query(User).filter(User.id == user.id).update({
-        'login_token': None
-    })
+    session.query(User) \
+           .filter(User.id == user.id) \
+           .update({
+               'login_token': None
+           })
     session.commit()
 
     return registry_response({})
