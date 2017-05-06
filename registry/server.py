@@ -1,5 +1,5 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0326,R0914,W0603
+# pylint: disable=C0103,C0301,C0326,R0911,R0912,R0914,R0915,W0603
 """Nessemble registry server"""
 
 import datetime
@@ -13,6 +13,7 @@ import tarfile
 import tempfile
 import time
 import argparse
+import semver
 from flask import Flask, abort, g, make_response, request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -117,7 +118,7 @@ def missing_fields(data, fields, field_name='field'):
             if not field in data:
                 missing.append(field)
 
-    if len(missing) == 0:
+    if not missing:
         return False
 
     return registry_response({
@@ -135,7 +136,7 @@ def get_package_json(package='', full=True, string=False):
                 .filter(Lib.user_id == User.id) \
                 .all()
 
-    if not len(result):
+    if not result:
         return False
 
     lib, user = result[0]
@@ -171,10 +172,10 @@ def get_package_readme(package=''):
                 .filter(Lib.user_id == User.id) \
                 .all()
 
-    if not len(result):
+    if not result:
         return False
 
-    lib, user = result[0]
+    lib, _user = result[0]
 
     output = lib.readme.replace('\\n', '\n')
 
@@ -192,10 +193,10 @@ def get_package_zip(package=''):
                 .filter(Lib.user_id == User.id) \
                 .all()
 
-    if not len(result):
+    if not result:
         return False
 
-    lib, user = result[0]
+    lib, _user = result[0]
 
     string_lib = StringIO.StringIO()
     string_lib.write(lib.lib.replace('\\n', '\n'))
@@ -261,6 +262,11 @@ def validate_package(data):
         if not isinstance(package['version'], str) and not isinstance(package['version'], unicode):
             raise ValueError('package.json field `version` must be a string')
 
+        try:
+            semver.parse(package['version'])
+        except ValueError:
+            raise ValueError('package.json field `version` must be a valid semver string')
+
     if not 'license' in package:
         raise ValueError('package.json missing `license` field')
     else:
@@ -291,7 +297,7 @@ def validate_package(data):
         if not isinstance(package['tags'], list):
             raise ValueError('package.json field `tags` must be an array')
 
-        if not len(package['tags']):
+        if not package['tags']:
             raise ValueError('package.json field `tags` must not be empty')
 
     return package
@@ -371,7 +377,7 @@ def unprocessable(error):
     """Unprocessable error handler"""
 
     return registry_response({
-        'status': 422,
+        'status': int(str(error)[:3]),
         'error': 'Unprocessable Entity'
     }, status=422, mimetype=abort_mimetype)
 
@@ -573,7 +579,7 @@ def post_gz():
 
     result = session.query(Lib).filter(Lib.title == json_info['title']).all()
 
-    if len(result):
+    if result:
         return unprocessable_custom('Library already exists')
 
     # add new lib
@@ -609,7 +615,7 @@ def user_create():
 
     result = session.query(User).filter(User.email == user['email']).all()
 
-    if len(result):
+    if result:
         return conflict_custom('User already exists')
 
     # create user
@@ -641,7 +647,7 @@ def user_login():
 
     result = session.query(User).filter(User.email == auth['username']).all()
 
-    if not len(result):
+    if not result:
         return unauthorized_custom('User does not exist')
 
     user = result[0]
@@ -705,7 +711,7 @@ def reference(path=''):
 
     session = Session()
 
-    if not len(paths[0]):
+    if not paths[0]:
         result = session.execute('SELECT * FROM reference WHERE parent_id = :parent_id', {
             'parent_id': 0
         })
@@ -731,7 +737,7 @@ def reference(path=''):
             else:
                 output += '  %s\n' % (row[2])
 
-    if not len(output):
+    if not output:
         abort_mimetype = 'text/plain'
         abort(404)
 
