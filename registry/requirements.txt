@@ -1,2 +1,3 @@
 Flask==0.12
+semver==2.7.6
 SQLAlchemy==1.0.15
