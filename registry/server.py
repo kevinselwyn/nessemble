@@ -46,7 +46,7 @@ Session = sessionmaker(bind=db)
 #----------------#
 # Utilities
 
-def registry_response(data, status=200, mimetype='application/json'):
+def registry_response(data, status=200, mimetype='application/json', headers=None):
     """Registry response"""
 
     global abort_mimetype
@@ -65,6 +65,10 @@ def registry_response(data, status=200, mimetype='application/json'):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Server', 'Nessemble')
     response.headers.add('X-Response-Time', g.request_time())
+
+    if headers:
+        for header in headers:
+            response.headers.add(header[0], header[1])
 
     abort_mimetype = 'application/json'
 
@@ -571,7 +575,14 @@ def get_gz(package):
     if not data:
         abort(404)
 
-    return registry_response(data, mimetype='application/tar+gzip')
+    lib_data = get_package_json(package)
+
+    headers = [
+        ('Content-Disposition', 'attachment; filename="%s-%s.tar.gz"' % (lib_data['title'], lib_data['version'])),
+        ('X-Integrity', lib_data['shasum'])
+    ]
+
+    return registry_response(data, mimetype='application/tar+gzip', headers=headers)
 
 @app.route('/package/<string:package>/<string:version>/data', methods=['GET'])
 def get_gz_version(package, version):
