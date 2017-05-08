@@ -18,6 +18,7 @@ import argparse
 from collections import OrderedDict
 import semver
 from flask import Flask, abort, g, make_response, request
+from flask_caching import Cache
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models.base import Base
@@ -27,13 +28,18 @@ from models.users import User
 #----------------#
 # Constants
 
-HOSTNAME = '0.0.0.0'
-PORT     = 5000
+HOSTNAME   = '0.0.0.0'
+PORT       = 5000
+CACHE_TIME = 60 * 60
 
 #----------------#
 # Variables
 
 app = Flask(__name__)
+cache = Cache(app, config={
+    'CACHE_TYPE': 'simple',
+    'CACHE_THRESHOLD': 256
+})
 abort_mimetype = 'application/json'
 
 #----------------#
@@ -473,6 +479,7 @@ def internal_server_error(error):
 # Endpoints
 
 @app.route('/', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def list_packages():
     """List packages endpoint"""
 
@@ -497,6 +504,7 @@ def list_packages():
     return registry_response(results)
 
 @app.route('/search/<string:term>', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def search_packages(term):
     """Search packages endpoint"""
 
@@ -523,6 +531,7 @@ def search_packages(term):
     return registry_response(results)
 
 @app.route('/package/<string:package>', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def get_package(package):
     """Get package endpoint"""
 
@@ -534,6 +543,7 @@ def get_package(package):
     return registry_response(output)
 
 @app.route('/package/<string:package>/<string:version>', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def get_package_version(package, version):
     """Get package endpoint by version"""
 
@@ -545,6 +555,7 @@ def get_package_version(package, version):
     return registry_response(output)
 
 @app.route('/package/<string:package>/README', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def get_readme(package):
     """Get package README endpoint"""
 
@@ -556,6 +567,7 @@ def get_readme(package):
     return registry_response(readme, mimetype='text/plain')
 
 @app.route('/package/<string:package>/<string:version>/README', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def get_readme_version(package, version):
     """Get package README endpoint by version"""
 
@@ -567,6 +579,7 @@ def get_readme_version(package, version):
     return registry_response(readme, mimetype='text/plain')
 
 @app.route('/package/<string:package>/data', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def get_gz(package):
     """Get package zip endpoint"""
 
@@ -585,6 +598,7 @@ def get_gz(package):
     return registry_response(data, mimetype='application/tar+gzip', headers=headers)
 
 @app.route('/package/<string:package>/<string:version>/data', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def get_gz_version(package, version):
     """Get package zip endpoint by version"""
 
@@ -849,6 +863,7 @@ def user_logout():
 
 @app.route('/reference', methods=['GET'])
 @app.route('/reference/<path:path>', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def reference(path=''):
     """Reference endpoint"""
 
