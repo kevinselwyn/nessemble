@@ -285,9 +285,15 @@ def get_package_zip(package='', version=None):
     with open(temp_name, 'r') as f:
         data = f.read()
 
-    data = data[0:4] + struct.pack("<L", long(temp_time)) + data[8:]
+    time_str = struct.pack("<L", long(temp_time))
 
-    return data
+    for i in range(0, 4):
+        if ord(time_str[i]) == 0x00:
+            time_str = time_str[:i] + chr(0x01) + time_str[i+1:]
+
+    output = '%s%s%s' % (data[0:4], time_str, data[8:])
+
+    return output
 
 def validate_package(data):
     """Validate package.json"""
