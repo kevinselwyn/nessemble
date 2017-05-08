@@ -713,4 +713,7 @@ unsigned int scripting_js(char *exec);
 unsigned int scripting_lua(char *exec);
 unsigned int scripting_so(char *exec);
 
+/* HASH */
+void hash(char **hex, char *data, size_t data_len);
+
 #endif /* _NESSEMBLE_H */
