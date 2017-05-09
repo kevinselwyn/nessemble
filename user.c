@@ -27,8 +27,9 @@ unsigned int user_create() {
     char *url = NULL, *response = NULL, *error = NULL, *buffer = NULL;
     char *user_name = NULL, *user_email = NULL, *user_password = NULL;
     char data[1024];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
     struct http_header http_headers = { 0, {}, {} };
+    struct http_header response_headers = { 0, {}, {} };
 
     memset(data, '\0', 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
@@ -81,6 +82,7 @@ unsigned int user_create() {
     download_options.data_length = 1024;
     download_options.mime_type = MIMETYPE_JSON;
     download_options.http_headers = http_headers;
+    download_options.response_headers = &response_headers;
 
     http_code = post_request(download_options);
 
@@ -118,8 +120,9 @@ unsigned int user_login() {
     char *base64 = NULL, *auth = NULL;
     char *user_email = NULL, *user_password = NULL;
     char data[1024];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
     struct http_header http_headers = { 0, {}, {} };
+    struct http_header response_headers = { 0, {}, {} };
 
     memset(data, '\0', 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
@@ -170,6 +173,7 @@ unsigned int user_login() {
     download_options.data_length = 1024;
     download_options.mime_type = MIMETYPE_JSON;
     download_options.http_headers = http_headers;
+    download_options.response_headers = &response_headers;
 
     http_code = post_request(download_options);
 
@@ -212,8 +216,9 @@ unsigned int user_logout() {
     unsigned int rc = RETURN_OK;
     unsigned int http_code = 0, response_length = 0;
     char *url = NULL, *response = NULL, *error = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
     struct http_header http_headers = { 0, {}, {} };
+    struct http_header response_headers = { 0, {}, {} };
 
     if ((rc = user_auth(&http_headers)) != RETURN_OK) {
         goto cleanup;
@@ -231,6 +236,7 @@ unsigned int user_logout() {
     download_options.data_length = 1024;
     download_options.mime_type = MIMETYPE_JSON;
     download_options.http_headers = http_headers;
+    download_options.response_headers = &response_headers;
 
     http_code = post_request(download_options);
 

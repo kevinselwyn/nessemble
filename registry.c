@@ -189,8 +189,9 @@ unsigned int lib_publish(char *filename, char **package) {
     unsigned int rc = RETURN_OK;
     unsigned int http_code = 0, response_length = 0, data_length = 0;
     char *url = NULL, *response = NULL, *data = NULL, *error = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
-    struct http_header http_headers = { 0, {}, {} };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
+    struct http_header http_headers = { 0, { }, { } };
+    struct http_header response_headers = { 0, { }, { } };
 
     if ((rc = user_auth(&http_headers)) != RETURN_OK) {
         goto cleanup;
@@ -212,6 +213,7 @@ unsigned int lib_publish(char *filename, char **package) {
     download_options.data_length = data_length;
     download_options.mime_type = MIMETYPE_ZIP;
     download_options.http_headers = http_headers;
+    download_options.response_headers = &response_headers;
 
     http_code = post_request(download_options);
 
@@ -237,7 +239,8 @@ cleanup:
 unsigned int lib_info(char *lib) {
     unsigned int rc = RETURN_OK, readme_length = 0;
     char *lib_url = NULL, *readme = NULL, *readme_url = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
+    struct http_header response_headers = { 0, { }, { } };
 
     if (lib_is_installed(lib) == FALSE) {
         if ((rc = api_lib(&lib_url, lib)) != RETURN_OK) {
@@ -254,6 +257,7 @@ unsigned int lib_info(char *lib) {
         download_options.url = readme_url;
         download_options.data_length = 1024 * 512;
         download_options.mime_type = MIMETYPE_TEXT;
+        download_options.response_headers = &response_headers;
 
         if (get_request(download_options) != 200) {
             rc = RETURN_EPERM;
