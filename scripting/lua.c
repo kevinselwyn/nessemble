@@ -17,13 +17,36 @@ unsigned int scripting_lua(char *exec) {
 #ifndef IS_JAVASCRIPT
     int error = 0;
     unsigned int i = 0, l = 0;
-    size_t return_len = 0;
+    size_t return_len = 0, path_len = 0;
     char *return_str = NULL, *error_str = NULL;
+    char *path = NULL, *home_path = NULL, *new_path = NULL;
 
     lua_State *L;
 
     L = luaL_newstate();
     luaL_openlibs(L);
+
+    // set package path
+
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "path");
+    path = (char *)lua_tolstring(L, -1, &path_len);
+
+    if ((rc = get_home_path(&home_path, 2, "." PROGRAM_NAME, "scripts" SEP "?.lua")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    path_len += strlen(home_path) + 1;
+
+    new_path = (char *)nessemble_malloc(sizeof(char) * (path_len + 1));
+    sprintf(new_path, "%s;%s", path, home_path);
+
+    lua_pop(L, 1);
+    lua_pushstring(L, new_path);
+    lua_setfield(L, -2, "path");
+    lua_pop(L, 1);
+
+    // load file
 
     if ((error = luaL_loadfile(L, exec)) != 0) {
         rc = RETURN_EPERM;
@@ -74,6 +97,9 @@ cleanup:
     }
 
     lua_close(L);
+
+    nessemble_free(home_path);
+    nessemble_free(new_path);
 
 #endif /* IS_JAVASCRIPT */
     return rc;

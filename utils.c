@@ -582,6 +582,7 @@ unsigned int parse_extension(char **extension, char *filename) {
     }
 
     *extension = nessemble_strdup(dot+1);
+
     return rc;
 }
 
