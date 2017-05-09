@@ -64,10 +64,25 @@ cleanup:
 
 unsigned int api_lib(char **url, char *lib) {
     unsigned int rc = RETURN_OK;
+    char *version_lib = NULL, *version = NULL, *at = NULL;
 
-    if ((rc = api_endpoint(&*url, 2, "package", lib)) != RETURN_OK) {
+    if ((at = strstr(lib, "@")) == NULL) {
+        if ((rc = api_endpoint(&*url, 2, "package", lib)) != RETURN_OK) {
+            goto cleanup;
+        }
+
         goto cleanup;
     }
+
+    at[0] = '\0';
+    version_lib = lib;
+    version = version_lib+((at-version_lib)+1);
+
+    if ((rc = api_endpoint(&*url, 3, "package", version_lib, version)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    at[0] = '@';
 
 cleanup:
     return rc;

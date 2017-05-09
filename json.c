@@ -91,6 +91,8 @@ unsigned int get_json_buffer(char **value, char *key, char *json) {
     }
 
 cleanup:
+    nessemble_free(string_value);
+
     return rc;
 }
 
@@ -114,7 +116,8 @@ cleanup:
 unsigned int get_json_url(char **value, char *key, char *url) {
     unsigned int rc = RETURN_OK, text_length = 0;
     char *text = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
+    struct http_header response_headers = { 0, { }, { } };
 
     /* options */
     download_options.response = &text;
@@ -122,6 +125,7 @@ unsigned int get_json_url(char **value, char *key, char *url) {
     download_options.url = url;
     download_options.data_length = 1024 * 512;
     download_options.mime_type = MIMETYPE_JSON;
+    download_options.response_headers = &response_headers;
 
     switch (get_request(download_options)) {
     case 503:
@@ -163,7 +167,8 @@ unsigned int get_json_search(char *url, char *term) {
     char *results[200];
     jsmn_parser parser;
     jsmntok_t tokens[JSON_TOKEN_MAX];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
+    struct http_header response_headers = { 0, { }, { } };
 
     /* options */
     download_options.response = &text;
@@ -171,6 +176,7 @@ unsigned int get_json_search(char *url, char *term) {
     download_options.url = url;
     download_options.data_length = 1024 * 512;
     download_options.mime_type = MIMETYPE_JSON;
+    download_options.response_headers = &response_headers;
 
     switch (get_request(download_options)) {
     case 503:
@@ -204,7 +210,7 @@ unsigned int get_json_search(char *url, char *term) {
     }
 
     for (i = 1, l = token_count; i < l; i++) {
-        if (jsoneq(text, &tokens[i], "name") == 0) {
+        if (jsoneq(text, &tokens[i], "title") == 0) {
             string_length = tokens[i+1].end - tokens[i+1].start;
             results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
@@ -214,7 +220,9 @@ unsigned int get_json_search(char *url, char *term) {
 
             results_index++;
         }
+    }
 
+    for (i = 1, l = token_count; i < l; i++) {
         if (jsoneq(text, &tokens[i], "description") == 0) {
             string_length = tokens[i+1].end - tokens[i+1].start;
             results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));

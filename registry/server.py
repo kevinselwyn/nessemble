@@ -1,19 +1,24 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0326,R0914,W0603
+# pylint: disable=C0103,C0301,C0326,R0911,R0912,R0914,R0915,W0603
 """Nessemble registry server"""
 
 import datetime
+import hashlib
 import json
 import md5
 import os
 import random
 import sqlite3
 import StringIO
+import struct
 import tarfile
 import tempfile
 import time
 import argparse
+from collections import OrderedDict
+import semver
 from flask import Flask, abort, g, make_response, request
+from flask_caching import Cache
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models.base import Base
@@ -23,13 +28,18 @@ from models.users import User
 #----------------#
 # Constants
 
-HOSTNAME = '0.0.0.0'
-PORT     = 5000
+HOSTNAME   = '0.0.0.0'
+PORT       = 5000
+CACHE_TIME = 60 * 60
 
 #----------------#
 # Variables
 
 app = Flask(__name__)
+cache = Cache(app, config={
+    'CACHE_TYPE': 'simple',
+    'CACHE_THRESHOLD': 256
+})
 abort_mimetype = 'application/json'
 
 #----------------#
@@ -42,7 +52,7 @@ Session = sessionmaker(bind=db)
 #----------------#
 # Utilities
 
-def registry_response(data, status=200, mimetype='application/json'):
+def registry_response(data, status=200, mimetype='application/json', headers=None):
     """Registry response"""
 
     global abort_mimetype
@@ -61,6 +71,10 @@ def registry_response(data, status=200, mimetype='application/json'):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Server', 'Nessemble')
     response.headers.add('X-Response-Time', g.request_time())
+
+    if headers:
+        for header in headers:
+            response.headers.add(header[0], header[1])
 
     abort_mimetype = 'application/json'
 
@@ -83,7 +97,13 @@ def get_auth(headers):
 
     # check if user exists
 
-    result = session.query(User).filter(User.login_token == token).all()
+    result = session.query(User) \
+                    .filter(User.login_token == token) \
+                    .all()
+
+    if not result:
+        return False
+
     user = result[0]
 
     if not user:
@@ -92,9 +112,11 @@ def get_auth(headers):
     diff = datetime.datetime.now() - user.date_login
 
     if diff.days >= 1:
-        session.query(User).filter(User.id == user.id).update({
-            'login_token': None
-        })
+        session.query(User) \
+               .filter(User.id == user.id) \
+               .update({
+                   'login_token': None
+               })
         session.commit()
 
         return False
@@ -113,7 +135,7 @@ def missing_fields(data, fields, field_name='field'):
             if not field in data:
                 missing.append(field)
 
-    if len(missing) == 0:
+    if not missing:
         return False
 
     return registry_response({
@@ -121,90 +143,143 @@ def missing_fields(data, fields, field_name='field'):
         'error': 'Missing %s: `%s`' % (field_name if len(missing) == 1 else ('%ss' % field_name), '`, `'.join(missing))
     }, 400)
 
-def get_package_json(package='', full=True, string=False):
+def get_package_json(package='', version=None, full=True, string=False):
     """Get package JSON"""
 
     session = Session()
 
     result = session.query(Lib, User) \
-                .filter(Lib.name == package) \
-                .filter(Lib.user_id == User.id) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title == package) \
+                    .filter(Lib.user_id == User.id)
 
-    if not len(result):
+    if version:
+        result = result.filter(Lib.version == version)
+
+    result = result.all()
+
+    if not result:
         return False
 
     lib, user = result[0]
 
-    output = {
-        'name': lib.name,
-        'description': lib.description,
-        'version': lib.version,
-        'author': {
-            'name': user.name,
-            'email': user.email
-        },
-        'license': lib.license,
-        'tags': lib.tags.split(',')
-    }
+    output = OrderedDict([
+        ('title', lib.title),
+        ('description', lib.description),
+        ('version', lib.version)
+    ])
 
     if full:
-        output['readme'] = '%spackage/%s/README' % (request.url_root, package)
-        output['resource'] = '%spackage/%s/data' % (request.url_root, package)
+        versions = OrderedDict()
+        results = session.query(Lib, User) \
+                         .order_by(Lib.title, Lib.id.desc()) \
+                         .filter(Lib.title == package) \
+                         .filter(Lib.user_id == User.id) \
+                         .all()
+
+        for result in results:
+            version_lib = result[0]
+            versions.update([
+                (version_lib.version, '%sZ' % (version_lib.date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3].ljust(23, '0')))
+            ])
+
+        output.update([
+            ('versions', versions)
+        ])
+
+    output.update([
+        ('author', {
+            'name': user.name,
+            'email': user.email
+        }),
+        ('license', lib.license),
+        ('tags', lib.tags.split(','))
+    ])
+
+    if full:
+        package_version = package
+
+        if version:
+            package_version = '%s/%s' % (package, version)
+
+        output.update([
+            ('date', '%sZ' % (lib.date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3].ljust(23, '0'))),
+            ('readme', '%spackage/%s/README' % (request.url_root, package_version)),
+            ('resource', '%spackage/%s/data' % (request.url_root, package_version)),
+            ('shasum', lib.shasum)
+        ])
 
     if string:
         return json.dumps(output, indent=4)
 
     return output
 
-def get_package_readme(package=''):
+def get_package_readme(package='', version=None):
     """Get package README"""
 
     session = Session()
 
     result = session.query(Lib, User) \
-                .filter(Lib.name == package) \
-                .filter(Lib.user_id == User.id) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title == package) \
+                    .filter(Lib.user_id == User.id)
 
-    if not len(result):
+    if version:
+        result = result.filter(Lib.version == version)
+
+    result = result.all()
+
+    if not result:
         return False
 
-    lib, user = result[0]
+    lib, _user = result[0]
 
     output = lib.readme.replace('\\n', '\n')
 
     return output
 
-def get_package_zip(package=''):
+def get_package_zip(package='', version=None):
     """Get package zip"""
 
-    temp = tempfile.NamedTemporaryFile()
-    tar = tarfile.open(temp.name, 'w:gz')
     session = Session()
 
     result = session.query(Lib, User) \
-                .filter(Lib.name == package) \
-                .filter(Lib.user_id == User.id) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title == package) \
+                    .filter(Lib.user_id == User.id)
 
-    if not len(result):
+    if version:
+        result = result.filter(Lib.version == version)
+
+    result = result.all()
+
+    if not result:
         return False
 
-    lib, user = result[0]
+    lib, _user = result[0]
+
+    temp_name = '%s%s%s.tar.gz' % (tempfile.gettempdir(), os.sep, package)
+    temp_time = time.mktime(lib.date.timetuple())
+
+    tar = tarfile.open(temp_name, 'w:gz')
 
     string_lib = StringIO.StringIO()
     string_lib.write(lib.lib.replace('\\n', '\n'))
     string_lib.seek(0)
     string_lib_info = tarfile.TarInfo(name='lib.asm')
     string_lib_info.size = len(string_lib.buf)
+    string_lib_info.mtime = temp_time
     tar.addfile(fileobj=string_lib, tarinfo=string_lib_info)
 
     string_json = StringIO.StringIO()
-    string_json.write(get_package_json(package, full=False, string=True))
+    string_json.write(get_package_json(package, version, full=False, string=True))
     string_json.seek(0)
     string_json_info = tarfile.TarInfo(name='package.json')
     string_json_info.size = len(string_json.buf)
+    string_json_info.mtime = temp_time
     tar.addfile(fileobj=string_json, tarinfo=string_json_info)
 
     string_readme = StringIO.StringIO()
@@ -212,16 +287,97 @@ def get_package_zip(package=''):
     string_readme.seek(0)
     string_readme_info = tarfile.TarInfo(name='README.md')
     string_readme_info.size = len(string_readme.buf)
+    string_readme_info.mtime = temp_time
     tar.addfile(fileobj=string_readme, tarinfo=string_readme_info)
 
     tar.close()
 
-    with open(temp.name, 'r') as f:
+    with open(temp_name, 'r') as f:
         data = f.read()
 
-    temp.close()
+    time_str = struct.pack("<L", long(temp_time))
 
-    return data
+    for i in range(0, 4):
+        if ord(time_str[i]) == 0x00:
+            time_str = time_str[:i] + chr(0x01) + time_str[i+1:]
+
+    output = '%s%s%s' % (data[0:4], time_str, data[8:])
+
+    return output
+
+def validate_package(data):
+    """Validate package.json"""
+
+    invalid_titles = ['publish']
+
+    try:
+        package = json.loads(data)
+    except ValueError:
+        raise ValueError('Invalid package.json')
+
+    if not isinstance(package, dict):
+        raise ValueError('package.json must be an object')
+
+    if not 'title' in package:
+        raise ValueError('package.json missing `title` field')
+    else:
+        if not isinstance(package['title'], str) and not isinstance(package['title'], unicode):
+            raise ValueError('package.json field `title` must be a string')
+
+        if package['title'] in invalid_titles:
+            raise ValueError('package.json `title` is invalid or reserved')
+
+    if not 'description' in package:
+        raise ValueError('package.json missing `description` field')
+    else:
+        if not isinstance(package['description'], str) and not isinstance(package['description'], unicode):
+            raise ValueError('package.json field `description` must be a string')
+
+    if not 'version' in package:
+        raise ValueError('package.json missing `version` field')
+    else:
+        if not isinstance(package['version'], str) and not isinstance(package['version'], unicode):
+            raise ValueError('package.json field `version` must be a string')
+
+        try:
+            semver.parse(package['version'])
+        except ValueError:
+            raise ValueError('package.json field `version` must be a valid semver string')
+
+    if not 'license' in package:
+        raise ValueError('package.json missing `license` field')
+    else:
+        if not isinstance(package['license'], str) and not isinstance(package['license'], unicode):
+            raise ValueError('package.json field `license` must be a string')
+
+    if not 'author' in package:
+        raise ValueError('package.json missing `author` field')
+    else:
+        if not isinstance(package['author'], dict):
+            raise ValueError('package.json field `author` must be an object')
+
+        if not 'name' in package['author']:
+            raise ValueError('package.json missing `author.name` field')
+        else:
+            if not isinstance(package['author']['name'], str) and not isinstance(package['author']['name'], unicode):
+                raise ValueError('package.json field `author.name` must be a string')
+
+        if not 'email' in package['author']:
+            raise ValueError('package.json missing `author.email` field')
+        else:
+            if not isinstance(package['author']['email'], str) and not isinstance(package['author']['email'], unicode):
+                raise ValueError('package.json field `author.email` must be a string')
+
+    if not 'tags' in package:
+        raise ValueError('package.json missing `tags` field')
+    else:
+        if not isinstance(package['tags'], list):
+            raise ValueError('package.json field `tags` must be an array')
+
+        if not package['tags']:
+            raise ValueError('package.json field `tags` must not be empty')
+
+    return package
 
 @app.before_request
 def before_request():
@@ -293,6 +449,23 @@ def conflict_custom(message=False):
         'error': 'Conflict' if not message else message
     }, status=409, mimetype=abort_mimetype)
 
+@app.errorhandler(422)
+def unprocessable(error):
+    """Unprocessable error handler"""
+
+    return registry_response({
+        'status': int(str(error)[:3]),
+        'error': 'Unprocessable Entity'
+    }, status=422, mimetype=abort_mimetype)
+
+def unprocessable_custom(message=False):
+    """Unprocessable custom error handler"""
+
+    return registry_response({
+        'status': 422,
+        'error': 'Unprocessable Entity' if not message else message
+    }, status=422, mimetype=abort_mimetype)
+
 @app.errorhandler(500)
 def internal_server_error(error):
     """Internal Server Error error handler"""
@@ -306,54 +479,59 @@ def internal_server_error(error):
 # Endpoints
 
 @app.route('/', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def list_packages():
     """List packages endpoint"""
 
     session = Session()
-    results = {
-        'libraries': []
-    }
+    results = OrderedDict([
+        ('libraries', [])
+    ])
 
     result = session.query(Lib) \
-                .order_by(Lib.name) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .all()
 
     for lib in result:
-        results['libraries'].append({
-            'name': lib.name,
-            'description': lib.description,
-            'tags': lib.tags.split(','),
-            'url': '%spackage/%s' % (request.url_root, lib.name)
-        })
+        results['libraries'].append(OrderedDict([
+            ('title', lib.title),
+            ('description', lib.description),
+            ('tags', lib.tags.split(',')),
+            ('url', '%spackage/%s' % (request.url_root, lib.title))
+        ]))
 
     return registry_response(results)
 
 @app.route('/search/<string:term>', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def search_packages(term):
     """Search packages endpoint"""
 
     term = '%%%s%%' % (term.lower())
     session = Session()
-    results = {
-        'results': []
-    }
+    results = OrderedDict([
+        ('results', [])
+    ])
 
     result = session.query(Lib) \
-                .filter(Lib.name.like(term)) \
-                .order_by(Lib.name) \
-                .all()
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title.like(term)) \
+                    .all()
 
     for lib in result:
-        results['results'].append({
-            'name': lib.name,
-            'description': lib.description,
-            'tags': lib.tags.split(','),
-            'url': '%spackage/%s' % (request.url_root, lib.name)
-        })
+        results['results'].append(OrderedDict([
+            ('title', lib.title),
+            ('description', lib.description),
+            ('tags', lib.tags.split(',')),
+            ('url', '%spackage/%s' % (request.url_root, lib.title))
+        ]))
 
     return registry_response(results)
 
 @app.route('/package/<string:package>', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def get_package(package):
     """Get package endpoint"""
 
@@ -364,7 +542,20 @@ def get_package(package):
 
     return registry_response(output)
 
+@app.route('/package/<string:package>/<string:version>', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
+def get_package_version(package, version):
+    """Get package endpoint by version"""
+
+    output = get_package_json(package, version)
+
+    if not output:
+        abort(404)
+
+    return registry_response(output)
+
 @app.route('/package/<string:package>/README', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def get_readme(package):
     """Get package README endpoint"""
 
@@ -375,7 +566,20 @@ def get_readme(package):
 
     return registry_response(readme, mimetype='text/plain')
 
+@app.route('/package/<string:package>/<string:version>/README', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
+def get_readme_version(package, version):
+    """Get package README endpoint by version"""
+
+    readme = get_package_readme(package, version)
+
+    if not readme:
+        abort(404)
+
+    return registry_response(readme, mimetype='text/plain')
+
 @app.route('/package/<string:package>/data', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def get_gz(package):
     """Get package zip endpoint"""
 
@@ -384,7 +588,176 @@ def get_gz(package):
     if not data:
         abort(404)
 
-    return registry_response(data, mimetype='application/tar+gzip')
+    lib_data = get_package_json(package)
+
+    headers = [
+        ('Content-Disposition', 'attachment; filename="%s-%s.tar.gz"' % (lib_data['title'], lib_data['version'])),
+        ('X-Integrity', lib_data['shasum'])
+    ]
+
+    return registry_response(data, mimetype='application/tar+gzip', headers=headers)
+
+@app.route('/package/<string:package>/<string:version>/data', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
+def get_gz_version(package, version):
+    """Get package zip endpoint by version"""
+
+    data = get_package_zip(package, version)
+
+    if not data:
+        abort(404)
+
+    lib_data = get_package_json(package)
+
+    headers = [
+        ('Content-Disposition', 'attachment; filename="%s-%s.tar.gz"' % (lib_data['title'], lib_data['version'])),
+        ('X-Integrity', lib_data['shasum'])
+    ]
+
+    return registry_response(data, mimetype='application/tar+gzip', headers=headers)
+
+@app.route('/package/publish', methods=['POST'])
+def post_gz():
+    """Post package zip endpoint"""
+
+    global abort_mimetype
+
+    abort_mimetype = 'application/tar+gzip'
+
+    # get auth token
+
+    token = get_auth(request.headers)
+
+    if not token:
+        return unauthorized_custom('User is not logged in')
+
+    # get zip data
+
+    package_zip = request.data
+
+    if not package_zip:
+        abort(404)
+
+    # open zip file
+
+    temp = tempfile.NamedTemporaryFile()
+    with open(temp.name, 'w') as f:
+        f.write(package_zip)
+
+    try:
+        tar = tarfile.open(temp.name, 'r:gz')
+    except TypeError:
+        return unprocessable_custom('Invalid tarball')
+
+    # check that all files are included
+
+    file_lib = None
+    file_readme = None
+    file_info = None
+
+    for member in tar.getmembers():
+        if member.isfile():
+            if member.name[-7:] == 'lib.asm':
+                file_lib = tar.extractfile(member)
+
+            if member.name[-9:] == 'README.md':
+                file_readme = tar.extractfile(member)
+
+            if member.name[-12:] == 'package.json':
+                file_info = tar.extractfile(member)
+
+    if not file_lib or not file_readme or not file_info:
+        missing = []
+
+        if not file_lib:
+            missing.append('lib.asm')
+
+        if not file_readme:
+            missing.append('README.md')
+
+        if not file_info:
+            missing.append('package.json')
+
+        return unprocessable_custom('Missing: ' + ', '.join(missing))
+
+    # read files
+
+    data_lib = file_lib.read()
+    data_readme = file_readme.read()
+    data_info = file_info.read()
+    json_info = None
+
+    # validate JSON
+
+    try:
+        json_info = validate_package(data_info)
+    except ValueError as error:
+        return unprocessable_custom(error[0])
+
+    session = Session()
+
+    # check if user is logged in
+
+    result = session.query(User) \
+                    .filter(User.login_token == token) \
+                    .all()
+    user = result[0]
+
+    if not user:
+        return unauthorized_custom('User is not logged in')
+
+    # make sure emails match
+
+    if user.email != json_info['author']['email']:
+        return unprocessable_custom('Author email mismatch')
+
+    # check that lib doesn't already exist
+
+    result = session.query(Lib) \
+                    .group_by(Lib.title) \
+                    .order_by(Lib.title, Lib.id) \
+                    .filter(Lib.title == json_info['title']) \
+                    .all()
+
+    if result:
+        lib = result[0]
+
+        if lib.user_id != user.id:
+            return unprocessable_custom('Library `%s` already exists' % (json_info['title']))
+
+        if semver.compare(json_info['version'], lib.version) != 1:
+            return unprocessable_custom('Cannot upgrade to version %s (currently at %s)' % (json_info['version'], lib.version))
+
+    # add new lib
+
+    lib = Lib(
+        user_id=user.id,
+        readme=data_readme,
+        lib=data_lib,
+        title=json_info['title'],
+        description=json_info['description'],
+        version=json_info['version'],
+        license=json_info['license'],
+        tags=','.join(json_info['tags']),
+        date=datetime.datetime.now(),
+        shasum=''
+    )
+
+    session.add(lib)
+    session.commit()
+
+    # update shasum
+
+    package_data = get_package_zip(lib.title)
+
+    session.query(Lib) \
+           .filter(Lib.id == lib.id) \
+           .update({
+               'shasum': hashlib.sha1(package_data).hexdigest()
+           })
+    session.commit()
+
+    return registry_response(json_info, mimetype='application/tar+gzip')
 
 @app.route('/user/create', methods=['POST'])
 def user_create():
@@ -402,9 +775,11 @@ def user_create():
 
     # check if user exists
 
-    result = session.query(User).filter(User.email == user['email']).all()
+    result = session.query(User) \
+                    .filter(User.email == user['email']) \
+                    .all()
 
-    if len(result):
+    if result:
         return conflict_custom('User already exists')
 
     # create user
@@ -434,9 +809,11 @@ def user_login():
 
     # check if user exists
 
-    result = session.query(User).filter(User.email == auth['username']).all()
+    result = session.query(User) \
+                    .filter(User.email == auth['username']) \
+                    .all()
 
-    if not len(result):
+    if not result:
         return unauthorized_custom('User does not exist')
 
     user = result[0]
@@ -448,10 +825,12 @@ def user_login():
 
     login_token = '%X' % (random.getrandbits(128))
 
-    session.query(User).filter(User.id == user.id).update({
-        'date_login': datetime.datetime.now(),
-        'login_token': login_token
-    })
+    session.query(User) \
+           .filter(User.id == user.id) \
+           .update({
+               'date_login': datetime.datetime.now(),
+               'login_token': login_token
+           })
     session.commit()
 
     return registry_response({
@@ -473,20 +852,25 @@ def user_logout():
 
     # check if user exists
 
-    result = session.query(User).filter(User.login_token == token).all()
+    result = session.query(User) \
+                    .filter(User.login_token == token) \
+                    .all()
     user = result[0]
 
     # log out
 
-    session.query(User).filter(User.id == user.id).update({
-        'login_token': None
-    })
+    session.query(User) \
+           .filter(User.id == user.id) \
+           .update({
+               'login_token': None
+           })
     session.commit()
 
     return registry_response({})
 
 @app.route('/reference', methods=['GET'])
 @app.route('/reference/<path:path>', methods=['GET'])
+@cache.cached(timeout=CACHE_TIME)
 def reference(path=''):
     """Reference endpoint"""
 
@@ -500,7 +884,7 @@ def reference(path=''):
 
     session = Session()
 
-    if not len(paths[0]):
+    if not paths[0]:
         result = session.execute('SELECT * FROM reference WHERE parent_id = :parent_id', {
             'parent_id': 0
         })
@@ -526,7 +910,7 @@ def reference(path=''):
             else:
                 output += '  %s\n' % (row[2])
 
-    if not len(output):
+    if not output:
         abort_mimetype = 'text/plain'
         abort(404)
 
@@ -545,6 +929,24 @@ def db_import(filename=None):
     with open(filename, 'r') as f:
         sql = f.read()
         con.executescript(sql)
+
+    # update shasums
+
+    session = Session()
+
+    results = session.query(Lib) \
+                    .order_by(Lib.title, Lib.id) \
+                    .all()
+
+    for result in results:
+        data = get_package_zip(result.title, result.version)
+
+        session.query(Lib) \
+               .filter(Lib.id == result.id) \
+               .update({
+                   'shasum': hashlib.sha1(data).hexdigest()
+               })
+        session.commit()
 
 def db_export():
     """Export database"""
