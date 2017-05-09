@@ -607,7 +607,14 @@ def get_gz_version(package, version):
     if not data:
         abort(404)
 
-    return registry_response(data, mimetype='application/tar+gzip')
+    lib_data = get_package_json(package)
+
+    headers = [
+        ('Content-Disposition', 'attachment; filename="%s-%s.tar.gz"' % (lib_data['title'], lib_data['version'])),
+        ('X-Integrity', lib_data['shasum'])
+    ]
+
+    return registry_response(data, mimetype='application/tar+gzip', headers=headers)
 
 @app.route('/package/publish', methods=['POST'])
 def post_gz():

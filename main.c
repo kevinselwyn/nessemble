@@ -258,6 +258,7 @@ int main(int argc, char *argv[]) {
                     }
 
                     printf(_("Published `%s`"), package);
+                    printf("\n");
                 }
             } else {
                 rc = usage(exec);
