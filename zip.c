@@ -319,6 +319,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     }
 
 cleanup:
+    nessemble_free(tar_data);
     nessemble_free(content);
     nessemble_free(shasum);
 

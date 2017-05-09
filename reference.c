@@ -80,5 +80,9 @@ unsigned int reference(unsigned int terms, ...) {
     }
 
 cleanup:
+    nessemble_free(endpoint);
+    nessemble_free(url);
+    nessemble_free(text);
+
     return rc;
 }
