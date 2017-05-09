@@ -91,6 +91,8 @@ unsigned int get_json_buffer(char **value, char *key, char *json) {
     }
 
 cleanup:
+    nessemble_free(string_value);
+
     return rc;
 }
 
