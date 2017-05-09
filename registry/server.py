@@ -930,6 +930,24 @@ def db_import(filename=None):
         sql = f.read()
         con.executescript(sql)
 
+    # update shasums
+
+    session = Session()
+
+    results = session.query(Lib) \
+                    .order_by(Lib.title, Lib.id) \
+                    .all()
+
+    for result in results:
+        data = get_package_zip(result.title, result.version)
+
+        session.query(Lib) \
+               .filter(Lib.id == result.id) \
+               .update({
+                   'shasum': hashlib.sha1(data).hexdigest()
+               })
+        session.commit()
+
 def db_export():
     """Export database"""
 
