@@ -66,12 +66,12 @@ static struct usage_flag simulation_usage_flags[SIMULATION_USAGE_FLAG_COUNT] = {
     { ".memory XXXX[:XXXX]", "Print memory in address range" },
     { ".cycles", "Print count of CPU cycles" },
     { ".goto XXXX", "Set program counter to XXXX" },
-    { ".step X", "Step program counter by 1 or X" },
+    { ".step [X]", "Step program counter by 1 or X" },
     { ".run", "Run program" },
     { ".record XXXX <filename>", "Record writes to address XXXX" },
     { ".breakpoints", "List all breakpoints" },
-    { ".add_breakpoint XXXX <name>", "Add breakpoint at address XXXX with optional name" },
-    { ".remove_breakpoint <name>", "Remove breakpoint(s) at address XXXX or with name" },
+    { ".add_breakpoint XXXX [<name>]", "Add breakpoint at address XXXX with optional name" },
+    { ".remove_breakpoint [XXXX|<name>],...", "Remove breakpoint(s) at address XXXX or with name" },
     { ".quit", "Quit" },
     { ".help", "Print this message" }
 };
