@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     unsigned int i = 0, l = 0, byte = 0, piped = FALSE, ref_count = 0;
     char *exec = NULL, *filename = NULL, *outfilename = NULL;
     char *listname = NULL, *recipe = NULL, *package = NULL;
-    char *registry = NULL, *config = NULL;
+    char *registry = NULL, *config = NULL, *install_path = NULL;
     FILE *file = NULL, *outfile = NULL;
 
     translate_init();
@@ -147,9 +147,12 @@ int main(int argc, char *argv[]) {
         }
 
         if (strcmp(argv[optind], "scripts") == 0) {
-            if ((rc = install_scripts()) != RETURN_OK) {
+            if ((rc = install_scripts(&install_path)) != RETURN_OK) {
                 error_program_output(_("Could not install scripts"));
             }
+
+            printf(_("Installed scripts to %s"), install_path);
+            printf("\n");
 
             goto cleanup;
         }
@@ -599,6 +602,7 @@ cleanup:
     nessemble_free(registry);
     nessemble_free(config);
     nessemble_free(package);
+    nessemble_free(install_path);
     nessemble_fclose(file);
     nessemble_fclose(outfile);
 

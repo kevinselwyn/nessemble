@@ -1,10 +1,10 @@
 #include "nessemble.h"
 #include "scripts.h"
 
-unsigned int install_scripts() {
+unsigned int install_scripts(char **install_path) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
     size_t tar_len = 0, tar_filenames_count = 0, tar_data_len = 0;
-    char *tar = NULL, *tar_data = NULL, *path = NULL;
+    char *tar = NULL, *tar_data = NULL, *script_path = NULL, *path = NULL;
     char **tar_filenames = NULL;
     FILE *tar_file = NULL;
 
@@ -20,17 +20,13 @@ unsigned int install_scripts() {
         goto cleanup;
     }
 
-    if ((rc = get_home_path(&path, 2, "." PROGRAM_NAME, "scripts")) != RETURN_OK) {
+    if ((rc = get_home_path(&script_path, 2, "." PROGRAM_NAME, "scripts")) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (nessemble_mkdir(path, 0777) != 0) {
-        nessemble_free(path);
-
+    if (nessemble_mkdir(script_path, 0777) != 0) {
         goto cleanup;
     }
-
-    nessemble_free(path);
 
     for (i = 0, l = (unsigned int)tar_filenames_count; i < l; i++) {
         if ((rc = get_home_path(&path, 2, "." PROGRAM_NAME, tar_filenames[i])) != RETURN_OK) {
@@ -54,6 +50,8 @@ unsigned int install_scripts() {
     }
 
 cleanup:
+    *install_path = script_path;
+
     nessemble_free(tar);
 
     for (i = 0, l = (unsigned int)tar_filenames_count; i < l; i++) {
