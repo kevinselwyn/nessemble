@@ -3,7 +3,7 @@
 """Lib model"""
 
 from .base import Base
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, DateTime, Integer, String, Text
 
 class Lib(Base):
     """Lib model"""
@@ -14,11 +14,13 @@ class Lib(Base):
     user_id = Column(Integer)
     readme = Column(Text)
     lib = Column(Text)
-    name = Column(String(128))
+    title = Column(String(128))
     description = Column(Text)
     version = Column(String(32))
     license = Column(String(128))
     tags = Column(Text)
+    date = Column(DateTime)
+    shasum = Column(String(40))
 
     def __repr__(self):
-        return "<Lib(id='%s', user_id='%s', name='%s', description='%s', version='%s', license='%s', tags='%s')>" % (self.id, self.user_id, self.name, self.description, self.version, self.license, self.tags)
+        return "<Lib(id='%s', user_id='%s', title='%s', description='%s', version='%s', license='%s', tags='%s', date='%s', shasum='%s')>" % (self.id, self.user_id, self.title, self.description, self.version, self.license, self.tags, self.date, self.shasum)

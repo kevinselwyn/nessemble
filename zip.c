@@ -10,6 +10,7 @@ static unsigned int i_in, i_out;
 
 char *cache_url, *cache_content;
 unsigned int cache_content_length = 0;
+struct http_header cache_response_headers = { 0, { }, { } };
 
 int udeflate_read_bits(int n_bits) {
     int next = 0, i = 0, ret = 0;
@@ -228,10 +229,12 @@ cleanup:
 }
 
 unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url) {
-    unsigned int rc = RETURN_OK, content_length = 0, index = 0;
+    unsigned int rc = RETURN_OK, content_length = 0, index = 0, checksummed = FALSE;
+    unsigned int i = 0, l = 0;
     size_t tar_data_length = 0;
-    char *content = NULL, *tar_data = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
+    char *content = NULL, *tar_data = NULL, *shasum = NULL;
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
+    struct http_header response_headers = { 0, { }, { } };
 
     if (!cache_url || (strcmp(url, cache_url) != 0)) {
         /* options */
@@ -240,6 +243,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
         download_options.url = url;
         download_options.data_length = 1024 * 512;
         download_options.mime_type = MIMETYPE_ZIP;
+        download_options.response_headers = &response_headers;
 
         switch (get_request(download_options)) {
         case 503:
@@ -268,11 +272,31 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
         memcpy(cache_content, content, content_length);
 
         cache_content_length = content_length;
+        cache_response_headers = response_headers;
     } else {
         content_length = cache_content_length;
 
         content = (char *)nessemble_malloc(sizeof(char) * (content_length + 1));
         memcpy(content, cache_content, content_length);
+
+        response_headers = cache_response_headers;
+    }
+
+    hash(&shasum, content, content_length);
+
+    for (i = 0, l = response_headers.count; i < l; i++) {
+        if (strcmp(response_headers.keys[i], "X-Integrity") == 0) {
+            if (strcmp(response_headers.vals[i], shasum) == 0) {
+                checksummed = TRUE;
+            }
+        }
+    }
+
+    if (checksummed == FALSE) {
+        error_program_log(_("Invalid shasum (%s)"), shasum);
+
+        rc = RETURN_EPERM;
+        goto cleanup;
     }
 
     while (content[index] != '\0') {
@@ -295,7 +319,9 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
     }
 
 cleanup:
+    nessemble_free(tar_data);
     nessemble_free(content);
+    nessemble_free(shasum);
 
     return rc;
 }

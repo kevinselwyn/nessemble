@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0, byte = 0, piped = FALSE, ref_count = 0;
     char *exec = NULL, *filename = NULL, *outfilename = NULL;
-    char *listname = NULL, *recipe = NULL;
+    char *listname = NULL, *recipe = NULL, *package = NULL;
     char *registry = NULL, *config = NULL;
     FILE *file = NULL, *outfile = NULL;
 
@@ -235,6 +235,29 @@ int main(int argc, char *argv[]) {
                     }
 
                     printf(_("Uninstalled `%s`"), argv[optind]);
+                    printf("\n");
+                }
+            } else {
+                rc = usage(exec);
+            }
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[optind], "publish") == 0) {
+            if (optind + 1 < argc) {
+                while (++argv != NULL && argv[optind] != NULL) {
+                    if ((rc = lib_publish(argv[optind], &package)) != RETURN_OK) {
+                        if (!package) {
+                            error_program_output(_("Could not publish"));
+                        } else {
+                            error_program_output(_("Could not publish `%s`"), package);
+                        }
+
+                        goto cleanup;
+                    }
+
+                    printf(_("Published `%s`"), package);
                     printf("\n");
                 }
             } else {
@@ -575,6 +598,7 @@ cleanup:
     nessemble_free(pseudoname);
     nessemble_free(registry);
     nessemble_free(config);
+    nessemble_free(package);
     nessemble_fclose(file);
     nessemble_fclose(outfile);
 
