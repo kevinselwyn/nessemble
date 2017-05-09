@@ -13,12 +13,58 @@
 #include <netdb.h>
 #endif /* IS_WINDOWS */
 
+static unsigned int parse_headers(struct http_header *headers, char *response) {
+    int start = 0, end = 0;
+    unsigned int rc = RETURN_OK;
+    size_t key_length = 0, val_length = 0;
+    char *data = NULL, *newline = NULL, *eol = NULL;
+    char *key = NULL, *val = NULL;
+    struct http_header http_headers = { 0, {}, {} };
+
+    start = strstr(response, "\r\n") - response;
+    end = strstr(response, "\r\n\r\n") - response;
+
+    data = (char *)nessemble_malloc(sizeof(char) * ((end - (start + 2)) + 1));
+    memcpy(data, response+(start+2), end - (start + 2));
+
+    while ((newline = strstr(data, "\r\n")) != NULL) {
+        if ((eol = strstr(data, "\r\n")) == NULL) {
+            goto cleanup;
+        }
+
+        data[eol - data] = '\0';
+
+        if ((key = strtok(data, ":")) == NULL) {
+            goto cleanup;
+        }
+
+        key_length = strlen(key);
+        val = data+(key_length+2);
+        val_length = strlen(val);
+
+        http_headers.keys[http_headers.count] = (char *)nessemble_malloc(sizeof(char) * (key_length + 1));
+        strcpy(http_headers.keys[http_headers.count], key);
+
+        http_headers.vals[http_headers.count] = (char *)nessemble_malloc(sizeof(char) * (val_length + 1));
+        strcpy(http_headers.vals[http_headers.count], val);
+
+        http_headers.count++;
+
+        data += (newline - data) + 2;
+    }
+
+cleanup:
+    *headers = http_headers;
+
+    return rc;
+}
+
 static unsigned int do_request(struct download_option download_options) {
     unsigned int port = 80, protocol = PROTOCOL_HTTP;
     unsigned int i = 0, l = 0, index = 0;
     unsigned int code = 200, length = 0;
     int sockfd = 0, bytes = 0, sent = 0, received = 0, total = 0;
-    int content_type_index = 0, response_index = 0, content_length_index = 0;
+    int response_index = 0;
     size_t message_length = 0;
     char message[2048], response[4096], code_str[4];
     char *host = NULL, *uri = NULL;
@@ -26,6 +72,7 @@ static unsigned int do_request(struct download_option download_options) {
     struct hostent *server;
     struct sockaddr_in serv_addr;
     struct timeval timeout;
+    struct http_header resp_headers = { 0, {}, {} };
     fd_set set;
 
     /* options */
@@ -37,6 +84,7 @@ static unsigned int do_request(struct download_option download_options) {
     char *method = download_options.method;
     char *mime_type = download_options.mime_type;
     struct http_header http_headers = download_options.http_headers;
+    struct http_header *response_headers = download_options.response_headers;
 
     if (strncmp(url, "http:", 5) == 0) {
         protocol = PROTOCOL_HTTP;
@@ -222,31 +270,31 @@ static unsigned int do_request(struct download_option download_options) {
         error_program_log(_("HTTP code `%u` returned"), code);
     }
 
-    content_type_index = nessemble_strcasestr(response, "Content-Type") - response;
-
-    if (content_type_index == 0) {
-        error_program_log(_("Could not read `Content-Type`"));
+    if (parse_headers(&resp_headers, response) != RETURN_OK) {
+        error_program_log(_("Could not parse response headers"));
         code = 500;
         goto cleanup;
     }
 
-    content_type_index += 14;
+    for (i = 0, l = resp_headers.count; i < l; i++) {
+        if (strcmp(resp_headers.keys[i], "Content-Type") == 0) {
+            if (strcmp(resp_headers.vals[i], mime_type) != 0) {
+                error_program_log(_("Incorrect Content-Type `%s`"), mime_type);
+                code = 500;
+                goto cleanup;
+            }
+        }
 
-    if (strncmp(response+content_type_index, mime_type, strlen(mime_type)) != 0) {
-        error_program_log(_("Incorrect Content-Type `%s`"), mime_type);
-        code = 500;
-        goto cleanup;
+        if (strcmp(resp_headers.keys[i], "Content-Length") == 0) {
+            length = atoi(resp_headers.vals[i]);
+        }
     }
 
-    content_length_index = nessemble_strcasestr(response, "Content-Length") - response;
-
-    if (content_length_index == 0) {
+    if (length == 0) {
         error_program_log(_("Invalid `Content-Length`"));
         code = 500;
         goto cleanup;
     }
-
-    length = (unsigned int)atoi(response+(content_length_index+16));
 
     response_index = strstr(response, "\r\n\r\n") - response;
 
@@ -264,6 +312,7 @@ static unsigned int do_request(struct download_option download_options) {
 cleanup:
     *request = output;
     *request_length = length;
+    *response_headers = resp_headers;
 
     nessemble_free(host);
     nessemble_free(uri);

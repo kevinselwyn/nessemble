@@ -265,6 +265,7 @@ struct download_option {
     char **response;
     char *url, *data, *method, *mime_type;
     struct http_header http_headers;
+    struct http_header *response_headers;
 };
 
 /*

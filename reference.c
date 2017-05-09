@@ -7,7 +7,8 @@ unsigned int reference(unsigned int terms, ...) {
     unsigned int rc = RETURN_OK, http_code = 0, i = 0, l = 0;
     unsigned int url_length = 0, endpoint_length = 0, text_length = 0;
     char *arg = NULL, *url = NULL, *endpoint = NULL, *text = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } } };
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
+    struct http_header response_headers = { 0, { }, { } };
     va_list argptr;
 
     va_start(argptr, terms);
@@ -49,6 +50,7 @@ unsigned int reference(unsigned int terms, ...) {
     download_options.url = url;
     download_options.data_length = 0;
     download_options.mime_type = MIMETYPE_TEXT;
+    download_options.response_headers = &response_headers;
 
     if ((http_code = get_request(download_options)) != 200) {
         if (http_code != 500) {
