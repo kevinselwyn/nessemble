@@ -53,14 +53,14 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 {
     "libraries": [
         {
-            "url": "http://xxxxx.xxx/foo",
+            "title": "foo",
+            "description": "Foo bar baz qux",
             "tags": [
                 "foo",
                 "bar",
                 "baz"
             ],
-            "title": "foo",
-            "description": "Foo bar baz qux"
+            "url": "http://xxxxx.xxx/foo"
         },
         ...
     ]
@@ -94,16 +94,17 @@ X-Response-Time: x.xxx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
-    "libraries": [
+    "term": "foo",
+    "results": [
         {
-            "url": "http://xxxxx.xxx/foo",
+            "title": "foo",
+            "description": "Foo bar baz qux",
             "tags": [
                 "foo",
                 "bar",
                 "baz"
             ],
-            "title": "foo",
-            "description": "Foo bar baz qux"
+            "url": "http://xxxxx.xxx/foo"
         },
         ...
     ]
@@ -111,6 +112,9 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 ```
 
 ### /package
+
+Note: The following endpoints also work with `/package/&lt;string:version&gt;`
+in which `version` is a valid, specific version of the package.
 
 #### GET /package/&lt;string:package&gt;
 
@@ -137,21 +141,25 @@ X-Response-Time: x.xxx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
-    "resource": "http://xxxxx.xxx/foo/data",
     "title": "foo",
-    "license": "GPLv3",
+    "description": "Foo bar baz qux",
+    "version": "1.0.1",
+    "version": {
+        "1.0.1": "1997-08-29T22:14:00.000Z"
+    },
     "author": {
         "name": "Joe Somebody",,
         "email": "joe.somebody@email.com"
     },
+    "license": "GPLv3",
     "tags": [
         "foo",
         "bar",
         "baz"
     ],
-    "version": "1.0.1",
+    "resource": "http://xxxxx.xxx/foo/data",
     "readme": "http://xxxxx.xxx/foo/README",
-    "description": "Foo bar baz qux"
+    "shasum": "0123456789abcdef0123456789abcdef12345678"
 }
 ```
 
@@ -208,6 +216,8 @@ Content-Type: application/tar+gzip
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+Content-Disposition: attachment; filename="foo-1.0.1.tar.gz"
+X-Integrity: 0123456789abcdef0123456789abcdef12345678
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 <raw data>...
