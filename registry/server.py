@@ -508,17 +508,33 @@ def list_packages():
 def search_packages(term):
     """Search packages endpoint"""
 
-    term = '%%%s%%' % (term.lower())
     session = Session()
     results = OrderedDict([
+        ('term', term),
         ('results', [])
     ])
+
+    term = '%%%s%%' % (term.lower())
 
     result = session.query(Lib) \
                     .group_by(Lib.title) \
                     .order_by(Lib.title, Lib.id) \
                     .filter(Lib.title.like(term)) \
                     .all()
+
+    result.extend(session.query(Lib) \
+                         .group_by(Lib.title) \
+                         .order_by(Lib.title, Lib.id) \
+                         .filter(Lib.tags.like(term)) \
+                         .all())
+
+    # get unique results
+
+    result = list(OrderedDict.fromkeys(result))
+
+    # sort results
+
+    result = sorted(result, key=lambda res: res.title)
 
     for lib in result:
         results['results'].append(OrderedDict([
