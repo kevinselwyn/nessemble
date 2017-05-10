@@ -152,7 +152,6 @@ unsigned int lib_install(char *lib) {
         memset(lib_path_file, '\0', max_lib_path_file_length + 1);
 
         sprintf(lib_path_file, "%s" SEP "%s", lib_path, lib_files[i]);
-        fprintf(stderr, "%s\n", lib_path_file);
 
         lib_file = fopen(lib_path_file, "w+");
 
