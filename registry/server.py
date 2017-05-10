@@ -974,7 +974,9 @@ def main():
 
     if args.db_import:
         db_import(args.db_import)
-        return
+
+        if not args.port and not args.debug:
+            return
 
     if args.db_export:
         db_export()
