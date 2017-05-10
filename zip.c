@@ -8,10 +8,6 @@ static char input[ZIP_INSIZE], output[ZIP_OUTSIZE];
 
 static unsigned int i_in, i_out;
 
-char *cache_url, *cache_content;
-unsigned int cache_content_length = 0;
-struct http_header cache_response_headers = { 0, { }, { } };
-
 int udeflate_read_bits(int n_bits) {
     int next = 0, i = 0, ret = 0;
 
@@ -228,58 +224,40 @@ cleanup:
     return rc;
 }
 
-unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url) {
+unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
     unsigned int rc = RETURN_OK, content_length = 0, index = 0, checksummed = FALSE;
     unsigned int i = 0, l = 0;
-    size_t tar_data_length = 0;
-    char *content = NULL, *tar_data = NULL, *shasum = NULL;
+    char *content = NULL, *shasum = NULL;
     struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
     struct http_header response_headers = { 0, { }, { } };
 
-    if (!cache_url || (strcmp(url, cache_url) != 0)) {
-        /* options */
-        download_options.response = &content;
-        download_options.response_length = &content_length;
-        download_options.url = url;
-        download_options.data_length = 1024 * 512;
-        download_options.mime_type = MIMETYPE_ZIP;
-        download_options.response_headers = &response_headers;
+    /* options */
+    download_options.response = &content;
+    download_options.response_length = &content_length;
+    download_options.url = url;
+    download_options.data_length = 1024 * 512;
+    download_options.mime_type = MIMETYPE_ZIP;
+    download_options.response_headers = &response_headers;
 
-        switch (get_request(download_options)) {
-        case 503:
-            error_program_log(_("Could not reach the registry"));
+    switch (get_request(download_options)) {
+    case 503:
+        error_program_log(_("Could not reach the registry"));
 
-            rc = RETURN_EPERM;
-            goto cleanup;
-        case 404:
-            error_program_log(_("Library does not exist"));
+        rc = RETURN_EPERM;
+        goto cleanup;
+    case 404:
+        error_program_log(_("Library does not exist"));
 
-            rc = RETURN_EPERM;
-            goto cleanup;
-        case 200:
-        default:
-            break;
-        }
+        rc = RETURN_EPERM;
+        goto cleanup;
+    case 200:
+    default:
+        break;
+    }
 
-        if (!content) {
-            rc = RETURN_EPERM;
-            goto cleanup;
-        }
-
-        cache_url = url;
-
-        cache_content = (char *)nessemble_malloc(sizeof(char) * (content_length + 1));
-        memcpy(cache_content, content, content_length);
-
-        cache_content_length = content_length;
-        cache_response_headers = response_headers;
-    } else {
-        content_length = cache_content_length;
-
-        content = (char *)nessemble_malloc(sizeof(char) * (content_length + 1));
-        memcpy(content, cache_content, content_length);
-
-        response_headers = cache_response_headers;
+    if (!content) {
+        rc = RETURN_EPERM;
+        goto cleanup;
     }
 
     hash(&shasum, content, content_length);
@@ -310,16 +288,11 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char
 
     index++;
 
-    if ((rc = get_ungzip(&tar_data, &tar_data_length, content+index, content_length - index)) != RETURN_OK) {
-        goto cleanup;
-    }
-
-    if ((rc = untar(&*data, &*data_length, tar_data, tar_data_length, filename)) != RETURN_OK) {
+    if ((rc = get_ungzip(&*data, &*data_length, content+index, content_length - index)) != RETURN_OK) {
         goto cleanup;
     }
 
 cleanup:
-    nessemble_free(tar_data);
     nessemble_free(content);
     nessemble_free(shasum);
 

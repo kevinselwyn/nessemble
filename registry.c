@@ -109,9 +109,11 @@ cleanup:
 unsigned int lib_install(char *lib) {
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0;
-    size_t lib_length = 0, lib_path_file_length = 0, max_lib_path_file_length = 0;
+    size_t lib_length = 0, lib_tar_length = 0;
+    size_t lib_path_file_length = 0, max_lib_path_file_length = 0;
     char *lib_files[3] = { "lib.asm", "package.json", "README.md" };
-    char *lib_url = NULL, *lib_path = NULL, *lib_path_file = NULL, *lib_zip_url = NULL, *lib_data = NULL;
+    char *lib_url = NULL, *lib_path = NULL, *lib_path_file = NULL, *lib_zip_url = NULL;
+    char *lib_data = NULL, *lib_tar_data = NULL;
     FILE *lib_file = NULL;
 
     if ((rc = api_lib(&lib_url, lib)) != RETURN_OK) {
@@ -138,15 +140,19 @@ unsigned int lib_install(char *lib) {
 
     lib_path_file = (char *)nessemble_malloc(sizeof(char) * (max_lib_path_file_length + 1));
 
+    if ((rc = get_unzipped(&lib_tar_data, &lib_tar_length, lib_zip_url)) != RETURN_OK) {
+        goto cleanup;
+    }
+
     for (i = 0, l = 3; i < l; i++) {
-        if ((rc = get_unzipped(&lib_data, &lib_length, lib_files[i], lib_zip_url)) != RETURN_OK) {
+        if ((rc = untar(&lib_data, &lib_length, lib_tar_data, lib_tar_length, lib_files[i])) != RETURN_OK) {
             goto cleanup;
         }
 
         memset(lib_path_file, '\0', max_lib_path_file_length + 1);
-        lib_path_file_length = strlen(lib_path) + strlen(lib_files[i]);
 
-        snprintf(lib_path_file, lib_path_file_length, "%s" SEP "%s", lib_path, lib_files[i]);
+        sprintf(lib_path_file, "%s" SEP "%s", lib_path, lib_files[i]);
+        fprintf(stderr, "%s\n", lib_path_file);
 
         lib_file = fopen(lib_path_file, "w+");
 
