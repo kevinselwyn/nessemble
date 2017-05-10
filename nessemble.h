@@ -690,7 +690,7 @@ unsigned int get_json_search(char *url, char *term);
 unsigned int untar_list(char ***filenames, size_t *filenames_count, char *tar, unsigned int tar_length);
 unsigned int untar(char **data, size_t *data_length, char *tar, unsigned int tar_length, char *filename);
 unsigned int get_ungzip(char **data, size_t *data_length, char *buffer, unsigned int buffer_length);
-unsigned int get_unzipped(char **data, size_t *data_length, char *filename, char *url);
+unsigned int get_unzipped(char **data, size_t *data_length, char *url);
 
 /* PAGER */
 unsigned int pager_buffer(char *buffer);
