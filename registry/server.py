@@ -8,6 +8,7 @@ import json
 import md5
 import os
 import random
+import re
 import sqlite3
 import StringIO
 import struct
@@ -17,6 +18,7 @@ import time
 import argparse
 from collections import OrderedDict
 import semver
+from cerberus import Validator
 from flask import Flask, abort, g, make_response, request
 from flask_caching import Cache
 from sqlalchemy import create_engine
@@ -305,77 +307,74 @@ def get_package_zip(package='', version=None):
 
     return output
 
+def validate_semver(field, value, error):
+    """Validate semver string"""
+
+    try:
+        semver.parse(value)
+    except ValueError:
+        error(field, 'Must be a valid semver string')
+
+def validate_email(field, value, error):
+    """Validate email string"""
+
+    if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', value):
+        error(field, 'Must be a valid email address')
+
 def validate_package(data):
     """Validate package.json"""
-
-    invalid_titles = ['publish']
 
     try:
         package = json.loads(data)
     except ValueError:
         raise ValueError('Invalid package.json')
 
-    if not isinstance(package, dict):
-        raise ValueError('package.json must be an object')
+    validator = Validator({
+        'title': {
+            'type': 'string',
+            'empty': False,
+            'forbidden': ['publish']
+        },
+        'description': {
+            'type': 'string',
+            'empty': False
+        },
+        'version': {
+            'type': 'string',
+            'empty': False,
+            'validator': validate_semver
+        },
+        'license': {
+            'type': 'string',
+            'empty': False
+        },
+        'author': {
+            'type': 'dict',
+            'schema': {
+                'name': {
+                    'type': 'string',
+                    'empty': False
+                },
+                'email': {
+                    'type': 'string',
+                    'empty': False,
+                    'validator': validate_email
+                }
+            }
+        },
+        'tags': {
+            'type': 'list',
+            'empty': False
+        }
+    })
 
-    if not 'title' in package:
-        raise ValueError('package.json missing `title` field')
-    else:
-        if not isinstance(package['title'], str) and not isinstance(package['title'], unicode):
-            raise ValueError('package.json field `title` must be a string')
-
-        if package['title'] in invalid_titles:
-            raise ValueError('package.json `title` is invalid or reserved')
-
-    if not 'description' in package:
-        raise ValueError('package.json missing `description` field')
-    else:
-        if not isinstance(package['description'], str) and not isinstance(package['description'], unicode):
-            raise ValueError('package.json field `description` must be a string')
-
-    if not 'version' in package:
-        raise ValueError('package.json missing `version` field')
-    else:
-        if not isinstance(package['version'], str) and not isinstance(package['version'], unicode):
-            raise ValueError('package.json field `version` must be a string')
-
-        try:
-            semver.parse(package['version'])
-        except ValueError:
-            raise ValueError('package.json field `version` must be a valid semver string')
-
-    if not 'license' in package:
-        raise ValueError('package.json missing `license` field')
-    else:
-        if not isinstance(package['license'], str) and not isinstance(package['license'], unicode):
-            raise ValueError('package.json field `license` must be a string')
-
-    if not 'author' in package:
-        raise ValueError('package.json missing `author` field')
-    else:
-        if not isinstance(package['author'], dict):
-            raise ValueError('package.json field `author` must be an object')
-
-        if not 'name' in package['author']:
-            raise ValueError('package.json missing `author.name` field')
-        else:
-            if not isinstance(package['author']['name'], str) and not isinstance(package['author']['name'], unicode):
-                raise ValueError('package.json field `author.name` must be a string')
-
-        if not 'email' in package['author']:
-            raise ValueError('package.json missing `author.email` field')
-        else:
-            if not isinstance(package['author']['email'], str) and not isinstance(package['author']['email'], unicode):
-                raise ValueError('package.json field `author.email` must be a string')
-
-    if not 'tags' in package:
-        raise ValueError('package.json missing `tags` field')
-    else:
-        if not isinstance(package['tags'], list):
-            raise ValueError('package.json field `tags` must be an array')
-
-        if not package['tags']:
-            raise ValueError('package.json field `tags` must not be empty')
+    if not validator.validate(package):
+        for key, value in validator.errors.iteritems():
+            if isinstance(value[0], dict):
+                for key2, value2 in value[0].iteritems():
+                    raise ValueError('package.json field `%s.%s` %s' % (key, key2, value2[0].lower()))
+            else:
+                raise ValueError('package.json field `%s` %s' % (key, value[0].lower()))
 
     return package
 
