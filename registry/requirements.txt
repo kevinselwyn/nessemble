@@ -1,3 +1,4 @@
+Cerberus==1.1
 Flask==0.12
 Flask-Caching==1.2.0
 semver==2.7.6
