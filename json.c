@@ -154,6 +154,7 @@ unsigned int get_json_url(char **value, char *key, char *url) {
 
 cleanup:
     nessemble_free(text);
+    free_headers(response_headers);
 
     return rc;
 }
