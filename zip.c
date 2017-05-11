@@ -295,6 +295,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
 cleanup:
     nessemble_free(content);
     nessemble_free(shasum);
+    free_headers(response_headers);
 
     return rc;
 }

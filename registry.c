@@ -138,7 +138,7 @@ unsigned int lib_install(char *lib) {
         }
     }
 
-    lib_path_file = (char *)nessemble_malloc(sizeof(char) * (max_lib_path_file_length + 1));
+    lib_path_file = (char *)nessemble_malloc(sizeof(char) * (max_lib_path_file_length + 2));
 
     if ((rc = get_unzipped(&lib_tar_data, &lib_tar_length, lib_zip_url)) != RETURN_OK) {
         goto cleanup;
@@ -149,7 +149,7 @@ unsigned int lib_install(char *lib) {
             goto cleanup;
         }
 
-        memset(lib_path_file, '\0', max_lib_path_file_length + 1);
+        memset(lib_path_file, '\0', max_lib_path_file_length + 2);
 
         sprintf(lib_path_file, "%s" SEP "%s", lib_path, lib_files[i]);
 
@@ -174,6 +174,7 @@ cleanup:
     nessemble_free(lib_path);
     nessemble_free(lib_zip_url);
     nessemble_free(lib_path_file);
+    nessemble_free(lib_tar_data);
 
     return rc;
 }

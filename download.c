@@ -13,19 +13,31 @@
 #include <netdb.h>
 #endif /* IS_WINDOWS */
 
+void free_headers(struct http_header http_headers) {
+    unsigned int i = 0, l = 0;
+
+    for (i = 0, l = http_headers.count; i < l; i++) {
+        nessemble_free(http_headers.keys[i]);
+        nessemble_free(http_headers.vals[i]);
+    }
+}
+
 static unsigned int parse_headers(struct http_header *headers, char *response) {
     int start = 0, end = 0;
     unsigned int rc = RETURN_OK;
     size_t key_length = 0, val_length = 0;
-    char *data = NULL, *newline = NULL, *eol = NULL;
+    char data_buf[4096], *data = NULL;
+    char *newline = NULL, *eol = NULL;
     char *key = NULL, *val = NULL;
     struct http_header http_headers = { 0, {}, {} };
 
     start = strstr(response, "\r\n") - response;
     end = strstr(response, "\r\n\r\n") - response;
 
-    data = (char *)nessemble_malloc(sizeof(char) * ((end - (start + 2)) + 1));
-    memcpy(data, response+(start+2), end - (start + 2));
+    memset(data_buf, '\0', 4096);
+    memcpy(data_buf, response+(start+2), end - (start + 2));
+
+    data = (char *)data_buf;
 
     while ((newline = strstr(data, "\r\n")) != NULL) {
         if ((eol = strstr(data, "\r\n")) == NULL) {

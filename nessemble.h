@@ -677,6 +677,7 @@ unsigned int lib_list();
 unsigned int lib_search(char *term);
 
 /* DOWNLOAD */
+void free_headers(struct http_header http_headers);
 unsigned int get_request(struct download_option download_options);
 unsigned int post_request(struct download_option download_options);
 
