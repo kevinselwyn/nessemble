@@ -1,12 +1,11 @@
 #!/usr/bin/python
 # coding=utf-8
+# pylint: disable=C0103,C0301
 """help test"""
 
 import filecmp
 import os
 import subprocess
-import sys
-import tempfile
 
 def which(program):
     """Find program path"""
@@ -16,7 +15,7 @@ def which(program):
 
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
-    fpath, fname = os.path.split(program)
+    fpath, _fname = os.path.split(program)
 
     if fpath:
         if is_exe(program):
@@ -32,6 +31,8 @@ def which(program):
     return None
 
 def cleanup(rc):
+    """Cleanup"""
+
     root = os.getcwd()
 
     try:
