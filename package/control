@@ -1,8 +1,9 @@
 Package: ${NAME}
 Version: ${VERSION}
-Section: base
+Section: utils
 Priority: optional
 Architecture: ${ARCHITECTURE}
-Depends:
+Depends: liblua5.1-0
 Maintainer: ${MAINTAINER} <${EMAIL}>
+Installed-Size: ${SIZE}
 Description: ${DESCRIPTION}

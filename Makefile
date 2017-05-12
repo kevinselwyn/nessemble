@@ -22,8 +22,6 @@ EMAIL        := kevinselwyn@gmail.com
 MAINTAINER   := Kevin Selwyn
 DESCRIPTION  := A 6502 assembler for the Nintendo Entertainment System
 IDENTIFIER   := kevinselwyn
-LICENSE      := "GPL-3"
-YEAR         := $(shell date +"%Y")
 PACKAGE      := ./package
 PAYLOAD      := $(PACKAGE)/payload
 RELEASE      := ./release
@@ -222,6 +220,8 @@ uninstall:
 
 ifeq ($(UNAME), Linux)
 ARCHITECTURE := $(shell dpkg --print-architecture)
+SIZE         := $(shell wc -c < $(EXEC))
+YEAR         := $(shell date +"%Y")
 endif
 
 package: all
@@ -229,6 +229,7 @@ ifeq ($(UNAME), Linux)
 	$(RM) $(PAYLOAD)
 	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
+	mkdir -p $(PAYLOAD)/usr/share/doc/$(NAME)
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
 	mkdir -p $(PAYLOAD)/DEBIAN
 	sed -e "s/\$${NAME}/$(NAME)/g" \
@@ -236,9 +237,18 @@ ifeq ($(UNAME), Linux)
 		-e "s/\$${ARCHITECTURE}/$(ARCHITECTURE)/g" \
 		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
 		-e "s/\$${EMAIL}/$(EMAIL)/g" \
+		-e "s/\$${SIZE}/$(SIZE)/g" \
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
 	 	$(PACKAGE)/control > $(PAYLOAD)/DEBIAN/control
-	dpkg-deb --build $(PAYLOAD) $(RELEASE)/$(NAME)-$(VERSION)_$(ARCHITECTURE).deb
+	sed -e "s/\$${NAME}/$(NAME)/g" \
+		-e "s/\$${VERSION}/$(VERSION)/g" \
+		-e "s/\$${YEAR}/$(YEAR)/g" \
+		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
+		-e "s/\$${LICENSE}/$(LICENSE)/g" \
+		$(PACKAGE)/copyright > $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
+	cat src/license.txt >> $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
+	cd $(PAYLOAD) ; md5sum `find usr -type f` > DEBIAN/md5sums
+	dpkg-deb --build $(PAYLOAD) $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).deb
 	$(RM) $(PAYLOAD)
 endif
 
