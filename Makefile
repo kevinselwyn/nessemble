@@ -12,34 +12,38 @@ AR           := ar rcu
 RANLIB       := ranlib
 LEX          := flex
 LEX_OUT      := lex.yy
-LEX_FLAGS    := --outfile=$(LEX_OUT).c
+LEX_FLAGS    := --outfile=src/$(LEX_OUT).c
 LEX_DEFINES  := -DYY_TYPEDEF_YY_SIZE_T -Dyy_size_t=ssize_t
 YACC         := bison
 YACC_OUT     := y.tab
-YACC_FLAGS   := --output=$(YACC_OUT).c --defines --yacc
+YACC_FLAGS   := --output=src/$(YACC_OUT).c --defines --yacc
 
 EMAIL        := kevinselwyn@gmail.com
 MAINTAINER   := Kevin Selwyn
 DESCRIPTION  := A 6502 assembler for the Nintendo Entertainment System
 IDENTIFIER   := kevinselwyn
+LICENSE      := "GPL-3"
+YEAR         := $(shell date +"%Y")
 PACKAGE      := ./package
 PAYLOAD      := $(PACKAGE)/payload
-BUILD        := ./build
+RELEASE      := ./release
 TMP          := $(shell mktemp)
 UNAME        := $(shell uname -s)
 
-FILES        := main.c api.c assemble.c config.c coverage.c disassemble.c
-FILES        += download.c error.c hash.c home.c i18n.c init.c instructions.c
-FILES        += json.c list.c macro.c math.c midi.c opcodes.c pager.c png.c
-FILES        += reference.c registry.c scripts.c simulate.c usage.c user.c
-FILES        += utils.c wav.c zip.c
-FILES        += $(shell ls pseudo/*.c) $(shell ls scripting/*.c)
-FILES        += $(shell ls simulate/*.c)
-FILES        += third-party/jsmn/jsmn.c third-party/udeflate/deflate.c
-FILES        += third-party/duktape/duktape.c
+FILES        := src/main.c src/api.c src/assemble.c src/config.c src/coverage.c
+FILES        += src/disassemble.c src/download.c src/error.c src/hash.c
+FILES        += src/home.c src/i18n.c src/init.c src/instructions.c src/json.c
+FILES        += src/list.c src/macro.c src/math.c src/midi.c src/opcodes.c
+FILES        += src/pager.c src/png.c src/reference.c src/registry.c
+FILES        += src/scripts.c src/simulate.c src/usage.c src/user.c src/utils.c
+FILES        += src/wav.c src/zip.c
+FILES        += $(shell ls src/pseudo/*.c) $(shell ls src/scripting/*.c)
+FILES        += $(shell ls src/simulate/*.c)
+FILES        += src/third-party/jsmn/jsmn.c src/third-party/udeflate/deflate.c
+FILES        += src/third-party/duktape/duktape.c
 
-SRCS         := $(YACC_OUT).c $(LEX_OUT).c $(FILES)
-HDRS         := $(NAME).h init.h license.h
+SRCS         := src/$(YACC_OUT).c src/$(LEX_OUT).c $(FILES)
+HDRS         := src/$(NAME).h src/init.h src/license.h
 OBJS         := ${SRCS:c=o}
 
 # PLATFORM-SPECIFIC
@@ -79,15 +83,15 @@ js: CC_LIB_FLAGS :=
 
 win32: EXEC     := $(NAME).exe
 win32: CC       := i686-w64-mingw32-gcc
-win32: CC_FLAGS += -lws2_32 -Ilua-5.1.5/src
-win32: CC_FILES := lua-5.1.5/src/liblua.a
+win32: CC_FLAGS += -lws2_32 -Isrc/lua-5.1.5/src
+win32: CC_FILES := src/lua-5.1.5/src/liblua.a
 win32: AR       := i686-w64-mingw32-ar rcu
 win32: RANLIB   := i686-w64-mingw32-ranlib
 
 win64: EXEC     := $(NAME).exe
 win64: CC       := x86_64-w64-mingw32-gcc
-win64: CC_FLAGS += -lws2_32 -Ilua-5.1.5/src
-win64: CC_FILES := lua-5.1.5/src/liblua.a
+win64: CC_FLAGS += -lws2_32 -Isrc/lua-5.1.5/src
+win64: CC_FILES := src/lua-5.1.5/src/liblua.a
 win64: AR       := x86_64-w64-mingw32-ar rcu
 win64: RANLIB   := x86_64-w64-mingw32-ranlib
 
@@ -105,16 +109,16 @@ win64: liblua $(EXEC)
 
 # RECIPES
 
-$(LEX_OUT).c: $(NAME).l
+src/$(LEX_OUT).c: src/$(NAME).l
 	$(LEX) $(LEX_FLAGS) $<
 
-$(LEX_OUT).o: $(LEX_OUT).c
+src/$(LEX_OUT).o: src/$(LEX_OUT).c
 	$(CC) -O -c $< $(CC_FLAGS) $(LEX_DEFINES) -o $@
 
-$(YACC_OUT).c: $(NAME).y
+src/$(YACC_OUT).c: src/$(NAME).y
 	$(YACC) $(YACC_FLAGS) $<
 
-opcodes.c: opcodes.csv
+src/opcodes.c: src/opcodes.csv
 	./utils/opcodes.py -i $< > $@
 
 %.o: %.c
@@ -129,24 +133,24 @@ opcodes.c: opcodes.csv
 %.h: %.tar.gz
 	./utils/xxd.py -b -i $< > $@
 
-i18n.c: strings.h
+src/i18n.c: src/strings.h
 
-strings.h: ${strings.json:json=h}
+src/strings.h: ${src/strings.json:json=h}
 
-init.c: init.h
+src/init.c: src/init.h
 
-init.h: ${init.txt:txt=h}
+src/init.h: ${src/init.txt:txt=h}
 
-usage.c: license.h
+src/usage.c: src/license.h
 
-license.h: ${licence.txt:txt=h}
+src/license.h: ${src/licence.txt:txt=h}
 
-scripts.tar.gz:
-	tar -czf $@ $(shell ls scripts/*)
+src/scripts.tar.gz:
+	tar -czf $@ $(shell ls src/scripts/*)
 
-scripts.h: ${scripts.tar.gz:tar.gz=h}
+src/scripts.h: ${src/scripts.tar.gz:tar.gz=h}
 
-scripts.c: scripts.tar.gz scripts.h
+src/scripts.c: src/scripts.tar.gz src/scripts.h
 
 $(EXEC): $(OBJS) $(HDRS)
 	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS)
@@ -167,14 +171,14 @@ registry: all
 
 # LIBLUA
 
-liblua: lua-5.1.5/src/liblua.a
+liblua: src/lua-5.1.5/src/liblua.a
 
-lua-5.1.5/src/liblua.a: lua-5.1.5.tar.gz
-	tar -xzf $<
-	make -C lua-5.1.5/src generic CC="$(CC)" AR="$(AR)" RANLIB="$(RANLIB)"
+src/lua-5.1.5/src/liblua.a: src/lua-5.1.5.tar.gz
+	tar -xzf $< -C src/
+	make -C src/lua-5.1.5/src generic CC="$(CC)" AR="$(AR)" RANLIB="$(RANLIB)"
 
-lua-5.1.5.tar.gz:
-	curl -O "https://www.lua.org/ftp/$@"
+src/lua-5.1.5.tar.gz:
+	curl -o $@ "https://www.lua.org/ftp/lua-5.1.5.tar.gz"
 
 # TRANSLATION
 
@@ -182,7 +186,7 @@ translate/nessemble.pot:
 	@mkdir -p translate
 	@xgettext --keyword=_ --language=C --add-comments --sort-output \
 	  		  --output=translate/nessemble.pot --package-name=$(NAME) \
-			  --package-version=$(VERSION) *.c
+			  --package-version=$(VERSION) src/*.c
 	@printf "Language template created\n"
 
 translate-template: translate/nessemble.pot
@@ -223,7 +227,7 @@ endif
 package: all
 ifeq ($(UNAME), Linux)
 	$(RM) $(PAYLOAD)
-	mkdir -p $(BUILD)
+	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
 	mkdir -p $(PAYLOAD)/DEBIAN
@@ -234,13 +238,13 @@ ifeq ($(UNAME), Linux)
 		-e "s/\$${EMAIL}/$(EMAIL)/g" \
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
 	 	$(PACKAGE)/control > $(PAYLOAD)/DEBIAN/control
-	dpkg-deb --build $(PAYLOAD) $(BUILD)/$(NAME)-$(VERSION)_$(ARCHITECTURE).deb
+	dpkg-deb --build $(PAYLOAD) $(RELEASE)/$(NAME)-$(VERSION)_$(ARCHITECTURE).deb
 	$(RM) $(PAYLOAD)
 endif
 
 ifeq ($(UNAME), Darwin)
 	$(RM) $(PAYLOAD)
-	mkdir -p $(BUILD)
+	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
 	sed -e "s/\$${NAME}/$(NAME)/g" \
@@ -254,7 +258,7 @@ ifeq ($(UNAME), Darwin)
 	productbuild --distribution $(TMP) \
 				 --resources . \
 				 --package-path $(NAME).pkg \
-				 $(BUILD)/$(NAME)-$(VERSION).pkg
+				 $(RELEASE)/$(NAME)-$(VERSION).pkg
 	$(RM) $(TMP) $(PAYLOAD) $(NAME).pkg
 endif
 
@@ -266,7 +270,7 @@ win64_package: win64 win_package
 
 win_package:
 	$(RM) $(PAYLOAD)
-	mkdir -p $(BUILD)
+	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
@@ -275,7 +279,7 @@ win_package:
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
 		-e "s/\$${GUID}/$(shell ./utils/guid.py --input $(NAME).exe)/g" \
 	 	$(PACKAGE)/msi.wxs > $(TMP)
-	wixl $(TMP) --output $(BUILD)/$(NAME)-$(VERSION)_$(ARCHITECTURE).msi
+	wixl $(TMP) --output $(RELEASE)/$(NAME)-$(VERSION)_$(ARCHITECTURE).msi
 	$(RM) $(TMP) $(PAYLOAD)
 
 # CLEAN
@@ -283,8 +287,9 @@ win_package:
 .PHONY: clean
 clean:
 	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js
-	$(RM) $(YACC_OUT).c $(YACC_OUT).h $(LEX_OUT).c
 	$(RM) $(OBJS)
-	$(RM) opcodes.c init.h license.h scripts.h scripts.tar.gz strings.h
-	$(RM) lua-5.1.5 lua-5.1.5.tar.gz
+	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
+	$(RM) src/init.h src/license.h src/scripts.h src/strings.h
+	$(RM) src/opcodes.c src/scripts.tar.gz
+	$(RM) src/lua-5.1.5 src/lua-5.1.5.tar.gz
 	$(RM) $(PAYLOAD)

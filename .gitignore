@@ -1,6 +1,6 @@
 .DS_Store
 .vagrant
-build
+release
 init.h
 license.h
 lex.yy.c

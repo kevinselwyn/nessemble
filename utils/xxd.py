@@ -11,7 +11,7 @@ def xxd(infile, binary=False):
 
     output = []
     data = []
-    slug = re.sub('[^a-zA-Z0-9]', '_', infile)
+    slug = re.sub('[^a-zA-Z0-9]', '_', os.path.basename(infile))
     guard = '_%s' % (slug.replace('_' + os.path.splitext(infile)[1][1:], '_h').upper())
     text = []
     length = 0
