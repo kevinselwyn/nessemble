@@ -268,7 +268,7 @@ ifeq ($(UNAME), Darwin)
 	productbuild --distribution $(TMP) \
 				 --resources . \
 				 --package-path $(NAME).pkg \
-				 $(RELEASE)/$(NAME)-$(VERSION).pkg
+				 $(RELEASE)/$(NAME)_$(VERSION).pkg
 	$(RM) $(TMP) $(PAYLOAD) $(NAME).pkg
 endif
 
@@ -289,7 +289,7 @@ win_package:
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
 		-e "s/\$${GUID}/$(shell ./utils/guid.py --input $(NAME).exe)/g" \
 	 	$(PACKAGE)/msi.wxs > $(TMP)
-	wixl $(TMP) --output $(RELEASE)/$(NAME)-$(VERSION)_$(ARCHITECTURE).msi
+	wixl $(TMP) --output $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).msi
 	$(RM) $(TMP) $(PAYLOAD)
 
 # CLEAN
