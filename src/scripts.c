@@ -29,11 +29,11 @@ unsigned int install_scripts(char **install_path) {
     }
 
     for (i = 0, l = (unsigned int)tar_filenames_count; i < l; i++) {
-        if ((rc = get_home_path(&path, 2, "." PROGRAM_NAME, tar_filenames[i])) != RETURN_OK) {
+        if ((rc = get_home_path(&path, 2, "." PROGRAM_NAME, tar_filenames[i]+4)) != RETURN_OK) {
             goto cleanup;
         }
 
-        if ((rc = untar(&tar_data, &tar_data_len, tar, tar_len, tar_filenames[i])) != RETURN_OK) {
+        if ((rc = untar(&tar_data, &tar_data_len, tar, tar_len, tar_filenames[i]+4)) != RETURN_OK) {
             goto cleanup;
         }
 

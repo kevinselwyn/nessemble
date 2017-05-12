@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
-    error_signal();
+    //error_signal();
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
     /* exec */

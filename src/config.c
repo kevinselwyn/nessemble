@@ -30,6 +30,8 @@ unsigned int create_config() {
             rc = RETURN_EPERM;
             goto cleanup;
         }
+
+        config_dir = opendir(config_path);
     }
 
     if ((rc = get_home_path(&lib_path, 2, "." PROGRAM_NAME, "libs")) != RETURN_OK) {
@@ -43,6 +45,8 @@ unsigned int create_config() {
             rc = RETURN_EPERM;
             goto cleanup;
         }
+
+        lib_dir = opendir(lib_path);
     }
 
 cleanup:

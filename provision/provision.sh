@@ -16,7 +16,8 @@ sudo apt-get -y install bc gdb splint valgrind
 sudo apt-get -y install python-pip
 
 # python modules
-sudo pip install flask sqlalchemy
+sudo pip install -r /vagrant/requirements.txt
+sudo pip install -r /vagrant/registry/requirements.txt
 
 # mingw
 sudo apt-get -y install gcc-mingw-w64-i686 gcc-mingw-w64-x86-64
