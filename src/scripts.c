@@ -33,7 +33,7 @@ unsigned int install_scripts(char **install_path) {
             goto cleanup;
         }
 
-        if ((rc = untar(&tar_data, &tar_data_len, tar, tar_len, tar_filenames[i]+4)) != RETURN_OK) {
+        if ((rc = untar(&tar_data, &tar_data_len, tar, tar_len, tar_filenames[i])) != RETURN_OK) {
             goto cleanup;
         }
 

@@ -34,16 +34,16 @@ def which(program):
 def heartbeat():
     """Regular heartbeat"""
 
-    # remove .nessemble directory
-    home_dir = os.path.expanduser('~')
-    shutil.rmtree('%s%s.nessemble' % (home_dir, os.sep), True)
-
     # check api running
     try:
         _r = requests.get('http://localhost:8000')
     except requests.exceptions.ConnectionError:
         print 'no api running'
         return False
+
+    # remove .nessemble directory
+    home_dir = os.path.expanduser('~')
+    shutil.rmtree('%s%s.nessemble' % (home_dir, os.sep), True)
 
     return True
 
