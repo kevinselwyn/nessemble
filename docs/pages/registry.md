@@ -5,7 +5,7 @@ to be valid.
 
 Note: To change the registry URL, run:
 
-```
+```text
 nessemble registry <URL>
 ```
 
@@ -32,7 +32,7 @@ List of all packages.
 
 Request:
 
-```
+```text
 GET / HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -41,7 +41,7 @@ Content-Type: application/json
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: application/json
@@ -75,7 +75,7 @@ Search for packages by `term`.
 
 Request:
 
-```
+```text
 GET /search/foo HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -84,7 +84,7 @@ Content-Type: application/json
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: application/json
@@ -113,7 +113,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 ### /package
 
-Note: The following endpoints also work with `/package/&lt;string:version&gt;`
+Note: The following endpoints also work with `/package/<string:version>`
 in which `version` is a valid, specific version of the package.
 
 #### GET /package/&lt;string:package&gt;
@@ -122,7 +122,7 @@ Display information about package `package`.
 
 Request:
 
-```
+```text
 GET /package/foo HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -131,7 +131,7 @@ Content-Type: application/json
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: application/json
@@ -169,7 +169,7 @@ Display README for package `package`.
 
 Request:
 
-```
+```text
 GET /package/foo/README HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -178,7 +178,7 @@ Content-Type: text/plain
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: text/plain
@@ -200,7 +200,7 @@ A tarball containing all data for `package`.
 
 Request:
 
-```
+```text
 GET /package/foo/data HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -209,7 +209,7 @@ Content-Type: application/tar+gzip
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: application/tar+gzip
@@ -231,7 +231,7 @@ Create a user in the registry.
 
 Request:
 
-```
+```text
 POST /user/create HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -247,7 +247,7 @@ Content-Length: xxx
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: application/json
@@ -261,7 +261,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 If the user already exists, the response will be:
 
-```
+```text
 HTTP/1.0 409 CONFLICT
 Content-Length: xxx
 Content-Type: application/json
@@ -282,7 +282,7 @@ Log into the registry.
 
 Request:
 
-```
+```text
 POST /user/login HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -295,7 +295,7 @@ Content-Length: xxx
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: application/json
@@ -315,7 +315,7 @@ Log out of the registry.
 
 Request:
 
-```
+```text
 POST /user/logout HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -328,7 +328,7 @@ Content-Length: xxx
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: application/json
@@ -348,7 +348,7 @@ Display reference categories.
 
 Request:
 
-```
+```text
 GET /reference HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -357,7 +357,7 @@ Content-Type: text/plain
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: text/plain
@@ -377,7 +377,7 @@ Display reference information for term `path`.
 
 Request:
 
-```
+```text
 GET /reference/foo/bar HTTP/1.1
 Host: xxxxx
 User-Agent: nessemble/1.0.1
@@ -386,7 +386,7 @@ Content-Type: text/plain
 
 Response:
 
-```
+```text
 HTTP/1.0 200 OK
 Content-Length: xxx
 Content-Type: text/plain
@@ -401,7 +401,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 If no such path exists, the response will be:
 
-```
+```text
 HTTP/1.0 404 NOT FOUND
 Content-Length: xxx
 Content-Type: text/plain

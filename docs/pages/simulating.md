@@ -4,14 +4,14 @@
 
 ## Usage
 
-```
+```text
 nessemble infile.rom --simulate
 ```
 
 To provide a recipe of instructions to be run by the simulator, use the
 `-R`/`--recipe` flag. See the instructions below.
 
-```
+```text
 nessemble infile.rom --simulate --recipe recipe.txt
 ```
 
@@ -27,7 +27,7 @@ set, and then the updated value of all registers will be printed.
 
 Example:
 
-```
+```text
 .registers A=13,X=37
 ```
 
@@ -40,7 +40,7 @@ Note: `1` means set, `0` means unset/cleared.
 
 Example:
 
-```
+```text
 .flags negative=1,carry=0
 ```
 
@@ -50,7 +50,7 @@ Fills memory with values `NN ...` starting at address `XXXX`.
 
 Example:
 
-```
+```text
 .fill C000 01 02 03 04
 ```
 
@@ -60,7 +60,7 @@ Disassembles and prints instructions in address range `XXXX:XXXX`.
 
 Example:
 
-```
+```text
 .disassemble C000:C004
 ```
 
@@ -70,7 +70,7 @@ Disassembles and prints the next instruction.
 
 Example:
 
-```
+```text
 .instruction
 ```
 
@@ -80,7 +80,7 @@ Prints memory value(s) in address range `XXXX[:XXXX]`.
 
 Example:
 
-```
+```text
 .memory C000
 ```
 
@@ -90,7 +90,7 @@ Prints the current count of CPU cycles executed.
 
 Example:
 
-```
+```text
 .cycles
 ```
 
@@ -100,7 +100,7 @@ Sets the program counter to XXXX.
 
 Example:
 
-```
+```text
 .goto F000
 ```
 
@@ -110,7 +110,7 @@ Steps the program counter by 1 or the value of `X`.
 
 Example:
 
-```
+```text
 .step
 ```
 
@@ -120,7 +120,7 @@ Runs the program until it hits a breakpoint or terminates.
 
 Example:
 
-```
+```text
 .run
 ```
 
@@ -131,7 +131,7 @@ Records all writes to address XXXX and writes the output to filename
 
 Example:
 
-```
+```text
 .record 2000 register_2000.txt
 ```
 
@@ -141,7 +141,7 @@ Prints a list of all active breakpoints.
 
 Example:
 
-```
+```text
 .breakpoints
 ```
 
@@ -151,7 +151,7 @@ Adds breakpoint at address `XXXX` with optional name `&lt;name&gt;`.
 
 Example:
 
-```
+```text
 .add_breakpoint E000 stop_here
 ```
 
@@ -161,7 +161,7 @@ Removes breakpoint(s) at address XXX or with name `&lt;name&gt;`.
 
 Example:
 
-```
+```text
 .remove_breakpoint E000,F000
 ```
 
@@ -171,7 +171,7 @@ Quits the simulator
 
 Example:
 
-```
+```text
 .quit
 ```
 
@@ -181,6 +181,6 @@ Prints a help message of all simulator instructions
 
 Example:
 
-```
+```text
 .help
 ```

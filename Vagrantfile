@@ -1,5 +1,6 @@
 Vagrant.configure("2") do |config|
   config.vm.provision :shell, path: "provision/provision.sh"
+  config.vm.network "forwarded_port", guest: 8000, host: 8000
 
   config.vm.define "linux64", primary: true do |linux64|
     linux64.vm.box = "ubuntu/xenial64"
