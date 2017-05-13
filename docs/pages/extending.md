@@ -10,19 +10,19 @@ instructions for all new pseudo-instructions.
 
 Example `pseudo.txt`:
 
-```
+```text
 .foo = foo.lua
 ```
 
 Example `example.asm`:
 
-```
+```text
 .foo 1, 2, 3
 ```
 
 To assemble:
 
-```
+```text
 $ nessemble example.asm --pseudo pseudo.txt
 ```
 
@@ -82,7 +82,7 @@ Note: Keep in mind that strings will have quotes around them.
 
 Example with string arguments:
 
-```
+```text
 .foo "product", 1, 2, 3
 ```
 
@@ -150,7 +150,7 @@ Note: Keep in mind that strings will have quotes around them.
 
 Example with string arguments:
 
-```
+```text
 .foo "difference", 10, 3, 1
 ```
 
@@ -181,6 +181,7 @@ something like this in Python:
 
 ```python
 #!/usr/bin/env python
+
 import sys
 
 def main(argc, argv):
@@ -277,7 +278,7 @@ int custom(char **return_str, size_t *return_len, unsigned int ints[], int lengt
 
 ##### Compiling
 
-```
+```text
 $ gcc -o quotient.so quotient.c -shared -fPIC
 ```
 

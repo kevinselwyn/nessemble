@@ -6,7 +6,7 @@ Download and install the latest release for your system:
 
 To build from source:
 
-```
+```text
 git clone https://github.com/kevinselwyn/nessemble
 cd nessemble
 make && sudo make install

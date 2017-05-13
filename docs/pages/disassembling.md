@@ -5,7 +5,7 @@
 
 ## Usage
 
-```
+```text
 nessemble infile.rom --diassemble
 ```
 
@@ -15,7 +15,7 @@ nessemble infile.rom --diassemble
 
 Example:
 
-```
+```text
 0000 | 85 44    | STA <$44
 0002 | 95 44    | STA <$44, X
 0004 | 8D 00 44 | STA $4400
@@ -32,7 +32,7 @@ The columns are as follows:
 
 For ROMs with an iNES header, there is an extra column:
 
-```
+```text
 0010 | C000 | 85 44    | STA <$44
 0012 | C002 | 95 44    | STA <$44, X
 0014 | C004 | 8D 00 44 | STA $4400
@@ -50,7 +50,7 @@ The columns are as follows:
 
 To facilitate reassembly, use the `-R`/`--reassemble` flag.
 
-```
+```text
 nessemble infile.rom --disassemble --reassemble
 ```
 

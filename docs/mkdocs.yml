@@ -1,0 +1,18 @@
+site_name: Nessemble
+copyright: © 2017 Kevin Selwyn
+pages:
+    - Home: index.md
+    - Installation: installation.md
+    - Usage: usage.md
+    - Syntax: syntax.md
+    - Disassembling: disassembling.md
+    - Simulating: simulating.md
+    - Packages: packages.md
+    - Registry: registry.md
+    - Extending: extending.md
+    - Licensing: licensing.md
+theme: readthedocs
+docs_dir: pages
+dev_addr: 0.0.0.0:8000
+extra_css:
+    - css/custom.css

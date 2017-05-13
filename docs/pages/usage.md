@@ -1,6 +1,6 @@
 # Usage
 
-```
+```text
 Usage: nessemble [options] <infile.asm>
                  <command> [args]
 
@@ -45,7 +45,7 @@ The `-o`/`--output` flag sets the filename where the output should be written.
 
 Example:
 
-```
+```text
 nessemble infile.asm --output outfile.rom
 ```
 
@@ -61,7 +61,7 @@ The `-f`/`--format` flag specifies the format of the output.
 
 Example:
 
-```
+```text
 nessemble infile.asm --format RAW
 ```
 
@@ -75,7 +75,7 @@ address value. This defaults to `FF`.
 
 Example:
 
-```
+```text
 nessemble infile.asm --empty 00
 ```
 
@@ -85,7 +85,7 @@ The `-u`/`--undocumented` flag allows use of undocumented opcodes.
 
 Example:
 
-```
+```text
 nessemble infile.asm --undocumented
 ```
 
@@ -99,19 +99,19 @@ disassembly process.
 
 Example:
 
-```
+```text
 nessemble infile.asm --list listfile.txt
 ```
 
 ### -p, --pseudo &lt;pseudo.txt&gt;
 
 The `-p`/`--pseudo` flag sets the filename of the file that indicates what
-custom pseudo-instructions to enable. See the section on [Extending](#Extending)
+custom pseudo-instructions to enable. See the section on [Extending](/extending)
 to learn more about how to write custom pseudo-instructions.
 
 Example:
 
-```
+```text
 nessemble infile.asm --pseudo pseudo.txt
 ```
 
@@ -120,7 +120,7 @@ nessemble infile.asm --pseudo pseudo.txt
 The `-c`/`--check` flag only checks the input assembly file for syntax errors.
 Nothing will be output beyond any syntax errors that may arise.
 
-```
+```text
 nessemble infile.asm --check
 ```
 
@@ -133,18 +133,18 @@ Note: This only works when the `-f/--format` is `NES`, not when it is `RAW`.
 
 Example:
 
-```
+```text
 nessemble infile.asm --coverage
 ```
 
 ### -d, --disassemble
 
 The `-d`/`--disassemble` flag will disassemble any 6502 ROM. See the section on
-[Disassembling](#Disassembling) for a breakdown of the generated output.
+[Disassembling](/disassembling) for a breakdown of the generated output.
 
 Example:
 
-```
+```text
 nessemble infile.rom --diassemble
 ```
 
@@ -152,35 +152,35 @@ nessemble infile.rom --diassemble
 
 The `-R`/`--reassemble` flag can be used in conjunction with the
 `-d/--diassemble` flag to disassemble to a format appropriate for reassembly.
-See the section on [Disassembling](#Disassembling) for a breakdown of the generated
+See the section on [Disassembling](/disassembling) for a breakdown of the generated
 output.
 
 Example:
 
-```
+```text
 nessemble --disassemble infile.rom --reassemble
 ```
 
 ### -s, --simulate &lt;infile.rom&gt;
 
 The `-s`/`--simulate` flag starts a 6502 simulator with the provided ROM. See
-the section on [Simulating](#Simulating) for a breakdown of the syntax used.
+the section on [Simulating](/simulating) for a breakdown of the syntax used.
 
 Example:
 
-```
+```text
 nessemble --simulate infile.rom
 ```
 
-### -r, --recipe &lt;recipe.txt&lt;
+### -r, --recipe &lt;recipe.txt&gt;
 
 The `-r`/`--recipe` flag can be used in conjunction with the `-s/--simulate` flag
 to provide a recipe of instructions to be run by the simulator. See the section
-on [Simulating](#Simulating) for a breakdown of the syntax used.
+on [Simulating](/simulating) for a breakdown of the syntax used.
 
 Example:
 
-```
+```text
 nessemble --simulate infile.rom --recipe recipe.txt
 ```
 
@@ -190,18 +190,18 @@ The `-v`/`--version` flag prints the version of `nessemble`.
 
 Example:
 
-```
+```text
 nessemble --version
 ```
 
 ### -L, --license
 
 The `-L`/`--license` flag prints the license for `nessemble`. See the section on
-[Licensing](#Licensing) for more information.
+[Licensing](/licensing) for more information.
 
 Example:
 
-```
+```text
 nessemble --license
 ```
 
@@ -211,7 +211,7 @@ The `-h`/`--help` flag prints the usage for `nessemble`.
 
 Example:
 
-```
+```text
 nessemble --help
 ```
 
@@ -224,19 +224,19 @@ creation of a new project.
 
 Example:
 
-```
+```text
 nessemble init
 ```
 
 ### scripts
 
 The `scripts` command will install optional scripts that will extend the
-functionality of `nessemble`. See the section on [Extending](#Extending) to
+functionality of `nessemble`. See the section on [Extending](/extending) to
 learn more about how to use custom pseudo-instructions.
 
 Example:
 
-```
+```text
 nessemble scripts
 ```
 
@@ -247,7 +247,7 @@ of 6502 development (registers, addressing, etc).
 
 Example:
 
-```
+```text
 nessemble reference
 ```
 
@@ -260,7 +260,7 @@ additional arguments will list all config options. Using `config` with just a
 
 Example:
 
-```
+```text
 nessemble config
 ```
 
@@ -274,19 +274,19 @@ Note: This command is just an alias for `config registry`.
 
 Example:
 
-```
+```text
 nessemble registry
 ```
 
 ### install &lt;package&gt;
 
 The `install` command will install a package that can be used in assembly
-projects. See the section on [Packages](#TODO) for more information on their
+projects. See the section on [Packages](/packages) for more information on their
 usage.
 
 Example:
 
-```
+```text
 nessemble install foo
 ```
 
@@ -296,7 +296,7 @@ The `uninstall` command will uninstall a package.
 
 Example:
 
-```
+```text
 nessemble uninstall foo
 ```
 
@@ -306,7 +306,7 @@ The `info` command will print info for a given package.
 
 Example:
 
-```
+```text
 nessemble info foo
 ```
 
@@ -316,7 +316,7 @@ The `ls` command will list all installed packages.
 
 Example:
 
-```
+```text
 nessemble ls
 ```
 
@@ -327,7 +327,7 @@ keywords that match the given term.
 
 Example:
 
-```
+```text
 nessemble search foo
 ```
 
@@ -338,7 +338,7 @@ registry.
 
 Example:
 
-```
+```text
 nessemble adduser
 ```
 
@@ -348,7 +348,7 @@ The `login` command will guide the user in the registry login process.
 
 Example:
 
-```
+```text
 nessemble login
 ```
 
@@ -358,6 +358,6 @@ The `logout` command will log the user out of the registry.
 
 Example:
 
-```
+```text
 nessemble logout
 ```

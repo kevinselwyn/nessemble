@@ -207,6 +207,12 @@ translate-install: translate/$(LANG)/nessemble.mo
 	@cp $< ~/.nessemble/locale/de/LC_MESSAGES/
 	@printf "Language installed: %s\n" $(LANG)
 
+# DOCUMENTATION
+
+.PHONY: docs
+docs:
+	cd docs ; mkdocs serve
+
 # INSTALL/UNINSTALL
 
 install: all
@@ -220,7 +226,6 @@ uninstall:
 
 ifeq ($(UNAME), Linux)
 ARCHITECTURE := $(shell dpkg --print-architecture)
-SIZE         := $(shell wc -c < $(EXEC))
 YEAR         := $(shell date +"%Y")
 endif
 
@@ -230,6 +235,7 @@ ifeq ($(UNAME), Linux)
 	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
 	mkdir -p $(PAYLOAD)/usr/share/doc/$(NAME)
+	strip $(EXEC)
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
 	mkdir -p $(PAYLOAD)/DEBIAN
 	sed -e "s/\$${NAME}/$(NAME)/g" \
@@ -237,7 +243,7 @@ ifeq ($(UNAME), Linux)
 		-e "s/\$${ARCHITECTURE}/$(ARCHITECTURE)/g" \
 		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
 		-e "s/\$${EMAIL}/$(EMAIL)/g" \
-		-e "s/\$${SIZE}/$(SIZE)/g" \
+		-e "s/\$${SIZE}/$(shell wc -c < $(EXEC))/g" \
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
 	 	$(PACKAGE)/control > $(PAYLOAD)/DEBIAN/control
 	sed -e "s/\$${NAME}/$(NAME)/g" \
@@ -256,6 +262,7 @@ ifeq ($(UNAME), Darwin)
 	$(RM) $(PAYLOAD)
 	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
+	strip $(EXEC)
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
