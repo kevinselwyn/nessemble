@@ -49,6 +49,7 @@ static struct usage_flag usage_commands[USAGE_COMMAND_COUNT] = {
     { "registry [<url>]", "get/set registry url" },
     { "install <package>", "install package" },
     { "uninstall <package>", "uninstall package" },
+    { "publish <package.tar.gz>", "publish package"},
     { "info <package>", "get info about package" },
     { "ls", "list all installed packages" },
     { "search <term>", "search for package in registry" },

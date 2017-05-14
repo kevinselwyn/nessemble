@@ -29,6 +29,7 @@ Commands:
   registry [<url>]                 get/set registry url
   install <package>                install package
   uninstall <package>              uninstall package
+  publish <package.tar.gz>         publish package
   info <package>                   get info about package
   ls                               list all installed packages
   search <term>                    search for package in registry
@@ -152,8 +153,8 @@ nessemble infile.rom --diassemble
 
 The `-R`/`--reassemble` flag can be used in conjunction with the
 `-d/--diassemble` flag to disassemble to a format appropriate for reassembly.
-See the section on [Disassembling](/disassembling) for a breakdown of the generated
-output.
+See the section on [Disassembling](/disassembling) for a breakdown of the
+generated output.
 
 Example:
 
@@ -281,8 +282,8 @@ nessemble registry
 ### install &lt;package&gt;
 
 The `install` command will install a package that can be used in assembly
-projects. See the section on [Packages](/packages) for more information on their
-usage.
+projects. See the section on [Packages](/packages/#installing) for more
+information on the usage.
 
 Example:
 
@@ -298,6 +299,17 @@ Example:
 
 ```text
 nessemble uninstall foo
+```
+
+### publish &lt;package.tar.gz&gt;
+
+The `publish` command will publish a package. See the section on
+[Packages](/packages/#publishing) for more information on the usage.
+
+Example:
+
+```text
+nessemble publish foo.tar.gz
 ```
 
 ### info &lt;package&gt;

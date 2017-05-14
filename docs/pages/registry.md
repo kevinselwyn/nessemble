@@ -148,7 +148,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
         "1.0.1": "1997-08-29T22:14:00.000Z"
     },
     "author": {
-        "name": "Joe Somebody",,
+        "name": "Joe Somebody",
         "email": "joe.somebody@email.com"
     },
     "license": "GPLv3",

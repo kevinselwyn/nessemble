@@ -191,7 +191,7 @@ enum {
 
 /* USAGE */
 #define USAGE_FLAG_COUNT            15
-#define USAGE_COMMAND_COUNT         13
+#define USAGE_COMMAND_COUNT         14
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
 /* ZIP */
