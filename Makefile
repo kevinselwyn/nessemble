@@ -165,7 +165,7 @@ splint: all
 # REGISTRY
 
 registry: all
-	python ./registry/server.py --debug
+	cd registry ; python server.py --debug --port 8000 --import registry.sql
 
 # LIBLUA
 

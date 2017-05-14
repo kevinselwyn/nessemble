@@ -13,6 +13,6 @@ pages:
     - Licensing: licensing.md
 theme: readthedocs
 docs_dir: pages
-dev_addr: 0.0.0.0:8000
+dev_addr: 0.0.0.0:9090
 extra_css:
     - css/custom.css
