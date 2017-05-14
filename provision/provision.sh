@@ -29,3 +29,6 @@ tar xf msitools-0.96.tar.xz && cd msitools-0.96
 ./configure
 make && sudo make install
 rm -rf msitools-0.96 msitools-0.96.tar.xz
+
+# expose custom scripts
+echo "PATH=\$PATH:/vagrant/provision/scripts" >> ~/.profile

@@ -12,6 +12,16 @@ nessemble search controller
 
 If a match is found, a list of packages will be returned.
 
+## info
+
+To get information on a package, use the `info` command:
+
+```text
+nessemble info controller
+```
+
+If the package exists, its `README.md` file will be displayed.
+
 ## Installing
 
 To install a package:

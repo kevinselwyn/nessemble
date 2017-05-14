@@ -293,7 +293,8 @@ nessemble install foo
 
 ### uninstall &lt;package&gt;
 
-The `uninstall` command will uninstall a package.
+The `uninstall` command will uninstall a package. See the section on
+[Packages](/packages/#uninstalling) for more information on the usage.
 
 Example:
 
@@ -314,7 +315,8 @@ nessemble publish foo.tar.gz
 
 ### info &lt;package&gt;
 
-The `info` command will print info for a given package.
+The `info` command will print info for a given package. See the section on
+[Packages](/packages/#info) for more information on the usage.
 
 Example:
 
@@ -324,7 +326,8 @@ nessemble info foo
 
 ### ls
 
-The `ls` command will list all installed packages.
+The `ls` command will list all installed packages. See the section on
+[Packages](/packages/#listing) for more information on the usage.
 
 Example:
 
@@ -335,7 +338,8 @@ nessemble ls
 ### search &lt;term&gt;
 
 The `search` command will search for packages with titles, descriptions, or
-keywords that match the given term.
+keywords that match the given term. See the section on
+[Packages](/packages/#searching) for more information on the usage.
 
 Example:
 
