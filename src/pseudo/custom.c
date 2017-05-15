@@ -13,7 +13,7 @@
 
 struct custom_script {
     char *ext;
-    unsigned int (*func)(char *);
+    unsigned int (*func)(char *, char **);
 };
 
 struct custom_script custom_scripts[CUSTOM_SCRIPT_COUNT] = {
@@ -32,8 +32,8 @@ struct custom_script custom_scripts[CUSTOM_SCRIPT_COUNT] = {
  * custom pseudo instruction
  */
 void pseudo_custom(char *pseudo) {
-    char *exec = NULL, *ext = NULL;
-    unsigned int i = 0, l = 0, found = FALSE;
+    char *exec = NULL, *ext = NULL, *output = NULL;
+    unsigned int i = 0, l = 0, found = FALSE, has_error = FALSE;
 
     if (pseudo_parse(&exec, pseudo) != RETURN_OK) {
         yyerror(_("Unknown custom pseudo-instruction `%s`"), pseudo);
@@ -59,7 +59,8 @@ void pseudo_custom(char *pseudo) {
             if (strcmp(custom_scripts[i].ext, ext) == 0) {
                 found = TRUE;
 
-                if ((*custom_scripts[i].func)(exec) != RETURN_OK) {
+                if ((*custom_scripts[i].func)(exec, &output) != RETURN_OK) {
+                    has_error = TRUE;
                     goto cleanup;
                 }
             }
@@ -84,4 +85,9 @@ cleanup:
     }
 
     length_texts = 0;
+
+    if (has_error == TRUE) {
+        error(output);
+        nessemble_free(output);
+    }
 }
