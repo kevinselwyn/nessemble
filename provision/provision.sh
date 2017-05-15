@@ -31,4 +31,7 @@ make && sudo make install
 rm -rf msitools-0.96 msitools-0.96.tar.xz
 
 # expose custom scripts
-echo "PATH=\$PATH:/vagrant/provision/scripts" >> ~/.profile
+echo "PATH=\$PATH:/vagrant/provision/scripts" >> /home/ubuntu/.profile
+
+# go to /vagrant at login
+echo "cd /vagrant" >> /home/ubuntu/.profile

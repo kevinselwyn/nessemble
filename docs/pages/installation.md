@@ -11,3 +11,6 @@ git clone https://github.com/kevinselwyn/nessemble
 cd nessemble
 make && sudo make install
 ```
+
+See the section on [Building](/building) for more information about
+dependencies and requirements.

@@ -3,6 +3,7 @@ copyright: © 2017 Kevin Selwyn
 pages:
     - Home: index.md
     - Installation: installation.md
+    - Building: building.md
     - Usage: usage.md
     - Syntax: syntax.md
     - Disassembling: disassembling.md
