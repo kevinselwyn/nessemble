@@ -1,6 +1,10 @@
 # Packages
 
-Packages can be published, installed, and used in projects.
+`nessemble` also includes a built-in package manager. Packages can be published,
+installed, and used in projects.
+
+See the section on [Registry](/registry) to create your own registry of
+`nessemble` packages.
 
 ## Search
 
@@ -12,7 +16,7 @@ nessemble search controller
 
 If a match is found, a list of packages will be returned.
 
-## info
+## Info
 
 To get information on a package, use the `info` command:
 
@@ -30,8 +34,9 @@ To install a package:
 nessemble install controller
 ```
 
-Note: Packages are installed to `~/.nessemble/libs/<package-name>/` on
-Linux/Mac and `\Users\<username>\.nessemble\libs\<package-name>\` on Windows.
+Note: Packages are installed to `~/.nessemble/packages/<package-name>/` on
+Linux/Mac and `\Users\<username>\.nessemble\packages\<package-name>\` on
+Windows.
 
 ## Usage
 
@@ -41,9 +46,9 @@ To use a package in assembly:
 .include <controller.asm>
 ```
 
-Note: `.include` with angle braces (`<...>`) includes installed libraries, and
-`.include` with quotes (`"..."`) includes another assembly file relative to the
-project directory.
+Note: `.include` with angle braces (`<...>`) will include an installed package,
+and `.include` with quotes (`"..."`) includes another assembly file relative to
+the project directory.
 
 ## Listing
 

@@ -246,7 +246,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
         rc = RETURN_EPERM;
         goto cleanup;
     case 404:
-        error_program_log(_("Library does not exist"));
+        error_program_log(_("Package does not exist"));
 
         rc = RETURN_EPERM;
         goto cleanup;

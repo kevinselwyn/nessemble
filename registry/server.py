@@ -484,7 +484,7 @@ def list_packages():
 
     session = Session()
     results = OrderedDict([
-        ('libraries', [])
+        ('packages', [])
     ])
 
     result = session.query(Lib) \
@@ -493,7 +493,7 @@ def list_packages():
                     .all()
 
     for lib in result:
-        results['libraries'].append(OrderedDict([
+        results['packages'].append(OrderedDict([
             ('title', lib.title),
             ('description', lib.description),
             ('tags', lib.tags.split(',')),
@@ -738,7 +738,7 @@ def post_gz():
         lib = result[0]
 
         if lib.user_id != user.id:
-            return unprocessable_custom('Library `%s` already exists' % (json_info['title']))
+            return unprocessable_custom('Package `%s` already exists' % (json_info['title']))
 
         if semver.compare(json_info['version'], lib.version) != 1:
             return unprocessable_custom('Cannot upgrade to version %s (currently at %s)' % (json_info['version'], lib.version))

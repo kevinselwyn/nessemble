@@ -34,7 +34,7 @@ unsigned int create_config() {
         config_dir = opendir(config_path);
     }
 
-    if ((rc = get_home_path(&lib_path, 2, "." PROGRAM_NAME, "libs")) != RETURN_OK) {
+    if ((rc = get_home_path(&lib_path, 2, "." PROGRAM_NAME, "packages")) != RETURN_OK) {
         goto cleanup;
     }
 
