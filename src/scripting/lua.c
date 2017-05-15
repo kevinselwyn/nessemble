@@ -11,11 +11,11 @@
 #include <lualib.h>
 #endif /* IS_JAVASCRIPT */
 
-unsigned int scripting_lua(char *exec) {
+unsigned int scripting_lua(char *exec, char **output) {
     unsigned int rc = RETURN_OK;
 
 #ifndef IS_JAVASCRIPT
-    int error = 0;
+    int has_error = 0;
     unsigned int i = 0, l = 0;
     size_t return_len = 0, path_len = 0;
     char *return_str = NULL, *error_str = NULL;
@@ -48,12 +48,12 @@ unsigned int scripting_lua(char *exec) {
 
     // load file
 
-    if ((error = luaL_loadfile(L, exec)) != 0) {
+    if ((has_error = luaL_loadfile(L, exec)) != 0) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if ((error = lua_pcall(L, 0, 0, 0)) != 0) {
+    if ((has_error = lua_pcall(L, 0, 0, 0)) != 0) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
@@ -64,7 +64,7 @@ unsigned int scripting_lua(char *exec) {
         if (!lua_isnil(L, -1)) {
             lua_pushstring(L, texts[i]);
 
-            if ((error = lua_pcall(L, 1, 0, 0) != 0)) {
+            if ((has_error = lua_pcall(L, 1, 0, 0) != 0)) {
                 rc = RETURN_EPERM;
                 goto cleanup;
             }
@@ -77,7 +77,7 @@ unsigned int scripting_lua(char *exec) {
         lua_pushnumber(L, ints[i]);
     }
 
-    if ((error = lua_pcall(L, length_ints, 1, 0)) != 0) {
+    if ((has_error = lua_pcall(L, length_ints, 1, 0)) != 0) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
@@ -89,11 +89,15 @@ unsigned int scripting_lua(char *exec) {
     }
 
 cleanup:
-    if (error != 0) {
+    if (has_error != 0) {
         error_str = strchr(lua_tostring(L, -1), ':');
         error_str = strchr(error_str+2, ':');
+        error_str += 2;
 
-        yyerror(error_str+2);
+        return_len = strlen(error_str);
+
+        *output = (char *)nessemble_malloc(sizeof(char) * (return_len + 1));
+        strcpy(*output, error_str);
     }
 
     lua_close(L);

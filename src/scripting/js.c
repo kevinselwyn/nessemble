@@ -1,9 +1,9 @@
 #include "../nessemble.h"
 #include "../third-party/duktape/duktape.h"
 
-unsigned int scripting_js(char *exec) {
+unsigned int scripting_js(char *exec, char **output) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
-    unsigned int exec_len = 0;
+    unsigned int has_error = FALSE, exec_len = 0;
     size_t return_len = 0;
     char *exec_data = NULL, *return_str = NULL,  *error_str = NULL;
 
@@ -26,7 +26,12 @@ unsigned int scripting_js(char *exec) {
 
         if (duk_pcall(ctx, 1) != 0) {
             error_str = strchr(duk_safe_to_string(ctx, -1), ':');
-            yyerror(error_str+2);
+            error_str += 2;
+
+            rc = RETURN_EPERM;
+            has_error = TRUE;
+
+            goto cleanup;
         }
     }
 
@@ -38,7 +43,12 @@ unsigned int scripting_js(char *exec) {
 
     if (duk_pcall(ctx, length_ints) != 0) {
         error_str = strchr(duk_safe_to_string(ctx, -1), ':');
-        yyerror(error_str+2);
+        error_str += 2;
+
+        rc = RETURN_EPERM;
+        has_error = TRUE;
+
+        goto cleanup;
     }
 
     return_str = (char *)duk_get_string(ctx, -1);
@@ -51,6 +61,13 @@ unsigned int scripting_js(char *exec) {
 cleanup:
     duk_destroy_heap(ctx);
     nessemble_free(exec_data);
+
+    if (has_error != 0) {
+        return_len = strlen(error_str);
+
+        *output = (char *)nessemble_malloc(sizeof(char) * (return_len + 1));
+        strcpy(*output, error_str);
+    }
 
     return rc;
 }

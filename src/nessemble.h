@@ -711,8 +711,8 @@ char *translate(char *id);
 /* SCRIPTING */
 unsigned int install_scripts(char **install_path);
 unsigned int scripting_cmd(char *exec);
-unsigned int scripting_js(char *exec);
-unsigned int scripting_lua(char *exec);
+unsigned int scripting_js(char *exec, char **output);
+unsigned int scripting_lua(char *exec, char **output);
 unsigned int scripting_so(char *exec);
 
 /* HASH */
