@@ -3,6 +3,8 @@
 Registries have no preferred language but must contain the following endpoints
 to be valid.
 
+The default registry URL is `http://localhost:8000`.
+
 Note: To change the registry URL, run:
 
 ```text
@@ -51,7 +53,7 @@ X-Response-Time: x.xxx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
-    "libraries": [
+    "packages": [
         {
             "title": "foo",
             "description": "Foo bar baz qux",

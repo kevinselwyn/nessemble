@@ -134,7 +134,7 @@ unsigned int get_json_url(char **value, char *key, char *url) {
         rc = RETURN_EPERM;
         goto cleanup;
     case 404:
-        error_program_log(_("Library does not exist"));
+        error_program_log(_("Package does not exist"));
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -186,7 +186,7 @@ unsigned int get_json_search(char *url, char *term) {
         rc = RETURN_EPERM;
         goto cleanup;
     case 404:
-        error_program_log(_("Library does not exist"));
+        error_program_log(_("Package does not exist"));
 
         rc = RETURN_EPERM;
         goto cleanup;

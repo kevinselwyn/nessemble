@@ -45,7 +45,7 @@ unsigned int set_registry(char *registry) {
 static unsigned int get_lib_dir(char **lib_dir) {
     unsigned int rc = RETURN_OK;
 
-    if ((rc = get_home_path(&*lib_dir, 2, "." PROGRAM_NAME, "libs")) != RETURN_OK) {
+    if ((rc = get_home_path(&*lib_dir, 2, "." PROGRAM_NAME, "packages")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -56,7 +56,7 @@ cleanup:
 static unsigned int get_lib_path(char **lib_path, char *lib) {
     unsigned int rc = RETURN_OK;
 
-    if ((rc = get_home_path(&*lib_path, 3, "." PROGRAM_NAME, "libs", lib)) != RETURN_OK) {
+    if ((rc = get_home_path(&*lib_path, 3, "." PROGRAM_NAME, "packages", lib)) != RETURN_OK) {
         goto cleanup;
     }
 

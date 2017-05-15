@@ -419,7 +419,7 @@ unsigned int get_fullpath(char **path, char *string) {
 
     if (string[0] == '<') {
         if ((rc = get_libpath(path, string)) != RETURN_OK) {
-            error(_("Could not include library `%s`"), string);
+            error(_("Could not include package `%s`"), string);
         }
 
         goto cleanup;
@@ -456,7 +456,7 @@ unsigned int get_libpath(char **path, char *string) {
     old = string[string_length-5];
     string[string_length-5] = '\0';
 
-    if ((rc = get_home_path(&fullpath, 4, "." PROGRAM_NAME, "libs", string+1, "lib.asm")) != RETURN_OK) {
+    if ((rc = get_home_path(&fullpath, 4, "." PROGRAM_NAME, "packages", string+1, "lib.asm")) != RETURN_OK) {
         goto cleanup;
     }
 

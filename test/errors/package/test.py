@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 # pylint: disable=C0103,C0301
-"""library test"""
+"""package test"""
 
 import os
 import subprocess
@@ -10,7 +10,7 @@ def main():
     """Main function"""
 
     dirname = os.path.dirname(os.path.realpath(__file__))
-    err_name = 'library'
+    err_name = 'package'
 
     arguments = ['python', '%s%s..%serrors-test.py' % (dirname, os.sep, os.sep), err_name]
     child = subprocess.Popen(arguments, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

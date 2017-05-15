@@ -12,6 +12,7 @@ pages:
     - Registry: registry.md
     - Extending: extending.md
     - Licensing: licensing.md
+    - Contributing: contributing.md
 theme: readthedocs
 docs_dir: pages
 dev_addr: 0.0.0.0:9090
