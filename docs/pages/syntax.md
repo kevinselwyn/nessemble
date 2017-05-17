@@ -14,7 +14,7 @@ Binary, decimal, octal, hexadecimal, and ASCII character are all valid numbers.
 
 ## Symbols
 
-**Mathematical Operators**
+### Mathematical Operators
 
 | Symbol   | Description |
 |----------|-------------|
@@ -30,7 +30,7 @@ Binary, decimal, octal, hexadecimal, and ASCII character are all valid numbers.
 | &lt;&lt; | Shift left  |
 | %        | Modulo      |
 
-**Comparison Operators**
+### Comparison Operators
 
 | Symbol | Description            |
 |--------|------------------------|
@@ -41,7 +41,7 @@ Binary, decimal, octal, hexadecimal, and ASCII character are all valid numbers.
 | &lt;=  | Less than or equals    |
 | &gt;=  | Greater than or equals |
 
-**Special**
+### Special
 
 | Symbol | Description                   |
 |--------|-------------------------------|
@@ -181,32 +181,30 @@ Read more about 6502 addressing modes
 
 ## Pseudo-Instructions
 
-| Pseudo-Instruction     | Description                                             |
-|------------------------|---------------------------------------------------------|
-| [.ascii](#ascii)       | Convert ASCII string to bytes                           |
-| [.byte](#db)           | Alias for `.db`                                         |
-| [.checksum](#checksum) | Calculate crc32 checksum                                |
-| [.chr](#chr)           | Set CHR bank index                                      |
-| [.color](#color)       | Convert hex color to NES color                          |
-| [.db](#db)             | Define 8-bit byte(s)                                    |
-| [.defchr](#defchr)     | Define CHR tile                                         |
-| [.dw](#dw)             | Define 16-bit word(s)                                   |
-| [.else](#else)         | Else condition of an `.if`/`.ifdef`/`.ifndef` statement |
-| [.endenum](#endenum)   | End `.enum`                                             |
-| [.endif](#endif)       | End `.if`/`.ifdef`/`.ifndef` statement                  |
-| [.enum](#enum)         | Start enumerated variable declarations                  |
-| .fill
-| .hibytes
-| .if
-| .ifdef
-| .ifndef
-| .incbin
-| .include
-| .incmid
-| .incpal
-| .incpng
-| .incrle
-| .incscreen
+| Pseudo-Instruction     | Description                                                                         |
+|------------------------|-------------------------------------------------------------------------------------|
+| [.ascii](#ascii)       | Convert ASCII string to bytes                                                       |
+| [.byte](#db)           | Alias for [`.db`](#db)                                                              |
+| [.checksum](#checksum) | Calculate crc32 checksum                                                            |
+| [.chr](#chr)           | Set CHR bank index                                                                  |
+| [.color](#color)       | Convert hex color to NES color                                                      |
+| [.db](#db)             | Define 8-bit byte(s)                                                                |
+| [.defchr](#defchr)     | Define CHR tile                                                                     |
+| [.dw](#dw)             | Define 16-bit word(s)                                                               |
+| [.else](#else)         | Else condition of an [`.if`](#if)/[`.ifdef`](#ifdef)/[`.ifndef`](#ifndef) statement |
+| [.endenum](#endenum)   | End [`.enum`](#enum)                                                                |
+| [.endif](#endif)       | End [`.if`](#if)/[`.ifdef`](#ifdef)/[`.ifndef`](#ifndef) statement                  |
+| [.enum](#enum)         | Start enumerated variable declarations                                              |
+| [.fill](#fill)         | Fill with bytes                                                                     |
+| [.hibytes](#hibytes)   | Output only the high byte of 16-bit word(s)                                         |
+| [.if](#if)             | Test if condition                                                                   |
+| [.ifdef](#ifdef)       | Test if variable is defined                                                         |
+| [.ifndef](#ifndef)     | Test if variable has not been defined                                               |
+| [.incbin](#incbin)     | Include binary file                                                                 |
+| [.include](#include)   | Include assembly file                                                               |
+| [.incpal](#incpal)     | Include palette from PNG                                                            |
+| [.incpng](#incpng)     | Include PNG                                                                         |
+| [.incrle](#incrle)     | Include binary data to be RLE-encoded                                               |
 | .incwav
 | .ineschr
 | .inesmap
@@ -235,7 +233,7 @@ Usage:
 .ascii "STRING"[(+/-)NUMBER]
 ```
 
-* `STRING` - String, required. ASCII string to turn into bytes. Must be within
+* `"STRING"` - String, required. ASCII string to turn into bytes. Must be within
 quotes.
 * `(+/-)NUMBER` - Number, optional. Amount to increase/decrease ASCII values.
 
@@ -327,7 +325,7 @@ Note: CHR banks are 2K bytes (0x2000) in size.
 
 Convert hex color to NES color.
 
-`.color` finds the closest valid NES color to the given hex color.
+Finds the closest valid NES color to the given hex color.
 
 Usage:
 
@@ -457,7 +455,7 @@ Output:
 
 ### .else
 
-Else condition of an `.if`/`.ifdef`/`.ifndef` statement.
+Else condition of an [`.if`](#if)/[`.ifdef`](#ifdef)/[`.ifndef`](#ifndef) statement.
 
 Usage:
 
@@ -477,7 +475,7 @@ Example:
 
 ### .endenum
 
-End `.enum`.
+End [`.enum`](#enum).
 
 Usage:
 
@@ -499,7 +497,7 @@ TEST_2 .rs 1
 
 ### .endif
 
-End `.if`/`.ifdef`/`.ifndef` statement.
+End [`.if`](#if)/[`.ifdef`](#ifdef)/[`.ifndef`](#ifndef) statement.
 
 Usage:
 
@@ -542,7 +540,256 @@ TEST_2 .rs 1
 .endenum
 ```
 
+### .fill
 
+Fill with bytes.
+
+Usage:
+
+```text
+.fill COUNT[, VALUE]
+```
+
+* `COUNT` - Number, required. Number of bytes to fill.
+* `, VALUE` - Number, optional. Value of each byte. Defaults to $FF.
+
+Example:
+
+```text
+.fill 16
+```
+
+Output:
+
+```text
+00000000  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  |................|
+00000010
+```
+
+### .hibytes
+
+Output only the high byte of 16-bit word(s).
+
+Usage:
+
+```text
+.hibytes NUMBER[, NUMBER]
+```
+
+* `NUMBER` - Number, required. At least one number is required.
+* `, NUMBER, ...` - Number(s), optional. Additional comma-separated numbers may
+be used.
+
+Example:
+
+```text
+.hibytes $1234, $5678
+```
+
+Output:
+
+```text
+00000000  12 56                                             |.V|
+00000002
+```
+
+### .if
+
+Test if condition.
+
+Can be accompanied by an [`.else`](#else) and must be accompanied by an
+[`.endif`](#endif).
+
+Usage:
+
+```text
+.if CONDITION
+```
+
+* `CONDITION` - Condition, required. The code that follows will be processed if
+the condition is true. See [Comparison Operators](#comparison-operators).
+
+Example:
+
+```text
+.if SOMETHING == $01
+    LDA #$01
+.endif
+```
+
+### .ifdef
+
+Test if variable is defined.
+
+Can be accompanied by an [`.else`](#else) and must be accompanied by an
+[`.endif`](#endif).
+
+Usage:
+
+```text
+.ifdef VARIABLE
+```
+
+* `VARIABLE` - Variable/constant/etc., required. The code that follows will be
+processed if the variable has been defined.
+
+Example:
+
+```text
+.ifdef SOMETHING
+    STA $00
+.else
+    STA $01
+.endif
+```
+
+### .ifndef
+
+Test if variable has not been defined.
+
+Can be accompanied by an [`.else`](#else) and must be accompanied by an
+[`.endif`](#endif).
+
+Usage:
+
+```text
+.ifndef VARIABLE
+```
+
+* `VARIABLE` - Variable/constant/etc., required. The code that follows will be
+processed if the variable has not been defined.
+
+Example:
+
+```text
+.ifndef SOMETHING
+    STA $01
+.else
+    STA $00
+.endif
+```
+
+### .incbin
+
+Include binary file.
+
+Usage:
+
+```text
+.incbin "FILENAME"[, OFFSET[, LIMIT]]
+```
+
+* `"FILENAME"` - Path to file, required. Must be within quotes.
+* `[, OFFSET` - File offset index, optional. Index at which to start including
+binary file.
+* `[, LIMIT]]` - Limit in bytes, optional. Number of total bytes to include.
+
+Example:
+
+```text
+.incbin "file.bin"
+```
+
+### .include
+
+Include assembly file.
+
+Usage:
+
+```text
+.incbin "FILENAME"
+```
+
+* `"FILENAME"` - Path to file, required. Must be within quotes.
+
+Example:
+
+```text
+.include "file.asm"
+```
+
+Note: Included files share a global state with other included files and the main
+entry point file. That means if a variable is defined in one file, it is
+available to all other files, provided that they are included after the
+definition.
+
+### .incpal
+
+Include palette from PNG.
+
+Usage:
+
+```text
+.incpal "FILENAME"
+```
+
+* `"FILENAME"` - Path to file, required. Must be within quotes.
+
+Example:
+
+```text
+.incpal "palette.png"
+```
+
+Note: The PNG will be scanned, row-by-row/pixel-by-pixel, from the top-left to
+the bottom-right until it encounters 4 different, but not necessarily unique,
+colors.
+
+### .incpng
+
+Include PNG.
+
+Converts the PNG to CHR tiles. The image must include only 4 colors:
+
+| Name       | RGB           | Hex     |
+|------------|---------------|---------|
+| Black      | 0, 0, 0       | #000000 |
+| Dark Grey  | 85, 85, 85    | #555555 |
+| Light Grey | 170, 170, 170 | #AAAAAA |
+| White      | 255, 255, 255 | #FFFFFF |
+
+Note: Other colors may be used, but accuracy is not guaranteed.
+
+Usage:
+
+```text
+.incpng "FILENAME"
+```
+
+* `"FILENAME"` - Path to file, required. Must be within quotes.
+
+Example:
+
+```text
+.incpng "image.png"
+```
+
+Read more about PPU pattern tables
+[here](https://wiki.nesdev.com/w/index.php/PPU_pattern_tables).
+
+### .incrle
+
+Include binary data to be RLE-encoded
+
+The RLE-encoding scheme used is one featured in a few Konami NES titles, known
+as `Konami RLE`. The breakdown of bytes:
+
+| Value | Description                                          |
+|-------|------------------------------------------------------|
+| 00-80 | Read another byte and write it to the output N times |
+| 81-FE | Copy N-128 bytes from input to output                |
+| FF    | End of compressed data                               |
+
+Usage:
+
+```text
+.incrle "FILENAME"
+```
+
+* `"FILENAME"` - Path to file, required. Must be within quotes.
+
+Read more about NES RLE compression
+[here](https://wiki.nesdev.com/w/index.php/Tile_compression).
 
 ## Labels
 
