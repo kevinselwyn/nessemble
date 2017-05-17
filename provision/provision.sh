@@ -30,6 +30,14 @@ tar xf msitools-0.96.tar.xz && cd msitools-0.96
 make && sudo make install
 rm -rf msitools-0.96 msitools-0.96.tar.xz
 
+# tinyscheme
+rm -rf /vagrant/src/third-party/tinyscheme-1.41
+curl -o /vagrant/src/third-party/tinyscheme-1.41.tar.gz "https://svwh.dl.sourceforge.net/project/tinyscheme/tinyscheme/tinyscheme-1.41/tinyscheme-1.41.tar.gz"
+cd /vagrant/src/third-party/ && tar xf tinyscheme-1.41.tar.gz
+mv /vagrant/src/third-party/tinyscheme-1.41/scheme.h /vagrant/src/third-party/tinyscheme-1.41/scheme-old.h
+cat /vagrant/src/third-party/tinyscheme-1.41/scheme-old.h | sed 's/# define STANDALONE 1/# define STANDALONE 0/' > /vagrant/src/third-party/tinyscheme-1.41/scheme.h
+rm -rf /vagrant/src/third-party/tinyscheme-1.41.tar.gz
+
 # expose custom scripts
 echo "PATH=\$PATH:/vagrant/provision/scripts" >> /home/ubuntu/.profile
 
