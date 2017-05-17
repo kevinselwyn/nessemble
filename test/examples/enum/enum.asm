@@ -8,7 +8,7 @@ TEST_2 .rs 1
 
 .db TEST_0, TEST_1, TEST_2
 
-.enum $0040 2
+.enum $0040, 2
 
 TEST_3 .rs 1
 TEST_4 .rs 2
