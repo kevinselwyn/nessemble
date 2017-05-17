@@ -334,8 +334,8 @@ pseudo_endif
     ;
 
 pseudo_enum
-    : PSEUDO_ENUM number { pseudo_enum($2, 1); $$ = $2; }
-    | pseudo_enum number { pseudo_enum($1, $2); }
+    : PSEUDO_ENUM number       { pseudo_enum($2, 1); $$ = $2; }
+    | pseudo_enum COMMA number { pseudo_enum($1, $3); }
     ;
 
 pseudo_fill

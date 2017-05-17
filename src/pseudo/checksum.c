@@ -2,10 +2,14 @@
 #include "../nessemble.h"
 
 void pseudo_checksum(unsigned int address) {
-    unsigned int crc = 0;
+    unsigned int crc = 0, index = get_rom_index();
 
     if (pass == 2) {
-        crc = crc_32(rom + address, get_rom_index() - address);
+        if (index < address) {
+            yyerror(_("Checksums may only be performed on preceding data"));
+        }
+
+        crc = crc_32(rom + address, index - address);
     }
 
     write_byte((crc >> 24) & 0xFF);
