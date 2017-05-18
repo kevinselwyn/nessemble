@@ -4,16 +4,18 @@
  * .macro pseudo instruction
  * @param {char *} string - Macro string name
  */
- void pseudo_macro(char *string) {
-     int index = get_macro(string);
+void pseudo_macro(char *string) {
+    int index = get_macro(string);
 
-     if (index == -1) {
-         error(_("Macro `%s` was not defined"), string);
-         goto cleanup;
-     }
+    if (index == -1) {
+        error(_("Macro `%s` was not defined"), string);
+        goto cleanup;
+    }
 
-     include_string_push(macros[index].text);
+    arg_unique++;
 
- cleanup:
-     return;
- }
+    include_string_push(macros[index].text);
+
+cleanup:
+    return;
+}
