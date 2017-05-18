@@ -47,6 +47,74 @@ Binary, decimal, octal, hexadecimal, and ASCII character are all valid numbers.
 |--------|-------------------------------|
 | -&gt;  | Accessor (functions like `+`) |
 
+## Labels
+
+### Named
+
+Named label declarations must be in the follow format:
+
+```text
+NAME:
+```
+
+* `NAME` - Label name, required.
+
+Example:
+
+```text
+    LDX #$08
+loop:
+    DEX
+    BNE loop
+    BRK
+```
+
+Output:
+
+```text
+00000000  a2 08 ca d0 fd 00                                 |......|
+00000006
+```
+
+### Temporary
+
+Temporary/un-named labels may also be declared by placing only a colon.
+
+```text
+:
+```
+
+To jump to a temporary label, the direction of the jump must be given.
+
+```text
+JMP :[+-]
+```
+
+`[+-]` - Direction, required.
+
+A `+` direction means to jump to the temporary label that is further down in the
+code.
+
+A `-` direction means to jump to the temporary label that is further up in the
+code.
+
+Example:
+
+```text
+    LDX #$08
+:
+    DEX
+    BNE :-
+    BRK
+```
+
+Output:
+
+```text
+00000000  a2 08 ca d0 fd 00                                 |......|
+00000006
+```
+
 ## Mnemonics
 
 All 56 mnemonics are supported:
@@ -114,7 +182,7 @@ Read more about 6502 opcodes
 [here](http://www.6502.org/tutorials/6502opcodes.html).
 
 In addition, 24 illegal/undocumented mnemonics may be used when assembled with
-the [-u, --undocumented](/usage/#-u-undocumented) flag.
+the [`-u, --undocumented`](/usage/#-u-undocumented) flag.
 
 | Mnemonic | Description                                  |
 |----------|----------------------------------------------|
@@ -194,7 +262,7 @@ Read more about 6502 addressing modes
 | [.else](#else)         | Else condition of an [`.if`](#if)/[`.ifdef`](#ifdef)/[`.ifndef`](#ifndef) statement |
 | [.endenum](#endenum)   | End [`.enum`](#enum)                                                                |
 | [.endif](#endif)       | End [`.if`](#if)/[`.ifdef`](#ifdef)/[`.ifndef`](#ifndef) statement                  |
-| [.endm](#endm)         | End [`.macrodef`](#macrodef)
+| [.endm](#endm)         | End [`.macrodef`](#macrodef)                                                        |
 | [.enum](#enum)         | Start enumerated variable declarations                                              |
 | [.fill](#fill)         | Fill with bytes                                                                     |
 | [.hibytes](#hibytes)   | Output only the high byte of 16-bit word(s)                                         |
@@ -219,10 +287,10 @@ Read more about 6502 addressing modes
 | [.out](#out)           | Output debugging message                                                            |
 | [.prg](#prg)           | Set PRG bank index                                                                  |
 | [.random](#random)     | Output random byte(s)                                                               |
-| .rsset
-| .rs
-| .segment
-| .word
+| [.rsset](#rsset)       | Set initial value for [`.rs`](#rs) declarations                                     |
+| [.rs](#rs)             | Reserve space for variable declaration                                              |
+| [.segment](#segment)   | Set code segment                                                                    |
+| [.word](#dw)           | Alias for [`.dw`](#dw)                                                              |
 
 ### .ascii
 
@@ -763,12 +831,12 @@ Include PNG.
 
 Converts the PNG to CHR tiles. The image must include only 4 colors:
 
-| Name       | RGB           | Hex     |
-|------------|---------------|---------|
-| Black      | 0, 0, 0       | #000000 |
-| Dark Grey  | 85, 85, 85    | #555555 |
-| Light Grey | 170, 170, 170 | #AAAAAA |
-| White      | 255, 255, 255 | #FFFFFF |
+| Color                                  | Name       | RGB           | Hex     |
+|:--------------------------------------:|------------|---------------|---------|
+| <i class="fa fa-stop color-black"></i> | Black      | 0, 0, 0       | #000000 |
+| <i class="fa fa-stop color-dgrey"></i> | Dark Grey  | 85, 85, 85    | #555555 |
+| <i class="fa fa-stop color-lgrey"></i> | Light Grey | 170, 170, 170 | #AAAAAA |
+| <i class="fa fa-stop color-white"></i> | White      | 255, 255, 255 | #FFFFFF |
 
 Note: Other colors may be used, but accuracy is not guaranteed.
 
@@ -1104,8 +1172,77 @@ Example:
 .random "Secret Key", 16
 ```
 
-## Labels
+### .rsset
 
+Set initial value for [`.rs`](#rs) declarations.
 
+Usage:
+
+```text
+.rsset ADDRESS
+```
+
+* `ADDRESS` - Number, required. Address to start [`.rs`](#rs) declarations.
+
+Example:
+
+```text
+.rsset $0000
+```
+
+### .rs
+
+Reserve space for variable declaration.
+
+Usage:
+
+```text
+VARIABLE .rs NUMBER
+```
+
+* `VARIABLE` - Variable name, required. Name of variable to declare.
+* `NUMBER` - Number (in bytes) to reserve, required.
+
+Example:
+
+```text
+.rsset $0000
+
+label_01 .rs 1
+label_02 .rs 2
+label_03 .rs 1
+
+.db label_01, label_02, label_03
+```
+
+Output:
+
+```text
+00000000  00 01 03                                          |...|
+00000003
+```
+
+### .segment
+
+Set code segment.
+
+Usage:
+
+```text
+.segment "SEGMENT[0-9]+"
+```
+
+* `SEGMENT` - Type of segment, required. `PRG` or `CHR`.
+* `[0-9]+` - Number, required. Segment index.
+
+Note: The whole segment must be within quotes.
+
+Example:
+
+```text
+.segment "PRG1"
+```
+
+Note: This is an alias for `.prg 1`.
 
 ## Macros
