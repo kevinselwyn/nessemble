@@ -1246,3 +1246,102 @@ Example:
 Note: This is an alias for `.prg 1`.
 
 ## Macros
+
+Macros may be utilized to maximize code-reuse and may also be treated as custom
+functions.
+
+Example:
+
+```text
+.macrodef TEST_MACRO
+    LDA #$00
+    STA $2005
+    STA $2005
+.endm
+
+.macro TEST_MACRO
+```
+
+Output:
+
+```text
+00000000  a9 00 8d 05 20 8d 05 20                           |.... .. |
+00000008
+```
+
+### Parameters
+
+Macros may also have parameters.
+
+Example:
+
+```text
+.macrodef TEST_MACRO
+    LDA #\1
+    STA \2
+    STA \2
+.endm
+
+.macro TEST_MACRO, $00, $2005
+```
+
+Output:
+
+```text
+.macrodef TEST_MACRO
+    LDA #\1
+    STA \2
+    STA \2
+.endm
+
+.macro TEST_MACRO, $00, $2005
+```
+
+One macro may have up to 256 parameters which are denoted with a `\` prefix. The
+first parameter being `\1`, the next `\2`, and so on up to `\256`. All
+parameters must be numbers (or label variables).
+
+There is also a pseudo-parameter, `\#`, that returns the number of input
+parameters.
+
+Example:
+
+```text
+.macrodef COUNT_PARAMS
+    .db \#
+.endm
+
+.macro COUNT_PARAMS, $01, $01, $01
+```
+
+Output:
+
+```text
+00000000  03                                                |.|
+00000001
+```
+
+There is another pseudo-parameter, `\@`, that returns a unique number every time
+the macro is called.
+
+Example:
+
+```text
+.macrodef TEST_MACRO
+    LDX #$08
+label_\@:
+    DEX
+    BNE label_\@:
+.endm
+
+.macro TEST_MACRO
+.macro TEST_MACRO
+.macro TEST_MACRO
+```
+
+Output:
+
+```text
+00000000  a2 08 ca d0 fd a2 08 ca  d0 fd a2 08 ca d0 fd     |...............|
+0000000f
+```
