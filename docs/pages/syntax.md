@@ -194,6 +194,7 @@ Read more about 6502 addressing modes
 | [.else](#else)         | Else condition of an [`.if`](#if)/[`.ifdef`](#ifdef)/[`.ifndef`](#ifndef) statement |
 | [.endenum](#endenum)   | End [`.enum`](#enum)                                                                |
 | [.endif](#endif)       | End [`.if`](#if)/[`.ifdef`](#ifdef)/[`.ifndef`](#ifndef) statement                  |
+| [.endm](#endm)         | End [`.macrodef`](#macrodef)
 | [.enum](#enum)         | Start enumerated variable declarations                                              |
 | [.fill](#fill)         | Fill with bytes                                                                     |
 | [.hibytes](#hibytes)   | Output only the high byte of 16-bit word(s)                                         |
@@ -205,19 +206,19 @@ Read more about 6502 addressing modes
 | [.incpal](#incpal)     | Include palette from PNG                                                            |
 | [.incpng](#incpng)     | Include PNG                                                                         |
 | [.incrle](#incrle)     | Include binary data to be RLE-encoded                                               |
-| .incwav
-| .ineschr
-| .inesmap
-| .inesmir
-| .inesprg
-| .inestrn
-| .lobytes
-| .macro
-| .macrodef
-| .org
-| .out
-| .prg
-| .random
+| [.incwav](#incwav)     | Include WAV                                                                         |
+| [.ineschr](#ineschr)   | iNES CHR count                                                                      |
+| [.inesmap](#inesmap)   | iNES mapper number                                                                  |
+| [.inesmir](#inesmir)   | iNES mirroring                                                                      |
+| [.inesprg](#inesprg)   | iNES PRG count                                                                      |
+| [.inestrn](#inestrn)   | iNES trainer include                                                                |
+| [.lobytes](#lobytes)   | Output only the low byte of 16-bit word(s)                                          |
+| [.macro](#macro)       | Call macro                                                                          |
+| [.macrodef](#macrodef) | Start macro definition                                                              |
+| [.org](#org)           | Organize code                                                                       |
+| [.out](#out)           | Output debugging message                                                            |
+| [.prg](#prg)           | Set PRG bank index                                                                  |
+| [.random](#random)     | Output random byte(s)                                                               |
 | .rsset
 | .rs
 | .segment
@@ -515,6 +516,27 @@ Example:
 .endif
 ```
 
+### .endm
+
+End [`.macrodef`](#macrodef).
+
+Usage:
+
+```text
+.endm
+```
+
+Example:
+
+```text
+.macrodef TEST_MACRO
+    LDA #\1
+    STA <\2
+.endm
+```
+
+See the section on [Macros](#macros) for more information.
+
 ### .enum
 
 Start enumerated variable declarations.
@@ -790,6 +812,297 @@ Usage:
 
 Read more about NES RLE compression
 [here](https://wiki.nesdev.com/w/index.php/Tile_compression).
+
+### .incwav
+
+Include WAV.
+
+Converts WAV to a 1-bit PCM.
+
+Usage:
+
+```text
+.incwav "FILENAME"[, AMPLITUDE]
+```
+
+* `"FILENAME"` - Path to file, required. Must be within quotes.
+* `[, AMPLITUDE]` - Amplitude, optional. Amplitude of WAV.
+
+Example:
+
+```text
+.incwav "audio.wav", 24
+```
+
+### .ineschr
+
+iNES CHR count.
+
+Usage:
+
+```text
+.ineschr COUNT
+```
+
+* `COUNT` - Number, required. Number of CHR banks.
+
+Example:
+
+```text
+.ineschr 1
+```
+
+### .inesmap
+
+iNES mapper number.
+
+Usage:
+
+```text
+.inesmap NUMBER
+```
+
+* `NUMBER` - Number, required. Mapper number.
+
+Read more about NES mappers
+[here](https://wiki.nesdev.com/w/index.php/List_of_mappers).
+
+### .inesmir
+
+iNES mirroring.
+
+```text
+xxxx3210
+    ||||
+    |||+- Mirroring: 0: horizontal (vertical arrangement)
+    |||              1: vertical (horizontal arrangement)
+    ||+-- 1: Cartridge contains battery-backed PRG-RAM
+    |+--- 1: 512-byte trainer at $7000-$71FF
+    +---- 1: Ignore mirroring control, provide 4-screen VRAM
+
+```
+
+| Value | Binary   | Mirroring  | PRG-RAM                                 | Trainer                                 | 4-Screen                                |
+|:-----:|:--------:|:----------:|:---------------------------------------:|:---------------------------------------:|:---------------------------------------:|
+| 0     | 00000000 | Horizontal | <i class="fa fa-times color-red"></i>   | <i class="fa fa-times color-red"></i>   | <i class="fa fa-times color-red"></i>   |
+| 1     | 00000001 | Vertical   | <i class="fa fa-times color-red"></i>   | <i class="fa fa-times color-red"></i>   | <i class="fa fa-times color-red"></i>   |
+| 2     | 00000010 | Horizontal | <i class="fa fa-check color-green"></i> | <i class="fa fa-times color-red"></i>   | <i class="fa fa-times color-red"></i>   |
+| 3     | 00000011 | Vertical   | <i class="fa fa-check color-green"></i> | <i class="fa fa-times color-red"></i>   | <i class="fa fa-times color-red"></i>   |
+| 4     | 00000100 | Horizontal | <i class="fa fa-times color-red"></i>   | <i class="fa fa-check color-green"></i> | <i class="fa fa-times color-red"></i>   |
+| 5     | 00000101 | Vertical   | <i class="fa fa-times color-red"></i>   | <i class="fa fa-check color-green"></i> | <i class="fa fa-times color-red"></i>   |
+| 6     | 00000110 | Horizontal | <i class="fa fa-check color-green"></i> | <i class="fa fa-check color-green"></i> | <i class="fa fa-times color-red"></i>   |
+| 7     | 00000111 | Vertical   | <i class="fa fa-check color-green"></i> | <i class="fa fa-check color-green"></i> | <i class="fa fa-times color-red"></i>   |
+| 8     | 00001000 | Horizontal | <i class="fa fa-times color-red"></i>   | <i class="fa fa-times color-red"></i>   | <i class="fa fa-check color-green"></i> |
+| 9     | 00001001 | Vertical   | <i class="fa fa-times color-red"></i>   | <i class="fa fa-times color-red"></i>   | <i class="fa fa-check color-green"></i> |
+| 10    | 00001010 | Horizontal | <i class="fa fa-check color-green"></i> | <i class="fa fa-times color-red"></i>   | <i class="fa fa-check color-green"></i> |
+| 11    | 00001011 | Vertical   | <i class="fa fa-check color-green"></i> | <i class="fa fa-times color-red"></i>   | <i class="fa fa-check color-green"></i> |
+| 12    | 00001100 | Horizontal | <i class="fa fa-times color-red"></i>   | <i class="fa fa-check color-green"></i> | <i class="fa fa-check color-green"></i> |
+| 13    | 00001101 | Vertical   | <i class="fa fa-times color-red"></i>   | <i class="fa fa-check color-green"></i> | <i class="fa fa-check color-green"></i> |
+| 14    | 00001110 | Horizontal | <i class="fa fa-check color-green"></i> | <i class="fa fa-check color-green"></i> | <i class="fa fa-check color-green"></i> |
+| 15    | 00001111 | Vertical   | <i class="fa fa-check color-green"></i> | <i class="fa fa-check color-green"></i> | <i class="fa fa-check color-green"></i> |
+
+Usage:
+
+```text
+.inesmir NUMBER
+```
+
+* `NUMBER` - Number, required. Mirroring type.
+
+### .inesprg
+
+iNES PRG count.
+
+Usage:
+
+```text
+.inesprg COUNT
+```
+
+* `COUNT` - Number, required. Number of PRG banks.
+
+Example:
+
+```text
+.inesprg 1
+```
+
+### .inestrn
+
+iNES trainer include.
+
+Note: The assembled trainer must be no larger than 512 (0x200) bytes. The
+appropriate flag is automatically set in the iNES header to indicate a trainer
+is present.
+
+Usage:
+
+```text
+.inestrn "FILENAME"
+```
+
+* `"FILENAME"` - Path to file, required. Must be within quotes.
+
+Example:
+
+```text
+.inestrn "trainer.asm"
+```
+
+### .lobytes
+
+Output only the low byte of 16-bit word(s).
+
+Usage:
+
+```text
+.lobytes NUMBER[, NUMBER]
+```
+
+* `NUMBER` - Number, required. At least one number is required.
+* `, NUMBER, ...` - Number(s), optional. Additional comma-separated numbers may
+be used.
+
+Example:
+
+```text
+.lobytes $1234, $5678
+```
+
+Output:
+
+```text
+00000000  34 78                                             |4x|
+00000002
+```
+
+### .macro
+
+Call macro.
+
+Usage:
+
+```text
+.macro MACRO[, NUMBER, ...]
+```
+
+* `MACRO` - Name, required. Name of previously-defined macro.
+* `, NUMBER, ...` - Number(s), optional. Additional comma-separated numbers may
+be used.
+
+Example:
+
+```text
+.macro TEST_MACRO
+```
+
+See the section on [Macros](#macros) for more information.
+
+### .macrodef
+
+Start macro definition.
+
+Usage:
+
+```text
+.macrodef MACRO
+    CODE...
+.endm
+```
+
+* `MACRO` - Name, required. Name of macro.
+* `CODE...` - Code, required. Assembly code.
+
+Example:
+
+```text
+.macrodef TEST_MACRO
+    LDA #\1
+    STA <\2
+.endm
+```
+
+See the section on [Macros](#macros) for more information.
+
+### .org
+
+Organize code.
+
+Set the address of the current bank in which to start organizing code.
+
+Usage:
+
+```text
+.org ADDRESS
+```
+
+Example:
+
+```text
+.org $C000
+```
+
+### .out
+
+Output debugging message.
+
+The message will only be output during assembly.
+
+Usage:
+
+```text
+.out "STRING"
+```
+
+* `"STRING"` - String, required. ASCII string to output. Must be within quotes.
+
+Example:
+
+```text
+.out "She swore, in faith 'twas strange, 'twas passing strange"
+```
+
+### .prg
+
+Set PRG bank index.
+
+Usage:
+
+```text
+.prg NUMBER
+```
+
+* `NUMBER` - Number, required. PRG bank index.
+
+Example:
+
+```text
+.prg 0
+```
+
+Note: PRG banks are 4K bytes (0x4000) in size.
+
+### .random
+
+Output random byte(s).
+
+The algorithm for the PRNG is the suggested POSIX implementation of `rand()`.
+
+Usage:
+
+```text
+.random [SEED[, COUNT]]
+```
+
+* `[SEED` - Number or string, optional. Seeds the random number generator.
+Defaults to the current system time.
+* `[, COUNT]]` - Number of bytes to output, optional. Defaults to 1.
+
+Example:
+
+```text
+.random "Secret Key", 16
+```
 
 ## Labels
 
