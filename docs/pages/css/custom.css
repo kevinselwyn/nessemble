@@ -4,9 +4,21 @@ li.toctree-l2:first-child {
 code.text {
     color: #404040
 }
+.color-black {
+    color: #000000;
+}
 .color-green {
     color: #41C300;
 }
+.color-dgrey {
+    color: #555555;
+}
+.color-lgrey {
+    color: #AAAAAA;
+}
 .color-red {
     color: #E74C3C;
+}
+.color-white {
+    color: #FFFFFF;
 }
