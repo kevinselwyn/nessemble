@@ -4,3 +4,9 @@ li.toctree-l2:first-child {
 code.text {
     color: #404040
 }
+.color-green {
+    color: #41C300;
+}
+.color-red {
+    color: #E74C3C;
+}
