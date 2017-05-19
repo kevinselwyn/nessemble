@@ -97,6 +97,8 @@
 %token <ival> NUMBER_DEC
 %token <ival> NUMBER_CHAR
 %token <ival> NUMBER_ARG
+%token <ival> NUMBER_ARGC
+%token <ival> NUMBER_ARGU
 
 %token <sval> TEXT
 %token <sval> COLON
@@ -110,6 +112,7 @@
 %token FEOF
 %token UNKNOWN
 
+%type <sval> text
 %type <sval> pseudo_ifdef
 %type <sval> pseudo_ifndef
 %type <sval> pseudo_incwav
@@ -181,6 +184,8 @@ number_base
     | NUMBER_DEC     { $$ = $1; }
     | NUMBER_CHAR    { $$ = $1; }
     | NUMBER_ARG     { $$ = args[$1 - 1]; }
+    | NUMBER_ARGC    { $$ = length_args; }
+    | NUMBER_ARGU    { $$ = arg_unique; }
     | number_bank    { $$ = $1; }
     | number_highlow { $$ = $1; }
     ;
@@ -191,7 +196,7 @@ number_defchr
     ;
 
 number_bank
-    : BANK OPEN_PAREN TEXT CLOSE_PAREN { if (pass == 2) { $$ = symbols[get_symbol($3)].bank; } else { if (get_symbol($3) != -1) { $$ = symbols[get_symbol($3)].bank; } else { $$ = 1; } } if (error_exists() == TRUE) { YYBAIL; } }
+    : BANK OPEN_PAREN text CLOSE_PAREN { if (pass == 2) { $$ = symbols[get_symbol($3)].bank; } else { if (get_symbol($3) != -1) { $$ = symbols[get_symbol($3)].bank; } else { $$ = 1; } } if (error_exists() == TRUE) { YYBAIL; } }
     ;
 
 number_highlow
@@ -199,8 +204,13 @@ number_highlow
     | HIGH OPEN_PAREN number CLOSE_PAREN { $$ = ($3 >> 8) & 255; }
     ;
 
+text
+    : TEXT             { $$ = $1; }
+    | TEXT NUMBER_ARGU { $$ = argu_macro($1); }
+    ;
+
 label_text
-    : TEXT { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { if (get_symbol($1) != -1) { $$ = symbols[get_symbol($1)].value; } else { add_symbol($1, 1, SYMBOL_UNDEFINED); $$ = 1; } } if (error_exists() == TRUE) { YYBAIL; } }
+    : text { if (pass == 2) { $$ = symbols[get_symbol($1)].value; } else { if (get_symbol($1) != -1) { $$ = symbols[get_symbol($1)].value; } else { add_symbol($1, 1, SYMBOL_UNDEFINED); $$ = 1; } } if (error_exists() == TRUE) { YYBAIL; } }
     ;
 
 local_label_text
@@ -334,8 +344,8 @@ pseudo_endif
     ;
 
 pseudo_enum
-    : PSEUDO_ENUM number { pseudo_enum($2, 1); $$ = $2; }
-    | pseudo_enum number { pseudo_enum($1, $2); }
+    : PSEUDO_ENUM number       { pseudo_enum($2, 1); $$ = $2; }
+    | pseudo_enum COMMA number { pseudo_enum($1, $3); }
     ;
 
 pseudo_fill
@@ -353,11 +363,11 @@ pseudo_if
     ;
 
 pseudo_ifdef
-    : PSEUDO_IFDEF TEXT { $$ = $2; }
+    : PSEUDO_IFDEF text { $$ = $2; }
     ;
 
 pseudo_ifndef
-    : PSEUDO_IFNDEF TEXT { $$ = $2; }
+    : PSEUDO_IFNDEF text { $$ = $2; }
     ;
 
 pseudo_incbin
@@ -423,7 +433,7 @@ pseudo_lobytes
     ;
 
 pseudo_macro
-    : PSEUDO_MACRO TEXT         { length_args = 0; $$ = $2; }
+    : PSEUDO_MACRO text         { length_args = 0; $$ = $2; }
     | pseudo_macro COMMA number { args[length_args++] = $3; $$ = $1; }
     ;
 
@@ -457,7 +467,7 @@ pseudo_rsset
     ;
 
 pseudo_rs
-    : TEXT PSEUDO_RS number { pseudo_rs($1, $3); }
+    : text PSEUDO_RS number { pseudo_rs($1, $3); }
     ;
 
 pseudo_segment
@@ -474,14 +484,14 @@ pseudo_custom
 /* Constant */
 
 constant_decl
-    : TEXT            { add_constant($1, 0x01); }
-    | TEXT EQU number { add_constant($1, $3); }
+    : text            { add_constant($1, 0x01); }
+    | text EQU number { add_constant($1, $3); }
     ;
 
 /* Label */
 
 label_decl
-    : TEXT COLON { add_label($1); }
+    : text COLON { add_label($1); }
     | COLON      { add_label($1); }
     ;
 
