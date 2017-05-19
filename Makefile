@@ -80,6 +80,8 @@ endif
 js: EXEC            := $(NAME).js
 js: CC              := emcc
 js: CC_LIB_FLAGS    :=
+js: AR              := emar
+js: SCHEME_FLAGS    := -DUSE_STRLWR=0
 
 win32: EXEC         := $(NAME).exe
 win32: CC           := i686-w64-mingw32-gcc
