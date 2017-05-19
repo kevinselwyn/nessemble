@@ -475,7 +475,8 @@ pseudo_segment
     ;
 
 pseudo_custom
-    : PSEUDO_CUSTOM number            { ints[length_ints++] = $2; $$ = $1; }
+    : PSEUDO_CUSTOM                   { /* NOTHING */ }
+    | PSEUDO_CUSTOM number            { ints[length_ints++] = $2; $$ = $1; }
     | PSEUDO_CUSTOM QUOT_STRING       { texts[length_texts++] = nessemble_strdup($2); $$ = $1; }
     | pseudo_custom COMMA number      { ints[length_ints++] = $3; $$ = $1; }
     | pseudo_custom COMMA QUOT_STRING { texts[length_texts++] = nessemble_strdup($3); $$ = $1; }
