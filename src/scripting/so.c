@@ -9,13 +9,13 @@
 #include <windows.h>
 #endif /* IS_WINDOWS */
 
-unsigned int scripting_so(char *exec) {
+unsigned int scripting_so(char *exec, char **output) {
     unsigned int rc = RETURN_OK;
 
 #ifndef IS_JAVASCRIPT
     void *handle = NULL;
     int (*custom)(char **, size_t *, unsigned int[], int, char *[], int);
-    unsigned int i = 0, l = 0;
+    unsigned int i = 0, l = 0, has_error = FALSE;
     size_t return_len = 0;
     char *return_str = NULL;
 
@@ -45,7 +45,9 @@ unsigned int scripting_so(char *exec) {
 #endif /* IS_WINDOWS */
 
     if ((*custom)(&return_str, &return_len, ints, length_ints, texts, length_texts) != 0) {
-        yyerror(return_str);
+        has_error = TRUE;
+        rc = RETURN_EPERM;
+        goto cleanup;
     }
 
     if (!return_str) {
@@ -60,6 +62,11 @@ unsigned int scripting_so(char *exec) {
     }
 
 cleanup:
+    if (has_error) {
+        *output = (char *)nessemble_malloc(sizeof(char) * (strlen(return_str) + 1));
+        strcpy(*output, return_str);
+    }
+
 #ifndef IS_WINDOWS
     if (handle) {
         UNUSED(dlclose(handle));

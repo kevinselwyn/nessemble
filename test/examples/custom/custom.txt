@@ -2,3 +2,4 @@
 .product = scripts/product.lua
 .difference = scripts/difference.js
 .quotient = scripts/quotient.so
+.factorial = scripts/factorial.scm
