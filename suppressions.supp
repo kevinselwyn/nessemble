@@ -47,3 +47,26 @@
    fun:yyparse
    fun:main
 }
+{
+   <tinyscheme_init>
+   Memcheck:Cond
+   fun:opexe_0
+   fun:Eval_Cycle
+   fun:scheme_load_string
+   fun:scripting_scm
+   fun:pseudo_custom
+   fun:yyparse
+   fun:main
+}
+{
+   <dlopen_so>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:scripting_so
+   fun:pseudo_custom
+   fun:yyparse
+   fun:main
+}

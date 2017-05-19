@@ -713,7 +713,8 @@ unsigned int install_scripts(char **install_path);
 unsigned int scripting_cmd(char *exec);
 unsigned int scripting_js(char *exec, char **output);
 unsigned int scripting_lua(char *exec, char **output);
-unsigned int scripting_so(char *exec);
+unsigned int scripting_scm(char *exec, char **output);
+unsigned int scripting_so(char *exec, char **output);
 
 /* HASH */
 void hash(char **hex, char *data, size_t data_len);

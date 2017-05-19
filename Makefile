@@ -8,7 +8,7 @@ CC_FLAGS     := -Wall -Wextra
 CC_LIB_FLAGS := -lm
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
-AR           := ar rcu
+AR           := ar
 RANLIB       := ranlib
 LEX          := flex
 LEX_OUT      := lex.yy
@@ -17,6 +17,7 @@ LEX_DEFINES  := -DYY_TYPEDEF_YY_SIZE_T -Dyy_size_t=ssize_t
 YACC         := bison
 YACC_OUT     := y.tab
 YACC_FLAGS   := --output=src/$(YACC_OUT).c --defines --yacc
+SCHEME_FLAGS :=
 
 EMAIL        := kevinselwyn@gmail.com
 MAINTAINER   := Kevin Selwyn
@@ -42,6 +43,7 @@ FILES        += src/third-party/duktape/duktape.c
 
 SRCS         := src/$(YACC_OUT).c src/$(LEX_OUT).c $(FILES)
 HDRS         := src/$(NAME).h src/init.h src/license.h
+HDRS         += src/third-party/tinyscheme-1.41/init.h
 OBJS         := ${SRCS:c=o}
 
 # PLATFORM-SPECIFIC
@@ -75,23 +77,24 @@ else
 debug: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
 endif
 
-js: EXEC         := $(NAME).js
-js: CC           := emcc
-js: CC_LIB_FLAGS :=
+js: EXEC            := $(NAME).js
+js: CC              := emcc
+js: CC_LIB_FLAGS    :=
 
-win32: EXEC     := $(NAME).exe
-win32: CC       := i686-w64-mingw32-gcc
-win32: CC_FLAGS += -lws2_32 -Isrc/lua-5.1.5/src
-win32: CC_FILES := src/lua-5.1.5/src/liblua.a
-win32: AR       := i686-w64-mingw32-ar rcu
-win32: RANLIB   := i686-w64-mingw32-ranlib
+win32: EXEC         := $(NAME).exe
+win32: CC           := i686-w64-mingw32-gcc
+win32: CC_FLAGS     += -lws2_32 -Isrc/lua-5.1.5/src
+win32: CC_FILES     := src/lua-5.1.5/src/liblua.a
+win32: AR           := i686-w64-mingw32-ar
+win32: RANLIB       := i686-w64-mingw32-ranlib
+win32: SCHEME_FLAGS := -DUSE_STRLWR=0
 
-win64: EXEC     := $(NAME).exe
-win64: CC       := x86_64-w64-mingw32-gcc
-win64: CC_FLAGS += -lws2_32 -Isrc/lua-5.1.5/src
-win64: CC_FILES := src/lua-5.1.5/src/liblua.a
-win64: AR       := x86_64-w64-mingw32-ar rcu
-win64: RANLIB   := x86_64-w64-mingw32-ranlib
+win64: EXEC         := $(NAME).exe
+win64: CC           := x86_64-w64-mingw32-gcc
+win64: CC_FLAGS     += -lws2_32 -Isrc/lua-5.1.5/src
+win64: CC_FILES     := src/lua-5.1.5/src/liblua.a
+win64: AR           := x86_64-w64-mingw32-ar
+win64: RANLIB       := x86_64-w64-mingw32-ranlib
 
 # TARGETS
 
@@ -125,6 +128,9 @@ src/opcodes.c: src/opcodes.csv
 %.h: %.txt
 	./utils/xxd.py -i $< > $@
 
+%.h: %.scm
+	./utils/xxd.py -i $< > $@
+
 %.h: %.json
 	./utils/xxd.py -i $< > $@
 
@@ -151,7 +157,8 @@ src/scripts.h: ${src/scripts.tar.gz:tar.gz=h}
 src/scripts.c: src/scripts.tar.gz src/scripts.h
 
 $(EXEC): $(OBJS) $(HDRS)
-	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS)
+	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS) \
+		src/third-party/tinyscheme-1.41/libtinyscheme.a
 
 # TESTING
 
@@ -173,10 +180,24 @@ liblua: src/lua-5.1.5/src/liblua.a
 
 src/lua-5.1.5/src/liblua.a: src/lua-5.1.5.tar.gz
 	tar -xzf $< -C src/
-	make -C src/lua-5.1.5/src generic CC="$(CC)" AR="$(AR)" RANLIB="$(RANLIB)"
+	make -C src/lua-5.1.5/src generic CC="$(CC)" AR="$(AR) rcu" RANLIB="$(RANLIB)"
 
 src/lua-5.1.5.tar.gz:
 	curl -o $@ "https://www.lua.org/ftp/lua-5.1.5.tar.gz"
+
+# LIBTINYSCHEME
+
+src/scripting/scm.c: libtinyscheme
+
+libtinyscheme: src/third-party/tinyscheme-1.41/libtinyscheme.a
+
+src/third-party/tinyscheme-1.41/libtinyscheme.a:
+	make -C src/third-party/tinyscheme-1.41/ libtinyscheme.a \
+		CC="$(CC) -fpic -pedantic" AR="$(AR) crs" PLATFORM_FEATURES="$(SCHEME_FLAGS)"
+
+src/scripting/scm.c: src/third-party/tinyscheme-1.41/init.h
+
+src/third-party/tinyscheme-1.41/init.h: ${src/third-party/tinyscheme-1.41/init.scm:scm=h}
 
 # TRANSLATION
 
@@ -310,3 +331,4 @@ clean:
 	$(RM) src/opcodes.c src/scripts.tar.gz
 	$(RM) src/lua-5.1.5 src/lua-5.1.5.tar.gz
 	$(RM) $(PAYLOAD)
+	make -C src/third-party/tinyscheme-1.41/ clean
