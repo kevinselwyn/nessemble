@@ -28,8 +28,16 @@ $ nessemble example.asm --pseudo pseudo.txt
 
 ## Scripting
 
-Supported scripting languages are Lua, Javascript, commandline scripts, and
-compiled shared objects.
+Supported scripting languages are Lua, Scheme, Javascript, command-line scripts,
+and compiled shared objects.
+
+| Language                                  | Extension      |
+|-------------------------------------------|----------------|
+| [`Lua`](#lua-lua)                         | .lua           |
+| [`Scheme`](#scheme-scm)                   | .scm           |
+| [`Javascript`](#javascript-js)            | .js            |
+| [`Scripts`](#scripts-py-sh-etc)           | .py, .sh, etc. |
+| [`Shared Objects`](#shared-objects-sodll) | .so, .dll      |
 
 ### Lua (.lua)
 
@@ -102,6 +110,48 @@ function custom(...)
 
     return ""
 ```
+
+### Scheme (.scm)
+
+At a minimum, the Scheme script must have a function named `custom` that accepts
+a list of integers followed by a list of strings, and displays text, which will
+be written directly to the ROM.
+
+### Example
+
+Consider a `.foo` pseudo-instruction that finds the factorial of an integer. It
+might look something like this in Scheme:
+
+```lisp
+(define (factorial n)
+    (if (<= n 0)
+        1
+            (* n (factorial (- n 1)))))
+
+(define custom
+    (lambda (ints texts)
+        (display
+            (factorial
+                (car ints)))))
+```
+
+### Handling Strings
+
+Strings are provided in `(list ...)` form after the list of integers.
+
+#### Handling Errors
+
+Any errors should be thrown by calling `(exit)` and passing along a useful
+message.
+
+Usage:
+
+```lisp
+(exit NUMBER "MESSAGE")
+```
+
+* `NUMBER` - Return code, required. Defaults to 0.
+* `"MESSAGE"` - Error message, required if return code is not 0.
 
 ### Javascript (.js)
 

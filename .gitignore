@@ -11,8 +11,9 @@ opcodes.c
 package/payload
 reference/**/*.h
 scripts.h
+src/third-party/**/*.o
+src/third-party/tinyscheme*
 strings.h
-third-party/**/*.o
 y.tab.*
 *.db
 *.deb
