@@ -297,6 +297,7 @@ struct macro macros[MAX_MACROS];
 unsigned int macro_index;
 unsigned int length_args;
 unsigned int args[MAX_ARGS];
+unsigned int arg_unique;
 
 /* PSEUDO */
 char *pseudoname;
@@ -409,6 +410,7 @@ void write_byte(unsigned int byte);
 void add_symbol(char *name, unsigned int value, unsigned int type);
 int get_symbol(char *name);
 int get_symbol_local(int direction);
+char *symbol_argu(char *name);
 void add_constant(char *name, unsigned int value);
 void add_label(char *name);
 int has_label(char *name);
@@ -463,6 +465,7 @@ void add_macro(char *name);
 void end_macro();
 void append_macro(char *text);
 int get_macro(char *name);
+char *argu_macro(char *name);
 
 /* ASSEMBLY UTILS */
 void assemble_absolute(char *mnemonic, unsigned int address);
