@@ -14,6 +14,7 @@ pages:
     - Licensing: licensing.md
     - Contributing: contributing.md
 theme: readthedocs
+theme_dir: custom_theme
 docs_dir: pages
 dev_addr: 0.0.0.0:9090
 extra_css:
