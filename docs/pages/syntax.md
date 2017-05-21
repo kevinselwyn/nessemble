@@ -1245,6 +1245,63 @@ Example:
 
 Note: This is an alias for `.prg 1`.
 
+## Optional Scripts
+
+Some scripts are included with `nessemble`, but totally optional. They must be
+installed with the [`scripts`](/usage#scripts) command which provides additional
+pseudo-instructions to use.
+
+| Pseudo-Instruction | Description                        |
+|--------------------|------------------------------------|
+| [.ease](#ease)     | Generates bytes to simulate easing |
+
+### .ease
+
+Generates bytes to simulate easing
+
+Usage:
+
+```text
+.ease FUNCTION[, START[, END[, STEPS]]]
+```
+
+* `FUNCTION` - String, required. Easing function to perform. Must be within
+quotes.
+* `[, START` - Number, required. Starting value. Defaults to 0.
+* `[, END` - Number, required. Ending value. Defaults to 16.
+* `[, STEPS]]]` - Number, required. Steps to perform. Defaults to 16.
+
+Valid `FUNCTION`s include:
+
+* "easeInQuad"
+* "easeOutQuad"
+* "easeInOutQuad"
+* "easeInCubic"
+* "easeOutCubic"
+* "easeInOutCubic"
+* "easeInQuint"
+* "easeOutQuint"
+* "easeInOutQuint"
+* "easeInBounce"
+* "easeOutBounce"
+* "easeInOutBounce"
+
+Example:
+
+```text
+.ease "easeOutBounce", 0, $20, $40
+```
+
+Output:
+
+```text
+00000000  00 00 00 00 00 01 02 02  03 04 06 07 08 0a 0b 0d  |................|
+00000010  0f 11 13 16 18 1a 1d 1f  1e 1d 1c 1b 1a 19 19 18  |................|
+00000020  18 18 18 18 18 18 18 19  19 1a 1b 1c 1d 1e 1f 1f  |................|
+00000030  1e 1e 1e 1e 1e 1e 1e 1e  1f 1f 1f 1f 1f 1f 1f 20  |............... |
+00000040
+```
+
 ## Macros
 
 Macros may be utilized to maximize code-reuse and may also be treated as custom

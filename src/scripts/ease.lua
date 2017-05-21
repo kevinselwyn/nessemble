@@ -147,19 +147,19 @@ function custom(...)
         error("Invalid easing type `" .. arg_ease .. "`")
     end
 
-    if arg[0] ~= nil
-    then
-        arg_start = arg[0]
-    end
-
     if arg[1] ~= nil
     then
-        arg_end = arg[1]
+        arg_start = arg[1]
     end
 
     if arg[2] ~= nil
     then
-        arg_steps = arg[2]
+        arg_end = arg[2]
+    end
+
+    if arg[3] ~= nil
+    then
+        arg_steps = arg[3]
     end
 
     if arg_steps > 255
