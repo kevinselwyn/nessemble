@@ -42,7 +42,7 @@ FILES        += src/third-party/jsmn/jsmn.c src/third-party/udeflate/deflate.c
 FILES        += src/third-party/duktape/duktape.c
 
 SRCS         := src/$(YACC_OUT).c src/$(LEX_OUT).c $(FILES)
-HDRS         := src/$(NAME).h src/init.h src/license.h
+HDRS         := src/$(NAME).h src/font.h src/init.h src/license.h
 HDRS         += src/third-party/tinyscheme-1.41/init.h
 OBJS         := ${SRCS:c=o}
 
@@ -136,6 +136,9 @@ src/opcodes.c: src/opcodes.csv
 %.h: %.json
 	./utils/xxd.py -i $< > $@
 
+%.h: %.chr
+	./utils/xxd.py -b -i $< > $@
+
 %.h: %.tar.gz
 	./utils/xxd.py -b -i $< > $@
 
@@ -146,6 +149,13 @@ src/strings.h: ${src/strings.json:json=h}
 src/init.c: src/init.h
 
 src/init.h: ${src/init.txt:txt=h}
+
+src/pseudo/font.c: src/font.h
+
+src/font.h: ${src/font.chr:chr=h}
+
+src/font.chr: src/font.png
+	./utils/img2chr.py -i $<
 
 src/usage.c: src/license.h
 

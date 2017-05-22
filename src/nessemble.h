@@ -428,6 +428,7 @@ void pseudo_endenum();
 void pseudo_endif();
 void pseudo_enum(unsigned int value, unsigned int inc);
 void pseudo_fill();
+void pseudo_font();
 void pseudo_hibytes();
 void pseudo_if(unsigned int cond);
 void pseudo_ifdef(char *label);
