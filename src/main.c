@@ -7,6 +7,10 @@
 #include <setjmp.h>
 #include "nessemble.h"
 
+#ifdef IS_JAVASCRIPT
+#include <emscripten.h>
+#endif /* IS_JAVASCRIPT */
+
 /**
  * Main function
  * @param {int} argc - Argument count
@@ -341,6 +345,7 @@ int main(int argc, char *argv[]) {
         filename = argv[optind++];
     }
 
+#ifndef IS_JAVASCRIPT
     if (!filename) {
         if (isatty(fileno(stdin)) == FALSE) {
             piped = TRUE;
@@ -381,6 +386,14 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+#else
+    EM_ASM(
+        FS.mkdir('/working');
+        FS.mount(MEMFS, {}, '/working');
+    );
+
+    strcpy(cwd, SEP "working" SEP PROGRAM_NAME "-stdin");
+#endif /* IS_JAVASCRIPT */
 
     /* simulate */
     if (is_flag_simulate() == TRUE) {
@@ -414,6 +427,7 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
+#ifndef IS_JAVASCRIPT
     /* open file */
     file = fopen(cwd, "r");
 
@@ -428,6 +442,23 @@ int main(int argc, char *argv[]) {
     strcpy(filename_stack[include_stack_ptr], cwd);
 
     yyin = file;
+#else /* IS_JAVASCRIPT */
+    int stdin_read = 0;
+    char stdin_data[1024];
+    FILE *stdin_file = NULL;
+
+    stdin_file = fopen(cwd, "w+");
+
+    memset(stdin_data, '\0', 1024);
+
+    while ((stdin_read = fread(stdin_data, 1, 1024, stdin))) {
+        fwrite(stdin_data, stdin_read, 1, stdin_file);
+    }
+
+    fseek(stdin_file, 0, SEEK_SET);
+
+    yyin = stdin_file;
+#endif /* IS_JAVASCRIPT */
 
     /* segment */
     strcpy(segment, "PRG0");
