@@ -4,7 +4,6 @@ release
 init.h
 license.h
 lex.yy.c
-lua-5*
 nessemble
 nessemble.js
 opcodes.c
@@ -13,6 +12,7 @@ reference/**/*.h
 scripts.h
 font.h
 src/third-party/**/*.o
+src/third-party/lua*
 src/third-party/tinyscheme*
 strings.h
 y.tab.*

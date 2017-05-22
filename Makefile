@@ -5,7 +5,7 @@ BIN_DIR      := /usr/local/bin
 RM           := rm -rf
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra
-CC_LIB_FLAGS := -lm
+CC_LIB_FLAGS := -Isrc/third-party/lua-5.1.5/src -lm
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
 AR           := ar
@@ -60,22 +60,8 @@ endif
 
 all: CC_LIB_FLAGS += -ldl
 
-ifeq ($(UNAME), Darwin)
-all:   CC_LIB_FLAGS += -llua -I/usr/include/lua5.1
-debug: CC_LIB_FLAGS += -llua -I/usr/include/lua5.1
-else
-all:   CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
-debug: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
-endif
-
 debug: CC_FLAGS     += -g
 debug: CC_LIB_FLAGS += -ldl
-
-ifeq ($(UNAME), Darwin)
-debug: CC_LIB_FLAGS += -llua -I/usr/include/lua5.1
-else
-debug: CC_LIB_FLAGS += -llua5.1 -I/usr/include/lua5.1
-endif
 
 js: EXEC            := $(NAME).js
 js: CC              := emcc
@@ -85,16 +71,14 @@ js: SCHEME_FLAGS    := -DUSE_STRLWR=0
 
 win32: EXEC         := $(NAME).exe
 win32: CC           := i686-w64-mingw32-gcc
-win32: CC_FLAGS     += -lws2_32 -Isrc/lua-5.1.5/src
-win32: CC_FILES     := src/lua-5.1.5/src/liblua.a
+win32: CC_FLAGS     += -lws2_32
 win32: AR           := i686-w64-mingw32-ar
 win32: RANLIB       := i686-w64-mingw32-ranlib
 win32: SCHEME_FLAGS := -DUSE_STRLWR=0
 
 win64: EXEC         := $(NAME).exe
 win64: CC           := x86_64-w64-mingw32-gcc
-win64: CC_FLAGS     += -lws2_32 -Isrc/lua-5.1.5/src
-win64: CC_FILES     := src/lua-5.1.5/src/liblua.a
+win64: CC_FLAGS     += -lws2_32
 win64: AR           := x86_64-w64-mingw32-ar
 win64: RANLIB       := x86_64-w64-mingw32-ranlib
 
@@ -106,9 +90,9 @@ debug: $(EXEC)
 
 js: $(EXEC)
 
-win32: liblua $(EXEC)
+win32: $(EXEC)
 
-win64: liblua $(EXEC)
+win64: $(EXEC)
 
 # RECIPES
 
@@ -170,6 +154,7 @@ src/scripts.c: src/scripts.tar.gz src/scripts.h
 
 $(EXEC): $(OBJS) $(HDRS)
 	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS) \
+		src/third-party/lua-5.1.5/src/liblua.a \
 		src/third-party/tinyscheme-1.41/libtinyscheme.a
 
 # TESTING
@@ -188,14 +173,13 @@ registry: all
 
 # LIBLUA
 
-liblua: src/lua-5.1.5/src/liblua.a
+src/scripting/lua.c: liblua
 
-src/lua-5.1.5/src/liblua.a: src/lua-5.1.5.tar.gz
-	tar -xzf $< -C src/
-	make -C src/lua-5.1.5/src generic CC="$(CC)" AR="$(AR) rcu" RANLIB="$(RANLIB)"
+liblua: src/third-party/lua-5.1.5/src/liblua.a
 
-src/lua-5.1.5.tar.gz:
-	curl -o $@ "https://www.lua.org/ftp/lua-5.1.5.tar.gz"
+src/third-party/lua-5.1.5/src/liblua.a:
+	make -C src/third-party/lua-5.1.5/src/ generic \
+		CC="$(CC)" AR="$(AR) rcu" RANLIB="$(RANLIB)"
 
 # LIBTINYSCHEME
 
@@ -341,6 +325,6 @@ clean:
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
 	$(RM) src/init.h src/license.h src/scripts.h src/strings.h
 	$(RM) src/opcodes.c src/scripts.tar.gz
-	$(RM) src/lua-5.1.5 src/lua-5.1.5.tar.gz
 	$(RM) $(PAYLOAD)
 	make -C src/third-party/tinyscheme-1.41/ clean
+	make -C src/third-party/lua-5.1.5/src/ clean

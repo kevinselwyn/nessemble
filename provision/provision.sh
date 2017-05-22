@@ -13,9 +13,6 @@ sudo apt-get -y update
 # build tools
 sudo apt-get -y install git make curl bison flex
 
-# libraries
-sudo apt-get -y install liblua5.1-0-dev
-
 # debug tools
 sudo apt-get -y install bc gdb splint valgrind
 
@@ -39,7 +36,13 @@ cd /home/ubuntu/msitools-0.96 && ./configure
 cd /home/ubuntu/msitools-0.96 && make && sudo make install
 rm -rf /home/ubuntu/msitools-0.96*
 
-# tinyscheme
+# liblua
+rm -rf /vagrant/src/third-party/lua*
+_retry curl -o /vagrant/src/third-party/lua-5.1.5.tar.gz "https://www.lua.org/ftp/lua-5.1.5.tar.gz"
+cd /vagrant/src/third-party/ && tar xf lua-5.1.5.tar.gz
+rm -rf /vagrant/src/third-party/lua*.tar.gz
+
+# libtinyscheme
 rm -rf /vagrant/src/third-party/tinyscheme*
 _retry curl -o /vagrant/src/third-party/tinyscheme-1.41.tar.gz "https://svwh.dl.sourceforge.net/project/tinyscheme/tinyscheme/tinyscheme-1.41/tinyscheme-1.41.tar.gz"
 cd /vagrant/src/third-party/ && tar xf tinyscheme-1.41.tar.gz

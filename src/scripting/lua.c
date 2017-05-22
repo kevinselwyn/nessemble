@@ -2,14 +2,10 @@
 #include "../nessemble.h"
 
 #ifndef IS_JAVASCRIPT
-#ifndef IS_WINDOWS
-#include <lua.h>
-#else /* IS_WINDOWS */
 #include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
 #endif
-#include <lauxlib.h>
-#include <lualib.h>
-#endif /* IS_JAVASCRIPT */
 
 unsigned int scripting_lua(char *exec, char **output) {
     unsigned int rc = RETURN_OK;
