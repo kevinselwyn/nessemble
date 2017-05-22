@@ -74,6 +74,7 @@ int include_stack_ptr = 0;
 ".endif"                   { return PSEUDO_ENDIF; }
 ".enum"                    { return PSEUDO_ENUM; }
 ".fill"                    { return PSEUDO_FILL; }
+".font"                    { return PSEUDO_FONT; }
 ".hibytes"                 { return PSEUDO_HIBYTES; }
 ".if"                      { return PSEUDO_IF; }
 ".ifdef"                   { return PSEUDO_IFDEF; }
