@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# pylint: disable=C0103
+# pylint: disable=C0103,C0301
 """Better xxd"""
 
 import os
