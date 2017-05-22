@@ -4,7 +4,7 @@
 #define CUSTOM_SCRIPT_COUNT 4
 
 #ifdef IS_JAVASCRIPT
-#define CUSTOM_SCRIPT_COUNT 2
+#define CUSTOM_SCRIPT_COUNT 3
 #endif /* IS_JAVASCRIPT */
 
 struct custom_script {
@@ -15,8 +15,8 @@ struct custom_script {
 struct custom_script custom_scripts[CUSTOM_SCRIPT_COUNT] = {
     { "js",  &scripting_js  },
     { "scm", &scripting_scm },
-#ifndef IS_JAVASCRIPT
     { "lua", &scripting_lua },
+#ifndef IS_JAVASCRIPT
 #ifndef IS_WINDOWS
     { "so",  &scripting_so  }
 #else /* IS_WINDOWS */

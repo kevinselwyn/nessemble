@@ -1,17 +1,13 @@
 #include <string.h>
 #include "../nessemble.h"
 
-#ifndef IS_JAVASCRIPT
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
-#endif
 
 unsigned int scripting_lua(char *exec, char **output) {
-    unsigned int rc = RETURN_OK;
-
-#ifndef IS_JAVASCRIPT
     int has_error = 0;
+    unsigned int rc = RETURN_OK;
     unsigned int i = 0, l = 0;
     size_t return_len = 0, path_len = 0;
     char *return_str = NULL, *error_str = NULL;
@@ -101,6 +97,5 @@ cleanup:
     nessemble_free(home_path);
     nessemble_free(new_path);
 
-#endif /* IS_JAVASCRIPT */
     return rc;
 }
