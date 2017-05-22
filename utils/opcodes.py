@@ -1,9 +1,12 @@
 #!/usr/bin/env python
+# pylint: disable=C0103,C0301
 """Opcode parser"""
 
 import argparse
 
 def opcodes(infile):
+    """Generate opcodes"""
+
     lines = []
     output = []
 
@@ -29,7 +32,7 @@ def opcodes(infile):
             if (int(meta) & 2) > 0:
                 meta_arr.append('META_UNDOCUMENTED')
 
-        if len(meta_arr):
+        if meta_arr:
             meta_str = ' | '.join(meta_arr)
             meta_str = '(' + meta_str + ')'
 
