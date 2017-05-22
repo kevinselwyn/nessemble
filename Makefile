@@ -236,6 +236,12 @@ translate-install: translate/$(LANG)/nessemble.mo
 docs:
 	cd docs ; mkdocs serve
 
+# SITE
+
+.PHONY: site
+site:
+	cd site ; python index.py --debug --port 9000
+
 # INSTALL/UNINSTALL
 
 install: all
