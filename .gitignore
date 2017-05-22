@@ -11,10 +11,12 @@ opcodes.c
 package/payload
 reference/**/*.h
 scripts.h
+font.h
 src/third-party/**/*.o
 src/third-party/tinyscheme*
 strings.h
 y.tab.*
+*.chr
 *.db
 *.deb
 *.dll
