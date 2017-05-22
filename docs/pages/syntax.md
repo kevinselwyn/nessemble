@@ -265,6 +265,7 @@ Read more about 6502 addressing modes
 | [.endm](#endm)         | End [`.macrodef`](#macrodef)                                                        |
 | [.enum](#enum)         | Start enumerated variable declarations                                              |
 | [.fill](#fill)         | Fill with bytes                                                                     |
+| [.font](#font)         | Generate font character tile                                                        |
 | [.hibytes](#hibytes)   | Output only the high byte of 16-bit word(s)                                         |
 | [.if](#if)             | Test if condition                                                                   |
 | [.ifdef](#ifdef)       | Test if variable is defined                                                         |
@@ -655,6 +656,43 @@ Output:
 00000000  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  |................|
 00000010
 ```
+
+### .font
+
+Generate font character tile.
+
+Usage:
+
+```text
+.font START[, END]
+```
+
+* `START` - Character/number, required. Starting ASCII character or code.
+* `[, END]` - Character/number, optional. Ending ASCII character or code. If
+included, all font tiles from `START` to `[, END]` (inclusive) will be
+generated.
+
+Example:
+
+```text
+.font 'A', 'G'
+```
+
+Output:
+
+```text
+00000000  38 44 7c 44 44 44 44 00  38 44 7c 44 44 44 44 00  |8D|DDDD.8D|DDDD.|
+00000010  78 44 78 44 44 44 78 00  78 44 78 44 44 44 78 00  |xDxDDDx.xDxDDDx.|
+00000020  38 44 40 40 40 44 38 00  38 44 40 40 40 44 38 00  |8D@@@D8.8D@@@D8.|
+00000030  78 44 44 44 44 44 78 00  78 44 44 44 44 44 78 00  |xDDDDDx.xDDDDDx.|
+00000040  7c 40 70 40 40 40 7c 00  7c 40 70 40 40 40 7c 00  ||@p@@@|.|@p@@@|.|
+00000050  7c 40 70 40 40 40 40 00  7c 40 70 40 40 40 40 00  ||@p@@@@.|@p@@@@.|
+00000060  3c 40 4c 44 44 44 38 00  3c 40 4c 44 44 44 38 00  |<@LDDD8.<@LDDD8.|
+00000070
+```
+
+Read more about PPU pattern tables
+[here](https://wiki.nesdev.com/w/index.php/PPU_pattern_tables).
 
 ### .hibytes
 

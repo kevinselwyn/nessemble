@@ -15,6 +15,11 @@ void pseudo_font() {
 
     ascii_start = ints[0];
 
+    if (ascii_start >= 0x80) {
+        yyerror(_("Value too high"));
+        goto cleanup;
+    }
+
     if (length_ints < 2) {
         ascii_end = ascii_start;
     } else {
