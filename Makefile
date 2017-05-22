@@ -4,8 +4,8 @@ EXEC         := $(NAME)
 BIN_DIR      := /usr/local/bin
 RM           := rm -rf
 CC           := gcc
-CC_FLAGS     := -Wall -Wextra
-CC_LIB_FLAGS := -Isrc/third-party/lua-5.1.5/src -lm
+CC_FLAGS     := -Wall -Wextra -lm
+CC_LIB_FLAGS := -Isrc/third-party/lua-5.1.5/src
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
 AR           := ar
@@ -65,8 +65,8 @@ debug: CC_LIB_FLAGS += -ldl
 
 js: EXEC            := $(NAME).js
 js: CC              := emcc
-js: CC_LIB_FLAGS    :=
 js: AR              := emar
+js: RANLIB          := emranlib
 js: SCHEME_FLAGS    := -DUSE_STRLWR=0
 
 win32: EXEC         := $(NAME).exe
