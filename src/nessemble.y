@@ -61,6 +61,7 @@
 %token PSEUDO_ENDIF
 %token PSEUDO_ENUM
 %token PSEUDO_FILL
+%token PSEUDO_FONT
 %token PSEUDO_HIBYTES
 %token PSEUDO_IF
 %token PSEUDO_IFDEF
@@ -257,6 +258,7 @@ pseudo
     | pseudo_endif     { pseudo_endif(); }
     | pseudo_enum      { /* NOTHING */ }
     | pseudo_fill      { pseudo_fill(); }
+    | pseudo_font      { pseudo_font(); }
     | pseudo_hibytes   { pseudo_hibytes(); }
     | pseudo_if        { pseudo_if($1); }
     | pseudo_ifdef     { pseudo_ifdef($1); }
@@ -351,6 +353,11 @@ pseudo_enum
 pseudo_fill
     : PSEUDO_FILL number       { ints[length_ints++] = $2; }
     | pseudo_fill COMMA number { ints[length_ints++] = $3; }
+    ;
+
+pseudo_font
+    : PSEUDO_FONT number       { ints[length_ints++] = $2; }
+    | pseudo_font COMMA number { ints[length_ints++] = $3; }
     ;
 
 pseudo_hibytes

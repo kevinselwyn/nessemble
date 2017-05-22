@@ -16,7 +16,7 @@ void pseudo_font() {
     ascii_start = ints[0];
 
     if (length_ints < 2) {
-        ascii_end = 0x65;
+        ascii_end = ascii_start;
     } else {
         ascii_end = ints[1];
     }
@@ -24,18 +24,18 @@ void pseudo_font() {
     if (ascii_start < ascii_end) {
         for (i = ascii_start, j = ascii_end; i <= j; i++) {
             for (k = 0, l = 0x10; k < l; k++) {
-                write_byte(font[(i * 0x10) + k]);
+                write_byte(font_chr[(i * 0x10) + k]);
             }
         }
     } else if (ascii_start > ascii_end) {
         for (i = ascii_end, j = ascii_start; i <= j; i++) {
             for (k = 0, l = 0x10; k < l; k++) {
-                write_byte(font[(i * 0x10) + k]);
+                write_byte(font_chr[(i * 0x10) + k]);
             }
         }
     } else {
         for (k = 0, l = 0x10; k < l; k++) {
-            write_byte(font[(ascii_start * 0x10) + k]);
+            write_byte(font_chr[(ascii_start * 0x10) + k]);
         }
     }
 
