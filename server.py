@@ -1,46 +1,34 @@
 #!/usr/bin/env python
 # coding=utf-8
 # pylint: disable=C0103,C0301,C0326
-"""Nessemble website"""
+"""Server"""
 
+import os
 import argparse
-from flask import Flask, make_response, render_template
+from flask import Flask
+from werkzeug.wsgi import DispatcherMiddleware
+from website.app import app as website
+from registry.app import app as registry, db_import
+from docs.app import app as docs
 
 #--------------#
 # Constants
 
 HOSTNAME = '0.0.0.0'
-PORT     = 8000
+PORT     = 5000
 
 #--------------#
 # Variables
 
 app = Flask(__name__)
 
-#--------------#
-# Functions
-
-def custom_response(data, status=200, mimetype='text/html'):
-    """Custom HTTP response"""
-
-    response = make_response(data, status)
-
-    response.headers.remove('Content-Type')
-    response.headers.add('Content-Type', mimetype)
-
-    return response
+app.wsgi_app = DispatcherMiddleware(website, {
+    '/registry': registry,
+    '/docs': docs
+})
 
 #--------------#
-# Endpoints
-
-@app.route('/', methods=['GET'])
-def index():
-    """Index endpoint"""
-
-    return custom_response(render_template('index.html'))
-
-#--------------#
-# Variables
+# Main
 
 def main():
     """Main function"""
@@ -51,6 +39,9 @@ def main():
     parser.add_argument('--debug', '-D', dest='debug', action='store_true', required=False, help='Debug mode')
 
     args = parser.parse_args()
+
+    db = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'registry', 'registry.sql')
+    db_import(db)
 
     app.run(host=args.host, port=args.port, debug=args.debug)
 
