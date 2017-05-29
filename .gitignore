@@ -1,6 +1,6 @@
 .DS_Store
 .vagrant
-release
+docs/site
 init.h
 license.h
 lex.yy.c
@@ -10,6 +10,7 @@ nessemble.js
 opcodes.c
 package/payload
 reference/**/*.h
+release
 scripts.h
 src/third-party/**/*.o
 src/third-party/tinyscheme*
