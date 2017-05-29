@@ -7,11 +7,15 @@ For guaranteed results with minimal configuration, use
 
 ### Dependencies
 
-When building outside of Vagrant:
+When building outside of Vagrant, run the provision script with the appropriate
+flags:
 
 ```text
-sudo apt-get install git make curl bison flex liblua5.1-0-dev
+provision/provision.sh --home $HOME --root $ROOT
 ```
+
+* `$HOME` should be the home directory (ex. `~`)
+* `$ROOT` should be the root of `nessemble` (ex. `.`)
 
 ### Start
 
