@@ -21,6 +21,8 @@ import semver
 from cerberus import Validator
 from flask import Flask, abort, g, make_response, request
 from flask_caching import Cache
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from ..models.base import Base
@@ -40,6 +42,12 @@ cache = Cache(app, config={
     'CACHE_TYPE': 'simple',
     'CACHE_THRESHOLD': 256
 })
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=['20000 per day', '30 per minute'],
+    headers_enabled=True
+)
 abort_mimetype = 'application/json'
 
 #----------------#
@@ -70,7 +78,11 @@ def registry_response(data, status=200, mimetype='application/json', headers=Non
     response.headers.add('Content-Type', mimetype)
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Server', 'Nessemble')
-    response.headers.add('X-Response-Time', g.request_time())
+
+    try:
+        response.headers.add('X-Response-Time', g.request_time())
+    except AttributeError:
+        response.headers.add('X-Response-Time', 0)
 
     if headers:
         for header in headers:
@@ -462,6 +474,15 @@ def unprocessable_custom(message=False):
         'status': 422,
         'error': 'Unprocessable Entity' if not message else message
     }, status=422, mimetype=abort_mimetype)
+
+@app.errorhandler(429)
+def too_many(error):
+    """Too many requests error handler"""
+
+    return registry_response({
+        'status': int(str(error)[:3]),
+        'error': 'Too Many Requests'
+    }, status=429, mimetype=abort_mimetype)
 
 @app.errorhandler(500)
 def internal_server_error(error):
