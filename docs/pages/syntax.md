@@ -1305,9 +1305,9 @@ Usage:
 
 * `FUNCTION` - String, required. Easing function to perform. Must be within
 quotes.
-* `[, START` - Number, required. Starting value. Defaults to 0.
-* `[, END` - Number, required. Ending value. Defaults to 16.
-* `[, STEPS]]]` - Number, required. Steps to perform. Defaults to 16.
+* `[, START` - Number, optional. Starting value. Defaults to 0.
+* `[, END` - Number, optional. Ending value. Defaults to 16.
+* `[, STEPS]]]` - Number, optional. Steps to perform. Defaults to 16.
 
 Valid `FUNCTION`s include:
 
