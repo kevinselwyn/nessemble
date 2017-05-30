@@ -288,6 +288,19 @@ static unsigned int do_request(struct download_option download_options) {
         goto cleanup;
     }
 
+    if (code == 429) {
+        for (i = 0, l = resp_headers.count; i < l; i++) {
+            if (strcmp(resp_headers.keys[i], "Retry-After") == 0) {
+                error_program_log(atoi(resp_headers.vals[i]) == 1 ? _("Rate limit exceeded (Try again in %s second)") : _("Rate limit exceeded (Try again in %s seconds)"), resp_headers.vals[i]);
+                code = 500;
+                goto cleanup;
+            }
+        }
+
+        code = 500;
+        goto cleanup;
+    }
+
     for (i = 0, l = resp_headers.count; i < l; i++) {
         if (strcmp(resp_headers.keys[i], "Content-Type") == 0) {
             if (strcmp(resp_headers.vals[i], mime_type) != 0) {
