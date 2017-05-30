@@ -1,1 +1,1 @@
-web: python server.py --port $PORT --import registry.sql
+web: python index.py --port $PORT --import registry.sql

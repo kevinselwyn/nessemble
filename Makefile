@@ -166,11 +166,6 @@ splint: all
 	splint -I/usr/include -I/usr/include/x86_64-linux-gnu \
 		   -warnposix $(FLAGS) $(FILES)
 
-# REGISTRY
-
-registry: all
-	cd registry ; python server.py --debug --port 8000 --import registry.sql
-
 # LIBLUA
 
 src/scripting/lua.c: liblua
@@ -223,6 +218,25 @@ translate-install: translate/$(LANG)/nessemble.mo
 	@mkdir -p ~/.nessemble/locale/de/LC_MESSAGES
 	@cp $< ~/.nessemble/locale/de/LC_MESSAGES/
 	@printf "Language installed: %s\n" $(LANG)
+
+# SERVER
+
+.PHONY: server
+server:
+	cd docs ; mkdocs build --clean
+	python server.py --debug --port 8000
+
+# WEBSITE
+
+.PHONY: website
+website:
+	cd website ; python index.py --debug --port 9000
+
+# REGISTRY
+
+.PHONY: registry
+registry:
+	cd registry ; python index.py --debug --port 8000 --import registry.sql
 
 # DOCUMENTATION
 
