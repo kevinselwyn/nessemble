@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 # coding=utf-8
-# pylint: disable=C0301,C0326
+# pylint: disable=C0103,C0301,C0326,C0413
 """Nessemble registry server"""
 
+import os
+import sys
 import argparse
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(parent_dir)
+
 from registry.app import app, db_import, db_export
 
 #----------------#
