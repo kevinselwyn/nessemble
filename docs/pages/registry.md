@@ -1,7 +1,7 @@
 # Registry
 
-Registries have no preferred language but must contain the following endpoints
-to be valid.
+Registry servers have no preferred language but must contain the following
+endpoints to be valid.
 
 The default registry URL is `http://localhost:8000`.
 

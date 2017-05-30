@@ -76,6 +76,9 @@ To publish a package:
 nessemble publish lib.tar.gz
 ```
 
+Note: The user must be logged in to publish a package (see the
+[login](/usage/#login) command)
+
 The following files must be in the following directory structure:
 
 ```text
