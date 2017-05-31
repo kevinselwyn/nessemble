@@ -367,7 +367,6 @@ unsigned int lib_list() {
 
 cleanup:
     nessemble_free(lib_dir);
-    nessemble_free(lib_path);
 
     return rc;
 }
