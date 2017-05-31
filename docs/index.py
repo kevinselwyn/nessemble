@@ -16,7 +16,7 @@ from docs.app import app
 # Constants
 
 HOSTNAME = '0.0.0.0'
-PORT     = 5000
+PORT     = 9090
 
 #--------------#
 # Main
