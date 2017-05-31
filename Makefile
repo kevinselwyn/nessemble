@@ -242,7 +242,7 @@ registry:
 
 .PHONY: docs
 docs:
-	cd docs ; mkdocs serve
+	cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
 
 # INSTALL/UNINSTALL
 
