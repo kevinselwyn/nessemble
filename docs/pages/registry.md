@@ -292,7 +292,6 @@ Content-Type: application/json
 Authorization: Basic <base64 email:password>
 Content-Length: xxx
 
-<email>:<password>
 ```
 
 Response:
