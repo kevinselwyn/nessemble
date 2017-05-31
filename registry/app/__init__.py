@@ -32,6 +32,9 @@ from ..models.users import User
 #----------------#
 # Constants
 
+ROOT       = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+DB_PATH    = os.path.join(ROOT, 'registry.db')
+SQL_PATH   = os.path.join(ROOT, 'registry.sql')
 CACHE_TIME = 60 * 60
 
 #----------------#
@@ -53,7 +56,7 @@ abort_mimetype = 'application/json'
 #----------------#
 # Databases
 
-db = create_engine('sqlite:///registry.db')
+db = create_engine('sqlite:///%s' % (DB_PATH))
 Base.metadata.create_all(db)
 Session = sessionmaker(bind=db)
 
@@ -956,9 +959,9 @@ def reference(path=''):
 def db_import(filename=None):
     """Import database"""
 
-    os.unlink('registry.db')
+    os.unlink(DB_PATH)
 
-    con = sqlite3.connect('registry.db')
+    con = sqlite3.connect(DB_PATH)
 
     with open(filename, 'r') as f:
         sql = f.read()
@@ -985,9 +988,9 @@ def db_import(filename=None):
 def db_export():
     """Export database"""
 
-    con = sqlite3.connect('registry.db')
+    con = sqlite3.connect(DB_PATH)
 
-    with open('registry.sql', 'w') as f:
+    with open(SQL_PATH, 'w') as f:
         for line in con.iterdump():
             f.write('%s\n' % line)
 

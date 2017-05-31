@@ -6,6 +6,11 @@ import os
 from flask import Flask, send_from_directory
 
 #----------------#
+# Constants
+
+ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'site'))
+
+#----------------#
 # Variables
 
 app = Flask(__name__)
@@ -51,7 +56,7 @@ def serve_path(path='index.html'):
     """Serve path"""
 
     directory = None
-    filename = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'site'))
+    filename = ROOT
 
     if path:
         directory = path.split(os.sep)[0]
