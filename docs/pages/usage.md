@@ -40,6 +40,24 @@ Commands:
 
 ## Options
 
+| Option                                                | Description                             |
+|-------------------------------------------------------|-----------------------------------------|
+| [-o, --output <outfile.rom>](#-o-output-outfilerom)   | output file                             |
+| [-f, --format {NES,RAW}](#-f-format-nesraw)           | output format                           |
+| [-e, --empty <hex>](#-e-empty-hex)                    | empty byte value                        |
+| [-u, --undocumented](#-u-undocumented)                | use undocumented opcodes                |
+| [-l, --list <listfile.txt>](#-l-list-listfiletxt)     | generate list of labels and constants   |
+| [-p, --pseudo <pseudo.txt>](#-p-pseudo-pseudotxt)     | use custom pseudo-instruction functions |
+| [-c, --check](#-c-check)                              | check syntax only                       |
+| [-C, --coverage](#-c-coverage)                        | log data coverage                       |
+| [-d, --disassemble](#-d-disassemble)                  | disassemble infile                      |
+| [-R, --reassemble](#-r-reassemble)                    | enable reassembly                       |
+| [-s, --simulate <infile.rom>](#-s-simulate-infilerom) | start the simulator                     |
+| [-r, --recipe <recipe.txt>](#-r-recipe-recipetxt)     | recipe file for the simulator           |
+| [-v, --version](#-v-version)                          | display program version                 |
+| [-L, --license](#-l-license)                          | display program license                 |
+| [-h, --help](#-h-help)                                | print this message                      |
+
 ### -o, --output &lt;outfile.rom&gt;
 
 The `-o`/`--output` flag sets the filename where the output should be written.
@@ -219,6 +237,23 @@ nessemble --help
 
 ## Commands
 
+| Command                                                                     | Description                             |
+|-----------------------------------------------------------------------------|-----------------------------------------|
+| [init \[&lt;arg&gt; ...\]](#init-arg)                                       | initialize new project                  |
+| [scripts](#scripts)                                                         | install scripts                         |
+| [reference \[&lt;category&gt;\] \[&lt;term&gt;\]](#reference-category-term) | get reference info about assembly terms |
+| [config \[&lt;key&gt;\] \[&lt;val&gt;\]](#config-key-val)                   | list/get/set config info                |
+| [registry \[&lt;url&gt;\]](#registry-url)                                   | get/set registry url                    |
+| [install &lt;package&gt;](#install-package)                                 | install package                         |
+| [uninstall &lt;package&gt;](#uninstall-package)                             | uninstall package                       |
+| [publish &lt;package.tar.gz&gt;](#publish-packagetargz)                     | publish package                         |
+| [info &lt;package&gt;](#info-package)                                       | get info about package                  |
+| [ls](#ls)                                                                   | list all installed packages             |
+| [search &lt;term&gt;](#search-term)                                         | search for package in registry          |
+| [adduser](#adduser)                                                         | create user account                     |
+| [login](#login)                                                             | login to the registry                   |
+| [logout](#logout)                                                           | logout of the registry                  |
+
 ### init [&lt;arg&gt; ...]
 
 The `init` command initializes a new project by guiding the user through the
@@ -257,8 +292,8 @@ nessemble reference
 
 The `config` command will get/set configuration options. Using `config` with no
 additional arguments will list all config options. Using `config` with just a
-`&lt;key&gt;` will list the value for just that key. Using `config` with a
-`&lt;key&gt;` AND a `&lt;val&gt;` will set the config key to that value.
+`<key>` will list the value for just that key. Using `config` with a `<key>` AND
+a `<val>` will set the config key to that value.
 
 Example:
 

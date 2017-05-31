@@ -24,7 +24,7 @@ app = Flask(__name__)
 
 app.wsgi_app = DispatcherMiddleware(website, {
     '/registry': registry,
-    '/docs': docs
+    '/documentation': docs
 })
 
 #--------------#
