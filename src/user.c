@@ -169,8 +169,8 @@ unsigned int user_login() {
     download_options.response = &response;
     download_options.response_length = &response_length;
     download_options.url = url;
-    download_options.data = data;
-    download_options.data_length = 1024;
+    download_options.data = NULL;
+    download_options.data_length = 0;
     download_options.mime_type = MIMETYPE_JSON;
     download_options.http_headers = http_headers;
     download_options.response_headers = &response_headers;
