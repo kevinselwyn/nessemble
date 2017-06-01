@@ -2,20 +2,53 @@
 #include <unistd.h>
 #include "nessemble.h"
 
-unsigned int user_auth(struct http_header *http_headers) {
+unsigned int user_auth(struct http_header *http_headers, char *method, char *route) {
     unsigned int rc = RETURN_OK;
-    char *token = NULL;
+    size_t length = 0;
+    char *username = NULL, *token = NULL, *token_hash = NULL, *base64 = NULL;
+    char *credentials = NULL, *authorization = NULL, *data = NULL;
+
+    if ((rc = get_config(&username, "username")) != RETURN_OK) {
+        error_program_log(_("User not logged in"));
+        goto cleanup;
+    }
 
     if ((rc = get_config(&token, "login")) != RETURN_OK) {
         error_program_log(_("User not logged in"));
         goto cleanup;
     }
 
-    http_headers->keys[http_headers->count] = "X-Auth-Token";
-    http_headers->vals[http_headers->count++] = nessemble_strdup(token);
+    length = strlen(method) + strlen(route) + 1;
+    data = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+    sprintf(data, "%s+%s", method, route);
+
+    hmac(&token_hash, token, strlen(token), data, strlen(data));
+
+    length = strlen(username) + strlen(token_hash);
+    credentials = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+
+    sprintf(credentials, "%s:%s", username, token_hash);
+
+    if ((rc = base64enc(&base64, credentials)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    length = strlen(base64) + 10;
+    authorization = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+
+    sprintf(authorization, "HMAC-SHA1 %s", base64);
+
+    http_headers->keys[http_headers->count] = "Authorization";
+    http_headers->vals[http_headers->count++] = nessemble_strdup(authorization);
 
 cleanup:
+    nessemble_free(username);
     nessemble_free(token);
+    nessemble_free(token_hash);
+    nessemble_free(credentials);
+    nessemble_free(base64);
+    nessemble_free(authorization);
+    nessemble_free(data);
 
     return rc;
 }
@@ -197,6 +230,10 @@ unsigned int user_login() {
         goto cleanup;
     }
 
+    if ((rc = set_config(user_email, "username")) != RETURN_OK) {
+        goto cleanup;
+    }
+
     if ((rc = set_config(token, "login")) != RETURN_OK) {
         goto cleanup;
     }
@@ -220,7 +257,7 @@ unsigned int user_logout() {
     struct http_header http_headers = { 0, {}, {} };
     struct http_header response_headers = { 0, {}, {} };
 
-    if ((rc = user_auth(&http_headers)) != RETURN_OK) {
+    if ((rc = user_auth(&http_headers, "POST", "/user/logout")) != RETURN_OK) {
         goto cleanup;
     }
 
