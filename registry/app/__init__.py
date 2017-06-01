@@ -3,8 +3,9 @@
 # pylint: disable=C0103,C0301,R0911,R0912,R0914,R0915,W0603
 """Nessemble registry server"""
 
+import base64
 import datetime
-import hashlib
+import hmac
 import json
 import md5
 import os
@@ -17,6 +18,7 @@ import tarfile
 import tempfile
 import time
 from collections import OrderedDict
+from hashlib import sha1
 import semver
 from cerberus import Validator
 from flask import Flask, abort, g, make_response, request
@@ -95,15 +97,32 @@ def registry_response(data, status=200, mimetype='application/json', headers=Non
 
     return response
 
-def get_auth(headers):
-    """Get auth token"""
+def get_auth(headers, method, route):
+    """Get user_id if authorized"""
 
-    if not 'X-Auth-Token' in headers:
+    if not 'Authorization' in headers:
         abort(401)
 
-    token = headers['X-Auth-Token']
+    authorization = headers['Authorization']
 
-    if not token:
+    if not authorization:
+        abort(401)
+
+    # parse authorization
+
+    try:
+        auth_type, auth_credentials_base64 = authorization.split(' ')
+    except ValueError:
+        abort(401)
+
+    if auth_type != 'HMAC-SHA1' or not auth_credentials_base64:
+        abort(401)
+
+    auth_credentials = base64.b64decode(auth_credentials_base64)
+
+    try:
+        auth_username, auth_hash = auth_credentials.split(':')
+    except ValueError:
         abort(401)
 
     # start session
@@ -113,7 +132,7 @@ def get_auth(headers):
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.login_token == token) \
+                    .filter(User.email == auth_username) \
                     .all()
 
     if not result:
@@ -123,6 +142,15 @@ def get_auth(headers):
 
     if not user:
         return False
+
+    # check if hash matches
+
+    hashed = hmac.new(str(user.login_token), '%s+%s' % (method, route), sha1)
+
+    if not hmac.compare_digest(hashed.hexdigest(), auth_hash):
+        return False
+
+    # check if login token has expired
 
     diff = datetime.datetime.now() - user.date_login
 
@@ -136,7 +164,7 @@ def get_auth(headers):
 
         return False
 
-    return token
+    return user.id
 
 def missing_fields(data, fields, field_name='field'):
     """Check for missing fields"""
@@ -661,11 +689,11 @@ def post_gz():
 
     abort_mimetype = 'application/tar+gzip'
 
-    # get auth token
+    # get auth
 
-    token = get_auth(request.headers)
+    user_id = get_auth(request.headers, request.method, request.url_rule)
 
-    if not token:
+    if not user_id:
         return unauthorized_custom('User is not logged in')
 
     # get zip data
@@ -736,7 +764,7 @@ def post_gz():
     # check if user is logged in
 
     result = session.query(User) \
-                    .filter(User.login_token == token) \
+                    .filter(User.id == user_id) \
                     .all()
     user = result[0]
 
@@ -790,7 +818,7 @@ def post_gz():
     session.query(Lib) \
            .filter(Lib.id == lib.id) \
            .update({
-               'shasum': hashlib.sha1(package_data).hexdigest()
+               'shasum': sha1(package_data).hexdigest()
            })
     session.commit()
 
@@ -878,9 +906,11 @@ def user_login():
 def user_logout():
     """User logout"""
 
-    token = get_auth(request.headers)
+    # get auth
 
-    if not token:
+    user_id = get_auth(request.headers, request.method, request.url_rule)
+
+    if not user_id:
         return unauthorized_custom('User is not logged in')
 
     # start session
@@ -890,14 +920,17 @@ def user_logout():
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.login_token == token) \
+                    .filter(User.id == user_id) \
                     .all()
     user = result[0]
+
+    if not user:
+        return unauthorized_custom('User does not exist')
 
     # log out
 
     session.query(User) \
-           .filter(User.id == user.id) \
+           .filter(User.id == user_id) \
            .update({
                'login_token': None
            })
@@ -981,7 +1014,7 @@ def db_import(filename=None):
         session.query(Lib) \
                .filter(Lib.id == result.id) \
                .update({
-                   'shasum': hashlib.sha1(data).hexdigest()
+                   'shasum': sha1(data).hexdigest()
                })
         session.commit()
 

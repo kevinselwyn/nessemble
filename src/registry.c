@@ -213,7 +213,7 @@ unsigned int lib_publish(char *filename, char **package) {
     struct http_header http_headers = { 0, { }, { } };
     struct http_header response_headers = { 0, { }, { } };
 
-    if ((rc = user_auth(&http_headers)) != RETURN_OK) {
+    if ((rc = user_auth(&http_headers, "POST", "/package/publish")) != RETURN_OK) {
         goto cleanup;
     }
 

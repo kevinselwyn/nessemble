@@ -702,7 +702,7 @@ unsigned int pager_buffer(char *buffer);
 unsigned int pager_file(char *filename);
 
 /* USER */
-unsigned int user_auth(struct http_header *http_headers);
+unsigned int user_auth(struct http_header *http_headers, char *method, char *route);
 unsigned int user_create();
 unsigned int user_login();
 unsigned int user_logout();
@@ -722,5 +722,6 @@ unsigned int scripting_so(char *exec, char **output);
 
 /* HASH */
 void hash(char **hex, char *data, size_t data_len);
+void hmac(char **hex, char *key, size_t key_len, char *data, size_t data_len);
 
 #endif /* _NESSEMBLE_H */
