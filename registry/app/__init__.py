@@ -18,6 +18,7 @@ import tarfile
 import tempfile
 import time
 from collections import OrderedDict
+from ConfigParser import ConfigParser
 from hashlib import sha1
 import semver
 from cerberus import Validator
@@ -34,10 +35,15 @@ from ..models.users import User
 #----------------#
 # Constants
 
-ROOT       = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-DB_PATH    = os.path.join(ROOT, 'registry.db')
-SQL_PATH   = os.path.join(ROOT, 'registry.sql')
-CACHE_TIME = 60 * 60
+BASE       = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+ROOT       = os.path.normpath(os.path.join(BASE, 'registry'))
+
+CONFIG     = ConfigParser()
+CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
+
+DB_PATH    = os.path.join(ROOT, CONFIG.get('registry', 'db'))
+SQL_PATH   = os.path.join(ROOT, CONFIG.get('registry', 'sql'))
+CACHE_TIME = CONFIG.getint('registry', 'cache_time')
 
 #----------------#
 # Variables
@@ -50,7 +56,7 @@ cache = Cache(app, config={
 limiter = Limiter(
     app,
     key_func=get_remote_address,
-    default_limits=['20000 per day', '30 per minute'],
+    default_limits=CONFIG.get('registry', 'limits').split(','),
     headers_enabled=True
 )
 abort_mimetype = 'application/json'

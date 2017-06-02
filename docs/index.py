@@ -6,17 +6,22 @@
 import os
 import sys
 import argparse
+from ConfigParser import ConfigParser
 
-parent_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(parent_dir)
+BASE = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(BASE)
 
 from docs.app import app
 
 #--------------#
 # Constants
 
-HOSTNAME = '0.0.0.0'
-PORT     = 9090
+CONFIG   = ConfigParser()
+CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
+
+NAME     = CONFIG.get('docs', 'name')
+HOSTNAME = CONFIG.get('docs', 'host')
+PORT     = CONFIG.getint('docs', 'port')
 
 #--------------#
 # Main
@@ -24,7 +29,7 @@ PORT     = 9090
 def main():
     """Main function"""
 
-    parser = argparse.ArgumentParser(description='Nessemble docs')
+    parser = argparse.ArgumentParser(description=NAME)
     parser.add_argument('--host', '-H', dest='host', type=str, default=HOSTNAME, required=False, help='Host')
     parser.add_argument('--port', '-P', dest='port', type=int, default=PORT, required=False, help='Port')
     parser.add_argument('--debug', '-D', dest='debug', action='store_true', required=False, help='Debug mode')
