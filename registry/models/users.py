@@ -17,6 +17,8 @@ class User(Base):
     date_created = Column(DateTime)
     date_login = Column(DateTime)
     login_token = Column(String(128))
+    reset_token = Column(String(128))
+    reset_date = Column(DateTime)
 
     def __repr__(self):
         return "<User(id='%s', name='%s', email='%s', password='%s', date_created='%s', date_login='%s', login_token='%s')>" % (self.id, self.name, self.email, self.password, self.date_created, self.date_login, self.login_token)

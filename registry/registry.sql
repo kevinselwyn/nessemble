@@ -588,7 +588,9 @@ CREATE TABLE users (
 	date_created DATETIME,
 	date_login DATETIME,
 	login_token VARCHAR(128),
+    reset_token VARCHAR(128),
+    reset_date DATETIME,
 	PRIMARY KEY (id)
 );
-INSERT INTO "users" VALUES(1,'Kevin Selwyn','kevinselwyn@gmail.com','1a1dc91c907325c69271ddf0c944bc72','2017-03-14 10:29:03.225150','2017-03-17 10:04:56.231847',NULL);
+INSERT INTO "users" VALUES(1,'Kevin Selwyn','kevinselwyn@gmail.com','1a1dc91c907325c69271ddf0c944bc72','2017-03-14 10:29:03.225150','2017-03-17 10:04:56.231847',NULL,NULL,NULL);
 COMMIT;

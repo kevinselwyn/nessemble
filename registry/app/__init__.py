@@ -11,6 +11,7 @@ import md5
 import os
 import random
 import re
+import smtplib
 import sqlite3
 import StringIO
 import struct
@@ -22,7 +23,9 @@ from ConfigParser import ConfigParser
 from hashlib import sha1
 import semver
 from cerberus import Validator
-from flask import Flask, abort, g, make_response, request
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from flask import Flask, abort, g, make_response, render_template, request
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -48,7 +51,8 @@ CACHE_TIME = CONFIG.getint('registry', 'cache_time')
 #----------------#
 # Variables
 
-app = Flask(__name__)
+tmpl_dir = os.path.join(ROOT, 'templates')
+app = Flask(__name__, template_folder=tmpl_dir)
 cache = Cache(app, config={
     'CACHE_TYPE': 'simple',
     'CACHE_THRESHOLD': 256
@@ -530,6 +534,14 @@ def internal_server_error(error):
         'error': 'Internal Server Error'
     }, status=500, mimetype=abort_mimetype)
 
+def internal_server_error_custom(message=False):
+    """Internal Server Error custom error handler"""
+
+    return registry_response({
+        'status': 500,
+        'error': 'Internal Server Error' if not message else message
+    }, status=500, mimetype=abort_mimetype)
+
 #----------------#
 # Endpoints
 
@@ -941,6 +953,89 @@ def user_logout():
                'login_token': None
            })
     session.commit()
+
+    return registry_response({})
+
+@app.route('/user/forgotpassword', methods=['POST'])
+def user_forgotpassword():
+    """User forgot password"""
+
+    user = request.get_json()
+
+    missing = missing_fields(user, ['email'])
+    if missing:
+        return missing
+
+    # start session
+
+    session = Session()
+
+    # check if user exists
+
+    result = session.query(User) \
+                    .filter(User.email == user['email']) \
+                    .all()
+
+    if not result:
+        return conflict_custom('User does not exist')
+
+    user = result[0]
+
+    if not user:
+        return conflict_custom('User does not exist')
+
+    # generate reset token
+
+    forgot_password_email = CONFIG.get('registry', 'forgot_password_email')
+    forgot_password_subject = CONFIG.get('registry', 'forgot_password_subject')
+    forgot_password_timeout = CONFIG.getint('registry', 'forgot_password_timeout')
+
+    reset_token = '%X' % (random.getrandbits(128))
+
+    session.query(User) \
+           .filter(User.id == user.id) \
+           .update({
+               'reset_token': reset_token,
+               'reset_date': datetime.datetime.now() + datetime.timedelta(seconds=forgot_password_timeout)
+           })
+    session.commit()
+
+    # render email message
+
+    message = MIMEMultipart('alternative')
+    message['Subject'] = forgot_password_subject
+    message['From'] = forgot_password_email
+    message['To'] = user.email
+
+    message_text = render_template('forgot-password.txt', \
+        name=user.name, \
+        reset_token=user.reset_token, \
+        reset_time=(forgot_password_timeout / 60) \
+    )
+    message_html = render_template('forgot-password.html', \
+        name=user.name, \
+        reset_token=user.reset_token, \
+        reset_time=(forgot_password_timeout / 60) \
+    )
+
+    message.attach(MIMEText(message_text, 'plain'))
+    message.attach(MIMEText(message_html, 'html'))
+
+    # send email
+
+    smtp_user = CONFIG.get('registry', 'smtp_user')
+    smtp_pass = CONFIG.get('registry', 'smtp_pass')
+    smtp_domain = CONFIG.get('registry', 'smtp_domain')
+    smtp_port = CONFIG.getint('registry', 'smtp_port')
+
+    try:
+        server = smtplib.SMTP_SSL(smtp_domain, smtp_port)
+        server.ehlo()
+        server.login(smtp_user, smtp_pass)
+        server.sendmail(forgot_password_email, [user.email], message.as_string())
+        server.close()
+    except:
+        return internal_server_error_custom('Email could not be sent')
 
     return registry_response({})
 
