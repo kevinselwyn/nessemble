@@ -1,21 +1,28 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301
+# pylint: disable=C0103,C0301,C0326
 """Nessemble website server"""
 
 import os
+from ConfigParser import ConfigParser
 from flask import Flask, make_response, render_template
 from flask_caching import Cache
 
 #----------------#
 # Constants
 
-CACHE_TIME = 60 * 60
+BASE       = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+ROOT       = os.path.normpath(os.path.join(BASE, 'website'))
+
+CONFIG     = ConfigParser()
+CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
+
+CACHE_TIME = CONFIG.getint('website', 'cache_time')
 
 #--------------#
 # Variables
 
-tmpl_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'templates'))
-static_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static'))
+tmpl_dir = os.path.join(ROOT, 'templates')
+static_dir = os.path.join(ROOT, 'static')
 app = Flask(__name__, template_folder=tmpl_dir, static_folder=static_dir)
 cache = Cache(app, config={
     'CACHE_TYPE': 'simple',

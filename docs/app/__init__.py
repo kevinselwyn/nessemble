@@ -1,14 +1,19 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301
+# pylint: disable=C0103,C0301,C0326
 """Nessemble docs server"""
 
 import os
+from ConfigParser import ConfigParser
 from flask import Flask, send_from_directory
 
 #----------------#
 # Constants
 
-ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'site'))
+BASE       = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+ROOT       = os.path.normpath(os.path.join(BASE, 'docs', 'site'))
+
+CONFIG     = ConfigParser()
+CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
 
 #----------------#
 # Variables
