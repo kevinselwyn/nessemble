@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-# pylint: disable=C0103,C0301,R0911,R0912,R0914,R0915,W0603
+# pylint: disable=C0103,C0301,C0302,C0326,R0911,R0912,R0914,R0915,W0603
 """Nessemble registry server"""
 
 import base64
@@ -21,10 +21,10 @@ import time
 from collections import OrderedDict
 from ConfigParser import ConfigParser
 from hashlib import sha1
-import semver
-from cerberus import Validator
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import semver
+from cerberus import Validator
 from flask import Flask, abort, g, make_response, render_template, request
 from flask_caching import Cache
 from flask_limiter import Limiter
@@ -107,7 +107,7 @@ def registry_response(data, status=200, mimetype='application/json', headers=Non
 
     return response
 
-def get_auth(headers, method, route):
+def get_auth(headers, method, route, token_type):
     """Get user_id if authorized"""
 
     if not 'Authorization' in headers:
@@ -155,21 +155,23 @@ def get_auth(headers, method, route):
 
     # check if hash matches
 
-    hashed = hmac.new(str(user.login_token), '%s+%s' % (method, route), sha1)
+    token = user[token_type]
+    hashed = hmac.new(str(token), '%s+%s' % (method, route), sha1)
 
     if not hmac.compare_digest(hashed.hexdigest(), auth_hash):
         return False
 
     # check if login token has expired
 
-    diff = datetime.datetime.now() - user.date_login
+    diff = datetime.datetime.now() - user['date_%s' % (token_type.replace('_token', ''))]
 
     if diff.days >= 1:
+        update_obj = {}
+        update_obj[token_type] = None
+
         session.query(User) \
                .filter(User.id == user.id) \
-               .update({
-                   'login_token': None
-               })
+               .update(update_obj)
         session.commit()
 
         return False
@@ -709,7 +711,7 @@ def post_gz():
 
     # get auth
 
-    user_id = get_auth(request.headers, request.method, request.url_rule)
+    user_id = get_auth(request.headers, request.method, request.url_rule, 'login_token')
 
     if not user_id:
         return unauthorized_custom('User is not logged in')
@@ -926,7 +928,7 @@ def user_logout():
 
     # get auth
 
-    user_id = get_auth(request.headers, request.method, request.url_rule)
+    user_id = get_auth(request.headers, request.method, request.url_rule, 'login_token')
 
     if not user_id:
         return unauthorized_custom('User is not logged in')
@@ -996,7 +998,7 @@ def user_forgotpassword():
            .filter(User.id == user.id) \
            .update({
                'reset_token': reset_token,
-               'reset_date': datetime.datetime.now() + datetime.timedelta(seconds=forgot_password_timeout)
+               'date_reset': datetime.datetime.now() + datetime.timedelta(seconds=forgot_password_timeout)
            })
     session.commit()
 
@@ -1036,6 +1038,54 @@ def user_forgotpassword():
         server.close()
     except:
         return internal_server_error_custom('Email could not be sent')
+
+    return registry_response({})
+
+@app.route('/user/resetpassword', methods=['POST'])
+def user_resetpassword():
+    """User reset password"""
+
+    # get user data
+
+    user_data = request.get_json()
+
+    missing = missing_fields(user_data, ['email', 'password'])
+    if missing:
+        return missing
+
+    # get auth
+
+    user_id = get_auth(request.headers, request.method, request.url_rule, 'reset_token')
+
+    if not user_id:
+        return unauthorized_custom('Invalid reset token')
+
+    # start session
+
+    session = Session()
+
+    # check if user exists
+
+    result = session.query(User) \
+                    .filter(User.id == user_id) \
+                    .all()
+    user = result[0]
+
+    if not user:
+        return unauthorized_custom('User does not exist')
+
+    if user.email != user_data['email']:
+        return unauthorized_custom('Email mismatch')
+
+    # log out
+
+    session.query(User) \
+           .filter(User.id == user_id) \
+           .update({
+               'password': md5.new(user_data['password']).hexdigest(),
+               'reset_token': None
+           })
+    session.commit()
 
     return registry_response({})
 
