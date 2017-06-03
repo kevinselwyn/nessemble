@@ -55,7 +55,9 @@ static struct usage_flag usage_commands[USAGE_COMMAND_COUNT] = {
     { "search <term>", "search for package in registry" },
     { "adduser", "create user account" },
     { "login", "login to the registry" },
-    { "logout", "logout of the registry" }
+    { "logout", "logout of the registry" },
+    { "forgotpassword", "send password reset email" },
+    { "resetpassword", "reset password" }
 };
 
 static struct usage_flag simulation_usage_flags[SIMULATION_USAGE_FLAG_COUNT] = {

@@ -36,6 +36,8 @@ Commands:
   adduser                          create user account
   login                            login to the registry
   logout                           logout of the registry
+  forgotpassword                   send password reset email
+  resetpassword                    reset password
 ```
 
 ## Options
@@ -253,6 +255,8 @@ nessemble --help
 | [adduser](#adduser)                                                         | create user account                     |
 | [login](#login)                                                             | login to the registry                   |
 | [logout](#logout)                                                           | logout of the registry                  |
+| [forgotpassword](#forgotpassword)                                           | send password reset email               |
+| [resetpassword](#resetpassword)                                             | reset password                          |
 
 ### init [&lt;arg&gt; ...]
 
@@ -412,4 +416,24 @@ Example:
 
 ```text
 nessemble logout
+```
+
+### forgotpassword
+
+The `forgotpassword` command will send a password reset email to the user.
+
+Example:
+
+```text
+nessemble forgotpassword
+```
+
+### resetpassword
+
+The `resetpassword` command will prompt the user to reset their password.
+
+Example:
+
+```text
+nessemble resetpassword
 ```

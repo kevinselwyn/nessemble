@@ -325,8 +325,7 @@ int main(int argc, char *argv[]) {
                 goto cleanup;
             }
 
-            printf("Login successful");
-            printf("\n");
+            printf("%s\n", _("Login successful"));
 
             goto cleanup;
         }
@@ -338,6 +337,28 @@ int main(int argc, char *argv[]) {
             }
 
             printf("%s\n", _("Logout successful"));
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[optind], "forgotpassword") == 0) {
+            if ((rc = user_forgotpassword()) != RETURN_OK) {
+                error_program_output(_("Could not send password reset email"));
+                goto cleanup;
+            }
+
+            printf("%s\n", _("Password reset email sent"));
+
+            goto cleanup;
+        }
+
+        if (strcmp(argv[optind], "resetpassword") == 0) {
+            if ((rc = user_resetpassword()) != RETURN_OK) {
+                error_program_output(_("Could not reset password"));
+                goto cleanup;
+            }
+
+            printf("%s\n", _("Password reset"));
 
             goto cleanup;
         }
