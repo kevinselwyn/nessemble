@@ -24,6 +24,8 @@ nessemble registry <URL>
 | [/user/create](#post-usercreate)                                          | POST     | Create a user in the registry                 | <i class="fa fa-times color-red"></i>   |
 | [/user/login](#post-userlogin)                                            | POST     | Log into the registry                         | <i class="fa fa-times color-red"></i>   |
 | [/user/logout](#post-userlogout)                                          | GET/POST | Log out of the registry                       | <i class="fa fa-check color-green"></i> |
+| [/user/forgotpassword](#post-userforgotpassword)                          | POST     | Send an email to reset password               | <i class="fa fa-times color-red"></i>   |
+| [/user/resetpassword](#post-userresetpassword)                            | POST     | Reset password                                | <i class="fa fa-check color-green"></i> |
 | [/reference](#get-reference)                                              | GET      | Display reference categories                  | <i class="fa fa-times color-red"></i>   |
 | [/reference/<path:path>](#get-reference_1)                                | GET      | Display reference information for term `path` | <i class="fa fa-times color-red"></i>   |
 
@@ -391,6 +393,75 @@ Response:
 HTTP/1.1 200 OK
 Content-Length: xxx
 Content-Type: application/json
+Access-Control-Allow-Origin: *
+Server: Nessemble
+X-Response-Time: x.xxx
+Date: Fri, 29 Aug 1997 22:14:00 GMT
+
+{}
+```
+
+#### POST /user/forgotpassword
+
+Send an email to reset password.
+
+Request:
+
+```text
+POST /user/forgotpassword HTTP/1.1
+Host: xxxxx
+User-Agent: nessemble/1.0.1
+Content-Type: application/json
+Content-Length: xxx
+
+{
+    "email": "<email>"
+}
+```
+
+Response:
+
+```text
+HTTP/1.1 200 OK
+Content-Length: xxx
+Access-Control-Allow-Origin: *
+Server: Nessemble
+X-Response-Time: x.xxx
+Date: Fri, 29 Aug 1997 22:14:00 GMT
+
+{}
+```
+
+#### POST /user/resetpassword
+
+Reset password.
+
+Note: Authorization in terms of generating the HMAC-SHA1 works just as described
+in the [Authorization](#authorization) section, but the `token` used must be the
+one emailed to the user after utilizing the
+[`/user/forgotpassword`](#post-userforgotpassword) endpoint.
+
+Request:
+
+```text
+POST /user/forgotpassword HTTP/1.1
+Host: xxxxx
+User-Agent: nessemble/1.0.1
+Content-Type: application/json
+Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
+Content-Length: xxx
+
+{
+    "email": "<email>",
+    "password": "<password>"
+}
+```
+
+Response:
+
+```text
+HTTP/1.1 200 OK
+Content-Length: xxx
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
