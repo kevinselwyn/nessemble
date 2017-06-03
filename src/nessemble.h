@@ -191,7 +191,7 @@ enum {
 
 /* USAGE */
 #define USAGE_FLAG_COUNT            15
-#define USAGE_COMMAND_COUNT         14
+#define USAGE_COMMAND_COUNT         16
 #define SIMULATION_USAGE_FLAG_COUNT 16
 
 /* ZIP */
@@ -702,10 +702,12 @@ unsigned int pager_buffer(char *buffer);
 unsigned int pager_file(char *filename);
 
 /* USER */
-unsigned int user_auth(struct http_header *http_headers, char *method, char *route);
+unsigned int user_auth(struct http_header *http_headers, char *token, char *method, char *route);
 unsigned int user_create();
 unsigned int user_login();
 unsigned int user_logout();
+unsigned int user_forgotpassword();
+unsigned int user_resetpassword();
 
 /* I18N */
 void translate_init();
