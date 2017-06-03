@@ -83,7 +83,6 @@ static unsigned int do_request(struct download_option download_options) {
     char *output = NULL;
     struct hostent *server;
     struct sockaddr_in serv_addr;
-    struct timeval timeout;
     struct http_header resp_headers = { 0, {}, {} };
     fd_set set;
 
@@ -235,17 +234,10 @@ static unsigned int do_request(struct download_option download_options) {
     total = 4096;
     received = 0;
 
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
-
     FD_ZERO(&set);
     FD_SET(sockfd, &set);
 
     do {
-        if (select(sockfd+1, &set, NULL, NULL, &timeout) <= 0) {
-            break;
-        }
-
 #ifdef IS_WINDOWS
         bytes = (int)recv(sockfd, response+received, (size_t)(total - received), 0);
 #else /* IS_WINDOWS */
