@@ -42,8 +42,11 @@ sudo apt-get -y install python-pip
 
 # python modules
 sudo pip install --upgrade pip
-sudo pip install -r $ROOT/requirements.txt
-sudo pip install -r $ROOT/registry/requirements.txt
+
+for reqs in `find $ROOT -name requirements.txt`
+do
+    sudo pip install -r $reqs
+done
 
 # mingw
 sudo apt-get -y install gcc-mingw-w64-i686 gcc-mingw-w64-x86-64

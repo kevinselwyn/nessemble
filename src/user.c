@@ -2,20 +2,47 @@
 #include <unistd.h>
 #include "nessemble.h"
 
-unsigned int user_auth(struct http_header *http_headers) {
+unsigned int user_auth(struct http_header *http_headers, char *token, char *method, char *route) {
     unsigned int rc = RETURN_OK;
-    char *token = NULL;
+    size_t length = 0;
+    char *username = NULL, *token_hash = NULL, *base64 = NULL;
+    char *credentials = NULL, *authorization = NULL, *data = NULL;
 
-    if ((rc = get_config(&token, "login")) != RETURN_OK) {
+    if ((rc = get_config(&username, "username")) != RETURN_OK) {
         error_program_log(_("User not logged in"));
         goto cleanup;
     }
 
-    http_headers->keys[http_headers->count] = "X-Auth-Token";
-    http_headers->vals[http_headers->count++] = nessemble_strdup(token);
+    length = strlen(method) + strlen(route) + 1;
+    data = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+    sprintf(data, "%s+%s", method, route);
+
+    hmac(&token_hash, token, strlen(token), data, strlen(data));
+
+    length = strlen(username) + strlen(token_hash);
+    credentials = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+
+    sprintf(credentials, "%s:%s", username, token_hash);
+
+    if ((rc = base64enc(&base64, credentials)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    length = strlen(base64) + 10;
+    authorization = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+
+    sprintf(authorization, "HMAC-SHA1 %s", base64);
+
+    http_headers->keys[http_headers->count] = "Authorization";
+    http_headers->vals[http_headers->count++] = nessemble_strdup(authorization);
 
 cleanup:
-    nessemble_free(token);
+    nessemble_free(username);
+    nessemble_free(token_hash);
+    nessemble_free(credentials);
+    nessemble_free(base64);
+    nessemble_free(authorization);
+    nessemble_free(data);
 
     return rc;
 }
@@ -169,8 +196,8 @@ unsigned int user_login() {
     download_options.response = &response;
     download_options.response_length = &response_length;
     download_options.url = url;
-    download_options.data = data;
-    download_options.data_length = 1024;
+    download_options.data = NULL;
+    download_options.data_length = 0;
     download_options.mime_type = MIMETYPE_JSON;
     download_options.http_headers = http_headers;
     download_options.response_headers = &response_headers;
@@ -197,6 +224,10 @@ unsigned int user_login() {
         goto cleanup;
     }
 
+    if ((rc = set_config(user_email, "username")) != RETURN_OK) {
+        goto cleanup;
+    }
+
     if ((rc = set_config(token, "login")) != RETURN_OK) {
         goto cleanup;
     }
@@ -215,12 +246,17 @@ cleanup:
 unsigned int user_logout() {
     unsigned int rc = RETURN_OK;
     unsigned int http_code = 0, response_length = 0;
-    char *url = NULL, *response = NULL, *error = NULL;
+    char *url = NULL, *response = NULL, *error = NULL, *token = NULL;
     struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
     struct http_header http_headers = { 0, {}, {} };
     struct http_header response_headers = { 0, {}, {} };
 
-    if ((rc = user_auth(&http_headers)) != RETURN_OK) {
+    if ((rc = get_config(&token, "login")) != RETURN_OK) {
+        error_program_log(_("User not logged in"));
+        goto cleanup;
+    }
+
+    if ((rc = user_auth(&http_headers, token, "POST", "/user/logout")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -261,5 +297,174 @@ unsigned int user_logout() {
     }
 
 cleanup:
+    nessemble_free(token);
+    nessemble_free(url);
+    nessemble_free(response);
+
+    return rc;
+}
+
+unsigned int user_forgotpassword() {
+    unsigned int rc = RETURN_OK;
+    unsigned int http_code = 0, response_length = 0;
+    size_t length = 0;
+    char *url = NULL, *response = NULL, *error = NULL, *buffer = NULL;
+    char *user_email = NULL;
+    char data[1024];
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
+    struct http_header http_headers = { 0, {}, {} };
+    struct http_header response_headers = { 0, {}, {} };
+
+    memset(data, '\0', 1024);
+    buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
+
+    while (get_line(&buffer, _("Email: ")) != NULL) {
+        length = strlen(buffer);
+
+        if (length - 1 == 0) {
+            continue;
+        }
+
+        buffer[length - 1] = '\0';
+        user_email = nessemble_strdup(buffer);
+        break;
+    }
+
+    sprintf(data, "{\n\t\"email\":\"%s\"\n}", user_email);
+
+    if ((rc = api_user(&url, "forgotpassword")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    /* options */
+    download_options.response = &response;
+    download_options.response_length = &response_length;
+    download_options.url = url;
+    download_options.data = data;
+    download_options.data_length = strlen(data);
+    download_options.mime_type = MIMETYPE_JSON;
+    download_options.http_headers = http_headers;
+    download_options.response_headers = &response_headers;
+
+    http_code = post_request(download_options);
+
+    if (!response || response_length == 0) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (http_code != 200) {
+        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
+            error_program_log(_("Could not read response"));
+        } else {
+            error_program_log(error);
+        }
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+cleanup:
+    nessemble_free(url);
+    nessemble_free(response);
+    nessemble_free(buffer);
+    nessemble_free(user_email);
+
+    return rc;
+}
+
+unsigned int user_resetpassword() {
+    unsigned int rc = RETURN_OK;
+    unsigned int http_code = 0, response_length = 0;
+    size_t length = 0;
+    char *url = NULL, *response = NULL, *error = NULL, *buffer = NULL;
+    char *user_token = NULL, *user_email = NULL, *user_password = NULL;
+    char data[1024];
+    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
+    struct http_header http_headers = { 0, {}, {} };
+    struct http_header response_headers = { 0, {}, {} };
+
+    memset(data, '\0', 1024);
+    buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
+
+    while (get_line(&buffer, _("Token: ")) != NULL) {
+        length = strlen(buffer);
+
+        if (length - 1 == 0) {
+            continue;
+        }
+
+        buffer[length - 1] = '\0';
+        user_token = nessemble_strdup(buffer);
+        break;
+    }
+
+    while (get_line(&buffer, _("Email: ")) != NULL) {
+        length = strlen(buffer);
+
+        if (length - 1 == 0) {
+            continue;
+        }
+
+        buffer[length - 1] = '\0';
+        user_email = nessemble_strdup(buffer);
+        break;
+    }
+
+    while ((user_password = nessemble_getpass(_("Password: "))) != NULL) {
+        length = strlen(buffer);
+
+        if (length - 1 == 0) {
+            continue;
+        }
+
+        break;
+    }
+
+    if ((rc = user_auth(&http_headers, user_token, "POST", "/user/resetpassword")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    sprintf(data, "{\n\t\"email\":\"%s\",\n\t\"password\":\"%s\"\n}", user_email, user_password);
+
+    if ((rc = api_user(&url, "resetpassword")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    /* options */
+    download_options.response = &response;
+    download_options.response_length = &response_length;
+    download_options.url = url;
+    download_options.data = data;
+    download_options.data_length = strlen(data);
+    download_options.mime_type = MIMETYPE_JSON;
+    download_options.http_headers = http_headers;
+    download_options.response_headers = &response_headers;
+
+    http_code = post_request(download_options);
+
+    if (!response || response_length == 0) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (http_code != 200) {
+        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
+            error_program_log(_("Could not read response"));
+        } else {
+            error_program_log(error);
+        }
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+cleanup:
+    nessemble_free(url);
+    nessemble_free(response);
+    nessemble_free(buffer);
+    nessemble_free(user_token);
+    nessemble_free(user_email);
+
     return rc;
 }

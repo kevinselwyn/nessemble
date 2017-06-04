@@ -33,3 +33,5 @@ Commands:
   adduser                          create user account
   login                            login to the registry
   logout                           logout of the registry
+  forgotpassword                   send password reset email
+  resetpassword                    reset password
