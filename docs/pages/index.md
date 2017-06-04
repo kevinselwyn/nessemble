@@ -20,4 +20,4 @@ Run `project.nes` in any emulator to see the result.
 
 ## Documentation
 
-Start here: [Installation](/installation)
+Start here: [Installation](/installation/)

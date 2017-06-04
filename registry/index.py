@@ -6,17 +6,22 @@
 import os
 import sys
 import argparse
+from ConfigParser import ConfigParser
 
-parent_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(parent_dir)
+BASE = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(BASE)
 
 from registry.app import app, db_import, db_export
 
 #----------------#
 # Constants
 
-HOSTNAME   = '0.0.0.0'
-PORT       = 5000
+CONFIG   = ConfigParser()
+CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
+
+NAME     = CONFIG.get('registry', 'name')
+HOSTNAME = CONFIG.get('registry', 'host')
+PORT     = CONFIG.getint('registry', 'port')
 
 #----------------#
 # Main
@@ -24,7 +29,7 @@ PORT       = 5000
 def main():
     """Main function"""
 
-    parser = argparse.ArgumentParser(description='Nessemble registry')
+    parser = argparse.ArgumentParser(description=NAME)
     parser.add_argument('--host', '-H', dest='host', type=str, default=HOSTNAME, required=False, help='Host')
     parser.add_argument('--port', '-P', dest='port', type=int, default=PORT, required=False, help='Port')
     parser.add_argument('--debug', '-D', dest='debug', action='store_true', required=False, help='Debug mode')

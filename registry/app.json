@@ -1,6 +1,6 @@
 {
     "name": "Nessemble",
-    "description": "Registry for Nessemble",
+    "description": "Nessemble registry",
     "repository": "",
     "logo": "",
     "keywords": ["nes", "6502", "assembly", "registry"]

@@ -12,5 +12,5 @@ cd nessemble
 make && sudo make install
 ```
 
-See the section on [Building](/building) for more information about
+See the section on [Building](/building/) for more information about
 dependencies and requirements.

@@ -3,7 +3,7 @@
 `nessemble` also includes a built-in package manager. Packages can be published,
 installed, and used in projects.
 
-See the section on [Registry](/registry) to create your own registry of
+See the section on [Registry](/registry/) to create your own registry of
 `nessemble` packages.
 
 ## Search

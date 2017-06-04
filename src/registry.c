@@ -208,12 +208,17 @@ cleanup:
 unsigned int lib_publish(char *filename, char **package) {
     unsigned int rc = RETURN_OK;
     unsigned int http_code = 0, response_length = 0, data_length = 0;
-    char *url = NULL, *response = NULL, *data = NULL, *error = NULL;
+    char *url = NULL, *response = NULL, *data = NULL, *error = NULL, *token = NULL;
     struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
     struct http_header http_headers = { 0, { }, { } };
     struct http_header response_headers = { 0, { }, { } };
 
-    if ((rc = user_auth(&http_headers)) != RETURN_OK) {
+    if ((rc = get_config(&token, "login")) != RETURN_OK) {
+        error_program_log(_("User not logged in"));
+        goto cleanup;
+    }
+
+    if ((rc = user_auth(&http_headers, token, "POST", "/package/publish")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -253,6 +258,10 @@ unsigned int lib_publish(char *filename, char **package) {
     }
 
 cleanup:
+    nessemble_free(token);
+    nessemble_free(url);
+    nessemble_free(response);
+
     return rc;
 }
 
@@ -367,7 +376,6 @@ unsigned int lib_list() {
 
 cleanup:
     nessemble_free(lib_dir);
-    nessemble_free(lib_path);
 
     return rc;
 }

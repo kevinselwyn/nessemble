@@ -139,20 +139,14 @@ static void SHA1Final(char **output, SHA1_CTX *context) {
     *output = digest;
 }
 
-void hash(char **hex, char *data, size_t data_len) {
+static void digest2hex(char **hex, size_t hex_len, char *digest) {
     unsigned int i = 0, l = 0, index = 0, val = 0;
     char chars[16] = "0123456789abcdef";
-    char *digest = NULL, *output = NULL;
-    SHA1_CTX hash;
+    char *output = NULL;
 
-    SHA1Init(&hash);
-    SHA1Update(&hash, data, data_len);
-    SHA1Final(&digest, &hash);
+    output = (char *)nessemble_malloc(sizeof(char) * ((hex_len * 2) + 1));
 
-    output = (char *)nessemble_malloc(sizeof(char) * 41);
-    memset(output, '\0', 41);
-
-    for (i = 0, l = 20; i < l; i++) {
+    for (i = 0, l = (unsigned int)hex_len; i < l; i++) {
         val = digest[i] & 0xFF;
 
         output[index++] = chars[(val >> 4) & 0x0F];
@@ -160,6 +154,64 @@ void hash(char **hex, char *data, size_t data_len) {
     }
 
     *hex = output;
+}
+
+void hash(char **hex, char *data, size_t data_len) {
+    char *digest = NULL;
+    SHA1_CTX context;
+
+    SHA1Init(&context);
+    SHA1Update(&context, data, data_len);
+    SHA1Final(&digest, &context);
+
+    digest2hex(&*hex, 20, digest);
 
     nessemble_free(digest);
+}
+
+void hmac(char **hex, char *key, size_t key_len, char *data, size_t data_len) {
+    unsigned int i = 0, l = 0;
+    char k_ipad[65], k_opad[65];
+    char *t_key = NULL, *digest1 = NULL, *digest2 = NULL;
+    SHA1_CTX context;
+
+    if (key_len > 64) {
+        SHA1_CTX t_context;
+
+        SHA1Init(&t_context);
+        SHA1Update(&t_context, key, key_len);
+        SHA1Final(&t_key, &t_context);
+
+        key = t_key;
+        key_len = 20;
+    }
+
+    memset(k_ipad, '\0', 65);
+    memset(k_opad, '\0', 65);
+    memcpy(k_ipad, key, key_len);
+    memcpy(k_opad, key, key_len);
+
+    for (i = 0, l = 64; i < l; i++) {
+        k_ipad[i] ^= 0x36;
+        k_opad[i] ^= 0x5C;
+    }
+
+    SHA1Init(&context);
+
+    SHA1Update(&context, k_ipad, 64);
+    SHA1Update(&context, data, data_len);
+    SHA1Final(&digest1, &context);
+
+    SHA1Init(&context);
+
+    SHA1Update(&context, k_opad, 64);
+    SHA1Update(&context, digest1, 20);
+
+    SHA1Final(&digest2, &context);
+
+    digest2hex(&*hex, 20, digest2);
+
+    nessemble_free(t_key);
+    nessemble_free(digest1);
+    nessemble_free(digest2);
 }

@@ -1286,7 +1286,7 @@ Note: This is an alias for `.prg 1`.
 ## Optional Scripts
 
 Some scripts are included with `nessemble`, but totally optional. They must be
-installed with the [`scripts`](/usage#scripts) command which provides additional
+installed with the [`scripts`](/usage/#scripts) command which provides additional
 pseudo-instructions to use.
 
 | Pseudo-Instruction | Description                        |

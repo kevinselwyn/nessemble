@@ -36,9 +36,29 @@ Commands:
   adduser                          create user account
   login                            login to the registry
   logout                           logout of the registry
+  forgotpassword                   send password reset email
+  resetpassword                    reset password
 ```
 
 ## Options
+
+| Option                                                | Description                             |
+|-------------------------------------------------------|-----------------------------------------|
+| [-o, --output <outfile.rom>](#-o-output-outfilerom)   | output file                             |
+| [-f, --format {NES,RAW}](#-f-format-nesraw)           | output format                           |
+| [-e, --empty <hex>](#-e-empty-hex)                    | empty byte value                        |
+| [-u, --undocumented](#-u-undocumented)                | use undocumented opcodes                |
+| [-l, --list <listfile.txt>](#-l-list-listfiletxt)     | generate list of labels and constants   |
+| [-p, --pseudo <pseudo.txt>](#-p-pseudo-pseudotxt)     | use custom pseudo-instruction functions |
+| [-c, --check](#-c-check)                              | check syntax only                       |
+| [-C, --coverage](#-c-coverage)                        | log data coverage                       |
+| [-d, --disassemble](#-d-disassemble)                  | disassemble infile                      |
+| [-R, --reassemble](#-r-reassemble)                    | enable reassembly                       |
+| [-s, --simulate <infile.rom>](#-s-simulate-infilerom) | start the simulator                     |
+| [-r, --recipe <recipe.txt>](#-r-recipe-recipetxt)     | recipe file for the simulator           |
+| [-v, --version](#-v-version)                          | display program version                 |
+| [-L, --license](#-l-license)                          | display program license                 |
+| [-h, --help](#-h-help)                                | print this message                      |
 
 ### -o, --output &lt;outfile.rom&gt;
 
@@ -107,8 +127,9 @@ nessemble infile.asm --list listfile.txt
 ### -p, --pseudo &lt;pseudo.txt&gt;
 
 The `-p`/`--pseudo` flag sets the filename of the file that indicates what
-custom pseudo-instructions to enable. See the section on [Extending](/extending)
-to learn more about how to write custom pseudo-instructions.
+custom pseudo-instructions to enable. See the section on
+[Extending](/extending/) to learn more about how to write custom
+pseudo-instructions.
 
 Example:
 
@@ -141,7 +162,7 @@ nessemble infile.asm --coverage
 ### -d, --disassemble
 
 The `-d`/`--disassemble` flag will disassemble any 6502 ROM. See the section on
-[Disassembling](/disassembling) for a breakdown of the generated output.
+[Disassembling](/disassembling/) for a breakdown of the generated output.
 
 Example:
 
@@ -153,7 +174,7 @@ nessemble infile.rom --diassemble
 
 The `-R`/`--reassemble` flag can be used in conjunction with the
 `-d/--diassemble` flag to disassemble to a format appropriate for reassembly.
-See the section on [Disassembling](/disassembling) for a breakdown of the
+See the section on [Disassembling](/disassembling/) for a breakdown of the
 generated output.
 
 Example:
@@ -165,7 +186,7 @@ nessemble --disassemble infile.rom --reassemble
 ### -s, --simulate &lt;infile.rom&gt;
 
 The `-s`/`--simulate` flag starts a 6502 simulator with the provided ROM. See
-the section on [Simulating](/simulating) for a breakdown of the syntax used.
+the section on [Simulating](/simulating/) for a breakdown of the syntax used.
 
 Example:
 
@@ -177,7 +198,7 @@ nessemble --simulate infile.rom
 
 The `-r`/`--recipe` flag can be used in conjunction with the `-s/--simulate` flag
 to provide a recipe of instructions to be run by the simulator. See the section
-on [Simulating](/simulating) for a breakdown of the syntax used.
+on [Simulating](/simulating/) for a breakdown of the syntax used.
 
 Example:
 
@@ -198,7 +219,7 @@ nessemble --version
 ### -L, --license
 
 The `-L`/`--license` flag prints the license for `nessemble`. See the section on
-[Licensing](/licensing) for more information.
+[Licensing](/licensing/) for more information.
 
 Example:
 
@@ -218,6 +239,25 @@ nessemble --help
 
 ## Commands
 
+| Command                                                                     | Description                             |
+|-----------------------------------------------------------------------------|-----------------------------------------|
+| [init \[&lt;arg&gt; ...\]](#init-arg)                                       | initialize new project                  |
+| [scripts](#scripts)                                                         | install scripts                         |
+| [reference \[&lt;category&gt;\] \[&lt;term&gt;\]](#reference-category-term) | get reference info about assembly terms |
+| [config \[&lt;key&gt;\] \[&lt;val&gt;\]](#config-key-val)                   | list/get/set config info                |
+| [registry \[&lt;url&gt;\]](#registry-url)                                   | get/set registry url                    |
+| [install &lt;package&gt;](#install-package)                                 | install package                         |
+| [uninstall &lt;package&gt;](#uninstall-package)                             | uninstall package                       |
+| [publish &lt;package.tar.gz&gt;](#publish-packagetargz)                     | publish package                         |
+| [info &lt;package&gt;](#info-package)                                       | get info about package                  |
+| [ls](#ls)                                                                   | list all installed packages             |
+| [search &lt;term&gt;](#search-term)                                         | search for package in registry          |
+| [adduser](#adduser)                                                         | create user account                     |
+| [login](#login)                                                             | login to the registry                   |
+| [logout](#logout)                                                           | logout of the registry                  |
+| [forgotpassword](#forgotpassword)                                           | send password reset email               |
+| [resetpassword](#resetpassword)                                             | reset password                          |
+
 ### init [&lt;arg&gt; ...]
 
 The `init` command initializes a new project by guiding the user through the
@@ -232,7 +272,7 @@ nessemble init
 ### scripts
 
 The `scripts` command will install optional scripts that will extend the
-functionality of `nessemble`. See the section on [Extending](/extending) to
+functionality of `nessemble`. See the section on [Extending](/extending/) to
 learn more about how to use custom pseudo-instructions.
 
 Example:
@@ -256,8 +296,8 @@ nessemble reference
 
 The `config` command will get/set configuration options. Using `config` with no
 additional arguments will list all config options. Using `config` with just a
-`&lt;key&gt;` will list the value for just that key. Using `config` with a
-`&lt;key&gt;` AND a `&lt;val&gt;` will set the config key to that value.
+`<key>` will list the value for just that key. Using `config` with a `<key>` AND
+a `<val>` will set the config key to that value.
 
 Example:
 
@@ -376,4 +416,24 @@ Example:
 
 ```text
 nessemble logout
+```
+
+### forgotpassword
+
+The `forgotpassword` command will send a password reset email to the user.
+
+Example:
+
+```text
+nessemble forgotpassword
+```
+
+### resetpassword
+
+The `resetpassword` command will prompt the user to reset their password.
+
+Example:
+
+```text
+nessemble resetpassword
 ```

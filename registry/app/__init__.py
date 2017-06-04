@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 # coding=utf-8
-# pylint: disable=C0103,C0301,R0911,R0912,R0914,R0915,W0603
+# pylint: disable=C0103,C0301,C0302,C0326,R0911,R0912,R0914,R0915,W0603
 """Nessemble registry server"""
 
+import base64
 import datetime
-import hashlib
+import hmac
 import json
 import md5
 import os
 import random
 import re
+import smtplib
 import sqlite3
 import StringIO
 import struct
@@ -17,9 +19,13 @@ import tarfile
 import tempfile
 import time
 from collections import OrderedDict
+from ConfigParser import ConfigParser
+from hashlib import sha1
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import semver
 from cerberus import Validator
-from flask import Flask, abort, g, make_response, request
+from flask import Flask, abort, g, make_response, render_template, request
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -32,12 +38,21 @@ from ..models.users import User
 #----------------#
 # Constants
 
-CACHE_TIME = 60 * 60
+BASE       = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+ROOT       = os.path.normpath(os.path.join(BASE, 'registry'))
+
+CONFIG     = ConfigParser()
+CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
+
+DB_PATH    = os.path.join(ROOT, CONFIG.get('registry', 'db'))
+SQL_PATH   = os.path.join(ROOT, CONFIG.get('registry', 'sql'))
+CACHE_TIME = CONFIG.getint('registry', 'cache_time')
 
 #----------------#
 # Variables
 
-app = Flask(__name__)
+tmpl_dir = os.path.join(ROOT, 'templates')
+app = Flask(__name__, template_folder=tmpl_dir)
 cache = Cache(app, config={
     'CACHE_TYPE': 'simple',
     'CACHE_THRESHOLD': 256
@@ -45,7 +60,7 @@ cache = Cache(app, config={
 limiter = Limiter(
     app,
     key_func=get_remote_address,
-    default_limits=['20000 per day', '30 per minute'],
+    default_limits=CONFIG.get('registry', 'limits').split(','),
     headers_enabled=True
 )
 abort_mimetype = 'application/json'
@@ -53,7 +68,7 @@ abort_mimetype = 'application/json'
 #----------------#
 # Databases
 
-db = create_engine('sqlite:///registry.db')
+db = create_engine('sqlite:///%s' % (DB_PATH))
 Base.metadata.create_all(db)
 Session = sessionmaker(bind=db)
 
@@ -92,15 +107,32 @@ def registry_response(data, status=200, mimetype='application/json', headers=Non
 
     return response
 
-def get_auth(headers):
-    """Get auth token"""
+def get_auth(headers, method, route, token_type):
+    """Get user_id if authorized"""
 
-    if not 'X-Auth-Token' in headers:
+    if not 'Authorization' in headers:
         abort(401)
 
-    token = headers['X-Auth-Token']
+    authorization = headers['Authorization']
 
-    if not token:
+    if not authorization:
+        abort(401)
+
+    # parse authorization
+
+    try:
+        auth_type, auth_credentials_base64 = authorization.split(' ')
+    except ValueError:
+        abort(401)
+
+    if auth_type != 'HMAC-SHA1' or not auth_credentials_base64:
+        abort(401)
+
+    auth_credentials = base64.b64decode(auth_credentials_base64)
+
+    try:
+        auth_username, auth_hash = auth_credentials.split(':')
+    except ValueError:
         abort(401)
 
     # start session
@@ -110,7 +142,7 @@ def get_auth(headers):
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.login_token == token) \
+                    .filter(User.email == auth_username) \
                     .all()
 
     if not result:
@@ -121,19 +153,30 @@ def get_auth(headers):
     if not user:
         return False
 
-    diff = datetime.datetime.now() - user.date_login
+    # check if hash matches
+
+    token = user[token_type]
+    hashed = hmac.new(str(token), '%s+%s' % (method, route), sha1)
+
+    if not hmac.compare_digest(hashed.hexdigest(), auth_hash):
+        return False
+
+    # check if login token has expired
+
+    diff = datetime.datetime.now() - user['date_%s' % (token_type.replace('_token', ''))]
 
     if diff.days >= 1:
+        update_obj = {}
+        update_obj[token_type] = None
+
         session.query(User) \
                .filter(User.id == user.id) \
-               .update({
-                   'login_token': None
-               })
+               .update(update_obj)
         session.commit()
 
         return False
 
-    return token
+    return user.id
 
 def missing_fields(data, fields, field_name='field'):
     """Check for missing fields"""
@@ -493,6 +536,14 @@ def internal_server_error(error):
         'error': 'Internal Server Error'
     }, status=500, mimetype=abort_mimetype)
 
+def internal_server_error_custom(message=False):
+    """Internal Server Error custom error handler"""
+
+    return registry_response({
+        'status': 500,
+        'error': 'Internal Server Error' if not message else message
+    }, status=500, mimetype=abort_mimetype)
+
 #----------------#
 # Endpoints
 
@@ -658,11 +709,11 @@ def post_gz():
 
     abort_mimetype = 'application/tar+gzip'
 
-    # get auth token
+    # get auth
 
-    token = get_auth(request.headers)
+    user_id = get_auth(request.headers, request.method, request.url_rule, 'login_token')
 
-    if not token:
+    if not user_id:
         return unauthorized_custom('User is not logged in')
 
     # get zip data
@@ -733,7 +784,7 @@ def post_gz():
     # check if user is logged in
 
     result = session.query(User) \
-                    .filter(User.login_token == token) \
+                    .filter(User.id == user_id) \
                     .all()
     user = result[0]
 
@@ -787,7 +838,7 @@ def post_gz():
     session.query(Lib) \
            .filter(Lib.id == lib.id) \
            .update({
-               'shasum': hashlib.sha1(package_data).hexdigest()
+               'shasum': sha1(package_data).hexdigest()
            })
     session.commit()
 
@@ -875,9 +926,11 @@ def user_login():
 def user_logout():
     """User logout"""
 
-    token = get_auth(request.headers)
+    # get auth
 
-    if not token:
+    user_id = get_auth(request.headers, request.method, request.url_rule, 'login_token')
+
+    if not user_id:
         return unauthorized_custom('User is not logged in')
 
     # start session
@@ -887,16 +940,150 @@ def user_logout():
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.login_token == token) \
+                    .filter(User.id == user_id) \
                     .all()
     user = result[0]
+
+    if not user:
+        return unauthorized_custom('User does not exist')
 
     # log out
 
     session.query(User) \
-           .filter(User.id == user.id) \
+           .filter(User.id == user_id) \
            .update({
                'login_token': None
+           })
+    session.commit()
+
+    return registry_response({})
+
+@app.route('/user/forgotpassword', methods=['POST'])
+def user_forgotpassword():
+    """User forgot password"""
+
+    user = request.get_json()
+
+    missing = missing_fields(user, ['email'])
+    if missing:
+        return missing
+
+    # start session
+
+    session = Session()
+
+    # check if user exists
+
+    result = session.query(User) \
+                    .filter(User.email == user['email']) \
+                    .all()
+
+    if not result:
+        return conflict_custom('User does not exist')
+
+    user = result[0]
+
+    if not user:
+        return conflict_custom('User does not exist')
+
+    # generate reset token
+
+    forgot_password_email = CONFIG.get('registry', 'forgot_password_email')
+    forgot_password_subject = CONFIG.get('registry', 'forgot_password_subject')
+    forgot_password_timeout = CONFIG.getint('registry', 'forgot_password_timeout')
+
+    reset_token = '%X' % (random.getrandbits(128))
+
+    session.query(User) \
+           .filter(User.id == user.id) \
+           .update({
+               'reset_token': reset_token,
+               'date_reset': datetime.datetime.now() + datetime.timedelta(seconds=forgot_password_timeout)
+           })
+    session.commit()
+
+    # render email message
+
+    message = MIMEMultipart('alternative')
+    message['Subject'] = forgot_password_subject
+    message['From'] = forgot_password_email
+    message['To'] = user.email
+
+    message_text = render_template('forgot-password.txt', \
+        name=user.name, \
+        reset_token=user.reset_token, \
+        reset_time=(forgot_password_timeout / 60) \
+    )
+    message_html = render_template('forgot-password.html', \
+        name=user.name, \
+        reset_token=user.reset_token, \
+        reset_time=(forgot_password_timeout / 60) \
+    )
+
+    message.attach(MIMEText(message_text, 'plain'))
+    message.attach(MIMEText(message_html, 'html'))
+
+    # send email
+
+    smtp_user = CONFIG.get('registry', 'smtp_user')
+    smtp_pass = CONFIG.get('registry', 'smtp_pass')
+    smtp_domain = CONFIG.get('registry', 'smtp_domain')
+    smtp_port = CONFIG.getint('registry', 'smtp_port')
+
+    try:
+        server = smtplib.SMTP_SSL(smtp_domain, smtp_port)
+        server.ehlo()
+        server.login(smtp_user, smtp_pass)
+        server.sendmail(forgot_password_email, [user.email], message.as_string())
+        server.close()
+    except:
+        return internal_server_error_custom('Email could not be sent')
+
+    return registry_response({})
+
+@app.route('/user/resetpassword', methods=['POST'])
+def user_resetpassword():
+    """User reset password"""
+
+    # get user data
+
+    user_data = request.get_json()
+
+    missing = missing_fields(user_data, ['email', 'password'])
+    if missing:
+        return missing
+
+    # get auth
+
+    user_id = get_auth(request.headers, request.method, request.url_rule, 'reset_token')
+
+    if not user_id:
+        return unauthorized_custom('Invalid reset token')
+
+    # start session
+
+    session = Session()
+
+    # check if user exists
+
+    result = session.query(User) \
+                    .filter(User.id == user_id) \
+                    .all()
+    user = result[0]
+
+    if not user:
+        return unauthorized_custom('User does not exist')
+
+    if user.email != user_data['email']:
+        return unauthorized_custom('Email mismatch')
+
+    # log out
+
+    session.query(User) \
+           .filter(User.id == user_id) \
+           .update({
+               'password': md5.new(user_data['password']).hexdigest(),
+               'reset_token': None
            })
     session.commit()
 
@@ -956,9 +1143,9 @@ def reference(path=''):
 def db_import(filename=None):
     """Import database"""
 
-    os.unlink('registry.db')
+    os.unlink(DB_PATH)
 
-    con = sqlite3.connect('registry.db')
+    con = sqlite3.connect(DB_PATH)
 
     with open(filename, 'r') as f:
         sql = f.read()
@@ -978,16 +1165,16 @@ def db_import(filename=None):
         session.query(Lib) \
                .filter(Lib.id == result.id) \
                .update({
-                   'shasum': hashlib.sha1(data).hexdigest()
+                   'shasum': sha1(data).hexdigest()
                })
         session.commit()
 
 def db_export():
     """Export database"""
 
-    con = sqlite3.connect('registry.db')
+    con = sqlite3.connect(DB_PATH)
 
-    with open('registry.sql', 'w') as f:
+    with open(SQL_PATH, 'w') as f:
         for line in con.iterdump():
             f.write('%s\n' % line)
 
