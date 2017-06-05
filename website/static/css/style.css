@@ -1,3 +1,12 @@
+.nessemble-icon {
+    width:18px;
+    height:18px;
+    margin:0px 4px 0 0;
+    background:transparent url(../img/nessemble-icon.svg) no-repeat center;
+    background-size:cover;
+    display:block;
+    float:left;
+}
 .intro {
     display: table;
     width: 100%;
