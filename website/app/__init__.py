@@ -4,7 +4,7 @@
 
 import os
 from ConfigParser import ConfigParser
-from flask import Flask, make_response, render_template
+from flask import Flask, make_response, render_template, send_from_directory
 from flask_caching import Cache
 
 #----------------#
@@ -51,6 +51,14 @@ def index():
     """Index endpoint"""
 
     return custom_response(render_template('index.html'))
+
+@app.route('/favicon.ico')
+def serve_favicon():
+    """Serve favicon"""
+
+    filename = os.path.join(ROOT, 'static')
+
+    return send_from_directory(filename, 'favicon.ico')
 
 #--------------#
 # Variables
