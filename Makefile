@@ -266,8 +266,10 @@ ifeq ($(UNAME), Linux)
 	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
 	mkdir -p $(PAYLOAD)/usr/share/doc/$(NAME)
+	mkdir -p $(PAYLOAD)/usr/share/bash-completion/completions
 	strip $(EXEC)
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
+	cp $(NAME)-completion.bash $(PAYLOAD)/usr/share/bash-completion/completions/$(NAME)
 	mkdir -p $(PAYLOAD)/DEBIAN
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
@@ -285,6 +287,7 @@ ifeq ($(UNAME), Linux)
 		$(PACKAGE)/copyright > $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
 	cat src/license.txt >> $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
 	cd $(PAYLOAD) ; md5sum `find usr -type f` > DEBIAN/md5sums
+	cp $(PACKAGE)/scripts/linux/* $(PAYLOAD)/DEBIAN
 	dpkg-deb --build $(PAYLOAD) $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).deb
 	$(RM) $(PAYLOAD)
 endif
