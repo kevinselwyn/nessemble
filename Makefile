@@ -36,9 +36,6 @@ FILES        += src/macro.c src/math.c src/midi.c src/opcodes.c src/pager.c
 FILES        += src/png.c src/reference.c src/registry.c src/scripts.c
 FILES        += src/simulate.c src/usage.c src/user.c src/utils.c src/wav.c
 FILES        += src/zip.c
-
-FILES        += src/download.c #REMOVE
-
 FILES        += $(shell ls src/pseudo/*.c) $(shell ls src/scripting/*.c)
 FILES        += $(shell ls src/simulate/*.c)
 FILES        += src/third-party/jsmn/jsmn.c src/third-party/udeflate/deflate.c

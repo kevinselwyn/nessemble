@@ -166,12 +166,6 @@
 #define CONFIG_LINE_LENGTH 256
 #define CONFIG_TYPES       1
 
-/* DOWNLOAD */
-enum {
-    PROTOCOL_HTTP,
-    PROTOCOL_HTTPS
-};
-
 /* MACRO */
 #define MAX_MACRO_NAME 1024
 #define MAX_MACRO_TEXT 1024 * 1024
@@ -251,23 +245,6 @@ struct usage_flag {
 };
 
 struct option commandline_options[USAGE_FLAG_COUNT+1];
-
-/* HTTP HEADERS */
-struct http_header {
-    unsigned int count;
-    char *keys[16];
-    char *vals[16];
-};
-
-/* DOWNLOAD */
-struct download_option {
-    unsigned int *response_length;
-    unsigned int data_length;
-    char **response;
-    char *url, *data, *method, *mime_type;
-    struct http_header http_headers;
-    struct http_header *response_headers;
-};
 
 /*
  * VARIABLES
@@ -680,11 +657,6 @@ unsigned int lib_publish(char *filename, char **package);
 unsigned int lib_info(char *lib);
 unsigned int lib_list();
 unsigned int lib_search(char *term);
-
-/* DOWNLOAD */
-void free_headers(struct http_header http_headers);
-unsigned int get_request(struct download_option download_options);
-unsigned int post_request(struct download_option download_options);
 
 /* JSON */
 unsigned int get_json_buffer(char **value, char *key, char *json);
