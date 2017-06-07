@@ -210,7 +210,6 @@ unsigned int lib_publish(char *filename, char **package) {
     unsigned int rc = RETURN_OK;
     unsigned int data_length = 0;
     char *url = NULL, *response = NULL, *data = NULL, *error = NULL, *token = NULL;
-    struct http_header http_headers = { 0, { }, { } };
     http_t request;
 
     if ((rc = get_config(&token, "login")) != RETURN_OK) {
@@ -228,15 +227,9 @@ unsigned int lib_publish(char *filename, char **package) {
 
     http_init(&request);
 
-    // TODO: fix user_auth
-    if ((rc = user_auth(&http_headers, token, "POST", "/package/publish")) != RETURN_OK) {
+    if ((rc = user_auth(&request, token, "POST", "/package/publish")) != RETURN_OK) {
         goto cleanup;
     }
-
-    if ((rc = http_header(&request, "Authorization", http_headers.vals[0])) != RETURN_OK) {
-        goto cleanup;
-    }
-    // TODO: fix user_auth (end)
 
     if ((rc = http_header(&request, "Content-Type", MIMETYPE_ZIP)) != RETURN_OK) {
         goto cleanup;
