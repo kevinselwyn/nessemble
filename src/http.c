@@ -537,7 +537,7 @@ static unsigned int http_assemble_response(http_t *request, char *line, size_t l
     local_request = *request;
 
     local_request.response_data = (char *)realloc(local_request.response_data, sizeof(char) * ((local_request.response_size + line_len) + 1));
-    strncpy(local_request.response_data+local_request.response_size, line, line_len);
+    memcpy(local_request.response_data+local_request.response_size, line, line_len);
     local_request.response_size += line_len;
 
     *request = local_request;
