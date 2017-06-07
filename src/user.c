@@ -116,6 +116,7 @@ unsigned int user_create() {
     }
 
     if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
         goto cleanup;
     }
 
@@ -202,6 +203,7 @@ unsigned int user_login() {
     }
 
     if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
         goto cleanup;
     }
 
@@ -274,6 +276,7 @@ unsigned int user_logout() {
     }
 
     if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
         goto cleanup;
     }
 
@@ -346,6 +349,7 @@ unsigned int user_forgotpassword() {
     }
 
     if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
         goto cleanup;
     }
 
@@ -441,6 +445,7 @@ unsigned int user_resetpassword() {
     }
 
     if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
         goto cleanup;
     }
 

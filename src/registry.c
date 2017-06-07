@@ -240,6 +240,7 @@ unsigned int lib_publish(char *filename, char **package) {
     }
 
     if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
         goto cleanup;
     }
 
@@ -285,6 +286,7 @@ unsigned int lib_info(char *lib) {
         http_init(&request);
 
         if ((rc = http_get(&request, readme_url)) != RETURN_OK) {
+            error_program_log(_("Could not reach the registry"));
             goto cleanup;
         }
 

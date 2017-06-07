@@ -121,6 +121,7 @@ unsigned int get_json_url(char **value, char *key, char *url) {
     http_init(&request);
 
     if ((rc = http_get(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
         goto cleanup;
     }
 
@@ -168,6 +169,7 @@ unsigned int get_json_search(char *url, char *term) {
     http_init(&request);
 
     if ((rc = http_get(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
         goto cleanup;
     }
 
