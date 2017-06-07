@@ -293,14 +293,17 @@ ifeq ($(UNAME), Darwin)
 	$(RM) $(PAYLOAD)
 	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
+	mkdir -p $(PAYLOAD)/usr/local/etc/bash_completion.d
 	strip $(EXEC)
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
+	cp $(NAME)-completion.bash $(PAYLOAD)/usr/local/etc/bash_completion.d
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
 	 	$(PACKAGE)/distribution.xml > $(TMP)
 	pkgbuild --root $(PAYLOAD) \
 			 --identifier com.$(IDENTIFIER).$(NAME) \
+			 --scripts $(PACKAGE)/scripts/osx \
 			 --version $(VERSION) \
 			 $(NAME).pkg
 	productbuild --distribution $(TMP) \

@@ -1,0 +1,50 @@
+#!/bin/sh
+
+rcexists="1"
+
+# get completionfile
+completionfile="/usr/local/etc/bash_completion.d/nessemble-completion.bash"
+
+# get bashrc
+rcfile=$(echo ~/.bashrc)
+
+# if zsh, get zshrc
+if [[ "$SHELL" == *"zsh" ]]
+then
+    rcfile=$(echo ~/.zshrc)
+fi
+
+if [ -f $(echo ~/.zshrc) ]
+then
+    rcfile=$(echo ~/.zshrc)
+fi
+
+# if no rcfile, create one
+if [ ! -f $rcfile ]
+then
+    touch $rcfile
+    rcexists="0"
+fi
+
+# load rcfile
+rcdata=$(cat $rcfile)
+
+# check if completion has already been added
+if [[ "$rcdata" == *"#nessemble"* ]]
+then
+    echo "FOUND"
+    exit 0
+fi
+
+# add completion
+if [[ "$rcexists" == "1" ]]
+then
+    printf "\n" >> $rcfile
+fi
+
+echo "#nessemble" >> $rcfile
+echo "if [ -f $completionfile ] ; then" >> $rcfile
+echo "    . $completionfile" >> $rcfile
+echo "fi" >> $rcfile
+
+exit 0
