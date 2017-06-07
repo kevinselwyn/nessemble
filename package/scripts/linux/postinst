@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 rcexists="1"
 
 # get completionfile
-completionfile="/usr/local/etc/bash_completion.d/nessemble-completion.bash"
+completionfile="/usr/share/bash-completion/completions/nessemble"
 
 # get bashrc
 rcfile=$(echo ~/.bashrc)
@@ -36,7 +36,7 @@ then
 fi
 
 # add completion
-if [[ "$rcexists" == "1" ]]
+if [[ "$rcexists" == *"1"* ]]
 then
     printf "\n" >> $rcfile
 fi
