@@ -5,6 +5,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include "nessemble.h"
+#include "http.h"
 
 unsigned int get_registry(char **registry) {
     unsigned int rc = RETURN_OK;
@@ -207,18 +208,13 @@ cleanup:
 
 unsigned int lib_publish(char *filename, char **package) {
     unsigned int rc = RETURN_OK;
-    unsigned int http_code = 0, response_length = 0, data_length = 0;
+    unsigned int data_length = 0;
     char *url = NULL, *response = NULL, *data = NULL, *error = NULL, *token = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
     struct http_header http_headers = { 0, { }, { } };
-    struct http_header response_headers = { 0, { }, { } };
+    http_t request;
 
     if ((rc = get_config(&token, "login")) != RETURN_OK) {
         error_program_log(_("User not logged in"));
-        goto cleanup;
-    }
-
-    if ((rc = user_auth(&http_headers, token, "POST", "/package/publish")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -230,20 +226,32 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
-    /* options */
-    download_options.response = &response;
-    download_options.response_length = &response_length;
-    download_options.url = url;
-    download_options.data = data;
-    download_options.data_length = data_length;
-    download_options.mime_type = MIMETYPE_ZIP;
-    download_options.http_headers = http_headers;
-    download_options.response_headers = &response_headers;
+    http_init(&request);
 
-    http_code = post_request(download_options);
+    // TODO: fix user_auth
+    if ((rc = user_auth(&http_headers, token, "POST", "/package/publish")) != RETURN_OK) {
+        goto cleanup;
+    }
 
-    if (http_code != 200) {
-        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
+    if ((rc = http_header(&request, "Authorization", http_headers.vals[0])) != RETURN_OK) {
+        goto cleanup;
+    }
+    // TODO: fix user_auth (end)
+
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_ZIP)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_data(&request, data, (size_t)data_length)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_post(&request, url)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (request.status_code != 200) {
+        if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
@@ -253,9 +261,11 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
-    if ((rc = get_json_buffer(&*package, "title", response)) != RETURN_OK) {
+    if ((rc = get_json_buffer(&*package, "title", request.response_body)) != RETURN_OK) {
         goto cleanup;
     }
+
+    http_release(&request);
 
 cleanup:
     nessemble_free(token);
@@ -266,10 +276,9 @@ cleanup:
 }
 
 unsigned int lib_info(char *lib) {
-    unsigned int rc = RETURN_OK, readme_length = 0;
-    char *lib_url = NULL, *readme = NULL, *readme_url = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
-    struct http_header response_headers = { 0, { }, { } };
+    unsigned int rc = RETURN_OK;
+    char *lib_url = NULL, *readme_url = NULL;
+    http_t request;
 
     if (lib_is_installed(lib) == FALSE) {
         if ((rc = api_lib(&lib_url, lib)) != RETURN_OK) {
@@ -280,27 +289,17 @@ unsigned int lib_info(char *lib) {
             goto cleanup;
         }
 
-        /* options */
-        download_options.response = &readme;
-        download_options.response_length = &readme_length;
-        download_options.url = readme_url;
-        download_options.data_length = 1024 * 512;
-        download_options.mime_type = MIMETYPE_TEXT;
-        download_options.response_headers = &response_headers;
+        http_init(&request);
 
-        if (get_request(download_options) != 200) {
-            rc = RETURN_EPERM;
+        if ((rc = http_get(&request, readme_url)) != RETURN_OK) {
             goto cleanup;
         }
 
-        if (readme_length == 0) {
-            rc = RETURN_EPERM;
+        if ((rc = pager_buffer(request.response_body)) != RETURN_OK) {
             goto cleanup;
         }
 
-        if ((rc = pager_buffer(readme)) != RETURN_OK) {
-            goto cleanup;
-        }
+        http_release(&request);
     } else {
         if ((rc = get_lib_file_path(&lib_url, lib, SEP "README.md")) != RETURN_OK) {
             goto cleanup;
@@ -314,7 +313,6 @@ unsigned int lib_info(char *lib) {
 cleanup:
     nessemble_free(lib_url);
     nessemble_free(readme_url);
-    nessemble_free(readme);
 
     return rc;
 }
