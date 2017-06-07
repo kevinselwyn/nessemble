@@ -5,6 +5,7 @@
 #include <getopt.h>
 #include <time.h>
 #include <setjmp.h>
+#include "http.h"
 
 /*
  * DEFINES
@@ -702,7 +703,7 @@ unsigned int pager_buffer(char *buffer);
 unsigned int pager_file(char *filename);
 
 /* USER */
-unsigned int user_auth(struct http_header *http_headers, char *token, char *method, char *route);
+unsigned int user_auth(http_t *request, char *token, char *method, char *route);
 unsigned int user_create();
 unsigned int user_login();
 unsigned int user_logout();
