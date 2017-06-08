@@ -107,7 +107,7 @@ unsigned int user_create() {
 
     http_init(&request);
 
-    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -194,7 +194,7 @@ unsigned int user_login() {
 
     http_init(&request);
 
-    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -267,7 +267,7 @@ unsigned int user_logout() {
         goto cleanup;
     }
 
-    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -340,7 +340,7 @@ unsigned int user_forgotpassword() {
 
     http_init(&request);
 
-    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -436,7 +436,7 @@ unsigned int user_resetpassword() {
         goto cleanup;
     }
 
-    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 

@@ -46,6 +46,10 @@ unsigned int reference(unsigned int terms, ...) {
 
     http_init(&request);
 
+    if ((rc = http_header(&request, "Accept", MIMETYPE_TEXT)) != RETURN_OK) {
+        goto cleanup;
+    }
+
     if ((rc = http_get(&request, url)) != RETURN_OK) {
         error_program_log(_("Could not reach the registry"));
         goto cleanup;

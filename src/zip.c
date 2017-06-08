@@ -233,6 +233,10 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
 
     http_init(&request);
 
+    if ((rc = http_header(&request, "Accept", MIMETYPE_ZIP)) != RETURN_OK) {
+        goto cleanup;
+    }
+
     if ((rc = http_get(&request, url)) != RETURN_OK) {
         error_program_log(_("Could not reach the registry"));
         goto cleanup;
