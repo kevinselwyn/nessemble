@@ -1,12 +1,16 @@
 #include <string.h>
 #include <unistd.h>
 #include "nessemble.h"
+#include "http.h"
 
-unsigned int user_auth(struct http_header *http_headers, char *token, char *method, char *route) {
+unsigned int user_auth(http_t *request, char *token, char *method, char *route) {
     unsigned int rc = RETURN_OK;
     size_t length = 0;
     char *username = NULL, *token_hash = NULL, *base64 = NULL;
     char *credentials = NULL, *authorization = NULL, *data = NULL;
+    http_t local_request;
+
+    local_request = *request;
 
     if ((rc = get_config(&username, "username")) != RETURN_OK) {
         error_program_log(_("User not logged in"));
@@ -33,10 +37,13 @@ unsigned int user_auth(struct http_header *http_headers, char *token, char *meth
 
     sprintf(authorization, "HMAC-SHA1 %s", base64);
 
-    http_headers->keys[http_headers->count] = "Authorization";
-    http_headers->vals[http_headers->count++] = nessemble_strdup(authorization);
+    if ((rc = http_header(&local_request, "Authorization", authorization)) != RETURN_OK) {
+        goto cleanup;
+    }
 
 cleanup:
+    *request = local_request;
+
     nessemble_free(username);
     nessemble_free(token_hash);
     nessemble_free(credentials);
@@ -49,14 +56,11 @@ cleanup:
 
 unsigned int user_create() {
     unsigned int rc = RETURN_OK;
-    unsigned int http_code = 0, response_length = 0;
     size_t length = 0;
-    char *url = NULL, *response = NULL, *error = NULL, *buffer = NULL;
+    char *url = NULL, *error = NULL, *buffer = NULL;
     char *user_name = NULL, *user_email = NULL, *user_password = NULL;
     char data[1024];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
-    struct http_header http_headers = { 0, {}, {} };
-    struct http_header response_headers = { 0, {}, {} };
+    http_t request;
 
     memset(data, '\0', 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
@@ -101,25 +105,27 @@ unsigned int user_create() {
         goto cleanup;
     }
 
-    /* options */
-    download_options.response = &response;
-    download_options.response_length = &response_length;
-    download_options.url = url;
-    download_options.data = data;
-    download_options.data_length = strlen(data);
-    download_options.mime_type = MIMETYPE_JSON;
-    download_options.http_headers = http_headers;
-    download_options.response_headers = &response_headers;
+    http_init(&request);
 
-    http_code = post_request(download_options);
-
-    if (!response || response_length == 0) {
-        rc = RETURN_EPERM;
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if (http_code != 200) {
-        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_data(&request, data, strlen(data))) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
+        goto cleanup;
+    }
+
+    if (request.status_code != 200) {
+        if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
@@ -129,10 +135,21 @@ unsigned int user_create() {
         goto cleanup;
     }
 
+    if (!request.content_length) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (http_header_cmp(request, "Content-Type", MIMETYPE_JSON) != 0) {
+        error_program_log(_("Invalid type"));
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    http_release(&request);
+
 cleanup:
-    nessemble_free(url);
-    nessemble_free(response);
-    nessemble_free(buffer);
     nessemble_free(user_name);
     nessemble_free(user_email);
 
@@ -141,15 +158,12 @@ cleanup:
 
 unsigned int user_login() {
     unsigned int rc = RETURN_OK;
-    unsigned int http_code = 0, response_length = 0;
     size_t length = 0;
-    char *url = NULL, *response = NULL, *error = NULL, *buffer = NULL, *token = NULL;
+    char *url = NULL, *error = NULL, *buffer = NULL, *token = NULL;
     char *base64 = NULL, *auth = NULL;
     char *user_email = NULL, *user_password = NULL;
     char data[1024];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
-    struct http_header http_headers = { 0, {}, {} };
-    struct http_header response_headers = { 0, {}, {} };
+    http_t request;
 
     memset(data, '\0', 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
@@ -185,32 +199,36 @@ unsigned int user_login() {
 
     sprintf(auth, "Basic %s", base64);
 
-    http_headers.keys[http_headers.count] = "Authorization";
-    http_headers.vals[http_headers.count++] = nessemble_strdup(auth);
-
     if ((rc = api_user(&url, "login")) != RETURN_OK) {
         goto cleanup;
     }
 
-    /* options */
-    download_options.response = &response;
-    download_options.response_length = &response_length;
-    download_options.url = url;
-    download_options.data = NULL;
-    download_options.data_length = 0;
-    download_options.mime_type = MIMETYPE_JSON;
-    download_options.http_headers = http_headers;
-    download_options.response_headers = &response_headers;
+    http_init(&request);
 
-    http_code = post_request(download_options);
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
 
-    if (!response || response_length == 0) {
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_header(&request, "Authorization", auth)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
+        goto cleanup;
+    }
+
+    if (!request.content_length) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (http_code != 200) {
-        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
+    if (request.status_code != 200) {
+        if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
@@ -220,7 +238,7 @@ unsigned int user_login() {
         goto cleanup;
     }
 
-    if ((rc = get_json_buffer(&token, "token", response)) != RETURN_OK) {
+    if ((rc = get_json_buffer(&token, "token", request.response_body)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -232,9 +250,10 @@ unsigned int user_login() {
         goto cleanup;
     }
 
+    http_release(&request);
+
 cleanup:
     nessemble_free(url);
-    nessemble_free(response);
     nessemble_free(buffer);
     nessemble_free(user_email);
     nessemble_free(auth);
@@ -245,18 +264,11 @@ cleanup:
 
 unsigned int user_logout() {
     unsigned int rc = RETURN_OK;
-    unsigned int http_code = 0, response_length = 0;
-    char *url = NULL, *response = NULL, *error = NULL, *token = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
-    struct http_header http_headers = { 0, {}, {} };
-    struct http_header response_headers = { 0, {}, {} };
+    char *url = NULL, *error = NULL, *token = NULL;
+    http_t request;
 
     if ((rc = get_config(&token, "login")) != RETURN_OK) {
         error_program_log(_("User not logged in"));
-        goto cleanup;
-    }
-
-    if ((rc = user_auth(&http_headers, token, "POST", "/user/logout")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -264,25 +276,36 @@ unsigned int user_logout() {
         goto cleanup;
     }
 
-    /* options */
-    download_options.response = &response;
-    download_options.response_length = &response_length;
-    download_options.url = url;
-    download_options.data = "{}";
-    download_options.data_length = 1024;
-    download_options.mime_type = MIMETYPE_JSON;
-    download_options.http_headers = http_headers;
-    download_options.response_headers = &response_headers;
+    http_init(&request);
 
-    http_code = post_request(download_options);
+    if ((rc = user_auth(&request, token, "POST", "/user/logout")) != RETURN_OK) {
+        goto cleanup;
+    }
 
-    if (!response || response_length == 0) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_data(&request, "{}", 2)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
+        goto cleanup;
+    }
+
+    if (!request.content_length) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (http_code != 200) {
-        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
+    if (request.status_code != 200) {
+        if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
@@ -296,24 +319,22 @@ unsigned int user_logout() {
         goto cleanup;
     }
 
+    http_release(&request);
+
 cleanup:
     nessemble_free(token);
     nessemble_free(url);
-    nessemble_free(response);
 
     return rc;
 }
 
 unsigned int user_forgotpassword() {
     unsigned int rc = RETURN_OK;
-    unsigned int http_code = 0, response_length = 0;
     size_t length = 0;
-    char *url = NULL, *response = NULL, *error = NULL, *buffer = NULL;
+    char *url = NULL, *error = NULL, *buffer = NULL;
     char *user_email = NULL;
     char data[1024];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
-    struct http_header http_headers = { 0, {}, {} };
-    struct http_header response_headers = { 0, {}, {} };
+    http_t request;
 
     memset(data, '\0', 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
@@ -336,25 +357,32 @@ unsigned int user_forgotpassword() {
         goto cleanup;
     }
 
-    /* options */
-    download_options.response = &response;
-    download_options.response_length = &response_length;
-    download_options.url = url;
-    download_options.data = data;
-    download_options.data_length = strlen(data);
-    download_options.mime_type = MIMETYPE_JSON;
-    download_options.http_headers = http_headers;
-    download_options.response_headers = &response_headers;
+    http_init(&request);
 
-    http_code = post_request(download_options);
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
 
-    if (!response || response_length == 0) {
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_data(&request, data, strlen(data))) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
+        goto cleanup;
+    }
+
+    if (!request.content_length) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (http_code != 200) {
-        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
+    if (request.status_code != 200) {
+        if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
@@ -364,9 +392,10 @@ unsigned int user_forgotpassword() {
         goto cleanup;
     }
 
+    http_release(&request);
+
 cleanup:
     nessemble_free(url);
-    nessemble_free(response);
     nessemble_free(buffer);
     nessemble_free(user_email);
 
@@ -375,14 +404,11 @@ cleanup:
 
 unsigned int user_resetpassword() {
     unsigned int rc = RETURN_OK;
-    unsigned int http_code = 0, response_length = 0;
     size_t length = 0;
-    char *url = NULL, *response = NULL, *error = NULL, *buffer = NULL;
+    char *url = NULL, *error = NULL, *buffer = NULL;
     char *user_token = NULL, *user_email = NULL, *user_password = NULL;
     char data[1024];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
-    struct http_header http_headers = { 0, {}, {} };
-    struct http_header response_headers = { 0, {}, {} };
+    http_t request;
 
     memset(data, '\0', 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
@@ -421,7 +447,9 @@ unsigned int user_resetpassword() {
         break;
     }
 
-    if ((rc = user_auth(&http_headers, user_token, "POST", "/user/resetpassword")) != RETURN_OK) {
+    http_init(&request);
+
+    if ((rc = user_auth(&request, user_token, "POST", "/user/resetpassword")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -431,25 +459,30 @@ unsigned int user_resetpassword() {
         goto cleanup;
     }
 
-    /* options */
-    download_options.response = &response;
-    download_options.response_length = &response_length;
-    download_options.url = url;
-    download_options.data = data;
-    download_options.data_length = strlen(data);
-    download_options.mime_type = MIMETYPE_JSON;
-    download_options.http_headers = http_headers;
-    download_options.response_headers = &response_headers;
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
 
-    http_code = post_request(download_options);
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
 
-    if (!response || response_length == 0) {
+    if ((rc = http_data(&request, data, strlen(data))) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_post(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
+        goto cleanup;
+    }
+
+    if (!request.content_length) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if (http_code != 200) {
-        if ((rc = get_json_buffer(&error, "error", response)) != RETURN_OK) {
+    if (request.status_code != 200) {
+        if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
@@ -459,9 +492,10 @@ unsigned int user_resetpassword() {
         goto cleanup;
     }
 
+    http_release(&request);
+
 cleanup:
     nessemble_free(url);
-    nessemble_free(response);
     nessemble_free(buffer);
     nessemble_free(user_token);
     nessemble_free(user_email);

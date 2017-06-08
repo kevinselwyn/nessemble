@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nessemble.h"
+#include "http.h"
 #include "third-party/jsmn/jsmn.h"
 
 static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
@@ -114,20 +115,21 @@ cleanup:
 }
 
 unsigned int get_json_url(char **value, char *key, char *url) {
-    unsigned int rc = RETURN_OK, text_length = 0;
-    char *text = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
-    struct http_header response_headers = { 0, { }, { } };
+    unsigned int rc = RETURN_OK;
+    http_t request;
 
-    /* options */
-    download_options.response = &text;
-    download_options.response_length = &text_length;
-    download_options.url = url;
-    download_options.data_length = 1024 * 512;
-    download_options.mime_type = MIMETYPE_JSON;
-    download_options.response_headers = &response_headers;
+    http_init(&request);
 
-    switch (get_request(download_options)) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_get(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
+        goto cleanup;
+    }
+
+    switch (request.status_code) {
     case 503:
         error_program_log(_("Could not reach the registry"));
 
@@ -143,43 +145,43 @@ unsigned int get_json_url(char **value, char *key, char *url) {
         break;
     }
 
-    if (!text) {
+    if (!request.content_length) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    if ((rc = get_json_buffer(&*value, key, text)) != RETURN_OK) {
+    if ((rc = get_json_buffer(&*value, key, request.response_body)) != RETURN_OK) {
         goto cleanup;
     }
 
-cleanup:
-    nessemble_free(text);
-    free_headers(response_headers);
+    http_release(&request);
 
+cleanup:
     return rc;
 }
 
 unsigned int get_json_search(char *url, char *term) {
     int token_count = 0;
-    unsigned int rc = RETURN_OK, text_length = 0;
+    unsigned int rc = RETURN_OK;
     unsigned int i = 0, k = 0, l = 0;
     unsigned int string_length = 0, results_index = 0;
-    char *text = NULL;
     char *results[200];
     jsmn_parser parser;
     jsmntok_t tokens[JSON_TOKEN_MAX];
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
-    struct http_header response_headers = { 0, { }, { } };
+    http_t request;
 
-    /* options */
-    download_options.response = &text;
-    download_options.response_length = &text_length;
-    download_options.url = url;
-    download_options.data_length = 1024 * 512;
-    download_options.mime_type = MIMETYPE_JSON;
-    download_options.response_headers = &response_headers;
+    http_init(&request);
 
-    switch (get_request(download_options)) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_get(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
+        goto cleanup;
+    }
+
+    switch (request.status_code) {
     case 503:
         error_program_log(_("Could not reach the registry"));
 
@@ -195,13 +197,13 @@ unsigned int get_json_search(char *url, char *term) {
         break;
     }
 
-    if (!text) {
+    if (!request.content_length) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     jsmn_init(&parser);
-    token_count = jsmn_parse(&parser, text, strlen(text), tokens, JSON_TOKEN_MAX);
+    token_count = jsmn_parse(&parser, request.response_body, request.content_length, tokens, JSON_TOKEN_MAX);
 
     if (token_count <= 0 || tokens[0].type != JSMN_OBJECT) {
         error_program_log(_("Could not parse JSON"));
@@ -211,12 +213,12 @@ unsigned int get_json_search(char *url, char *term) {
     }
 
     for (i = 1, l = token_count; i < l; i++) {
-        if (jsoneq(text, &tokens[i], "title") == 0) {
+        if (jsoneq(request.response_body, &tokens[i], "title") == 0) {
             string_length = tokens[i+1].end - tokens[i+1].start;
             results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
             memset(results[results_index], 0, (size_t)string_length);
-            strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
+            strncpy(results[results_index], request.response_body+tokens[i+1].start, (size_t)string_length);
             results[results_index][string_length] = '\0';
 
             results_index++;
@@ -224,12 +226,12 @@ unsigned int get_json_search(char *url, char *term) {
     }
 
     for (i = 1, l = token_count; i < l; i++) {
-        if (jsoneq(text, &tokens[i], "description") == 0) {
+        if (jsoneq(request.response_body, &tokens[i], "description") == 0) {
             string_length = tokens[i+1].end - tokens[i+1].start;
             results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
             memset(results[results_index], 0, (size_t)string_length);
-            strncpy(results[results_index], text+tokens[i+1].start, (size_t)string_length);
+            strncpy(results[results_index], request.response_body+tokens[i+1].start, (size_t)string_length);
             results[results_index][string_length] = '\0';
 
             results_index++;
@@ -286,9 +288,9 @@ unsigned int get_json_search(char *url, char *term) {
         printf("\n");
     }
 
-cleanup:
-    nessemble_free(text);
+    http_release(&request);
 
+cleanup:
     for (i = 0, l = results_index; i < l; i++) {
         nessemble_free(results[i]);
     }
