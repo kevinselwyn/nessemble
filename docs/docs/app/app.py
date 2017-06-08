@@ -3,17 +3,13 @@
 """Nessemble docs server"""
 
 import os
-from ConfigParser import ConfigParser
 from flask import Flask, send_from_directory
 
 #----------------#
 # Constants
 
-BASE       = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-ROOT       = os.path.normpath(os.path.join(BASE, 'docs', 'site'))
-
-CONFIG     = ConfigParser()
-CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
+BASE       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+ROOT       = os.path.normpath(os.path.join(BASE, 'site'))
 
 #----------------#
 # Variables
