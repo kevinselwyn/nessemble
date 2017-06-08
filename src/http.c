@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 #include <unistd.h>
 #include "http.h"
 #include "nessemble.h"
@@ -794,9 +795,39 @@ unsigned int http_do(http_t *request, char *method, char *url) {
         goto cleanup;
     }
 
+#if defined(IS_LINUX) || defined(IS_MAC)
+    #define SPINNER_COUNT 10
+    #define SPINNER_DELAY 5000
+
+    unsigned int spinner_index = 0;
+    char *spinner[SPINNER_COUNT] = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        printf("%s", spinner[spinner_index++]);
+
+        for (;;) {
+            usleep(SPINNER_DELAY);
+
+            printf("\b%s", spinner[spinner_index]);
+            fflush(stdout);
+
+            spinner_index = (spinner_index + 1) % SPINNER_COUNT;
+        }
+    } else {
+#endif /* IS_LINUX || IS_MAC */
+
     while (status == HTTP_STATUS_PENDING) {
         status = http_process(&local_request);
     }
+
+#if defined(IS_LINUX) || defined(IS_MAC)
+        kill(pid, SIGTERM);
+
+        printf("\b");
+        fflush(stdout);
+    }
+#endif /* IS_LINUX || IS_MAC */
 
     if (status == HTTP_STATUS_FAILED) {
         rc = RETURN_EPERM;
