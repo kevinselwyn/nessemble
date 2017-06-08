@@ -2,8 +2,8 @@
 # pylint: disable=C0103,C0301,R0903
 """User model"""
 
-from .base import Base
 from sqlalchemy import Column, DateTime, Integer, String
+from .base import Base
 
 class User(Base):
     """User model"""
