@@ -40,8 +40,8 @@ Request:
 ```text
 GET / HTTP/1.1
 Host: xxxxx
+Accept: application/json
 User-Agent: nessemble/1.0.1
-Content-Type: application/json
 ```
 
 Response:
@@ -53,6 +53,10 @@ Content-Type: application/json
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
@@ -83,8 +87,8 @@ Request:
 ```text
 GET /search/foo HTTP/1.1
 Host: xxxxx
+Accept: application/json
 User-Agent: nessemble/1.0.1
-Content-Type: application/json
 ```
 
 Response:
@@ -96,6 +100,10 @@ Content-Type: application/json
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
@@ -130,8 +138,8 @@ Request:
 ```text
 GET /package/foo HTTP/1.1
 Host: xxxxx
+Accept: application/json
 User-Agent: nessemble/1.0.1
-Content-Type: application/json
 ```
 
 Response:
@@ -143,6 +151,10 @@ Content-Type: application/json
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
@@ -177,8 +189,8 @@ Request:
 ```text
 GET /package/foo/README HTTP/1.1
 Host: xxxxx
+Accept: text/plain
 User-Agent: nessemble/1.0.1
-Content-Type: text/plain
 ```
 
 Response:
@@ -190,6 +202,10 @@ Content-Type: text/plain
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 # foo
@@ -208,8 +224,8 @@ Request:
 ```text
 GET /package/foo/data HTTP/1.1
 Host: xxxxx
+Accept: application/tar+gzip
 User-Agent: nessemble/1.0.1
-Content-Type: application/tar+gzip
 ```
 
 Response:
@@ -223,6 +239,10 @@ Server: Nessemble
 X-Response-Time: x.xxx
 Content-Disposition: attachment; filename="foo-1.0.1.tar.gz"
 X-Integrity: 0123456789abcdef0123456789abcdef12345678
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 <raw data>...
@@ -240,8 +260,8 @@ Request:
 ```text
 POST /package/publish HTTP/1.1
 Host: xxxxx
+Accept: application/json
 User-Agent: nessemble/1.0.1
-Content-Type: application/tar+gzip
 Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
 Content-Length: xxx
 
@@ -253,10 +273,14 @@ Response:
 ```text
 HTTP/1.1 200 OK
 Content-Length: xxx
-Content-Type: application/tar+gzip
+Content-Type: application/json
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
@@ -293,8 +317,8 @@ Request:
 ```text
 POST /user/create HTTP/1.1
 Host: xxxxx
+Accept: application/json
 User-Agent: nessemble/1.0.1
-Content-Type: application/json
 Content-Length: xxx
 
 {
@@ -313,6 +337,10 @@ Content-Type: application/json
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {}
@@ -327,6 +355,10 @@ Content-Type: application/json
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
@@ -344,8 +376,8 @@ Request:
 ```text
 POST /user/login HTTP/1.1
 Host: xxxxx
+Accept: application/json
 User-Agent: nessemble/1.0.1
-Content-Type: application/json
 Authorization: Basic <base64 email:password>
 Content-Length: xxx
 
@@ -360,6 +392,10 @@ Content-Type: application/json
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {
@@ -379,8 +415,8 @@ Request:
 ```text
 POST /user/logout HTTP/1.1
 Host: xxxxx
+Accept: application/json
 User-Agent: nessemble/1.0.1
-Content-Type: application/json
 Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
 Content-Length: xxx
 
@@ -396,6 +432,10 @@ Content-Type: application/json
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {}
@@ -410,8 +450,8 @@ Request:
 ```text
 POST /user/forgotpassword HTTP/1.1
 Host: xxxxx
+Accept: application/json
 User-Agent: nessemble/1.0.1
-Content-Type: application/json
 Content-Length: xxx
 
 {
@@ -427,6 +467,10 @@ Content-Length: xxx
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {}
@@ -446,8 +490,8 @@ Request:
 ```text
 POST /user/forgotpassword HTTP/1.1
 Host: xxxxx
+Accept: application/json
 User-Agent: nessemble/1.0.1
-Content-Type: application/json
 Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
 Content-Length: xxx
 
@@ -465,6 +509,10 @@ Content-Length: xxx
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {}
@@ -481,8 +529,8 @@ Request:
 ```text
 GET /reference HTTP/1.1
 Host: xxxxx
+Accept: text/plain
 User-Agent: nessemble/1.0.1
-Content-Type: text/plain
 ```
 
 Response:
@@ -494,6 +542,10 @@ Content-Type: text/plain
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
   foo
@@ -510,8 +562,8 @@ Request:
 ```text
 GET /reference/foo/bar HTTP/1.1
 Host: xxxxx
+Accept: text/plain
 User-Agent: nessemble/1.0.1
-Content-Type: text/plain
 ```
 
 Response:
@@ -523,6 +575,10 @@ Content-Type: text/plain
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
   baz
@@ -538,6 +594,10 @@ Content-Type: text/plain
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {

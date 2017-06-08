@@ -231,7 +231,7 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
-    if ((rc = http_header(&request, "Content-Type", MIMETYPE_ZIP)) != RETURN_OK) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -284,6 +284,10 @@ unsigned int lib_info(char *lib) {
         }
 
         http_init(&request);
+
+        if ((rc = http_header(&request, "Accept", MIMETYPE_TEXT)) != RETURN_OK) {
+            goto cleanup;
+        }
 
         if ((rc = http_get(&request, readme_url)) != RETURN_OK) {
             error_program_log(_("Could not reach the registry"));
