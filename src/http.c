@@ -625,7 +625,46 @@ cleanup:
     return rc;
 }
 
+static unsigned int http_content_length(http_t request) {
+    unsigned int content_length = 0;
+    char *response_data = NULL;
+    char *content_length_start = NULL;
+    char *content_length_token = NULL, *content_length_ptr = NULL;
+
+    response_data = (char *)nessemble_malloc(sizeof(char) * (request.response_size + 1));
+    strcpy(response_data, request.response_data);
+
+    if ((content_length_start = strstr(response_data, "Content-Length")) == NULL) {
+        goto cleanup;
+    }
+
+    content_length_token = strtok_r(content_length_start, ": ", &content_length_ptr);
+
+    if (!content_length_token) {
+        goto cleanup;
+    }
+
+    if (strcmp(content_length_token, "Content-Length") != 0) {
+        goto cleanup;
+    }
+
+    content_length_token = strtok_r(NULL, "\r\n", &content_length_ptr);
+
+    if (!content_length_token) {
+        goto cleanup;
+    }
+
+    content_length = (unsigned int)atoi(content_length_token+1);
+
+cleanup:
+    nessemble_free(response_data);
+
+    return content_length;
+}
+
 http_status_t http_process(http_t *request) {
+    size_t headers_len = 0;
+    char *headers_break = NULL;
     socklen_t len = 0;
     http_t local_request;
 
@@ -701,6 +740,15 @@ http_status_t http_process(http_t *request) {
                 local_request.status = HTTP_STATUS_FAILED;
                 goto cleanup;
             }
+
+            if ((headers_break = strstr(local_request.response_data, "\r\n\r\n")) != NULL) {
+                headers_len = (size_t)(headers_break - local_request.response_data) + 4;
+
+                if (local_request.response_size - headers_len == http_content_length(local_request)) {
+                    local_request.status = HTTP_STATUS_COMPLETED;
+                    break;
+                }
+            }
         } else if (size == 0) {
             if (http_assemble_response(&local_request, (char *)buffer, (size_t)size) != 0) {
                 local_request.status = HTTP_STATUS_FAILED;
@@ -724,6 +772,10 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     http_status_t status = HTTP_STATUS_PENDING;
 
     local_request = *request;
+
+    if ((rc = http_header(&local_request, "User-Agent", PROGRAM_NAME "/" PROGRAM_VERSION)) != 0) {
+        goto cleanup;
+    }
 
     if ((rc = http_request(&local_request, method, url)) != 0) {
         goto cleanup;
