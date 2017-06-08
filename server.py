@@ -8,14 +8,14 @@ import argparse
 from ConfigParser import ConfigParser
 from flask import Flask
 from werkzeug.wsgi import DispatcherMiddleware
-from website.app import app as website
-from registry.app import app as registry, db_import
-from docs.app import app as docs
+from website.website import app as website
+from registry.registry import app as registry
+from docs.docs import app as docs
 
 #--------------#
 # Constants
 
-BASE     = os.path.dirname(os.path.realpath(__file__))
+BASE     = os.path.normpath(os.path.dirname(__file__))
 
 CONFIG   = ConfigParser()
 CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
@@ -24,16 +24,16 @@ NAME     = CONFIG.get('main', 'name')
 HOSTNAME = CONFIG.get('main', 'host')
 PORT     = CONFIG.getint('main', 'port')
 
-SQL_PATH = os.path.join(BASE, 'registry', CONFIG.get('registry', 'sql'))
+SQL_PATH = os.path.join(BASE, 'registry', 'registry.sql')
 
 #--------------#
 # Variables
 
 app = Flask(__name__)
 
-app.wsgi_app = DispatcherMiddleware(website, {
-    '/registry': registry,
-    '/documentation': docs
+app.wsgi_app = DispatcherMiddleware(website.app, {
+    '/registry': registry.app,
+    '/documentation': docs.app
 })
 
 #--------------#
@@ -49,7 +49,7 @@ def main():
 
     args = parser.parse_args()
 
-    db_import(SQL_PATH)
+    registry.db_import(SQL_PATH)
 
     app.run(host=args.host, port=args.port, debug=args.debug)
 

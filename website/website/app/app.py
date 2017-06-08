@@ -3,26 +3,21 @@
 """Nessemble website server"""
 
 import os
-from ConfigParser import ConfigParser
 from flask import Flask, make_response, render_template, send_from_directory
 from flask_caching import Cache
+from ..config.config import config as CONFIG
 
 #----------------#
 # Constants
 
-BASE       = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-ROOT       = os.path.normpath(os.path.join(BASE, 'website'))
-
-CONFIG     = ConfigParser()
-CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
-
+BASE       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
 CACHE_TIME = CONFIG.getint('website', 'cache_time')
 
 #--------------#
 # Variables
 
-tmpl_dir = os.path.join(ROOT, 'templates')
-static_dir = os.path.join(ROOT, 'static')
+tmpl_dir = os.path.join(BASE, 'templates')
+static_dir = os.path.join(BASE, 'static')
 app = Flask(__name__, template_folder=tmpl_dir, static_folder=static_dir)
 cache = Cache(app, config={
     'CACHE_TYPE': 'simple',
@@ -56,7 +51,7 @@ def index():
 def serve_favicon():
     """Serve favicon"""
 
-    filename = os.path.join(ROOT, 'static')
+    filename = os.path.join(BASE, 'static')
 
     return send_from_directory(filename, 'favicon.ico')
 

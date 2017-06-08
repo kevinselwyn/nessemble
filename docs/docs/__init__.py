@@ -1,4 +1,4 @@
 # coding=utf-8
 """docs"""
 
-from . import docs
+from . import app, config

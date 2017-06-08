@@ -1,29 +1,22 @@
 #!/usr/bin/env python
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0326,C0413
+# pylint: disable=C0301,C0326
 """Nessemble registry server"""
 
 import os
-import sys
 import argparse
-from ConfigParser import ConfigParser
-
-BASE = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(BASE)
-
 from registry.app import app, db_import, db_export
+from registry.config import config as CONFIG
 
-#----------------#
+#--------------#
 # Constants
 
-CONFIG   = ConfigParser()
-CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
-
+BASE     = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 NAME     = CONFIG.get('registry', 'name')
 HOSTNAME = CONFIG.get('registry', 'host')
 PORT     = CONFIG.getint('registry', 'port')
 
-#----------------#
+#--------------#
 # Main
 
 def main():

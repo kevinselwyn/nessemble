@@ -1,6 +1,5 @@
-#!/usr/bin/env python
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0302,C0326,R0911,R0912,R0914,R0915,W0603
+# pylint: disable=C0103,C0301,C0302,C0326,R0911,R0912,R0914,R0915,W0603,W0702
 """Nessemble registry server"""
 
 import base64
@@ -19,7 +18,6 @@ import tarfile
 import tempfile
 import time
 from collections import OrderedDict
-from ConfigParser import ConfigParser
 from hashlib import sha1
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -34,24 +32,20 @@ from sqlalchemy.orm import sessionmaker
 from ..models.base import Base
 from ..models.libs import Lib
 from ..models.users import User
+from ..config.config import config as CONFIG
 
 #----------------#
 # Constants
 
-BASE       = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
-ROOT       = os.path.normpath(os.path.join(BASE, 'registry'))
-
-CONFIG     = ConfigParser()
-CONFIG.readfp(open(os.path.join(BASE, 'settings.cfg')))
-
-DB_PATH    = os.path.join(ROOT, CONFIG.get('registry', 'db'))
-SQL_PATH   = os.path.join(ROOT, CONFIG.get('registry', 'sql'))
+BASE       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+DB_PATH    = os.path.join(BASE, CONFIG.get('registry', 'db'))
+SQL_PATH   = os.path.join(BASE, CONFIG.get('registry', 'sql'))
 CACHE_TIME = CONFIG.getint('registry', 'cache_time')
 
 #----------------#
 # Variables
 
-tmpl_dir = os.path.join(ROOT, 'templates')
+tmpl_dir = os.path.join(BASE, 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 cache = Cache(app, config={
     'CACHE_TYPE': 'simple',
