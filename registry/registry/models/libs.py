@@ -2,8 +2,8 @@
 # pylint: disable=C0103,C0301,R0903
 """Lib model"""
 
-from .base import Base
 from sqlalchemy import Column, DateTime, Integer, String, Text
+from .base import Base
 
 class Lib(Base):
     """Lib model"""
