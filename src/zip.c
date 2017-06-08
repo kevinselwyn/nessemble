@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nessemble.h"
+#include "http.h"
 #include "third-party/udeflate/deflate.h"
 
 static char input[ZIP_INSIZE], output[ZIP_OUTSIZE];
@@ -225,21 +226,23 @@ cleanup:
 }
 
 unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
-    unsigned int rc = RETURN_OK, content_length = 0, index = 0, checksummed = FALSE;
-    unsigned int i = 0, l = 0;
-    char *content = NULL, *shasum = NULL;
-    struct download_option download_options = { 0, 0, NULL, NULL, NULL, NULL, NULL, { 0, { }, { } }, NULL };
-    struct http_header response_headers = { 0, { }, { } };
+    unsigned int rc = RETURN_OK;
+    unsigned int index = 0;
+    char *shasum = NULL;
+    http_t request;
 
-    /* options */
-    download_options.response = &content;
-    download_options.response_length = &content_length;
-    download_options.url = url;
-    download_options.data_length = 1024 * 512;
-    download_options.mime_type = MIMETYPE_ZIP;
-    download_options.response_headers = &response_headers;
+    http_init(&request);
 
-    switch (get_request(download_options)) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_ZIP)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_get(&request, url)) != RETURN_OK) {
+        error_program_log(_("Could not reach the registry"));
+        goto cleanup;
+    }
+
+    switch (request.status_code) {
     case 503:
         error_program_log(_("Could not reach the registry"));
 
@@ -255,32 +258,31 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
         break;
     }
 
-    if (!content) {
+    if (!request.content_length) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    hash(&shasum, content, content_length);
+    if (http_header_cmp(request, "Content-Type", MIMETYPE_ZIP) != 0) {
+        error_program_log(_("Invalid type"));
 
-    for (i = 0, l = response_headers.count; i < l; i++) {
-        if (strcmp(response_headers.keys[i], "X-Integrity") == 0) {
-            if (strcmp(response_headers.vals[i], shasum) == 0) {
-                checksummed = TRUE;
-            }
-        }
+        rc = RETURN_EPERM;
+        goto cleanup;
     }
 
-    if (checksummed == FALSE) {
+    hash(&shasum, request.response_body, request.content_length);
+
+    if (http_header_cmp(request, "X-Integrity", shasum) != 0) {
         error_program_log(_("Invalid shasum (%s)"), shasum);
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    while (content[index] != '\0') {
+    while (request.response_body[index] != '\0') {
         index++;
 
-        if (index >= content_length) {
+        if (index >= request.content_length) {
             rc = RETURN_EPERM;
             goto cleanup;
         }
@@ -288,14 +290,14 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
 
     index++;
 
-    if ((rc = get_ungzip(&*data, &*data_length, content+index, content_length - index)) != RETURN_OK) {
+    if ((rc = get_ungzip(&*data, &*data_length, request.response_body+index, request.content_length - index)) != RETURN_OK) {
         goto cleanup;
     }
 
+    http_release(&request);
+
 cleanup:
-    nessemble_free(content);
     nessemble_free(shasum);
-    free_headers(response_headers);
 
     return rc;
 }
