@@ -362,6 +362,19 @@ cleanup:
     return rc;
 }
 
+int http_header_cmp(http_t request, char *key, char *val) {
+    int cmp = -1;
+    unsigned int i = 0, l = 0;
+
+    for (i = 0, l = request.response_header_count; i < l; i++) {
+        if (strcmp(request.response_headers[i].key, key) == 0 && strcmp(request.response_headers[i].val, val) == 0) {
+            cmp = 0;
+        }
+    }
+
+    return cmp;
+}
+
 unsigned int http_data(http_t *request, char *data, size_t data_len) {
     unsigned int rc = RETURN_OK;
     char content_length[16];

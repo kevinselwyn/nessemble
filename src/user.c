@@ -111,6 +111,10 @@ unsigned int user_create() {
         goto cleanup;
     }
 
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
     if ((rc = http_data(&request, data, strlen(data))) != RETURN_OK) {
         goto cleanup;
     }
@@ -120,17 +124,24 @@ unsigned int user_create() {
         goto cleanup;
     }
 
-    if (!request.content_length) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
     if (request.status_code != 200) {
         if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {
             error_program_log(error);
         }
+
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (!request.content_length) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (http_header_cmp(request, "Content-Type", MIMETYPE_JSON) != 0) {
+        error_program_log(_("Invalid type"));
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -195,6 +206,10 @@ unsigned int user_login() {
     http_init(&request);
 
     if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -271,6 +286,10 @@ unsigned int user_logout() {
         goto cleanup;
     }
 
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
     if ((rc = http_data(&request, "{}", 2)) != RETURN_OK) {
         goto cleanup;
     }
@@ -341,6 +360,10 @@ unsigned int user_forgotpassword() {
     http_init(&request);
 
     if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -437,6 +460,10 @@ unsigned int user_resetpassword() {
     }
 
     if ((rc = http_header(&request, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_JSON)) != RETURN_OK) {
         goto cleanup;
     }
 
