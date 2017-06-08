@@ -261,6 +261,7 @@ Request:
 POST /package/publish HTTP/1.1
 Host: xxxxx
 Accept: application/json
+Content-Type: application/tar+gzip
 User-Agent: nessemble/1.0.1
 Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
 Content-Length: xxx
@@ -318,6 +319,7 @@ Request:
 POST /user/create HTTP/1.1
 Host: xxxxx
 Accept: application/json
+Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Content-Length: xxx
 
@@ -377,6 +379,7 @@ Request:
 POST /user/login HTTP/1.1
 Host: xxxxx
 Accept: application/json
+Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Authorization: Basic <base64 email:password>
 Content-Length: xxx
@@ -416,6 +419,7 @@ Request:
 POST /user/logout HTTP/1.1
 Host: xxxxx
 Accept: application/json
+Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
 Content-Length: xxx
@@ -451,6 +455,7 @@ Request:
 POST /user/forgotpassword HTTP/1.1
 Host: xxxxx
 Accept: application/json
+Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Content-Length: xxx
 
@@ -491,6 +496,7 @@ Request:
 POST /user/forgotpassword HTTP/1.1
 Host: xxxxx
 Accept: application/json
+Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
 Content-Length: xxx

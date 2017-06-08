@@ -235,6 +235,10 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
+    if ((rc = http_header(&request, "Content-Type", MIMETYPE_ZIP)) != RETURN_OK) {
+        goto cleanup;
+    }
+
     if ((rc = http_data(&request, data, (size_t)data_length)) != RETURN_OK) {
         goto cleanup;
     }

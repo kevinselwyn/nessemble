@@ -111,6 +111,7 @@ typedef struct http_t {
 void http_init(http_t *request);
 unsigned int http_header(http_t *request, char *key, char *val);
 unsigned int http_headers(http_t *request, size_t header_count, char *headers[header_count][2]);
+int http_header_cmp(http_t request, char *key, char *val);
 unsigned int http_data(http_t *request, char *data, size_t data_len);
 unsigned int http_request(http_t *request, char *method, char *url);
 http_status_t http_process(http_t *request);

@@ -226,8 +226,8 @@ cleanup:
 }
 
 unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
-    unsigned int rc = RETURN_OK, i = 0, l = 0;
-    unsigned int index = 0, checksummed = FALSE;
+    unsigned int rc = RETURN_OK;
+    unsigned int index = 0;
     char *shasum = NULL;
     http_t request;
 
@@ -263,17 +263,16 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
         goto cleanup;
     }
 
-    hash(&shasum, request.response_body, request.content_length);
+    if (http_header_cmp(request, "Content-Type", MIMETYPE_ZIP) != 0) {
+        error_program_log(_("Invalid type"));
 
-    for (i = 0, l = request.response_header_count; i < l; i++) {
-        if (strcmp(request.response_headers[i].key, "X-Integrity") == 0) {
-            if (strcmp(request.response_headers[i].val, shasum) == 0) {
-                checksummed = TRUE;
-            }
-        }
+        rc = RETURN_EPERM;
+        goto cleanup;
     }
 
-    if (checksummed == FALSE) {
+    hash(&shasum, request.response_body, request.content_length);
+
+    if (http_header_cmp(request, "X-Integrity", shasum) != 0) {
         error_program_log(_("Invalid shasum (%s)"), shasum);
 
         rc = RETURN_EPERM;
