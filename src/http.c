@@ -797,14 +797,15 @@ unsigned int http_do(http_t *request, char *method, char *url) {
 
 #if defined(IS_LINUX) || defined(IS_MAC)
     #define SPINNER_COUNT 10
-    #define SPINNER_DELAY 5000
+    #define SPINNER_DELAY 50000
 
     unsigned int spinner_index = 0;
     char *spinner[SPINNER_COUNT] = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
     pid_t pid = fork();
 
     if (pid == 0) {
-        printf("%s", spinner[spinner_index++]);
+        printf("\e[?25l%s", spinner[spinner_index++]);
+        fflush(stdout);
 
         for (;;) {
             usleep(SPINNER_DELAY);
@@ -824,7 +825,7 @@ unsigned int http_do(http_t *request, char *method, char *url) {
 #if defined(IS_LINUX) || defined(IS_MAC)
         kill(pid, SIGTERM);
 
-        printf("\b");
+        printf("\b\e[?25h");
         fflush(stdout);
     }
 #endif /* IS_LINUX || IS_MAC */
