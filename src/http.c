@@ -550,7 +550,7 @@ static unsigned int http_assemble_response(http_t *request, char *line, size_t l
 
     local_request = *request;
 
-    local_request.response_data = (char *)realloc(local_request.response_data, sizeof(char) * ((local_request.response_size + line_len) + 1));
+    local_request.response_data = (char *)nessemble_realloc(local_request.response_data, sizeof(char) * ((local_request.response_size + line_len) + 1));
     memcpy(local_request.response_data+local_request.response_size, line, line_len);
     local_request.response_size += line_len;
 
@@ -801,7 +801,7 @@ static void http_spinner_start() {
     }
 }
 
-static void http_spinner_stop(pid) {
+static void http_spinner_stop(pid_t pid) {
     printf("\b\e[?25h");
     fflush(stdout);
 

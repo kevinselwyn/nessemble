@@ -165,7 +165,7 @@ unsigned int get_json_search(char *url, char *term) {
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, k = 0, l = 0;
     unsigned int string_length = 0, results_index = 0;
-    char *results[200];
+    char *results_name[1024], *results_description[1024];
     jsmn_parser parser;
     jsmntok_t tokens[JSON_TOKEN_MAX];
     http_t request;
@@ -212,27 +212,31 @@ unsigned int get_json_search(char *url, char *term) {
         goto cleanup;
     }
 
+    results_index = 0;
+
     for (i = 1, l = token_count; i < l; i++) {
         if (jsoneq(request.response_body, &tokens[i], "title") == 0) {
             string_length = tokens[i+1].end - tokens[i+1].start;
-            results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
+            results_name[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
-            memset(results[results_index], 0, (size_t)string_length);
-            strncpy(results[results_index], request.response_body+tokens[i+1].start, (size_t)string_length);
-            results[results_index][string_length] = '\0';
+            memset(results_name[results_index], 0, (size_t)string_length);
+            strncpy(results_name[results_index], request.response_body+tokens[i+1].start, (size_t)string_length);
+            results_name[results_index][string_length] = '\0';
 
             results_index++;
         }
     }
 
+    results_index = 0;
+
     for (i = 1, l = token_count; i < l; i++) {
         if (jsoneq(request.response_body, &tokens[i], "description") == 0) {
             string_length = tokens[i+1].end - tokens[i+1].start;
-            results[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
+            results_description[results_index] = (char *)nessemble_malloc(sizeof(char) * (string_length + 1));
 
-            memset(results[results_index], 0, (size_t)string_length);
-            strncpy(results[results_index], request.response_body+tokens[i+1].start, (size_t)string_length);
-            results[results_index][string_length] = '\0';
+            memset(results_description[results_index], 0, (size_t)string_length);
+            strncpy(results_description[results_index], request.response_body+tokens[i+1].start, (size_t)string_length);
+            results_description[results_index][string_length] = '\0';
 
             results_index++;
         }
@@ -244,8 +248,10 @@ unsigned int get_json_search(char *url, char *term) {
         int name_index = 0, description_index = 0, term_length = 0;
         char *name_text = NULL, *description_text = NULL;
 
-        name_text = results[i++];
-        description_text = results[i++];
+        name_text = results_name[i];
+        description_text = results_description[i];
+
+        i++;
 
         term_length = (int)strlen(term);
         name_index = nessemble_strcasestr(name_text, term) - name_text;
@@ -292,7 +298,8 @@ unsigned int get_json_search(char *url, char *term) {
 
 cleanup:
     for (i = 0, l = results_index; i < l; i++) {
-        nessemble_free(results[i]);
+        nessemble_free(results_name[i]);
+        nessemble_free(results_description[i]);
     }
 
     return rc;
