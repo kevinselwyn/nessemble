@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 #include <unistd.h>
 #include "http.h"
 #include "nessemble.h"
@@ -779,6 +780,35 @@ cleanup:
     return local_request.status;
 }
 
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+static void http_spinner_start() {
+    #define SPINNER_COUNT 10
+    #define SPINNER_DELAY 50000
+
+    unsigned int spinner_index = 0;
+    char *spinner[SPINNER_COUNT] = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
+
+    printf("\e[?25l%s", spinner[spinner_index++]);
+    fflush(stdout);
+
+    for (;;) {
+        usleep(SPINNER_DELAY);
+
+        printf("\b\b%s", spinner[spinner_index]);
+        fflush(stdout);
+
+        spinner_index = (spinner_index + 1) % SPINNER_COUNT;
+    }
+}
+
+static void http_spinner_stop(pid) {
+    printf("\b\e[?25h");
+    fflush(stdout);
+
+    kill(pid, SIGKILL);
+}
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+
 unsigned int http_do(http_t *request, char *method, char *url) {
     unsigned int rc = RETURN_OK;
     http_t local_request;
@@ -794,9 +824,22 @@ unsigned int http_do(http_t *request, char *method, char *url) {
         goto cleanup;
     }
 
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        http_spinner_start();
+    } else {
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+
     while (status == HTTP_STATUS_PENDING) {
         status = http_process(&local_request);
     }
+
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+        http_spinner_stop(pid);
+    }
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
     if (status == HTTP_STATUS_FAILED) {
         rc = RETURN_EPERM;
