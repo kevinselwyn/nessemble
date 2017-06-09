@@ -802,10 +802,10 @@ static void http_spinner_start() {
 }
 
 static void http_spinner_stop(pid) {
-    kill(pid, SIGKILL);
-
     printf("\b\e[?25h");
     fflush(stdout);
+
+    kill(pid, SIGKILL);
 }
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
