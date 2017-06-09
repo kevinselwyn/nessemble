@@ -181,16 +181,13 @@ def missing_fields(data, fields, field_name='field'):
         missing = fields
     else:
         for field in fields:
-            if not field in data:
+            if not field in data or not data[field]:
                 missing.append(field)
 
     if not missing:
         return False
 
-    return registry_response({
-        'status': 400,
-        'error': 'Missing %s: `%s`' % (field_name if len(missing) == 1 else ('%ss' % field_name), '`, `'.join(missing))
-    }, 400)
+    return bad_request_custom('Missing %s: `%s`' % (field_name if len(missing) == 1 else ('%ss' % field_name), '`, `'.join(missing)))
 
 def get_package_json(package='', version=None, full=True, string=False):
     """Get package JSON"""
@@ -359,11 +356,13 @@ def validate_semver(field, value, error):
     except ValueError:
         error(field, 'Must be a valid semver string')
 
-def validate_email(field, value, error):
+def validate_email(value):
     """Validate email string"""
 
     if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', value):
-        error(field, 'Must be a valid email address')
+        return False
+
+    return True
 
 def validate_package(data):
     """Validate package.json"""
@@ -847,6 +846,10 @@ def user_create():
 
     if result:
         return conflict_custom('User already exists')
+
+    # validate email
+    if not validate_email(user['email']):
+        return bad_request_custom('Invalid email address')
 
     # create user
 
