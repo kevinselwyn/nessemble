@@ -583,6 +583,7 @@ INSERT INTO "reference" VALUES(557,280,NULL,'Unused mapper');
 CREATE TABLE users (
 	id INTEGER NOT NULL,
 	name VARCHAR(128),
+    username VARCHAR(128),
 	email VARCHAR(128),
 	password VARCHAR(128),
 	date_created DATETIME,
@@ -592,5 +593,5 @@ CREATE TABLE users (
     date_reset DATETIME,
 	PRIMARY KEY (id)
 );
-INSERT INTO "users" VALUES(1,'Kevin Selwyn','kevinselwyn@gmail.com','1a1dc91c907325c69271ddf0c944bc72','2017-03-14 10:29:03.225150','2017-03-17 10:04:56.231847',NULL,NULL,NULL);
+INSERT INTO "users" VALUES(1,'Kevin Selwyn','kevinselwyn','kevinselwyn@gmail.com','1a1dc91c907325c69271ddf0c944bc72','2017-03-14 10:29:03.225150','2017-03-17 10:04:56.231847',NULL,NULL,NULL);
 COMMIT;

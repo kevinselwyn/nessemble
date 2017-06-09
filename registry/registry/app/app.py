@@ -136,7 +136,7 @@ def get_auth(headers, method, route, token_type):
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.email == auth_username) \
+                    .filter(User.username == auth_username) \
                     .all()
 
     if not result:
@@ -238,10 +238,7 @@ def get_package_json(package='', version=None, full=True, string=False):
         ])
 
     output.update([
-        ('author', {
-            'name': user.name,
-            'email': user.email
-        }),
+        ('author', user.username),
         ('license', lib.license),
         ('tags', lib.tags.split(','))
     ])
@@ -396,18 +393,8 @@ def validate_package(data):
             'empty': False
         },
         'author': {
-            'type': 'dict',
-            'schema': {
-                'name': {
-                    'type': 'string',
-                    'empty': False
-                },
-                'email': {
-                    'type': 'string',
-                    'empty': False,
-                    'validator': validate_email
-                }
-            }
+            'type': 'string',
+            'empty': False
         },
         'tags': {
             'type': 'list',
@@ -785,10 +772,10 @@ def post_gz():
     if not user:
         return unauthorized_custom('User is not logged in')
 
-    # make sure emails match
+    # make sure usernames match
 
-    if user.email != json_info['author']['email']:
-        return unprocessable_custom('Author email mismatch')
+    if user.username != json_info['author']:
+        return unprocessable_custom('Author username mismatch')
 
     # check that lib doesn't already exist
 
@@ -844,7 +831,7 @@ def user_create():
 
     user = request.get_json()
 
-    missing = missing_fields(user, ['name', 'email', 'password'])
+    missing = missing_fields(user, ['name', 'username', 'email', 'password'])
     if missing:
         return missing
 
@@ -855,7 +842,7 @@ def user_create():
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.email == user['email']) \
+                    .filter(User.username == user['username']) \
                     .all()
 
     if result:
@@ -865,6 +852,7 @@ def user_create():
 
     session.add(User(
         name=user['name'],
+        username=user['username'],
         email=user['email'],
         password=md5.new(user['password']).hexdigest(),
         date_created=datetime.datetime.now()))
@@ -889,7 +877,7 @@ def user_login():
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.email == auth['username']) \
+                    .filter(User.username == auth['username']) \
                     .all()
 
     if not result:
@@ -958,7 +946,7 @@ def user_forgotpassword():
 
     user = request.get_json()
 
-    missing = missing_fields(user, ['email'])
+    missing = missing_fields(user, ['username'])
     if missing:
         return missing
 
@@ -969,7 +957,7 @@ def user_forgotpassword():
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.email == user['email']) \
+                    .filter(User.username == user['username']) \
                     .all()
 
     if not result:
@@ -1043,7 +1031,7 @@ def user_resetpassword():
 
     user_data = request.get_json()
 
-    missing = missing_fields(user_data, ['email', 'password'])
+    missing = missing_fields(user_data, ['username', 'password'])
     if missing:
         return missing
 
@@ -1068,8 +1056,8 @@ def user_resetpassword():
     if not user:
         return unauthorized_custom('User does not exist')
 
-    if user.email != user_data['email']:
-        return unauthorized_custom('Email mismatch')
+    if user.username != user_data['username']:
+        return unauthorized_custom('Username mismatch')
 
     # log out
 

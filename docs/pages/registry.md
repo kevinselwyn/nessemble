@@ -164,10 +164,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
     "version": {
         "1.0.1": "1997-08-29T22:14:00.000Z"
     },
-    "author": {
-        "name": "Joe Somebody",
-        "email": "joe.somebody@email.com"
-    },
+    "author": "joe.somebody",
     "license": "GPLv3",
     "tags": [
         "foo",
@@ -263,7 +260,7 @@ Host: xxxxx
 Accept: application/json
 Content-Type: application/tar+gzip
 User-Agent: nessemble/1.0.1
-Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
+Authorization: HMAC-SHA1 <base64 username:hmac-sha1>
 Content-Length: xxx
 
 <content>
@@ -288,10 +285,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
     "title": "foo",
     "description": "Foo bar baz qux",
     "version": "1.0.1",
-    "author": {
-        "name": "Joe Somebody",
-        "email": "joe.somebody@email.com"
-    },
+    "author": "joe.somebody",
     "license": "GPLv3",
     "tags": [
         "foo",
@@ -325,6 +319,7 @@ Content-Length: xxx
 
 {
     "name": "<name>",
+    "username": "<username>",
     "email": "<email>",
     "password": "<password>"
 }
@@ -381,7 +376,7 @@ Host: xxxxx
 Accept: application/json
 Content-Type: application/json
 User-Agent: nessemble/1.0.1
-Authorization: Basic <base64 email:password>
+Authorization: Basic <base64 username:password>
 Content-Length: xxx
 
 ```
@@ -421,7 +416,7 @@ Host: xxxxx
 Accept: application/json
 Content-Type: application/json
 User-Agent: nessemble/1.0.1
-Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
+Authorization: HMAC-SHA1 <base64 username:hmac-sha1>
 Content-Length: xxx
 
 {}
@@ -460,7 +455,7 @@ User-Agent: nessemble/1.0.1
 Content-Length: xxx
 
 {
-    "email": "<email>"
+    "username": "<username>"
 }
 ```
 
@@ -493,16 +488,16 @@ one emailed to the user after utilizing the
 Request:
 
 ```text
-POST /user/forgotpassword HTTP/1.1
+POST /user/resetpassword HTTP/1.1
 Host: xxxxx
 Accept: application/json
 Content-Type: application/json
 User-Agent: nessemble/1.0.1
-Authorization: HMAC-SHA1 <base64 email:hmac-sha1>
+Authorization: HMAC-SHA1 <base64 username:hmac-sha1>
 Content-Length: xxx
 
 {
-    "email": "<email>",
+    "username": "<username>",
     "password": "<password>"
 }
 ```
