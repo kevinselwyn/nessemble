@@ -12,6 +12,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128))
+    username = Column(String(128))
     email = Column(String(128))
     password = Column(String(128))
     date_created = Column(DateTime)
@@ -21,12 +22,26 @@ class User(Base):
     date_reset = Column(DateTime)
 
     def __repr__(self):
-        return "<User(id='%s', name='%s', email='%s', password='%s', date_created='%s', date_login='%s', login_token='%s')>" % (self.id, self.name, self.email, self.password, self.date_created, self.date_login, self.login_token)
+        return ("<User(id='%s', name='%s', username='%s', email='%s', "
+                "password='%s', date_created='%s', date_login='%s', "
+                "login_token='%s', reset_token='%s', date_reset='%s')>") % (
+                    self.id,
+                    self.name,
+                    self.username,
+                    self.email,
+                    self.password,
+                    self.date_created,
+                    self.date_login,
+                    self.login_token,
+                    self.reset_token,
+                    self.date_reset
+                )
 
     def __getitem__(self, key):
         switcher = {
             'id': self.id,
             'name': self.name,
+            'username': self.username,
             'email': self.email,
             'password': self.password,
             'date_created': self.date_created,

@@ -814,6 +814,10 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     http_t local_request;
     http_status_t status = HTTP_STATUS_PENDING;
 
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+    pid_t pid = -1;
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+
     local_request = *request;
 
     if ((rc = http_header(&local_request, "User-Agent", PROGRAM_NAME "/" PROGRAM_VERSION)) != 0) {
@@ -825,7 +829,7 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     }
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-    pid_t pid = fork();
+    pid = fork();
 
     if (pid == 0) {
         http_spinner_start();
@@ -837,7 +841,6 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     }
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-        http_spinner_stop(pid);
     }
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
@@ -851,6 +854,12 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     }
 
 cleanup:
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+    if (pid != -1) {
+        http_spinner_stop(pid);
+    }
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+
     *request = local_request;
 
     return rc;
