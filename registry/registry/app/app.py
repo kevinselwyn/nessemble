@@ -136,7 +136,7 @@ def get_auth(headers, method, route, token_type):
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.email == auth_username) \
+                    .filter(User.username == auth_username) \
                     .all()
 
     if not result:
@@ -181,16 +181,13 @@ def missing_fields(data, fields, field_name='field'):
         missing = fields
     else:
         for field in fields:
-            if not field in data:
+            if not field in data or not data[field]:
                 missing.append(field)
 
     if not missing:
         return False
 
-    return registry_response({
-        'status': 400,
-        'error': 'Missing %s: `%s`' % (field_name if len(missing) == 1 else ('%ss' % field_name), '`, `'.join(missing))
-    }, 400)
+    return bad_request_custom('Missing %s: `%s`' % (field_name if len(missing) == 1 else ('%ss' % field_name), '`, `'.join(missing)))
 
 def get_package_json(package='', version=None, full=True, string=False):
     """Get package JSON"""
@@ -238,10 +235,7 @@ def get_package_json(package='', version=None, full=True, string=False):
         ])
 
     output.update([
-        ('author', {
-            'name': user.name,
-            'email': user.email
-        }),
+        ('author', user.username),
         ('license', lib.license),
         ('tags', lib.tags.split(','))
     ])
@@ -362,11 +356,13 @@ def validate_semver(field, value, error):
     except ValueError:
         error(field, 'Must be a valid semver string')
 
-def validate_email(field, value, error):
+def validate_email(value):
     """Validate email string"""
 
     if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', value):
-        error(field, 'Must be a valid email address')
+        return False
+
+    return True
 
 def validate_package(data):
     """Validate package.json"""
@@ -396,18 +392,8 @@ def validate_package(data):
             'empty': False
         },
         'author': {
-            'type': 'dict',
-            'schema': {
-                'name': {
-                    'type': 'string',
-                    'empty': False
-                },
-                'email': {
-                    'type': 'string',
-                    'empty': False,
-                    'validator': validate_email
-                }
-            }
+            'type': 'string',
+            'empty': False
         },
         'tags': {
             'type': 'list',
@@ -785,10 +771,10 @@ def post_gz():
     if not user:
         return unauthorized_custom('User is not logged in')
 
-    # make sure emails match
+    # make sure usernames match
 
-    if user.email != json_info['author']['email']:
-        return unprocessable_custom('Author email mismatch')
+    if user.username != json_info['author']:
+        return unprocessable_custom('Author username mismatch')
 
     # check that lib doesn't already exist
 
@@ -844,7 +830,7 @@ def user_create():
 
     user = request.get_json()
 
-    missing = missing_fields(user, ['name', 'email', 'password'])
+    missing = missing_fields(user, ['name', 'username', 'email', 'password'])
     if missing:
         return missing
 
@@ -855,16 +841,21 @@ def user_create():
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.email == user['email']) \
+                    .filter(User.username == user['username']) \
                     .all()
 
     if result:
         return conflict_custom('User already exists')
 
+    # validate email
+    if not validate_email(user['email']):
+        return bad_request_custom('Invalid email address')
+
     # create user
 
     session.add(User(
         name=user['name'],
+        username=user['username'],
         email=user['email'],
         password=md5.new(user['password']).hexdigest(),
         date_created=datetime.datetime.now()))
@@ -889,7 +880,7 @@ def user_login():
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.email == auth['username']) \
+                    .filter(User.username == auth['username']) \
                     .all()
 
     if not result:
@@ -958,7 +949,7 @@ def user_forgotpassword():
 
     user = request.get_json()
 
-    missing = missing_fields(user, ['email'])
+    missing = missing_fields(user, ['username'])
     if missing:
         return missing
 
@@ -969,7 +960,7 @@ def user_forgotpassword():
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.email == user['email']) \
+                    .filter(User.username == user['username']) \
                     .all()
 
     if not result:
@@ -1043,7 +1034,7 @@ def user_resetpassword():
 
     user_data = request.get_json()
 
-    missing = missing_fields(user_data, ['email', 'password'])
+    missing = missing_fields(user_data, ['username', 'password'])
     if missing:
         return missing
 
@@ -1068,8 +1059,8 @@ def user_resetpassword():
     if not user:
         return unauthorized_custom('User does not exist')
 
-    if user.email != user_data['email']:
-        return unauthorized_custom('Email mismatch')
+    if user.username != user_data['username']:
+        return unauthorized_custom('Username mismatch')
 
     # log out
 

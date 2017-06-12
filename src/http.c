@@ -546,11 +546,17 @@ cleanup:
 
 static unsigned int http_assemble_response(http_t *request, char *line, size_t line_len) {
     unsigned int rc = RETURN_OK;
+    char *new_response_data = NULL;
     http_t local_request;
 
     local_request = *request;
 
-    local_request.response_data = (char *)realloc(local_request.response_data, sizeof(char) * ((local_request.response_size + line_len) + 1));
+    new_response_data = (char *)nessemble_malloc(sizeof(char) * ((local_request.response_size + line_len) + 1));
+    memcpy(new_response_data, local_request.response_data, local_request.response_size);
+    nessemble_free(local_request.response_data);
+
+    local_request.response_data = new_response_data;
+
     memcpy(local_request.response_data+local_request.response_size, line, line_len);
     local_request.response_size += line_len;
 
@@ -781,31 +787,52 @@ cleanup:
 }
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-static void http_spinner_start() {
-    #define SPINNER_COUNT 10
-    #define SPINNER_DELAY 50000
-
-    unsigned int spinner_index = 0;
-    char *spinner[SPINNER_COUNT] = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
-
-    printf("\e[?25l%s", spinner[spinner_index++]);
-    fflush(stdout);
-
-    for (;;) {
-        usleep(SPINNER_DELAY);
-
-        printf("\b\b%s", spinner[spinner_index]);
-        fflush(stdout);
-
-        spinner_index = (spinner_index + 1) % SPINNER_COUNT;
-    }
-}
-
-static void http_spinner_stop(pid) {
+static void http_spinner_stop(pid_t pid) {
     printf("\b\e[?25h");
     fflush(stdout);
 
     kill(pid, SIGKILL);
+}
+
+static void http_spinner_start(pid_t pid) {
+    #define SPINNER_COUNT 10
+    #define SPINNER_DELAY 50000
+
+    unsigned int i = 0, l = 0, spinner_index = 0;
+    char *spinner[SPINNER_COUNT] = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
+    struct sigaction sa;
+
+    // remove handlers on forked process
+    memset(&sa, '\0', sizeof(struct sigaction));
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_handler = SIG_DFL;
+    sa.sa_flags = SA_SIGINFO;
+
+    for (i = 1, l = 32; i < l; i++) {
+        sigaction(i, &sa, NULL);
+    }
+
+    // start spinner
+    printf("\e[?25l%s", spinner[spinner_index++]);
+    fflush(stdout);
+
+    for (;;) {
+        if (getppid() == 1) {
+            http_spinner_stop(pid);
+        }
+
+        usleep(SPINNER_DELAY);
+
+        if (getppid() == 1) {
+            http_spinner_stop(pid);
+        }
+
+        printf("\b%s", spinner[spinner_index]);
+        fflush(stdout);
+
+        spinner_index = (spinner_index + 1) % SPINNER_COUNT;
+    }
 }
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
@@ -813,6 +840,10 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     unsigned int rc = RETURN_OK;
     http_t local_request;
     http_status_t status = HTTP_STATUS_PENDING;
+
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+    pid_t pid = -1;
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
     local_request = *request;
 
@@ -825,10 +856,10 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     }
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-    pid_t pid = fork();
+    pid = fork();
 
     if (pid == 0) {
-        http_spinner_start();
+        http_spinner_start(pid);
     } else {
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
@@ -837,7 +868,6 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     }
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
-        http_spinner_stop(pid);
     }
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
@@ -851,6 +881,12 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     }
 
 cleanup:
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+    if (pid != -1) {
+        http_spinner_stop(pid);
+    }
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
+
     *request = local_request;
 
     return rc;
