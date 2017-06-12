@@ -23,7 +23,7 @@ unsigned int user_auth(http_t *request, char *token, char *method, char *route) 
 
     hmac(&token_hash, token, strlen(token), data, strlen(data));
 
-    length = strlen(username) + strlen(token_hash);
+    length = strlen(username) + strlen(token_hash) + 1;
     credentials = (char *)nessemble_malloc(sizeof(char) * (length + 1));
 
     sprintf(credentials, "%s:%s", username, token_hash);
@@ -58,7 +58,7 @@ unsigned int user_create() {
     unsigned int rc = RETURN_OK;
     size_t length = 0;
     char *url = NULL, *error = NULL, *buffer = NULL;
-    char *user_name = NULL, *user_email = NULL, *user_password = NULL;
+    char *user_name = NULL, *user_username = NULL, *user_email = NULL, *user_password = NULL;
     char data[1024];
     http_t request;
 
@@ -74,6 +74,18 @@ unsigned int user_create() {
 
         buffer[length - 1] = '\0';
         user_name = nessemble_strdup(buffer);
+        break;
+    }
+
+    while (get_line(&buffer, _("Username: ")) != NULL) {
+        length = strlen(buffer);
+
+        if (length - 1 == 0) {
+            continue;
+        }
+
+        buffer[length - 1] = '\0';
+        user_username = nessemble_strdup(buffer);
         break;
     }
 
@@ -99,7 +111,7 @@ unsigned int user_create() {
         break;
     }
 
-    sprintf(data, "{\n\t\"name\":\"%s\",\n\t\"email\":\"%s\",\n\t\"password\":\"%s\"\n}", user_name, user_email, user_password);
+    sprintf(data, "{\n\t\"name\":\"%s\",\n\t\"username\":\"%s\",\n\t\"email\":\"%s\",\n\t\"password\":\"%s\"\n}", user_name, user_username, user_email, user_password);
 
     if ((rc = api_user(&url, "create")) != RETURN_OK) {
         goto cleanup;
@@ -151,6 +163,7 @@ unsigned int user_create() {
 
 cleanup:
     nessemble_free(user_name);
+    nessemble_free(user_username);
     nessemble_free(user_email);
 
     return rc;
@@ -161,7 +174,7 @@ unsigned int user_login() {
     size_t length = 0;
     char *url = NULL, *error = NULL, *buffer = NULL, *token = NULL;
     char *base64 = NULL, *auth = NULL;
-    char *user_email = NULL, *user_password = NULL;
+    char *user_username = NULL, *user_password = NULL;
     char data[1024];
     http_t request;
 
@@ -169,7 +182,7 @@ unsigned int user_login() {
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
     auth = (char *)nessemble_malloc(sizeof(char) * 1024);
 
-    while (get_line(&buffer, _("Email: ")) != NULL) {
+    while (get_line(&buffer, _("Username: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -177,7 +190,7 @@ unsigned int user_login() {
         }
 
         buffer[length - 1] = '\0';
-        user_email = nessemble_strdup(buffer);
+        user_username = nessemble_strdup(buffer);
         break;
     }
 
@@ -191,7 +204,7 @@ unsigned int user_login() {
         break;
     }
 
-    sprintf(data, "%s:%s", user_email, user_password);
+    sprintf(data, "%s:%s", user_username, user_password);
 
     if ((rc = base64enc(&base64, data)) != RETURN_OK) {
         goto cleanup;
@@ -242,7 +255,7 @@ unsigned int user_login() {
         goto cleanup;
     }
 
-    if ((rc = set_config(user_email, "username")) != RETURN_OK) {
+    if ((rc = set_config(user_username, "username")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -255,7 +268,7 @@ unsigned int user_login() {
 cleanup:
     nessemble_free(url);
     nessemble_free(buffer);
-    nessemble_free(user_email);
+    nessemble_free(user_username);
     nessemble_free(auth);
     nessemble_free(token);
 
@@ -324,6 +337,7 @@ unsigned int user_logout() {
 cleanup:
     nessemble_free(token);
     nessemble_free(url);
+    nessemble_free(error);
 
     return rc;
 }
@@ -332,14 +346,14 @@ unsigned int user_forgotpassword() {
     unsigned int rc = RETURN_OK;
     size_t length = 0;
     char *url = NULL, *error = NULL, *buffer = NULL;
-    char *user_email = NULL;
+    char *user_username = NULL;
     char data[1024];
     http_t request;
 
     memset(data, '\0', 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
 
-    while (get_line(&buffer, _("Email: ")) != NULL) {
+    while (get_line(&buffer, _("Username: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -347,11 +361,11 @@ unsigned int user_forgotpassword() {
         }
 
         buffer[length - 1] = '\0';
-        user_email = nessemble_strdup(buffer);
+        user_username = nessemble_strdup(buffer);
         break;
     }
 
-    sprintf(data, "{\n\t\"email\":\"%s\"\n}", user_email);
+    sprintf(data, "{\n\t\"username\":\"%s\"\n}", user_username);
 
     if ((rc = api_user(&url, "forgotpassword")) != RETURN_OK) {
         goto cleanup;
@@ -397,7 +411,7 @@ unsigned int user_forgotpassword() {
 cleanup:
     nessemble_free(url);
     nessemble_free(buffer);
-    nessemble_free(user_email);
+    nessemble_free(user_username);
 
     return rc;
 }
@@ -406,7 +420,7 @@ unsigned int user_resetpassword() {
     unsigned int rc = RETURN_OK;
     size_t length = 0;
     char *url = NULL, *error = NULL, *buffer = NULL;
-    char *user_token = NULL, *user_email = NULL, *user_password = NULL;
+    char *user_token = NULL, *user_username = NULL, *user_password = NULL;
     char data[1024];
     http_t request;
 
@@ -425,7 +439,7 @@ unsigned int user_resetpassword() {
         break;
     }
 
-    while (get_line(&buffer, _("Email: ")) != NULL) {
+    while (get_line(&buffer, _("Username: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -433,7 +447,7 @@ unsigned int user_resetpassword() {
         }
 
         buffer[length - 1] = '\0';
-        user_email = nessemble_strdup(buffer);
+        user_username = nessemble_strdup(buffer);
         break;
     }
 
@@ -453,7 +467,7 @@ unsigned int user_resetpassword() {
         goto cleanup;
     }
 
-    sprintf(data, "{\n\t\"email\":\"%s\",\n\t\"password\":\"%s\"\n}", user_email, user_password);
+    sprintf(data, "{\n\t\"username\":\"%s\",\n\t\"password\":\"%s\"\n}", user_username, user_password);
 
     if ((rc = api_user(&url, "resetpassword")) != RETURN_OK) {
         goto cleanup;
@@ -498,7 +512,7 @@ cleanup:
     nessemble_free(url);
     nessemble_free(buffer);
     nessemble_free(user_token);
-    nessemble_free(user_email);
+    nessemble_free(user_username);
 
     return rc;
 }
