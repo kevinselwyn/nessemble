@@ -834,6 +834,55 @@ static void http_spinner_start(pid_t pid) {
         spinner_index = (spinner_index + 1) % SPINNER_COUNT;
     }
 }
+#else /* !IS_WINDOWS && !IS_JAVASCRIPT */
+#ifdef IS_WINDOWS
+#define SPINNER_COUNT 4
+#define SPINNER_DELAY 100000
+
+http_t http_thread_request;
+http_status_t http_thread_status;
+
+static void http_thread_spinner_stop() {
+    printf("\b\e[?25h");
+    fflush(stdout);
+}
+
+DWORD WINAPI http_thread_spinner_start() {
+    unsigned int spinner_index = 0;
+    char spinner[SPINNER_COUNT] = { 0xC4, '\\', 0xB3, '/' };
+
+    // start spinner
+    printf("\e[?25l%c", spinner[spinner_index++]);
+    fflush(stdout);
+
+    for (;;) {
+        if (http_thread_status != HTTP_STATUS_PENDING) {
+            break;
+        }
+
+        usleep(SPINNER_DELAY);
+
+        if (http_thread_status != HTTP_STATUS_PENDING) {
+            break;
+        }
+
+        printf("\b%c", spinner[spinner_index]);
+        fflush(stdout);
+
+        spinner_index = (spinner_index + 1) % SPINNER_COUNT;
+    }
+
+    return 0;
+}
+
+DWORD WINAPI http_thread_process() {
+    while (http_thread_status == HTTP_STATUS_PENDING) {
+        http_thread_status = http_process(&http_thread_request);
+    }
+
+    return 0;
+}
+#endif /* IS_WINDOWS */
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 unsigned int http_do(http_t *request, char *method, char *url) {
@@ -863,9 +912,26 @@ unsigned int http_do(http_t *request, char *method, char *url) {
     } else {
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
+#ifndef IS_WINDOWS
     while (status == HTTP_STATUS_PENDING) {
         status = http_process(&local_request);
     }
+#else /* IS_WINDOWS */
+    HANDLE http_thread_array[2];
+
+    http_thread_request = local_request;
+    http_thread_status = HTTP_STATUS_PENDING;
+
+    http_thread_array[0] = CreateThread(NULL, 0, http_thread_spinner_start, NULL, 0, NULL);
+    http_thread_array[1] = CreateThread(NULL, 0, http_thread_process, NULL, 0, NULL);
+
+    WaitForMultipleObjects(2, http_thread_array, TRUE, INFINITE);
+
+    http_thread_spinner_stop();
+
+    local_request = http_thread_request;
+    status = http_thread_status;
+#endif /* IS_WINDOWS */
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
     }
