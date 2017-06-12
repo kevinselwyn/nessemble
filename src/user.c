@@ -23,7 +23,7 @@ unsigned int user_auth(http_t *request, char *token, char *method, char *route) 
 
     hmac(&token_hash, token, strlen(token), data, strlen(data));
 
-    length = strlen(username) + strlen(token_hash);
+    length = strlen(username) + strlen(token_hash) + 1;
     credentials = (char *)nessemble_malloc(sizeof(char) * (length + 1));
 
     sprintf(credentials, "%s:%s", username, token_hash);
@@ -337,6 +337,7 @@ unsigned int user_logout() {
 cleanup:
     nessemble_free(token);
     nessemble_free(url);
+    nessemble_free(error);
 
     return rc;
 }
