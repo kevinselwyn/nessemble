@@ -546,11 +546,17 @@ cleanup:
 
 static unsigned int http_assemble_response(http_t *request, char *line, size_t line_len) {
     unsigned int rc = RETURN_OK;
+    char *new_response_data = NULL;
     http_t local_request;
 
     local_request = *request;
 
-    local_request.response_data = (char *)nessemble_realloc(local_request.response_data, sizeof(char) * ((local_request.response_size + line_len) + 1));
+    new_response_data = (char *)nessemble_malloc(sizeof(char) * ((local_request.response_size + line_len) + 1));
+    memcpy(new_response_data, local_request.response_data, local_request.response_size);
+    nessemble_free(local_request.response_data);
+
+    local_request.response_data = new_response_data;
+
     memcpy(local_request.response_data+local_request.response_size, line, line_len);
     local_request.response_size += line_len;
 
