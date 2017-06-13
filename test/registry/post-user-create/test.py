@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 # pylint: disable=C0103,C0301,C0413,E0401,R0912,R0914,R0915,W0702
-"""GET /"""
+"""POST /user/create"""
 
 import os
 import sys
@@ -18,11 +18,19 @@ def main():
 
     # assemble url
     api_root = config.config['api_root']
-    url = api_root
+    url = '/'.join([api_root, 'user', 'create'])
 
-    # make request
+    # assemble user
+    user = {
+        'name': 'Joe Somebody',
+        'username': 'joe.somebody',
+        'email': 'joe.somebody@email.com',
+        'password': 'pass'
+    }
+
+    # login
     try:
-        req = requests.get(url)
+        req = requests.post(url, json=user)
     except requests.exceptions.ConnectionError:
         print 'No connection'
         exit(1)
@@ -63,56 +71,13 @@ def main():
 
     # validate content
     try:
-        json = req.json()
+        json_data = req.json()
     except:
-        json = {}
+        json_data = {}
 
-    validator = Validator({
-        'packages': {
-            'type': 'list',
-            'minlength': 1,
-            'required': True,
-            'schema': {
-                'type': 'dict',
-                'schema': {
-                    'title': {
-                        'type': 'string',
-                        'minlength': 1,
-                        'required': True
-                    },
-                    'description': {
-                        'type': 'string',
-                        'minlength': 1,
-                        'required': True
-                    },
-                    'tags': {
-                        'type': 'list',
-                        'minlength': 1,
-                        'required': True,
-                        'schema': {
-                            'type': 'string',
-                            'minlength': 1
-                        }
-                    },
-                    'url': {
-                        'type': 'string',
-                        'minlength': 1,
-                        'required': True
-                    }
-                }
-            }
-        }
-    })
-
-    if not validator.validate(json):
-        for key, value in validator.errors.iteritems():
-            if isinstance(value[0], dict):
-                for key2, value2 in value[0].iteritems():
-                    print 'JSON field `%s.%s` %s' % (key, key2, value2[0])
-                    exit(1)
-            else:
-                print 'JSON field `%s` %s' % (key, value[0])
-                exit(1)
+    if json_data != {}:
+        print 'JSON mismatch'
+        exit(1)
 
     exit(0)
 
