@@ -631,7 +631,7 @@ from hashlib import sha1
 import requests
 
 # get token
-login_request = requests.post('http://[DOMAIN]/user/login', auth=('[EMAIL]', '[PASSWORD]'))
+login_request = requests.post('http://[DOMAIN]/user/login', auth=('[USERNAME]', '[PASSWORD]'))
 
 if login_request.status_code != 200:
     print 'Login failed!'
@@ -647,7 +647,7 @@ hmac_hash = hmac.new(str(token), 'POST+/user/logout', sha1)
 hmac_sha1 = hmac_hash.hexdigest()
 
 # send authorized request
-base64_auth = base64.b64encode('%s:%s' % ('[EMAIL]', hmac_sha1))
+base64_auth = base64.b64encode('%s:%s' % ('[USERNAME]', hmac_sha1))
 headers = {
     'Authorization': 'HMAC-SHA1 %s' % (base64_auth)
 }
