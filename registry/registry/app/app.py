@@ -9,8 +9,6 @@ import io
 import json
 import md5
 import os
-import pyotp
-import qrcode
 import random
 import re
 import smtplib
@@ -24,6 +22,8 @@ from collections import OrderedDict
 from hashlib import sha1
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import qrcode
+import pyotp
 import semver
 from cerberus import Validator
 from flask import Flask, abort, g, make_response, render_template, request
@@ -153,10 +153,18 @@ def get_auth(headers, method, route, token_type):
     # check if hash matches
 
     token = user[token_type]
+
+    if not token:
+        return False
+
     hashed = hmac.new(str(token), '%s+%s' % (method, route), sha1)
 
     if not hmac.compare_digest(hashed.hexdigest(), auth_hash):
-        return False
+        totp = pyotp.TOTP(base64.b32encode(token))
+        hashed = hmac.new(str(totp.now()), '%s+%s' % (method, route), sha1)
+
+        if not hmac.compare_digest(hashed.hexdigest(), auth_hash):
+            return False
 
     # check if login token has expired
 
@@ -466,6 +474,15 @@ def not_found(error):
         'status': int(str(error)[:3]),
         'error': 'Not Found'
     }, status=404, mimetype=abort_mimetype)
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+    """Method Not Allowed error handler"""
+
+    return registry_response({
+        'status': int(str(error)[:3]),
+        'error': 'Method Not Allowed'
+    }, status=405, mimetype=abort_mimetype)
 
 @app.errorhandler(409)
 def conflict(error):
@@ -1028,7 +1045,13 @@ def user_forgotpassword():
     smtp_user = CONFIG.get('registry', 'smtp_user')
     smtp_pass = CONFIG.get('registry', 'smtp_pass')
     smtp_domain = CONFIG.get('registry', 'smtp_domain')
-    smtp_port = CONFIG.getint('registry', 'smtp_port')
+
+    try:
+        smtp_port = CONFIG.getint('registry', 'smtp_port')
+    except:
+        smtp_port = 0
+
+    email = False
 
     try:
         server = smtplib.SMTP_SSL(smtp_domain, smtp_port)
@@ -1036,23 +1059,31 @@ def user_forgotpassword():
         server.login(smtp_user, smtp_pass)
         server.sendmail(forgot_password_email, [user.email], message.as_string())
         server.close()
+
+        email = True
     except:
-        return internal_server_error_custom('Email could not be sent')
+        pass
 
-    return registry_response({})
+    reset_id = '%X' % (random.getrandbits(128))
 
-@app.route('/user/2FA', methods=['GET'])
-def user_2fa():
+    session.query(User) \
+           .filter(User.id == user.id) \
+           .update({
+               'reset_id': reset_id
+           })
+    session.commit()
+
+    return registry_response({
+        'email': email,
+        'url': '%suser/2FA/%s' % (request.url_root, reset_id)
+    })
+
+@app.route('/user/2FA/<string:reset_id>', methods=['GET'])
+def user_2fa(reset_id=None):
     """User 2FA"""
 
-    accept, _version = parse_accept(request.headers.get('Accept'), ['image/png'])
-
-    # get username
-
-    username = request.args.get('username')
-
-    if not username:
-        return unauthorized_custom('User does not exist')
+    if not reset_id:
+        abort(401)
 
     # start session
 
@@ -1061,32 +1092,41 @@ def user_2fa():
     # check if user exists
 
     result = session.query(User) \
-                    .filter(User.username == username) \
+                    .filter(User.reset_id == reset_id) \
                     .all()
 
     if not result:
-        return unauthorized_custom('User does not exist')
+        abort(401)
 
     user = result[0]
 
     if not user:
-        return unauthorized_custom('User does not exist')
+        abort(401)
 
     # check if reset token
 
-    if not user.reset_token:
+    if not user.reset_token or not user.reset_id:
         abort(401)
 
     # generate qr code
 
-    uri = 'otpauth://totp/%s?secret=%s' % ('Nessemble', user.username)
+    uri = 'otpauth://totp/%s:%s?secret=%s&issuer=%s' % ('Nessemble', user.username, base64.b32encode(user.reset_token), 'Nessemble')
     qr = qrcode.make(uri)
 
     img = io.BytesIO()
     qr.save(img, 'PNG')
     img.seek(0)
 
-    return registry_response(img.read(), mimetype=accept)
+    # clear reset_id
+
+    session.query(User) \
+           .filter(User.id == user.id) \
+           .update({
+               'reset_id': None
+           })
+    session.commit()
+
+    return registry_response(img.read(), mimetype='image/png')
 
 @app.route('/user/resetpassword', methods=['POST'])
 def user_resetpassword():
@@ -1128,7 +1168,7 @@ def user_resetpassword():
     if user.username != user_data['username']:
         return unauthorized_custom('Username mismatch')
 
-    # log out
+    # update
 
     session.query(User) \
            .filter(User.id == user_id) \

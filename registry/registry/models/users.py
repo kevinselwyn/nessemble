@@ -20,11 +20,13 @@ class User(Base):
     login_token = Column(String(128))
     reset_token = Column(String(128))
     date_reset = Column(DateTime)
+    reset_id = Column(String(128))
 
     def __repr__(self):
         return ("<User(id='%s', name='%s', username='%s', email='%s', "
                 "password='%s', date_created='%s', date_login='%s', "
-                "login_token='%s', reset_token='%s', date_reset='%s')>") % (
+                "login_token='%s', reset_token='%s', date_reset='%s', "
+                "reset_id='%s')>") % (
                     self.id,
                     self.name,
                     self.username,
@@ -34,7 +36,8 @@ class User(Base):
                     self.date_login,
                     self.login_token,
                     self.reset_token,
-                    self.date_reset
+                    self.date_reset,
+                    self.reset_id
                 )
 
     def __getitem__(self, key):
@@ -48,7 +51,8 @@ class User(Base):
             'date_login': self.date_login,
             'login_token': self.login_token,
             'reset_token': self.reset_token,
-            'date_reset': self.date_reset
+            'date_reset': self.date_reset,
+            'reset_id': self.reset_id
         }
 
         return switcher.get(key, lambda: None)
