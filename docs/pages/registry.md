@@ -40,7 +40,7 @@ Request:
 ```text
 GET / HTTP/1.1
 Host: xxxxx
-Accept: application/json
+Accept: application/json;version=1
 User-Agent: nessemble/1.0.1
 ```
 
@@ -87,7 +87,7 @@ Request:
 ```text
 GET /search/foo HTTP/1.1
 Host: xxxxx
-Accept: application/json
+Accept: application/json;version=1
 User-Agent: nessemble/1.0.1
 ```
 
@@ -138,7 +138,7 @@ Request:
 ```text
 GET /package/foo HTTP/1.1
 Host: xxxxx
-Accept: application/json
+Accept: application/json;version=1
 User-Agent: nessemble/1.0.1
 ```
 
@@ -186,7 +186,7 @@ Request:
 ```text
 GET /package/foo/README HTTP/1.1
 Host: xxxxx
-Accept: text/plain
+Accept: text/plain;version=1
 User-Agent: nessemble/1.0.1
 ```
 
@@ -221,7 +221,7 @@ Request:
 ```text
 GET /package/foo/data HTTP/1.1
 Host: xxxxx
-Accept: application/tar+gzip
+Accept: application/tar+gzip;version=1
 User-Agent: nessemble/1.0.1
 ```
 
@@ -257,7 +257,7 @@ Request:
 ```text
 POST /package/publish HTTP/1.1
 Host: xxxxx
-Accept: application/json
+Accept: application/json;version=1
 Content-Type: application/tar+gzip
 User-Agent: nessemble/1.0.1
 Authorization: HMAC-SHA1 <base64 username:hmac-sha1>
@@ -312,7 +312,7 @@ Request:
 ```text
 POST /user/create HTTP/1.1
 Host: xxxxx
-Accept: application/json
+Accept: application/json;version=1
 Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Content-Length: xxx
@@ -373,7 +373,7 @@ Request:
 ```text
 POST /user/login HTTP/1.1
 Host: xxxxx
-Accept: application/json
+Accept: application/json;version=1
 Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Authorization: Basic <base64 username:password>
@@ -413,7 +413,7 @@ Request:
 ```text
 POST /user/logout HTTP/1.1
 Host: xxxxx
-Accept: application/json
+Accept: application/json;version=1
 Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Authorization: HMAC-SHA1 <base64 username:hmac-sha1>
@@ -449,7 +449,7 @@ Request:
 ```text
 POST /user/forgotpassword HTTP/1.1
 Host: xxxxx
-Accept: application/json
+Accept: application/json;version=1
 Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Content-Length: xxx
@@ -490,7 +490,7 @@ Request:
 ```text
 POST /user/resetpassword HTTP/1.1
 Host: xxxxx
-Accept: application/json
+Accept: application/json;version=1
 Content-Type: application/json
 User-Agent: nessemble/1.0.1
 Authorization: HMAC-SHA1 <base64 username:hmac-sha1>
@@ -530,7 +530,7 @@ Request:
 ```text
 GET /reference HTTP/1.1
 Host: xxxxx
-Accept: text/plain
+Accept: text/plain;version=1
 User-Agent: nessemble/1.0.1
 ```
 
@@ -563,7 +563,7 @@ Request:
 ```text
 GET /reference/foo/bar HTTP/1.1
 Host: xxxxx
-Accept: text/plain
+Accept: text/plain;version=1
 User-Agent: nessemble/1.0.1
 ```
 
