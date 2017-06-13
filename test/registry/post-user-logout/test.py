@@ -1,10 +1,14 @@
 #!/usr/bin/python
 # coding=utf-8
 # pylint: disable=C0103,C0301,C0413,E0401,R0912,R0914,R0915,W0702
-"""GET /package/<string:package>/README"""
+"""POST /user/logout"""
 
+import base64
+import hmac
 import os
+import StringIO
 import sys
+from hashlib import sha1
 import requests
 
 ROOT = os.path.abspath(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..'))
@@ -17,12 +21,36 @@ def main():
 
     # assemble url
     api_root = config.config['api_root']
-    package = 'rle'
-    url = '/'.join([api_root, 'package', package, 'README'])
+    url = '/'.join([api_root, 'user', 'logout'])
+    login_url = '/'.join([api_root, 'user', 'login'])
+
+    # assemble data
+    infile = StringIO.StringIO()
+    infile.write('{}')
+    infile.seek(0)
+
+    # login
+    try:
+        login_req = requests.post(login_url, auth=('kevinselwyn', 'pass'))
+    except requests.exceptions.ConnectionError:
+        print 'No connection'
+        exit(1)
+
+    try:
+        login_json = login_req.json()
+        token = login_json['token']
+        hmac_hash = hmac.new(str(token), 'POST+/user/logout', sha1)
+        hmac_sha1 = hmac_hash.hexdigest()
+        base64_auth = base64.b64encode('%s:%s' % ('kevinselwyn', hmac_sha1))
+    except:
+        print 'Token error'
+        exit(1)
 
     # make request
     try:
-        req = requests.get(url)
+        req = requests.post(url, data=infile.read(), headers={
+            'Authorization': 'HMAC-SHA1 %s' % (base64_auth)
+        })
     except requests.exceptions.ConnectionError:
         print 'No connection'
         exit(1)
@@ -45,7 +73,7 @@ def main():
 
     # compare headers
     response_headers_expect = {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Server': 'Nessemble'
     }
@@ -62,8 +90,13 @@ def main():
             exit(1)
 
     # validate content
-    if not req.text:
-        print 'Missing content'
+    try:
+        json_data = req.json()
+    except:
+        json_data = {}
+
+    if json_data != {}:
+        print 'JSON mismatch'
         exit(1)
 
     exit(0)

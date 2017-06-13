@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0413,E0401,W0702
+# pylint: disable=C0103,C0301,C0413,E0401,R0912,R0914,R0915,W0702
 """GET /package/<string:package>/data"""
 
 import os

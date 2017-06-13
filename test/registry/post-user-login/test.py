@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding=utf-8
 # pylint: disable=C0103,C0301,C0413,E0401,R0912,R0914,R0915,W0702
-"""GET /package/<string:package>"""
+"""POST /user/login"""
 
 import os
 import sys
@@ -18,12 +18,11 @@ def main():
 
     # assemble url
     api_root = config.config['api_root']
-    package = 'rle'
-    url = '/'.join([api_root, 'package', package])
+    url = '/'.join([api_root, 'user', 'login'])
 
-    # make request
+    # login
     try:
-        req = requests.get(url)
+        req = requests.post(url, auth=('kevinselwyn', 'pass'))
     except requests.exceptions.ConnectionError:
         print 'No connection'
         exit(1)
@@ -64,78 +63,19 @@ def main():
 
     # validate content
     try:
-        json = req.json()
+        json_data = req.json()
     except:
-        json = {}
+        json_data = {}
 
     validator = Validator({
-        'title': {
-            'type': 'string',
-            'minlength': 1,
-            'required': True
-        },
-        'description': {
-            'type': 'string',
-            'minlength': 1,
-            'required': True
-        },
-        'version': {
-            'type': 'string',
-            'minlength': 1,
-            'required': True
-        },
-        'versions': {
-            'type': 'dict',
-            'schema': {
-                '1.0.1': {
-                    'type': 'string',
-                    'minlength': 1,
-                    'required': True
-                }
-            }
-        },
-        'author': {
-            'type': 'string',
-            'minlength': 1,
-            'required': True
-        },
-        'license': {
-            'type': 'string',
-            'minlength': 1,
-            'required': True
-        },
-        'tags': {
-            'type': 'list',
-            'minlength': 1,
-            'required': True,
-            'schema': {
-                'type': 'string',
-                'minlength': 1
-            }
-        },
-        'date': {
-            'type': 'string',
-            'minlength': 1,
-            'required': True
-        },
-        'readme': {
-            'type': 'string',
-            'minlength': 1,
-            'required': True
-        },
-        'resource': {
-            'type': 'string',
-            'minlength': 1,
-            'required': True
-        },
-        'shasum': {
+        'token': {
             'type': 'string',
             'minlength': 1,
             'required': True
         }
     })
 
-    if not validator.validate(json):
+    if not validator.validate(json_data):
         for key, value in validator.errors.iteritems():
             if isinstance(value[0], dict):
                 for key2, value2 in value[0].iteritems():
