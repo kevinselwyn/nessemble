@@ -107,10 +107,7 @@ tar -zcf lib lib.tar.gz
     "title": "foo",
     "description": "Foo bar baz qux",
     "version": "1.0.1",
-    "author": {
-        "name": "Joe Somebody",
-        "email": "joe.somebody@email.com"
-    },
+    "author": "joe.somebody",
     "license": "GPLv3",
     "tags": [
         "foo",
@@ -124,9 +121,7 @@ tar -zcf lib lib.tar.gz
 * `description` - String, required. Description of package.
 * `version` - String, required. Version of package. (Must be
     [semver](http://semver.org/) string, Ex: 1.0.1)
-* `author` - Object, required. Author of package.
-    * `name` - String, required. Name of author.
-    * `email` - String, required. Email address of author.
+* `author` - String, required. Username of package author.
 * `license` - String, required. License of package.
 * `tags` - Array, required. Array of tag strings.
 

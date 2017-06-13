@@ -822,7 +822,11 @@ def post_gz():
            })
     session.commit()
 
-    return registry_response(json_info, mimetype='application/tar+gzip')
+    # clear cache
+
+    cache.clear()
+
+    return registry_response(json_info, mimetype='application/json')
 
 @app.route('/user/create', methods=['POST'])
 def user_create():
