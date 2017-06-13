@@ -5,9 +5,12 @@
 import base64
 import datetime
 import hmac
+import io
 import json
 import md5
 import os
+import pyotp
+import qrcode
 import random
 import re
 import smtplib
@@ -766,6 +769,10 @@ def post_gz():
     result = session.query(User) \
                     .filter(User.id == user_id) \
                     .all()
+
+    if not result:
+        return unauthorized_custom('User does not exist')
+
     user = result[0]
 
     if not user:
@@ -931,6 +938,10 @@ def user_logout():
     result = session.query(User) \
                     .filter(User.id == user_id) \
                     .all()
+
+    if not result:
+        return unauthorized_custom('User does not exist')
+
     user = result[0]
 
     if not user:
@@ -1030,6 +1041,53 @@ def user_forgotpassword():
 
     return registry_response({})
 
+@app.route('/user/2FA', methods=['GET'])
+def user_2fa():
+    """User 2FA"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['image/png'])
+
+    # get username
+
+    username = request.args.get('username')
+
+    if not username:
+        return unauthorized_custom('User does not exist')
+
+    # start session
+
+    session = Session()
+
+    # check if user exists
+
+    result = session.query(User) \
+                    .filter(User.username == username) \
+                    .all()
+
+    if not result:
+        return unauthorized_custom('User does not exist')
+
+    user = result[0]
+
+    if not user:
+        return unauthorized_custom('User does not exist')
+
+    # check if reset token
+
+    if not user.reset_token:
+        abort(401)
+
+    # generate qr code
+
+    uri = 'otpauth://totp/%s?secret=%s' % ('Nessemble', user.username)
+    qr = qrcode.make(uri)
+
+    img = io.BytesIO()
+    qr.save(img, 'PNG')
+    img.seek(0)
+
+    return registry_response(img.read(), mimetype=accept)
+
 @app.route('/user/resetpassword', methods=['POST'])
 def user_resetpassword():
     """User reset password"""
@@ -1058,6 +1116,10 @@ def user_resetpassword():
     result = session.query(User) \
                     .filter(User.id == user_id) \
                     .all()
+
+    if not result:
+        return unauthorized_custom('User does not exist')
+
     user = result[0]
 
     if not user:
