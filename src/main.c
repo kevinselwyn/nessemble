@@ -347,8 +347,6 @@ int main(int argc, char *argv[]) {
                 goto cleanup;
             }
 
-            printf("%s\n", _("Password reset email sent"));
-
             goto cleanup;
         }
 
