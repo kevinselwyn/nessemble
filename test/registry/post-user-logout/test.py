@@ -55,6 +55,11 @@ def main():
         print 'No connection'
         exit(1)
 
+    # check status code
+    if req.status_code != 200:
+        print 'Status code: %d' % (req.status_code)
+        exit(1)
+
     # check headers
     exist_headers = [
         'Content-Length',

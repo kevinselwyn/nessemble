@@ -328,7 +328,7 @@ Content-Length: xxx
 Response:
 
 ```text
-HTTP/1.1 200 OK
+HTTP/1.1 201 Created
 Content-Length: xxx
 Content-Type: application/json
 Access-Control-Allow-Origin: *
@@ -346,7 +346,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 If the user already exists, the response will be:
 
 ```text
-HTTP/1.1 409 CONFLICT
+HTTP/1.1 409 Conflict
 Content-Length: xxx
 Content-Type: application/json
 Access-Control-Allow-Origin: *
@@ -596,7 +596,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 If no such path exists, the response will be:
 
 ```text
-HTTP/1.1 404 NOT FOUND
+HTTP/1.1 404 Not Found
 Content-Length: xxx
 Content-Type: text/plain
 Access-Control-Allow-Origin: *
