@@ -473,8 +473,15 @@ X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
 
-{}
+{
+    "email": false,
+    "url": "http://xxxxx/user/2FA/<id>"
+}
 ```
+
+* `email` - Boolean that indicates whether an email was sent
+* `url` - URL of QR code that can be used to provide a token when used in
+conjunction with apps like Google Authenticator.
 
 #### POST /user/resetpassword
 
