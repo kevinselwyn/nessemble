@@ -347,6 +347,7 @@ unsigned int user_forgotpassword() {
     size_t length = 0;
     char *url = NULL, *error = NULL, *buffer = NULL;
     char *user_username = NULL;
+    char *json_email = NULL, *json_url = NULL;
     char data[1024];
     http_t request;
 
@@ -406,12 +407,28 @@ unsigned int user_forgotpassword() {
         goto cleanup;
     }
 
+    if ((rc = get_json_buffer(&json_email, "email", request.response_body)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (strcmp(json_email, "false") == 0) {
+        if ((rc = get_json_buffer(&json_url, "url", request.response_body)) != RETURN_OK) {
+            goto cleanup;
+        }
+
+        printf("%s\n\n%s:\n  %s\n", _("Could not send password reset email"), _("Authenticate with this QR code"), json_url);
+    } else {
+        printf("%s\n", _("Password reset email sent"));
+    }
+
     http_release(&request);
 
 cleanup:
     nessemble_free(url);
     nessemble_free(buffer);
     nessemble_free(user_username);
+    nessemble_free(json_email);
+    nessemble_free(json_url);
 
     return rc;
 }
@@ -459,6 +476,10 @@ unsigned int user_resetpassword() {
         }
 
         break;
+    }
+
+    if ((rc = set_config(user_username, "username")) != RETURN_OK) {
+        goto cleanup;
     }
 
     http_init(&request);
