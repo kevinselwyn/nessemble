@@ -1136,11 +1136,13 @@ def user_forgotpassword():
     return registry_response({
         'email': email,
         'url': '%suser/2FA/%s' % (request.url_root, reset_id)
-    })
+    }, mimetype=accept)
 
 @app.route('/user/2FA/<string:reset_id>', methods=['GET'])
 def user_2fa(reset_id=None):
     """User 2FA"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['image/png'])
 
     if not reset_id:
         abort(401)
@@ -1186,7 +1188,7 @@ def user_2fa(reset_id=None):
            })
     session.commit()
 
-    return registry_response(img.read(), mimetype='image/png')
+    return registry_response(img.read(), mimetype=accept)
 
 @app.route('/user/resetpassword', methods=['POST'])
 def user_resetpassword():
