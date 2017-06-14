@@ -70,7 +70,7 @@ def user_create():
         date_created=datetime.datetime.now()))
     session.commit()
 
-    return registry_response({}, mimetype=accept)
+    return registry_response({}, status=201, mimetype=accept)
 
 @user_endpoint.route('/user/login', methods=['POST'])
 def user_login():
