@@ -614,6 +614,31 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
+## Versioning
+
+Versioning may be done in a few ways: header versioning or URL versioning.
+
+### Header Versioning
+
+To indicate which version of the API to use, send the version along with the
+`Accept` header:
+
+```text
+GET /foo/bar HTTP/1.1
+Host: xxxxx
+Accept: application/json;version=1
+User-Agent: nessemble/1.0.1
+```
+
+### URL Versioning
+
+To change the version in a URL versioned registry, use the
+[`registry`](/usage/#registry) command to update the URL.
+
+```text
+nessemble registry http://foo.com/v1
+```
+
 ## Authorization
 
 Some requests must be authorized. Here is the workflow:
