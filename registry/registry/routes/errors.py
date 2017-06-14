@@ -16,49 +16,49 @@ errors_endpoint = Blueprint('errors_endpoint', __name__)
 #----------------#
 # Errors
 
-@errors_endpoint.errorhandler(400)
+@errors_endpoint.app_errorhandler(400)
 def bad_request(_error):
     """Bad Request error handler"""
 
     return bad_request_custom()
 
-@errors_endpoint.errorhandler(401)
+@errors_endpoint.app_errorhandler(401)
 def unauthorized(_error):
     """Unauthorized error handler"""
 
     return unauthorized_custom()
 
-@errors_endpoint.errorhandler(404)
+@errors_endpoint.app_errorhandler(404)
 def not_found(_error):
     """Not Found error handler"""
 
     return not_found_custom()
 
-@errors_endpoint.errorhandler(405)
+@errors_endpoint.app_errorhandler(405)
 def method_not_allowed(_error):
     """Method Not Allowed error handler"""
 
     return method_not_allowed_custom()
 
-@errors_endpoint.errorhandler(409)
+@errors_endpoint.app_errorhandler(409)
 def conflict(_error):
     """Conflict error handler"""
 
     return conflict_custom()
 
-@errors_endpoint.errorhandler(422)
+@errors_endpoint.app_errorhandler(422)
 def unprocessable(_error):
     """Unprocessable error handler"""
 
     return unprocessable_custom()
 
-@errors_endpoint.errorhandler(429)
+@errors_endpoint.app_errorhandler(429)
 def too_many(_error):
     """Too Many Requests error handler"""
 
     return too_many_custom()
 
-@errors_endpoint.errorhandler(500)
+@errors_endpoint.app_errorhandler(500)
 def internal_server_error(_error):
     """Internal Server Error error handler"""
 
