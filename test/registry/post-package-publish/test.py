@@ -92,7 +92,7 @@ def main():
         exit(1)
 
     # check status code
-    if req.status_code != 200:
+    if req.status_code != 201:
         print 'Status code: %d' % (req.status_code)
         exit(1)
 

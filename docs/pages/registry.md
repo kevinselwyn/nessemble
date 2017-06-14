@@ -20,7 +20,7 @@ nessemble registry <URL>
 | [/package/&lt;string:package&gt;](#get-packagestringpackage)              | GET      | Display information about package `package`   | <i class="fa fa-times color-red"></i>   |
 | [/package/&lt;string:package&gt;/README](#get-packagestringpackagereadme) | GET      | Display README for package `package`          | <i class="fa fa-times color-red"></i>   |
 | [/package/&lt;string:package&gt;/data](#get-packagestringpackagedata)     | GET      | A tarball containing all data for `package`   | <i class="fa fa-times color-red"></i>   |
-| [/package/publish](#post-packagepublish)                                  | POST     | Publish a new package                         | <i class="fa fa-check color-green"></i> |
+| [/package/publish](#post-packagepublish)                                  | POST/PUT | Publish a new package                         | <i class="fa fa-check color-green"></i> |
 | [/user/create](#post-usercreate)                                          | POST     | Create a user in the registry                 | <i class="fa fa-times color-red"></i>   |
 | [/user/login](#post-userlogin)                                            | POST     | Log into the registry                         | <i class="fa fa-times color-red"></i>   |
 | [/user/logout](#post-userlogout)                                          | GET/POST | Log out of the registry                       | <i class="fa fa-check color-green"></i> |
@@ -269,7 +269,7 @@ Content-Length: xxx
 Response:
 
 ```text
-HTTP/1.1 200 OK
+HTTP/1.1 201 CREATED
 Content-Length: xxx
 Content-Type: application/json
 Access-Control-Allow-Origin: *
@@ -295,8 +295,23 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
-If the package is published successfully, a `200` HTTP response code will be
+If the package is published successfully, a `201` HTTP response code will be
 returned along with the contents of the published `package.json`.
+
+To update an existing package, the request must be sent as a `PUT` request and
+the `package.json` must contain an updated `version`:
+
+```text
+PUT /package/publish HTTP/1.1
+Host: xxxxx
+Accept: application/json
+Content-Type: application/tar+gzip
+User-Agent: nessemble/1.0.1
+Authorization: HMAC-SHA1 <base64 username:hmac-sha1>
+Content-Length: xxx
+
+<content>
+```
 
 To learn more about the gzipped package content, see the section on
 [Packages](/packages/#publishing).
