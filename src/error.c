@@ -14,6 +14,7 @@
 #define ERROR_BACKTRACE_SIZE 10
 #define SIGNAL_COUNT         32
 
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
 static char *signal_names[SIGNAL_COUNT] = {
     NULL,
     "SIGHUP",
@@ -48,6 +49,7 @@ static char *signal_names[SIGNAL_COUNT] = {
     "SIGUSR1",
     "SIGUSR2"
 };
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
 /**
  * Trigger fatal error

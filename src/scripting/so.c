@@ -13,13 +13,14 @@ unsigned int scripting_so(char *exec, char **output) {
     unsigned int rc = RETURN_OK;
 
 #ifndef IS_JAVASCRIPT
-    void *handle = NULL;
     int (*custom)(char **, size_t *, unsigned int[], int, char *[], int);
     unsigned int i = 0, l = 0, has_error = FALSE;
     size_t return_len = 0;
     char *return_str = NULL;
 
 #ifndef IS_WINDOWS
+    void *handle = NULL;
+
     handle = dlopen(exec, RTLD_LAZY);
 
     if (!handle) {
@@ -75,6 +76,9 @@ cleanup:
 
     nessemble_free(return_str);
 
+#else /* IS_JAVASCRIPT */
+    UNUSED(exec);
+    UNUSED(output);
 #endif /* IS_JAVASCRIPT */
     return rc;
 }

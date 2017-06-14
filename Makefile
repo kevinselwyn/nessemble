@@ -8,6 +8,7 @@ CC_FLAGS     := -Wall -Wextra -lm
 CC_LIB_FLAGS := -Isrc/third-party/lua-5.1.5/src
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
+CC_LIBLUA    := -DLUA_USE_POSIX -Wno-empty-body
 AR           := ar
 RANLIB       := ranlib
 LEX          := flex
@@ -65,6 +66,7 @@ debug: CC_LIB_FLAGS += -ldl
 
 js: EXEC            := $(NAME).js
 js: CC              := emcc
+js: CC_LIBLUA       := -Wno-empty-body
 js: AR              := emar
 js: RANLIB          := emranlib
 js: SCHEME_FLAGS    := -DUSE_STRLWR=0
@@ -72,6 +74,7 @@ js: SCHEME_FLAGS    := -DUSE_STRLWR=0
 win32: EXEC         := $(NAME).exe
 win32: CC           := i686-w64-mingw32-gcc
 win32: CC_FLAGS     += -lws2_32
+win32: CC_LIBLUA    := -Wno-misleading-indentation
 win32: AR           := i686-w64-mingw32-ar
 win32: RANLIB       := i686-w64-mingw32-ranlib
 win32: SCHEME_FLAGS := -DUSE_STRLWR=0
@@ -79,8 +82,10 @@ win32: SCHEME_FLAGS := -DUSE_STRLWR=0
 win64: EXEC         := $(NAME).exe
 win64: CC           := x86_64-w64-mingw32-gcc
 win64: CC_FLAGS     += -lws2_32
+win64: CC_LIBLUA    := -Wno-misleading-indentation
 win64: AR           := x86_64-w64-mingw32-ar
 win64: RANLIB       := x86_64-w64-mingw32-ranlib
+win64: SCHEME_FLAGS := -DUSE_STRLWR=0
 
 # TARGETS
 
@@ -89,6 +94,9 @@ all: $(EXEC)
 debug: $(EXEC)
 
 js: $(EXEC)
+
+wasm:
+	$(MAKE) js CC="emcc -s WASM=1"
 
 win32: $(EXEC)
 
@@ -173,8 +181,9 @@ src/scripting/lua.c: liblua
 liblua: src/third-party/lua-5.1.5/src/liblua.a
 
 src/third-party/lua-5.1.5/src/liblua.a:
-	make -C src/third-party/lua-5.1.5/src/ generic \
-		CC="$(CC)" AR="$(AR) rcu" RANLIB="$(RANLIB)"
+	make -C src/third-party/lua-5.1.5/src/ all \
+		CC="$(CC)" AR="$(AR) rcu" RANLIB="$(RANLIB)" \
+		MYCFLAGS="$(CC_LIBLUA)"
 
 # LIBTINYSCHEME
 
@@ -184,7 +193,8 @@ libtinyscheme: src/third-party/tinyscheme-1.41/libtinyscheme.a
 
 src/third-party/tinyscheme-1.41/libtinyscheme.a:
 	make -C src/third-party/tinyscheme-1.41/ libtinyscheme.a \
-		CC="$(CC) -fpic -pedantic" AR="$(AR) crs" PLATFORM_FEATURES="$(SCHEME_FLAGS)"
+		CC="$(CC) -fpic -pedantic -Wno-switch" AR="$(AR) crs" \
+		PLATFORM_FEATURES="$(SCHEME_FLAGS)"
 
 src/scripting/scm.c: src/third-party/tinyscheme-1.41/init.h
 
@@ -340,7 +350,7 @@ win_package:
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).wasm
 	$(RM) $(OBJS)
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
 	$(RM) src/init.h src/license.h src/scripts.h src/strings.h
