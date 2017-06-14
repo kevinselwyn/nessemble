@@ -183,6 +183,40 @@ def get_auth(headers, method, route, token_type):
 
     return user.id
 
+def parse_accept(accept_header=None, default_accept=None):
+    """Parse accept header"""
+
+    if not default_accept:
+        default_accept = ['application/json']
+
+    accept = default_accept[0]
+    version = 1
+
+    if not accept_header:
+        return accept, version
+
+    parts = accept_header.split(';')
+
+    # accept
+
+    accept = str(parts[0]).split(',')[0].strip()
+
+    if not accept in default_accept:
+        accept = default_accept[0]
+
+    # version
+
+    version_parts = ['version', '1']
+
+    for part in parts[1:]:
+        if 'version' in part.lower():
+            version_parts = part.split('=')
+
+    if len(version_parts) > 1:
+        version = int(version_parts[1])
+
+    return accept, version
+
 def missing_fields(data, fields, field_name='field'):
     """Check for missing fields"""
 
@@ -552,6 +586,8 @@ def internal_server_error_custom(message=False):
 def list_packages():
     """List packages endpoint"""
 
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
+
     session = Session()
     results = OrderedDict([
         ('packages', [])
@@ -570,12 +606,14 @@ def list_packages():
             ('url', '%spackage/%s' % (request.url_root, lib.title))
         ]))
 
-    return registry_response(results)
+    return registry_response(results, mimetype=accept)
 
 @app.route('/search/<string:term>', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
 def search_packages(term):
     """Search packages endpoint"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
 
     session = Session()
     results = OrderedDict([
@@ -613,60 +651,70 @@ def search_packages(term):
             ('url', '%spackage/%s' % (request.url_root, lib.title))
         ]))
 
-    return registry_response(results)
+    return registry_response(results, mimetype=accept)
 
 @app.route('/package/<string:package>', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
 def get_package(package):
     """Get package endpoint"""
 
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
+
     output = get_package_json(package)
 
     if not output:
         abort(404)
 
-    return registry_response(output)
+    return registry_response(output, mimetype=accept)
 
 @app.route('/package/<string:package>/<string:version>', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
 def get_package_version(package, version):
     """Get package endpoint by version"""
 
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
+
     output = get_package_json(package, version)
 
     if not output:
         abort(404)
 
-    return registry_response(output)
+    return registry_response(output, mimetype=accept)
 
 @app.route('/package/<string:package>/README', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
 def get_readme(package):
     """Get package README endpoint"""
 
+    accept, _version = parse_accept(request.headers.get('Accept'), ['text/plain'])
+
     readme = get_package_readme(package)
 
     if not readme:
         abort(404)
 
-    return registry_response(readme, mimetype='text/plain')
+    return registry_response(readme, mimetype=accept)
 
 @app.route('/package/<string:package>/<string:version>/README', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
 def get_readme_version(package, version):
     """Get package README endpoint by version"""
 
+    accept, _version = parse_accept(request.headers.get('Accept'), ['text/plain'])
+
     readme = get_package_readme(package, version)
 
     if not readme:
         abort(404)
 
-    return registry_response(readme, mimetype='text/plain')
+    return registry_response(readme, mimetype=accept)
 
 @app.route('/package/<string:package>/data', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
 def get_gz(package):
     """Get package zip endpoint"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/tar+gzip'])
 
     data = get_package_zip(package)
 
@@ -680,12 +728,14 @@ def get_gz(package):
         ('X-Integrity', lib_data['shasum'])
     ]
 
-    return registry_response(data, mimetype='application/tar+gzip', headers=headers)
+    return registry_response(data, mimetype=accept, headers=headers)
 
 @app.route('/package/<string:package>/<string:version>/data', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
 def get_gz_version(package, version):
     """Get package zip endpoint by version"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/tar+gzip'])
 
     data = get_package_zip(package, version)
 
@@ -699,11 +749,13 @@ def get_gz_version(package, version):
         ('X-Integrity', lib_data['shasum'])
     ]
 
-    return registry_response(data, mimetype='application/tar+gzip', headers=headers)
+    return registry_response(data, mimetype=accept, headers=headers)
 
 @app.route('/package/publish', methods=['POST'])
 def post_gz():
     """Post package zip endpoint"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
 
     global abort_mimetype
 
@@ -850,11 +902,13 @@ def post_gz():
 
     cache.clear()
 
-    return registry_response(json_info, mimetype='application/json')
+    return registry_response(json_info, mimetype=accept)
 
 @app.route('/user/create', methods=['POST'])
 def user_create():
     """Create new user"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
 
     user = request.get_json()
 
@@ -889,11 +943,13 @@ def user_create():
         date_created=datetime.datetime.now()))
     session.commit()
 
-    return registry_response({})
+    return registry_response({}, mimetype=accept)
 
 @app.route('/user/login', methods=['POST'])
 def user_login():
     """User login"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
 
     auth = request.authorization
 
@@ -933,11 +989,13 @@ def user_login():
 
     return registry_response({
         'token': login_token
-    })
+    }, mimetype=accept)
 
 @app.route('/user/logout', methods=['GET', 'POST'])
 def user_logout():
     """User logout"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
 
     # get auth
 
@@ -973,11 +1031,13 @@ def user_logout():
            })
     session.commit()
 
-    return registry_response({})
+    return registry_response({}, mimetype=accept)
 
 @app.route('/user/forgotpassword', methods=['POST'])
 def user_forgotpassword():
     """User forgot password"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
 
     user = request.get_json()
 
@@ -1132,6 +1192,8 @@ def user_2fa(reset_id=None):
 def user_resetpassword():
     """User reset password"""
 
+    accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
+
     # get user data
 
     user_data = request.get_json()
@@ -1178,13 +1240,15 @@ def user_resetpassword():
            })
     session.commit()
 
-    return registry_response({})
+    return registry_response({}, mimetype=accept)
 
 @app.route('/reference', methods=['GET'])
 @app.route('/reference/<path:path>', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
 def reference(path=''):
     """Reference endpoint"""
+
+    accept, _version = parse_accept(request.headers.get('Accept'), ['text/plain'])
 
     global abort_mimetype
 
@@ -1226,7 +1290,7 @@ def reference(path=''):
         abort_mimetype = 'text/plain'
         abort(404)
 
-    return registry_response(output, mimetype='text/plain')
+    return registry_response(output, mimetype=accept)
 
 #----------------#
 # Import/Export
