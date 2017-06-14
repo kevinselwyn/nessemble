@@ -1,9 +1,9 @@
 #include <string.h>
 #include "../nessemble.h"
 
+#ifndef IS_JAVASCRIPT
 #define CUSTOM_SCRIPT_COUNT 4
-
-#ifdef IS_JAVASCRIPT
+#else /* IS_JAVASCRIPT */
 #define CUSTOM_SCRIPT_COUNT 3
 #endif /* IS_JAVASCRIPT */
 

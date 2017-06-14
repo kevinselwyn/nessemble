@@ -6,6 +6,7 @@ license.h
 lex.yy.c
 nessemble
 nessemble.js
+nessemble.wasm
 opcodes.c
 package/payload
 reference/**/*.h

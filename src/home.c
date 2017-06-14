@@ -39,9 +39,9 @@ unsigned int get_home(char **home) {
     *home = (char *)nessemble_malloc(sizeof(char) * (strlen(pw->pw_dir) + 1));
 
     strcpy(*home, pw->pw_dir);
+cleanup:
 #endif /* IS_WINDOWS */
 
-cleanup:
     return rc;
 }
 

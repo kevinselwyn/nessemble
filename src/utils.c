@@ -83,6 +83,7 @@ int nessemble_mkdir(const char *dirname, int mode) {
 
 #ifdef IS_WINDOWS
     rc = mkdir(dirname);
+    UNUSED(mode);
 #else /* IS_WINDOWS */
     rc = mkdir(dirname, (unsigned int)mode);
 #endif /* IS_WINDOWS */
