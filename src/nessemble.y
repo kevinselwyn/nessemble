@@ -72,7 +72,6 @@
 %token PSEUDO_INCPAL
 %token PSEUDO_INCPNG
 %token PSEUDO_INCRLE
-%token PSEUDO_INCSCREEN
 %token PSEUDO_INCWAV
 %token PSEUDO_INESCHR
 %token PSEUDO_INESMAP
@@ -269,7 +268,6 @@ pseudo
     | pseudo_incpal    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incpng    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incrle    { /* NOTHING */ }
-    | pseudo_incscreen { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incwav    { pseudo_incwav($1); if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_ineschr   { pseudo_ineschr($1); }
     | pseudo_inesmap   { pseudo_inesmap($1); }
@@ -399,10 +397,6 @@ pseudo_incpng
     : PSEUDO_INCPNG QUOT_STRING                           { pseudo_incpng($2, 0, -1); }
     | PSEUDO_INCPNG QUOT_STRING COMMA number              { pseudo_incpng($2, $4, -1); }
     | PSEUDO_INCPNG QUOT_STRING COMMA number COMMA number { pseudo_incpng($2, $4, $6); }
-    ;
-
-pseudo_incscreen
-    : PSEUDO_INCSCREEN QUOT_STRING QUOT_STRING { pseudo_incscreen($2, $3); }
     ;
 
 pseudo_incwav
