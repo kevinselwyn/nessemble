@@ -116,8 +116,10 @@ unsigned int http_data(http_t *request, char *data, size_t data_len);
 unsigned int http_request(http_t *request, char *method, char *url);
 http_status_t http_process(http_t *request);
 unsigned int http_parse(http_t *request);
+unsigned int http_head(http_t *request, char *url);
 unsigned int http_get(http_t *request, char *url);
 unsigned int http_post(http_t *request, char *url);
+unsigned int http_put(http_t *request, char *url);
 void http_release(http_t *request);
 
 #endif /* _HTTP_H */

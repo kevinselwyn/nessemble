@@ -136,7 +136,7 @@ unsigned int user_create() {
         goto cleanup;
     }
 
-    if (request.status_code != 200) {
+    if (request.status_code != 201) {
         if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {

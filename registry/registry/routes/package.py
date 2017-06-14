@@ -129,7 +129,7 @@ def get_gz_version(package, version):
 
     return registry_response(data, mimetype=accept, headers=headers)
 
-@package_endpoint.route('/package/publish', methods=['POST'])
+@package_endpoint.route('/package/publish', methods=['POST', 'PUT'])
 def post_gz():
     """Post package zip endpoint"""
 
@@ -240,6 +240,9 @@ def post_gz():
         if lib.user_id != user.id:
             return unprocessable_custom('Package `%s` already exists' % (json_info['title']))
 
+        if request.method != 'PUT':
+            abort(405)
+
         if semver.compare(json_info['version'], lib.version) != 1:
             return unprocessable_custom('Cannot upgrade to version %s (currently at %s)' % (json_info['version'], lib.version))
 
@@ -276,4 +279,4 @@ def post_gz():
 
     cache.clear()
 
-    return registry_response(json_info, mimetype=accept)
+    return registry_response(json_info, status=201, mimetype=accept)

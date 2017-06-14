@@ -958,6 +958,22 @@ cleanup:
     return rc;
 }
 
+unsigned int http_head(http_t *request, char *url) {
+    unsigned int rc = RETURN_OK;
+    http_t local_request;
+
+    local_request = *request;
+
+    if ((rc = http_do(&local_request, "HEAD", url)) != 0) {
+        goto cleanup;
+    }
+
+cleanup:
+    *request = local_request;
+
+    return rc;
+}
+
 unsigned int http_get(http_t *request, char *url) {
     unsigned int rc = RETURN_OK;
     http_t local_request;
@@ -981,6 +997,22 @@ unsigned int http_post(http_t *request, char *url) {
     local_request = *request;
 
     if ((rc = http_do(&local_request, "POST", url)) != 0) {
+        goto cleanup;
+    }
+
+cleanup:
+    *request = local_request;
+
+    return rc;
+}
+
+unsigned int http_put(http_t *request, char *url) {
+    unsigned int rc = RETURN_OK;
+    http_t local_request;
+
+    local_request = *request;
+
+    if ((rc = http_do(&local_request, "PUT", url)) != 0) {
         goto cleanup;
     }
 
