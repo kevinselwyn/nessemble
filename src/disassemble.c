@@ -522,7 +522,7 @@ cleanup:
     return rc;
 }
 
-unsigned int disassemble_main(char *indata, unsigned int insize, char *output, char *listname) {
+static unsigned int disassemble_main(char *indata, unsigned int insize, char *output, char *listname) {
     unsigned int rc = RETURN_OK;
     unsigned int i = 0, j = 0, l = 0;
     unsigned int arg0 = 0, prg_counter = 0, outfile = 0;
@@ -567,7 +567,10 @@ unsigned int disassemble_main(char *indata, unsigned int insize, char *output, c
                 trnfile = fopen(trn_filename, "w+");
                 disassemble_outfiles[DISASSEMBLE_TRAINER] = trnfile;
 
-                disassemble_data(DISASSEMBLE_TRAINER, indata+0x10, 0x200, i);
+                if ((rc = disassemble_data(DISASSEMBLE_TRAINER, indata+0x10, 0x200, i)) != RETURN_OK) {
+                    goto cleanup;
+                }
+
                 disassemble_write(outfile, "    .inestrn \"%s\"", trn_filename);
             }
         }
@@ -590,7 +593,9 @@ unsigned int disassemble_main(char *indata, unsigned int insize, char *output, c
 
         if (disassemble_inestrn == TRUE) {
             if (reassemblable == FALSE) {
-                disassemble_data(outfile, indata+i, 0x200, i);
+                if ((rc = disassemble_data(outfile, indata+i, 0x200, i)) != RETURN_OK) {
+                    goto cleanup;
+                }
             }
 
             i += 0x200;
@@ -602,10 +607,14 @@ unsigned int disassemble_main(char *indata, unsigned int insize, char *output, c
                 disassemble_write(outfile, "\n    .prg %u\n\n", prg_counter++);
             }
 
-            disassemble_data(outfile, indata+i, BANK_PRG, i);
+            if ((rc = disassemble_data(outfile, indata+i, BANK_PRG, i)) != RETURN_OK) {
+                goto cleanup;
+            }
         }
     } else {
-        disassemble_data(outfile, indata, insize, 0);
+        if ((rc = disassemble_data(outfile, indata, insize, 0)) != RETURN_OK) {
+            goto cleanup;
+        }
     }
 
     /* output chr */
