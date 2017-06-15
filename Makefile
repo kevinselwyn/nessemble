@@ -170,7 +170,7 @@ $(EXEC): $(OBJS) $(HDRS)
 test: all
 	@python test.py
 
-splint: all
+splint:
 	splint -I/usr/include -I/usr/include/x86_64-linux-gnu \
 		   -warnposix $(FLAGS) $(FILES)
 
