@@ -207,17 +207,15 @@ cleanup:
 }
 
 unsigned int lib_publish(char *filename, char **package) {
-    unsigned int rc = RETURN_OK;
+    unsigned int rc = RETURN_OK, update = FALSE;
     unsigned int data_length = 0;
+    size_t tar_data_length = 0, tar_json_length = 0;
     char *url = NULL, *response = NULL, *data = NULL, *error = NULL, *token = NULL;
-    http_t request;
+    char *url_head = NULL, *tar_data = NULL, *tar_json = NULL, *package_title = NULL;
+    http_t request, request_head;
 
     if ((rc = get_config(&token, "login")) != RETURN_OK) {
         error_program_log(_("User not logged in"));
-        goto cleanup;
-    }
-
-    if ((rc = api_lib(&url, "publish")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -225,9 +223,49 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
+    // check if package exists
+
+    if ((rc = get_ungzip(&tar_data, &tar_data_length, data+10, data_length-10)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = untar(&tar_json, &tar_json_length, tar_data, tar_data_length, "package.json")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = get_json_buffer(&package_title, "title", tar_json)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = api_lib(&url_head, package_title)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    http_init(&request_head);
+
+    if ((rc = http_header(&request_head, "Accept", MIMETYPE_JSON)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if ((rc = http_head(&request_head, url_head)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (request_head.status_code == 200) {
+        update = TRUE;
+    }
+
+    http_release(&request_head);
+
+    // send request
+
+    if ((rc = api_lib(&url, "publish")) != RETURN_OK) {
+        goto cleanup;
+    }
+
     http_init(&request);
 
-    if ((rc = user_auth(&request, token, "POST", "/package/publish")) != RETURN_OK) {
+    if ((rc = user_auth(&request, token, (update == FALSE) ? "POST" : "PUT", "/package/publish")) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -243,12 +281,19 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
-    if ((rc = http_post(&request, url)) != RETURN_OK) {
-        error_program_log(_("Could not reach the registry"));
-        goto cleanup;
+    if (update == FALSE) {
+        if ((rc = http_post(&request, url)) != RETURN_OK) {
+            error_program_log(_("Could not reach the registry"));
+            goto cleanup;
+        }
+    } else {
+        if ((rc = http_put(&request, url)) != RETURN_OK) {
+            error_program_log(_("Could not reach the registry"));
+            goto cleanup;
+        }
     }
 
-    if (request.status_code != 200) {
+    if (request.status_code != 201) {
         if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {
@@ -269,6 +314,10 @@ cleanup:
     nessemble_free(token);
     nessemble_free(url);
     nessemble_free(response);
+    nessemble_free(tar_data);
+    nessemble_free(tar_json);
+    nessemble_free(package_title);
+    nessemble_free(url_head);
 
     return rc;
 }

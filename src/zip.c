@@ -155,12 +155,15 @@ unsigned int untar_list(char ***filenames, size_t *filenames_count, char *tar, u
 }
 
 unsigned int untar(char **data, size_t *data_length, char *tar, unsigned int tar_length, char *filename) {
+    int filename_cmp = 0;
     unsigned int rc = RETURN_OK, i = 0, l = 0;
     unsigned int size = 0, remaining = 0;
+    size_t filename_length = 0, tar_filename_length = 0;
     char block[512], tar_filename[100];
     char *filedata = NULL;
 
     l = (unsigned int)tar_length;
+    filename_length = strlen(filename);
 
     while (i < l) {
         memcpy(block, tar+i, TAR_BLOCK_SIZE);
@@ -174,7 +177,17 @@ unsigned int untar(char **data, size_t *data_length, char *tar, unsigned int tar
         size = (unsigned int)oct2int(block+124);
         remaining = (((size / TAR_BLOCK_SIZE) + 1) * TAR_BLOCK_SIZE) - size;
 
-        if (strcmp(tar_filename, filename) == 0) {
+        tar_filename_length = strlen(tar_filename);
+
+        if (tar_filename_length > filename_length) {
+            filename_cmp = strncmp(tar_filename+(tar_filename_length-filename_length), filename, filename_length);
+        } else if (tar_filename_length < filename_length) {
+            filename_cmp = -1;
+        } else {
+            filename_cmp = strncmp(tar_filename, filename, filename_length);
+        }
+
+        if (filename_cmp == 0) {
             filedata = (char *)malloc(sizeof(char) * (size + 1));
 
             if (!filedata) {
@@ -190,7 +203,9 @@ unsigned int untar(char **data, size_t *data_length, char *tar, unsigned int tar
             break;
         }
 
-        i += size + remaining;
+        if (size > 0) {
+            i += size + remaining;
+        }
     }
 
 cleanup:
