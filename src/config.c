@@ -6,11 +6,11 @@
 #include <sys/stat.h>
 #include "nessemble.h"
 
-struct config_type {
+static struct config_type {
     char *type;
 };
 
-struct config_type config_types[CONFIG_TYPES] = {
+static struct config_type config_types[CONFIG_TYPES] = {
     { "registry" }
 };
 
@@ -20,6 +20,11 @@ unsigned int create_config() {
     DIR *config_dir = NULL, *lib_dir = NULL;
 
     if ((rc = get_home_path(&config_path, 1, "." PROGRAM_NAME)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!config_path) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -35,6 +40,11 @@ unsigned int create_config() {
     }
 
     if ((rc = get_home_path(&lib_path, 2, "." PROGRAM_NAME, "packages")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!lib_path) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -77,8 +87,16 @@ unsigned int open_config(FILE **file, char **filename) {
         goto cleanup;
     }
 
+    if (!config_path) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     if (file_exists(config_path) == FALSE) {
-        config = fopen(config_path, "w+");
+        if ((config = fopen(config_path, "w+")) == NULL) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
 
         fprintf(config, "registry\t%s\n", CONFIG_API_DEFAULT);
         (void)fseek(config, 0, SEEK_SET);
@@ -93,10 +111,10 @@ unsigned int open_config(FILE **file, char **filename) {
         goto cleanup;
     }
 
+cleanup:
     *file = config;
     *filename = config_path;
 
-cleanup:
     return rc;
 }
 
@@ -112,6 +130,16 @@ unsigned int get_config(char **result, char *item) {
     FILE *config = NULL;
 
     if ((rc = open_config(&config, &config_path)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!config) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if (!config_path) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -148,6 +176,11 @@ unsigned int set_config(char *result, char *item) {
         goto cleanup;
     }
 
+    if (!config) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     while (fgets(lines[line_index], CONFIG_LINE_LENGTH, config) != NULL) {
         if (sscanf(lines[line_index++], "%s %s\n", key, val) != 2) {
             continue;
@@ -160,6 +193,12 @@ unsigned int set_config(char *result, char *item) {
 
     if (found != TRUE) {
         nessemble_fclose(config);
+
+        if (!config_path) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
         config = fopen(config_path, "a");
 
         if (!config) {
@@ -177,6 +216,12 @@ unsigned int set_config(char *result, char *item) {
     }
 
     nessemble_fclose(config);
+
+    if (!config_path) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     config = fopen(config_path, "w+");
 
     if (!config) {
@@ -226,7 +271,12 @@ unsigned int list_config(char **result) {
             goto cleanup;
         }
 
-        sprintf(output+strlen(output), "%s%*s%s\n", config_types[i].type, longest - (unsigned int)strlen(config_types[i].type), " ", val);
+        if (!val) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        sprintf(output+strlen(output), "%s%*s%s\n", config_types[i].type, (int)(longest - strlen(config_types[i].type)), " ", val);
         nessemble_free(val);
     }
 
