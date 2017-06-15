@@ -196,11 +196,11 @@ int get_symbol_local(int direction) {
         if (strcmp(symbols[i].name, ":") == 0) {
             if (direction == -1) {
                 if (symbols[i].value < offset) {
-                    symbol_id = i;
+                    symbol_id = (int)i;
                 }
             } else {
                 if (symbols[i].value > offset) {
-                    symbol_id = i;
+                    symbol_id = (int)i;
                     break;
                 }
             }
@@ -290,6 +290,11 @@ global_check:
             goto cleanup;
         }
 
+        if (!scripts) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
         if (file_exists(scripts) == FALSE) {
             rc = RETURN_EPERM;
             goto cleanup;
@@ -304,6 +309,11 @@ global_check:
     }
 
 global_continue:
+    if (!val) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     pseudo_length = strlen(val);
 
     if (val[pseudo_length - 1] == '\n') {
@@ -313,8 +323,8 @@ global_continue:
 
     pseudo_length += strlen(cwd_path) + 1;
 
-    if (global_found) {
-        if ((rc = get_home_path(&output, 3, "." PROGRAM_NAME, "scripts", val))) {
+    if (global_found == TRUE) {
+        if ((rc = get_home_path(&output, 3, "." PROGRAM_NAME, "scripts", val)) != RETURN_OK) {
             goto cleanup;
         }
     } else {
