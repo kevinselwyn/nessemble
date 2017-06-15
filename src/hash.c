@@ -25,7 +25,7 @@ typedef union {
     unsigned int l[16];
 } SHA1_BLOCK;
 
-static void SHA1Transform(unsigned int state[5], char *buffer) {
+static void SHA1Transform(unsigned int state[], char *buffer) {
     unsigned int a = 0, b = 0, c = 0, d = 0, e = 0;
 
     SHA1_BLOCK block[1];
@@ -66,10 +66,10 @@ static void SHA1Transform(unsigned int state[5], char *buffer) {
 
     a = b = c = d = e = 0;
 
-    memset(block, '\0', 64);
+    memset(block, 0, 64);
 }
 
-void SHA1Init(SHA1_CTX* context) {
+static void SHA1Init(SHA1_CTX* context) {
     context->state[0] = 0x67452301;
     context->state[1] = 0xEFCDAB89;
     context->state[2] = 0x98BADCFE;
@@ -83,7 +83,7 @@ static void SHA1Update(SHA1_CTX* context, char *data, size_t data_len) {
 
     j = context->count[0];
 
-    if ((context->count[0] += data_len << 3) < j) {
+    if ((unsigned int)(context->count[0] += data_len << 3) < j) {
         context->count[1]++;
     }
 
@@ -91,10 +91,10 @@ static void SHA1Update(SHA1_CTX* context, char *data, size_t data_len) {
     j = (j >> 3) & 63;
 
     if ((j + data_len) > 63) {
-        memcpy(&context->buffer[j], data, (i = 64 - j));
+        memcpy(&context->buffer[j], data, (size_t)(i = 64 - j));
         SHA1Transform(context->state, context->buffer);
 
-        for (; i + 63 < data_len; i += 64) {
+        for (; i + 63 < (unsigned int)data_len; i += 64) {
             SHA1Transform(context->state, &data[i]);
         }
 
@@ -112,18 +112,18 @@ static void SHA1Final(char **output, SHA1_CTX *context) {
     char *digest = NULL;
 
     digest = (char *)nessemble_malloc(sizeof(char) * 21);
-    memset(digest, '\0', 21);
+    memset(digest, 0, 21);
 
     for (i = 0; i < 8; i++) {
-        finalcount[i] = (unsigned char)((context->count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255);
+        finalcount[i] = (char)((context->count[(i >= 4 ? 0 : 1)] >> ((3 - (i & 3)) * 8)) & 255);
     }
 
-    c = 0200;
+    c = (char)0200;
 
     SHA1Update(context, &c, 1);
 
     while ((context->count[0] & 504) != 448) {
-        c = 0000;
+        c = (char)0000;
         SHA1Update(context, &c, 1);
     }
 
@@ -133,21 +133,21 @@ static void SHA1Final(char **output, SHA1_CTX *context) {
         digest[i] = (char)((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
     }
 
-    memset(context, '\0', 92);
-    memset(&finalcount, '\0', 8);
+    memset(context, 0, 92);
+    memset(&finalcount, 0, 8);
 
     *output = digest;
 }
 
 static void digest2hex(char **hex, size_t hex_len, char *digest) {
     unsigned int i = 0, l = 0, index = 0, val = 0;
-    char chars[16] = "0123456789abcdef";
+    char chars[17] = "0123456789abcdef";
     char *output = NULL;
 
     output = (char *)nessemble_malloc(sizeof(char) * ((hex_len * 2) + 1));
 
     for (i = 0, l = (unsigned int)hex_len; i < l; i++) {
-        val = digest[i] & 0xFF;
+        val = (unsigned int)(digest[i] & 0xFF);
 
         output[index++] = chars[(val >> 4) & 0x0F];
         output[index++] = chars[val & 0x0F];
@@ -164,8 +164,13 @@ void hash(char **hex, char *data, size_t data_len) {
     SHA1Update(&context, data, data_len);
     SHA1Final(&digest, &context);
 
+    if (!digest) {
+        goto cleanup;
+    }
+
     digest2hex(&*hex, 20, digest);
 
+cleanup:
     nessemble_free(digest);
 }
 
@@ -186,8 +191,13 @@ void hmac(char **hex, char *key, size_t key_len, char *data, size_t data_len) {
         key_len = 20;
     }
 
-    memset(k_ipad, '\0', 65);
-    memset(k_opad, '\0', 65);
+    memset(k_ipad, 0, 65);
+    memset(k_opad, 0, 65);
+
+    if (!key) {
+        goto cleanup;
+    }
+
     memcpy(k_ipad, key, key_len);
     memcpy(k_opad, key, key_len);
 
@@ -205,12 +215,22 @@ void hmac(char **hex, char *key, size_t key_len, char *data, size_t data_len) {
     SHA1Init(&context);
 
     SHA1Update(&context, k_opad, 64);
+
+    if (!digest1) {
+        goto cleanup;
+    }
+
     SHA1Update(&context, digest1, 20);
 
     SHA1Final(&digest2, &context);
 
+    if (!digest2) {
+        goto cleanup;
+    }
+
     digest2hex(&*hex, 20, digest2);
 
+cleanup:
     nessemble_free(t_key);
     nessemble_free(digest1);
     nessemble_free(digest2);
