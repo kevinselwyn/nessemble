@@ -51,8 +51,6 @@ int main(int argc, char *argv[]) {
         case 'h':
             rc = usage(exec);
             goto cleanup;
-
-            break;
         case 'o':
             if (optarg == NULL) {
                 rc = usage(exec);
@@ -126,18 +124,12 @@ int main(int argc, char *argv[]) {
         case 'v':
             rc = version();
             goto cleanup;
-
-            break;
         case 'L':
             rc = license();
             goto cleanup;
-
-            break;
         default:
             rc = usage(exec);
             goto cleanup;
-
-            break;
         }
     }
 
@@ -168,6 +160,10 @@ int main(int argc, char *argv[]) {
                 ref_count = 1;
             } else {
                 ref_count = 2;
+            }
+
+            if (!argv[optind+1] || !argv[optind+2]) {
+                goto cleanup;
             }
 
             if ((rc = reference(ref_count, argv[optind+1], argv[optind+2])) != RETURN_OK) {
@@ -209,7 +205,9 @@ int main(int argc, char *argv[]) {
                     goto cleanup;
                 }
 
-                printf("%s\n", registry);
+                if (registry) {
+                    printf("%s\n", registry);
+                }
             }
 
             goto cleanup;
