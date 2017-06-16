@@ -26,9 +26,9 @@ void translate_init() {
         return;
     }
 
-    setlocale(LC_ALL, "");
-    bindtextdomain(PROGRAM_NAME, translated_path);
-    textdomain(PROGRAM_NAME);
+    UNUSED(setlocale(LC_ALL, ""));
+    UNUSED(bindtextdomain(PROGRAM_NAME, translated_path));
+    UNUSED(textdomain(PROGRAM_NAME));
 
     nessemble_free(translated_path);
 #else /* IS_WINDOWS */
