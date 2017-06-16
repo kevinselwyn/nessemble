@@ -22,19 +22,13 @@
  * URL
  */
 void url_init(url_t *url_data) {
-    url_t local_url_data;
-
-    local_url_data = *url_data;
-
-    local_url_data.status = URL_STATUS_OK;
-    local_url_data.protocol = URL_PROTOCOL_HTTP;
-    local_url_data.host = NULL;
-    local_url_data.ip = NULL;
-    local_url_data.port = NULL;
-    local_url_data.path = NULL;
-    local_url_data.query = NULL;
-
-    *url_data = local_url_data;
+    url_data->status = URL_STATUS_OK;
+    url_data->protocol = URL_PROTOCOL_HTTP;
+    url_data->host = NULL;
+    url_data->ip = NULL;
+    url_data->port = NULL;
+    url_data->path = NULL;
+    url_data->query = NULL;
 }
 
 unsigned int url_parse(url_t *url_data, char *url) {
@@ -44,9 +38,6 @@ unsigned int url_parse(url_t *url_data, char *url) {
     char *host_port_token = NULL, *host_port = NULL, *host_port_ptr = NULL;
     struct hostent *he;
     struct in_addr **addr_list;
-    url_t local_url_data;
-
-    local_url_data = *url_data;
 
     // local_url
     local_url = (char *)nessemble_malloc(sizeof(char) * (strlen(url) + 1));
@@ -55,7 +46,7 @@ unsigned int url_parse(url_t *url_data, char *url) {
     token = strtok_r(local_url, "://", &local_url_ptr);
 
     if (!token) {
-        local_url_data.status = URL_STATUS_URI_SYNTAX;
+        url_data->status = URL_STATUS_URI_SYNTAX;
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -63,18 +54,18 @@ unsigned int url_parse(url_t *url_data, char *url) {
 
     // protocol
     if (strcmp(token, "https") == 0) {
-        local_url_data.protocol = URL_PROTOCOL_HTTPS;
+        url_data->protocol = URL_PROTOCOL_HTTPS;
     } else if (strcmp(token, "http") == 0) {
-        local_url_data.protocol = URL_PROTOCOL_HTTP;
+        url_data->protocol = URL_PROTOCOL_HTTP;
     } else if (strcmp(token, "ftp") == 0) {
-        local_url_data.protocol = URL_PROTOCOL_FTP;
+        url_data->protocol = URL_PROTOCOL_FTP;
     } else {
-        local_url_data.protocol = URL_PROTOCOL_OTHER;
+        url_data->protocol = URL_PROTOCOL_OTHER;
     }
 
     // only http
-    if (local_url_data.protocol != URL_PROTOCOL_HTTP) {
-        local_url_data.status = URL_STATUS_INVALID_PROTOCOL;
+    if (url_data->protocol != URL_PROTOCOL_HTTP) {
+        url_data->status = URL_STATUS_INVALID_PROTOCOL;
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -84,7 +75,7 @@ unsigned int url_parse(url_t *url_data, char *url) {
     token = strtok_r(NULL, "/", &local_url_ptr);
 
     if (!token) {
-        local_url_data.status = URL_STATUS_HOST_PORT;
+        url_data->status = URL_STATUS_HOST_PORT;
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -97,18 +88,18 @@ unsigned int url_parse(url_t *url_data, char *url) {
     host_port_token = strtok_r(host_port, ":", &host_port_ptr);
 
     if (!host_port_token) {
-        local_url_data.status = URL_STATUS_HOST;
+        url_data->status = URL_STATUS_HOST;
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    local_url_data.host = (char *)nessemble_malloc(sizeof(char) * (strlen(host_port_token) + 1));
-    strcpy(local_url_data.host, host_port_token);
+    url_data->host = (char *)nessemble_malloc(sizeof(char) * (strlen(host_port_token) + 1));
+    strcpy(url_data->host, host_port_token);
 
     // ip
-    if ((he = gethostbyname(local_url_data.host)) == NULL) {
-        local_url_data.status = URL_STATUS_IP;
+    if ((he = gethostbyname(url_data->host)) == NULL) {
+        url_data->status = URL_STATUS_IP;
 
         rc = RETURN_EPERM;
         goto cleanup;
@@ -117,44 +108,42 @@ unsigned int url_parse(url_t *url_data, char *url) {
     addr_list = (struct in_addr **)he->h_addr_list;
 
     if (addr_list[0]) {
-        local_url_data.ip = (char *)nessemble_malloc(sizeof(char) * 16);
-        strcpy(local_url_data.ip, inet_ntoa(*addr_list[0]));
+        url_data->ip = (char *)nessemble_malloc(sizeof(char) * 16);
+        strcpy(url_data->ip, inet_ntoa(*addr_list[0]));
     }
 
     // port
     host_port_token = strtok_r(NULL, ":", &host_port_ptr);
 
     if (!host_port_token) {
-        local_url_data.port = (char *)nessemble_malloc(sizeof(char) * 3);
-        strcpy(local_url_data.port, "80");
+        url_data->port = (char *)nessemble_malloc(sizeof(char) * 3);
+        strcpy(url_data->port, "80");
     } else {
-        local_url_data.port = (char *)nessemble_malloc(sizeof(char) * (strlen(host_port_token) + 1));
-        strcpy(local_url_data.port, host_port_token);
+        url_data->port = (char *)nessemble_malloc(sizeof(char) * (strlen(host_port_token) + 1));
+        strcpy(url_data->port, host_port_token);
     }
 
     // path
     token = strtok_r(NULL, "?", &local_url_ptr);
 
     if (!token) {
-        local_url_data.path = (char *)nessemble_malloc(sizeof(char) * 2);
-        strcpy(local_url_data.path, "/");
+        url_data->path = (char *)nessemble_malloc(sizeof(char) * 2);
+        strcpy(url_data->path, "/");
     } else {
-        local_url_data.path = (char *)nessemble_malloc(sizeof(char) * (strlen(token) + 2));
-        strcpy(local_url_data.path, "/");
-        strcat(local_url_data.path, token);
+        url_data->path = (char *)nessemble_malloc(sizeof(char) * (strlen(token) + 2));
+        strcpy(url_data->path, "/");
+        strcat(url_data->path, token);
     }
 
     // query
     token = strtok_r(NULL, "?", &local_url_ptr);
 
     if (token) {
-        local_url_data.query = (char *)nessemble_malloc(sizeof(char) * (strlen(token) + 1));
-        strcpy(local_url_data.query, token);
+        url_data->query = (char *)nessemble_malloc(sizeof(char) * (strlen(token) + 1));
+        strcpy(url_data->query, token);
     }
 
 cleanup:
-    *url_data = local_url_data;
-
     nessemble_free(local_url);
     nessemble_free(host_port);
 
@@ -162,17 +151,11 @@ cleanup:
 }
 
 void url_release(url_t *url_data) {
-    url_t local_url_data;
-
-    local_url_data = *url_data;
-
-    nessemble_free(local_url_data.host);
-    nessemble_free(local_url_data.ip);
-    nessemble_free(local_url_data.port);
-    nessemble_free(local_url_data.path);
-    nessemble_free(local_url_data.query);
-
-    *url_data = local_url_data;
+    nessemble_free(url_data->host);
+    nessemble_free(url_data->ip);
+    nessemble_free(url_data->port);
+    nessemble_free(url_data->path);
+    nessemble_free(url_data->query);
 }
 
 /**
@@ -180,78 +163,62 @@ void url_release(url_t *url_data) {
  */
 void headers_init(http_t *request) {
     unsigned int i = 0, l = 0;
-    http_t local_request;
-
-    local_request = *request;
 
     for (i = 0, l = MAX_HEADERS; i < l; i++) {
-        local_request.request_headers[i].key = NULL;
-        local_request.request_headers[i].val = NULL;
-        local_request.response_headers[i].key = NULL;
-        local_request.response_headers[i].val = NULL;
+        request->request_headers[i].key = NULL;
+        request->request_headers[i].val = NULL;
+        request->response_headers[i].key = NULL;
+        request->response_headers[i].val = NULL;
     }
-
-    *request = local_request;
 }
 
 void header_release(http_t *request) {
     unsigned int i = 0, l = 0;
-    http_t local_request;
 
-    local_request = *request;
-
-    for (i = 0, l = local_request.request_header_count; i < l; i++) {
-        nessemble_free(local_request.request_headers[i].key);
-        nessemble_free(local_request.request_headers[i].val);
+    for (i = 0, l = request->request_header_count; i < l; i++) {
+        nessemble_free(request->request_headers[i].key);
+        nessemble_free(request->request_headers[i].val);
     }
 
-    for (i = 0, l = local_request.response_header_count; i < l; i++) {
-        nessemble_free(local_request.response_headers[i].key);
-        nessemble_free(local_request.response_headers[i].val);
+    for (i = 0, l = request->response_header_count; i < l; i++) {
+        nessemble_free(request->response_headers[i].key);
+        nessemble_free(request->response_headers[i].val);
     }
-
-    *request = local_request;
 }
 
 /**
  * HTTP
  */
 void http_init(http_t *request) {
-    http_t local_request;
+    request->status = HTTP_STATUS_PENDING;
+    request->state = HTTP_STATE_READY;
 
-    local_request = *request;
+    request->socket = -1;
+    request->method = NULL;
+    request->method_id = HTTP_METHOD_UNKNOWN;
 
-    local_request.status = HTTP_STATUS_PENDING;
-    local_request.state = HTTP_STATE_READY;
+    request->request_size = 0;
+    request->request_data = NULL;
+    request->request_body_size = 0;
+    request->request_body = NULL;
 
-    local_request.socket = -1;
-    local_request.method = NULL;
-    local_request.method_id = HTTP_METHOD_UNKNOWN;
+    request->status_code = 500;
+    request->response_line = 0;
+    request->response_size = 0;
+    request->content_length = 0;
+    request->response_data = NULL;
+    request->response_body = NULL;
+    request->status_message = NULL;
+    request->content_type = NULL;
 
-    local_request.request_size = 0;
-    local_request.request_data = NULL;
-    local_request.request_body_size = 0;
-    local_request.request_body = NULL;
+    request->response_data = (char *)nessemble_malloc(sizeof(char));
 
-    local_request.status_code = 500;
-    local_request.response_line = 0;
-    local_request.response_size = 0;
-    local_request.content_length = 0;
-    local_request.response_data = NULL;
-    local_request.response_body = NULL;
-    local_request.status_message = NULL;
-    local_request.content_type = NULL;
+    url_init(&(request->url_data));
 
-    local_request.response_data = (char *)nessemble_malloc(sizeof(char));
+    request->request_header_count = 0;
+    request->response_header_count = 0;
 
-    url_init(&local_request.url_data);
-
-    local_request.request_header_count = 0;
-    local_request.response_header_count = 0;
-
-    headers_init(&local_request);
-
-    *request = local_request;
+    headers_init(request);
 }
 
 static int http_connect(char *host, char *port) {
@@ -267,6 +234,11 @@ static int http_connect(char *host, char *port) {
     hints.ai_protocol = IPPROTO_TCP;
 
     if (getaddrinfo(host, port, &hints, &addri) != 0) {
+        sockfd = -1;
+        goto cleanup;
+    }
+
+    if (!addri) {
         sockfd = -1;
         goto cleanup;
     }
@@ -328,38 +300,28 @@ cleanup:
 
 unsigned int http_header(http_t *request, char *key, char *val) {
     unsigned int rc = RETURN_OK;
-    http_t local_request;
 
-    local_request = *request;
+    request->request_headers[request->request_header_count].key = (char *)nessemble_malloc(sizeof(char) * (strlen(key) + 1));
+    strcpy(request->request_headers[request->request_header_count].key, key);
 
-    local_request.request_headers[local_request.request_header_count].key = (char *)nessemble_malloc(sizeof(char) * (strlen(key) + 1));
-    strcpy(local_request.request_headers[local_request.request_header_count].key, key);
+    request->request_headers[request->request_header_count].val = (char *)nessemble_malloc(sizeof(char) * (strlen(val) + 1));
+    strcpy(request->request_headers[request->request_header_count].val, val);
 
-    local_request.request_headers[local_request.request_header_count].val = (char *)nessemble_malloc(sizeof(char) * (strlen(val) + 1));
-    strcpy(local_request.request_headers[local_request.request_header_count].val, val);
-
-    local_request.request_header_count++;
-
-    *request = local_request;
+    request->request_header_count++;
 
     return rc;
 }
 
 unsigned int http_headers(http_t *request, size_t header_count, char *headers[header_count][2]) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
-    http_t local_request;
-
-    local_request = *request;
 
     for (i = 0, l = (unsigned int)header_count; i < l; i++) {
-        if ((rc = http_header(&local_request, headers[i][0], headers[i][1])) != 0) {
+        if ((rc = http_header(request, headers[i][0], headers[i][1])) != 0) {
             goto cleanup;
         }
     }
 
 cleanup:
-    *request = local_request;
-
     return rc;
 }
 
@@ -379,33 +341,25 @@ int http_header_cmp(http_t request, char *key, char *val) {
 unsigned int http_data(http_t *request, char *data, size_t data_len) {
     unsigned int rc = RETURN_OK;
     char content_length[16];
-    http_t local_request;
-
-    local_request = *request;
 
     // set body + body size
-    local_request.request_body_size = data_len;
-    local_request.request_body = (char *)nessemble_malloc(sizeof(char) * (data_len + 1));
-    memcpy(local_request.request_body, data, data_len);
+    request->request_body_size = data_len;
+    request->request_body = (char *)nessemble_malloc(sizeof(char) * (data_len + 1));
+    memcpy(request->request_body, data, data_len);
 
     // set content-length header
     sprintf(content_length, "%d", (int)data_len);
 
-    if ((rc = http_header(&local_request, "Content-Length", (char *)content_length)) != 0) {
+    if ((rc = http_header(request, "Content-Length", (char *)content_length)) != 0) {
         goto cleanup;
     }
 
 cleanup:
-    *request = local_request;
-
     return rc;
 }
 
 unsigned int http_request(http_t *request, char *method, char *url) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
-    http_t local_request;
-
-    local_request = *request;
 
 #ifdef IS_WINDOWS
     WSADATA wsa_data;
@@ -417,80 +371,78 @@ unsigned int http_request(http_t *request, char *method, char *url) {
 #endif
 
     // method
-    local_request.method = (char *)nessemble_malloc(sizeof(char) * (strlen(method) + 1));
-    strcpy(local_request.method, method);
+    request->method = (char *)nessemble_malloc(sizeof(char) * (strlen(method) + 1));
+    strcpy(request->method, method);
 
     if (strcmp(method, "GET") == 0) {
-        local_request.method_id = HTTP_METHOD_GET;
+        request->method_id = HTTP_METHOD_GET;
     } else if (strcmp(method, "HEAD") == 0) {
-        local_request.method_id = HTTP_METHOD_HEAD;
+        request->method_id = HTTP_METHOD_HEAD;
     } else if (strcmp(method, "POST") == 0) {
-        local_request.method_id = HTTP_METHOD_POST;
+        request->method_id = HTTP_METHOD_POST;
     } else if (strcmp(method, "PUT") == 0) {
-        local_request.method_id = HTTP_METHOD_PUT;
+        request->method_id = HTTP_METHOD_PUT;
     } else if (strcmp(method, "DELETE") == 0) {
-        local_request.method_id = HTTP_METHOD_DELETE;
+        request->method_id = HTTP_METHOD_DELETE;
     } else if (strcmp(method, "CONNECT") == 0) {
-        local_request.method_id = HTTP_METHOD_CONNECT;
+        request->method_id = HTTP_METHOD_CONNECT;
     } else if (strcmp(method, "OPTIONS") == 0) {
-        local_request.method_id = HTTP_METHOD_OPTIONS;
+        request->method_id = HTTP_METHOD_OPTIONS;
     } else if (strcmp(method, "PATCH") == 0) {
-        local_request.method_id = HTTP_METHOD_PATCH;
+        request->method_id = HTTP_METHOD_PATCH;
     } else {
-        local_request.method_id = HTTP_METHOD_UNKNOWN;
+        request->method_id = HTTP_METHOD_UNKNOWN;
     }
 
     // parse url
-    if ((rc = url_parse(&local_request.url_data, url)) != 0) {
+    if ((rc = url_parse(&(request->url_data), url)) != 0) {
         goto cleanup;
     }
 
     // connect to socket
-    if (local_request.url_data.ip) {
-        local_request.socket = http_connect(local_request.url_data.ip, local_request.url_data.port);
+    if (request->url_data.ip) {
+        request->socket = http_connect(request->url_data.ip, request->url_data.port);
     } else {
-        local_request.socket = http_connect(local_request.url_data.host, local_request.url_data.port);
+        request->socket = http_connect(request->url_data.host, request->url_data.port);
     }
 
-    if (local_request.socket < 0) {
-        local_request.status = HTTP_STATUS_FAILED;
+    if (request->socket < 0) {
+        request->status = HTTP_STATUS_FAILED;
 
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     // create request
-    local_request.request_size += strlen(method) + strlen(local_request.url_data.path) + 12; // <method> <path> HTTP/1.1\r\n
-    local_request.request_size += strlen(local_request.url_data.host) + strlen(local_request.url_data.port) + 9; // Host: <host>:port\r\n
+    request->request_size += strlen(method) + strlen(request->url_data.path) + 12; // <method> <path> HTTP/1.1\r\n
+    request->request_size += strlen(request->url_data.host) + strlen(request->url_data.port) + 9; // Host: <host>:port\r\n
 
-    for (i = 0, l = local_request.request_header_count; i < l; i++) {
-        local_request.request_size += strlen(local_request.request_headers[i].key) + strlen(local_request.request_headers[i].val) + 4; // <key>: <val>\r\n
+    for (i = 0, l = request->request_header_count; i < l; i++) {
+        request->request_size += strlen(request->request_headers[i].key) + strlen(request->request_headers[i].val) + 4; // <key>: <val>\r\n
     }
 
-    local_request.request_size += 2; // \r\n
+    request->request_size += 2; // \r\n
 
-    if (local_request.request_body_size > 0) {
-        local_request.request_size += local_request.request_body_size;
+    if (request->request_body_size > 0) {
+        request->request_size += request->request_body_size;
     }
 
-    local_request.request_data = (char *)nessemble_malloc(sizeof(char) * (local_request.request_size + 1));
+    request->request_data = (char *)nessemble_malloc(sizeof(char) * (request->request_size + 1));
 
-    sprintf(local_request.request_data, "%s %s HTTP/1.1\r\n", method, local_request.url_data.path);
-    sprintf(local_request.request_data+strlen(local_request.request_data), "Host: %s:%s\r\n", local_request.url_data.host, local_request.url_data.port);
+    sprintf(request->request_data, "%s %s HTTP/1.1\r\n", method, request->url_data.path);
+    sprintf(request->request_data+strlen(request->request_data), "Host: %s:%s\r\n", request->url_data.host, request->url_data.port);
 
-    for (i = 0, l = local_request.request_header_count; i < l; i++) {
-        sprintf(local_request.request_data+strlen(local_request.request_data), "%s: %s\r\n", local_request.request_headers[i].key, local_request.request_headers[i].val);
+    for (i = 0, l = request->request_header_count; i < l; i++) {
+        sprintf(request->request_data+strlen(request->request_data), "%s: %s\r\n", request->request_headers[i].key, request->request_headers[i].val);
     }
 
-    strcat(local_request.request_data, "\r\n");
+    strcat(request->request_data, "\r\n");
 
-    if (local_request.request_size > 0) {
-        memcpy(local_request.request_data+strlen(local_request.request_data), local_request.request_body, local_request.request_body_size);
+    if (request->request_size > 0) {
+        memcpy(request->request_data+strlen(request->request_data), request->request_body, request->request_body_size);
     }
 
 cleanup:
-    *request = local_request;
-
     return rc;
 }
 
@@ -499,9 +451,6 @@ static unsigned int http_parse_header(http_t *request, char *line, size_t line_l
     size_t length = 0;
     char local_line[RESPONSE_BUFFER_LEN];
     char *line_token = NULL, *line_ptr = NULL;
-    http_t local_request;
-
-    local_request = *request;
 
     memset(local_line, '\0', RESPONSE_BUFFER_LEN);
     strncpy(local_line, line, line_len);
@@ -513,8 +462,8 @@ static unsigned int http_parse_header(http_t *request, char *line, size_t line_l
         goto cleanup;
     }
 
-    local_request.response_headers[local_request.response_header_count].key = (char *)nessemble_malloc(sizeof(char) * (strlen(line_token) + 1));
-    strcpy(local_request.response_headers[local_request.response_header_count].key, line_token);
+    request->response_headers[request->response_header_count].key = (char *)nessemble_malloc(sizeof(char) * (strlen(line_token) + 1));
+    strcpy(request->response_headers[request->response_header_count].key, line_token);
 
     line_token = strtok_r(NULL, "", &line_ptr);
 
@@ -524,43 +473,36 @@ static unsigned int http_parse_header(http_t *request, char *line, size_t line_l
     }
 
     length = strlen(line_token+1);
-    local_request.response_headers[local_request.response_header_count].val = (char *)nessemble_malloc(sizeof(char) * (length + 1));
-    strncpy(local_request.response_headers[local_request.response_header_count].val, line_token+1, length);
+    request->response_headers[request->response_header_count].val = (char *)nessemble_malloc(sizeof(char) * (length + 1));
+    strncpy(request->response_headers[request->response_header_count].val, line_token+1, length);
 
-    if (strcmp(local_request.response_headers[local_request.response_header_count].key, "Content-Length") == 0) {
-        local_request.content_length = (size_t)atoi(local_request.response_headers[local_request.response_header_count].val);
+    if (strcmp(request->response_headers[request->response_header_count].key, "Content-Length") == 0) {
+        request->content_length = (size_t)atoi(request->response_headers[request->response_header_count].val);
     }
 
-    if (strcmp(local_request.response_headers[local_request.response_header_count].key, "Content-Type") == 0) {
-        local_request.content_type = (char *)nessemble_malloc(sizeof(char) * (strlen(local_request.response_headers[local_request.response_header_count].val) + 1));
-        strcpy(local_request.content_type, local_request.response_headers[local_request.response_header_count].val);
+    if (strcmp(request->response_headers[request->response_header_count].key, "Content-Type") == 0) {
+        request->content_type = (char *)nessemble_malloc(sizeof(char) * (strlen(request->response_headers[request->response_header_count].val) + 1));
+        strcpy(request->content_type, request->response_headers[request->response_header_count].val);
     }
 
-    local_request.response_header_count++;
+    request->response_header_count++;
 
 cleanup:
-    *request = local_request;
-
     return rc;
 }
 
 static unsigned int http_assemble_response(http_t *request, char *line, size_t line_len) {
     unsigned int rc = RETURN_OK;
     char *new_response_data = NULL;
-    http_t local_request;
 
-    local_request = *request;
+    new_response_data = (char *)nessemble_malloc(sizeof(char) * ((request->response_size + line_len) + 1));
+    memcpy(new_response_data, request->response_data, request->response_size);
+    nessemble_free(request->response_data);
 
-    new_response_data = (char *)nessemble_malloc(sizeof(char) * ((local_request.response_size + line_len) + 1));
-    memcpy(new_response_data, local_request.response_data, local_request.response_size);
-    nessemble_free(local_request.response_data);
+    request->response_data = new_response_data;
 
-    local_request.response_data = new_response_data;
-
-    memcpy(local_request.response_data+local_request.response_size, line, line_len);
-    local_request.response_size += line_len;
-
-    *request = local_request;
+    memcpy(request->response_data+request->response_size, line, line_len);
+    request->response_size += line_len;
 
     return rc;
 }
@@ -571,21 +513,18 @@ unsigned int http_parse(http_t *request) {
     char *headers = NULL, *headers_break = NULL;
     char *header_token = NULL, *header_ptr = NULL;
     char *status_token = NULL, *status_ptr = NULL;
-    http_t local_request;
-
-    local_request = *request;
 
     // get headers
-    headers_break = strstr(local_request.response_data, "\r\n\r\n");
+    headers_break = strstr(request->response_data, "\r\n\r\n");
 
     if (!headers_break) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
-    headers_len = (size_t)(headers_break - local_request.response_data);
+    headers_len = (size_t)(headers_break - request->response_data);
     headers = (char *)nessemble_malloc(sizeof(char) * (headers_len + 1));
-    strncpy(headers, local_request.response_data, headers_len);
+    strncpy(headers, request->response_data, headers_len);
 
     // parse status
     header_token = strtok_r(headers, "\r\n", &header_ptr);
@@ -608,7 +547,7 @@ unsigned int http_parse(http_t *request) {
         goto cleanup;
     }
 
-    local_request.status_code = atoi(status_token);
+    request->status_code = atoi(status_token);
 
     status_token = strtok_r(NULL, "", &status_ptr);
 
@@ -617,14 +556,14 @@ unsigned int http_parse(http_t *request) {
         goto cleanup;
     }
 
-    local_request.status_message = (char *)nessemble_malloc(sizeof(char) * (strlen(status_token) + 1));
-    strcpy(local_request.status_message, status_token);
+    request->status_message = (char *)nessemble_malloc(sizeof(char) * (strlen(status_token) + 1));
+    strcpy(request->status_message, status_token);
 
     // parse headers
     header_token = strtok_r(NULL, "\r\n", &header_ptr);
 
     while (header_token != NULL) {
-        if ((rc = http_parse_header(&local_request, header_token, strlen(header_token))) != 0) {
+        if ((rc = http_parse_header(request, header_token, strlen(header_token))) != 0) {
             goto cleanup;
         }
 
@@ -632,14 +571,12 @@ unsigned int http_parse(http_t *request) {
     }
 
     // get body
-    if (headers_len+4 < local_request.response_size) {
-        local_request.response_body = (char *)nessemble_malloc(sizeof(char) * (local_request.content_length + 1));
-        memcpy(local_request.response_body, local_request.response_data+(headers_len+4), local_request.content_length);
+    if (headers_len+4 < request->response_size) {
+        request->response_body = (char *)nessemble_malloc(sizeof(char) * (request->content_length + 1));
+        memcpy(request->response_body, request->response_data+(headers_len+4), request->content_length);
     }
 
 cleanup:
-    *request = local_request;
-
     nessemble_free(headers);
 
     return rc;
@@ -686,51 +623,48 @@ http_status_t http_process(http_t *request) {
     size_t headers_len = 0;
     char *headers_break = NULL;
     socklen_t len = 0;
-    http_t local_request;
 
-    local_request = *request;
-
-    if (local_request.status == HTTP_STATUS_FAILED) {
+    if (request->status == HTTP_STATUS_FAILED) {
         goto cleanup;
     }
 
     // connect
-    if ((local_request.state & HTTP_STATE_CONNECTED) == 0) {
+    if ((request->state & HTTP_STATE_CONNECTED) == 0) {
         int opt = 1;
         fd_set sockets_to_check;
         struct timeval timeout;
 
         FD_ZERO(&sockets_to_check);
-        FD_SET(local_request.socket, &sockets_to_check);
+        FD_SET(request->socket, &sockets_to_check);
 
         timeout.tv_sec = 0;
         timeout.tv_usec = 0;
 
-        if (select((int)(local_request.socket + 1), NULL, &sockets_to_check, NULL, &timeout) == 1) {
+        if (select((int)(request->socket + 1), NULL, &sockets_to_check, NULL, &timeout) == 1) {
             opt = -1;
             len = sizeof(opt);
 
-            if (getsockopt(local_request.socket, SOL_SOCKET, SO_ERROR, (char *)(&opt), &len) >= 0 && opt == 0) {
-                local_request.state |= HTTP_STATE_CONNECTED;
+            if (getsockopt(request->socket, SOL_SOCKET, SO_ERROR, (char *)(&opt), &len) >= 0 && opt == 0) {
+                request->state |= HTTP_STATE_CONNECTED;
             } else {
-                local_request.status = HTTP_STATUS_FAILED;
+                request->status = HTTP_STATUS_FAILED;
                 goto cleanup;
             }
         }
     }
 
-    if ((local_request.state & HTTP_STATE_CONNECTED) == 0) {
+    if ((request->state & HTTP_STATE_CONNECTED) == 0) {
         goto cleanup;
     }
 
     // send
-    if ((local_request.state & HTTP_STATE_SENT) == 0) {
-        if (send(local_request.socket, local_request.request_data, (int)local_request.request_size, 0) == -1) {
-            local_request.status = HTTP_STATUS_FAILED;
+    if ((request->state & HTTP_STATE_SENT) == 0) {
+        if (send(request->socket, request->request_data, (int)request->request_size, 0) == -1) {
+            request->status = HTTP_STATUS_FAILED;
             goto cleanup;
         }
 
-        local_request.state |= HTTP_STATE_SENT;
+        request->state |= HTTP_STATE_SENT;
 
         goto cleanup;
     }
@@ -742,48 +676,46 @@ http_status_t http_process(http_t *request) {
     struct timeval timeout;
 
     FD_ZERO(&sockets_to_check);
-    FD_SET(local_request.socket, &sockets_to_check);
+    FD_SET(request->socket, &sockets_to_check);
 
     timeout.tv_sec = 0;
     timeout.tv_usec = 0;
 
-    while (select((int)(local_request.socket + 1), &sockets_to_check, NULL, NULL, &timeout) == 1) {
+    while (select((int)(request->socket + 1), &sockets_to_check, NULL, NULL, &timeout) == 1) {
         memset(buffer, '\0', RESPONSE_BUFFER_LEN);
 
-        size = recv(local_request.socket, buffer, RESPONSE_BUFFER_LEN, 0);
+        size = recv(request->socket, buffer, RESPONSE_BUFFER_LEN, 0);
 
         if (size == -1) {
-            local_request.status = HTTP_STATUS_FAILED;
+            request->status = HTTP_STATUS_FAILED;
             goto cleanup;
         } else if (size > 0) {
-            if (http_assemble_response(&local_request, (char *)buffer, (size_t)size) != 0) {
-                local_request.status = HTTP_STATUS_FAILED;
+            if (http_assemble_response(request, (char *)buffer, (size_t)size) != 0) {
+                request->status = HTTP_STATUS_FAILED;
                 goto cleanup;
             }
 
-            if ((headers_break = strstr(local_request.response_data, "\r\n\r\n")) != NULL) {
-                headers_len = (size_t)(headers_break - local_request.response_data) + 4;
+            if ((headers_break = strstr(request->response_data, "\r\n\r\n")) != NULL) {
+                headers_len = (size_t)(headers_break - request->response_data) + 4;
 
-                if (local_request.response_size - headers_len == http_content_length(local_request)) {
-                    local_request.status = HTTP_STATUS_COMPLETED;
+                if (request->response_size - headers_len == http_content_length(*request)) {
+                    request->status = HTTP_STATUS_COMPLETED;
                     break;
                 }
             }
         } else if (size == 0) {
-            if (http_assemble_response(&local_request, (char *)buffer, (size_t)size) != 0) {
-                local_request.status = HTTP_STATUS_FAILED;
+            if (http_assemble_response(request, (char *)buffer, (size_t)size) != 0) {
+                request->status = HTTP_STATUS_FAILED;
                 goto cleanup;
             }
 
-            local_request.status = HTTP_STATUS_COMPLETED;
+            request->status = HTTP_STATUS_COMPLETED;
             break;
         }
     }
 
 cleanup:
-    *request = local_request;
-
-    return local_request.status;
+    return request->status;
 }
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
@@ -887,20 +819,17 @@ DWORD WINAPI http_thread_process() {
 
 unsigned int http_do(http_t *request, char *method, char *url) {
     unsigned int rc = RETURN_OK;
-    http_t local_request;
     http_status_t status = HTTP_STATUS_PENDING;
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
     pid_t pid = -1;
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
-    local_request = *request;
-
-    if ((rc = http_header(&local_request, "User-Agent", PROGRAM_NAME "/" PROGRAM_VERSION)) != 0) {
+    if ((rc = http_header(request, "User-Agent", PROGRAM_NAME "/" PROGRAM_VERSION)) != 0) {
         goto cleanup;
     }
 
-    if ((rc = http_request(&local_request, method, url)) != 0) {
+    if ((rc = http_request(request, method, url)) != 0) {
         goto cleanup;
     }
 
@@ -914,12 +843,12 @@ unsigned int http_do(http_t *request, char *method, char *url) {
 
 #ifndef IS_WINDOWS
     while (status == HTTP_STATUS_PENDING) {
-        status = http_process(&local_request);
+        status = http_process(request);
     }
 #else /* IS_WINDOWS */
     HANDLE http_thread_array[2];
 
-    http_thread_request = local_request;
+    http_thread_request = *request;
     http_thread_status = HTTP_STATUS_PENDING;
 
     http_thread_array[0] = CreateThread(NULL, 0, http_thread_spinner_start, NULL, 0, NULL);
@@ -929,7 +858,7 @@ unsigned int http_do(http_t *request, char *method, char *url) {
 
     http_thread_spinner_stop();
 
-    local_request = http_thread_request;
+    *request = http_thread_request;
     status = http_thread_status;
 #endif /* IS_WINDOWS */
 
@@ -942,7 +871,7 @@ unsigned int http_do(http_t *request, char *method, char *url) {
         goto cleanup;
     }
 
-    if ((rc = http_parse(&local_request)) != 0) {
+    if ((rc = http_parse(request)) != 0) {
         goto cleanup;
     }
 
@@ -953,100 +882,72 @@ cleanup:
     }
 #endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
 
-    *request = local_request;
-
     return rc;
 }
 
 unsigned int http_head(http_t *request, char *url) {
     unsigned int rc = RETURN_OK;
-    http_t local_request;
 
-    local_request = *request;
-
-    if ((rc = http_do(&local_request, "HEAD", url)) != 0) {
+    if ((rc = http_do(request, "HEAD", url)) != 0) {
         goto cleanup;
     }
 
 cleanup:
-    *request = local_request;
-
     return rc;
 }
 
 unsigned int http_get(http_t *request, char *url) {
     unsigned int rc = RETURN_OK;
-    http_t local_request;
 
-    local_request = *request;
-
-    if ((rc = http_do(&local_request, "GET", url)) != 0) {
+    if ((rc = http_do(request, "GET", url)) != 0) {
         goto cleanup;
     }
 
 cleanup:
-    *request = local_request;
-
     return rc;
 }
 
 unsigned int http_post(http_t *request, char *url) {
     unsigned int rc = RETURN_OK;
-    http_t local_request;
 
-    local_request = *request;
-
-    if ((rc = http_do(&local_request, "POST", url)) != 0) {
+    if ((rc = http_do(request, "POST", url)) != 0) {
         goto cleanup;
     }
 
 cleanup:
-    *request = local_request;
-
     return rc;
 }
 
 unsigned int http_put(http_t *request, char *url) {
     unsigned int rc = RETURN_OK;
-    http_t local_request;
 
-    local_request = *request;
-
-    if ((rc = http_do(&local_request, "PUT", url)) != 0) {
+    if ((rc = http_do(request, "PUT", url)) != 0) {
         goto cleanup;
     }
 
 cleanup:
-    *request = local_request;
-
     return rc;
 }
 
 void http_release(http_t *request) {
-    http_t local_request;
-
-    local_request = *request;
-
 #ifdef IS_WINDOWS
-    closesocket(local_request.socket);
+    closesocket(request->socket);
 #else
-    close(local_request.socket);
+    close(request->socket);
 #endif
 
-    nessemble_free(local_request.method);
-    nessemble_free(local_request.request_data);
-    nessemble_free(local_request.request_body);
-    nessemble_free(local_request.status_message);
-    nessemble_free(local_request.content_type);
-    nessemble_free(local_request.response_data);
-    nessemble_free(local_request.response_body);
+    nessemble_free(request->method);
+    nessemble_free(request->request_data);
+    nessemble_free(request->request_body);
+    nessemble_free(request->status_message);
+    nessemble_free(request->content_type);
+    nessemble_free(request->response_data);
+    nessemble_free(request->response_body);
 
 #ifdef IS_WINDOWS
     WSACleanup();
 #endif
 
-    url_release(&local_request.url_data);
-    header_release(&local_request);
-
-    *request = local_request;
+    url_release(&(request->url_data));
+    header_release(request);
 }
