@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include "nessemble.h"
 
-static struct config_type {
+struct config_type {
     char *type;
 };
 

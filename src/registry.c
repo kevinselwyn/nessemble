@@ -101,8 +101,6 @@ cleanup:
     return rc;
 }
 
-#define SEP "/" /* TODO: remove */
-
 static unsigned int lib_is_installed(char *lib) {
     unsigned int installed = FALSE;
     char *lib_path = NULL;
