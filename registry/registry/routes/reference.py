@@ -26,8 +26,6 @@ reference_endpoint = Blueprint('reference_endpoint', __name__)
 def reference(path=''):
     """Reference endpoint"""
 
-    print 'here'
-
     accept, _version = parse_accept(request.headers.get('Accept'), ['text/plain'])
 
     paths = path.split('/')
