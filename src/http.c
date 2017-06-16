@@ -720,7 +720,7 @@ cleanup:
 
 #if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
 static void http_spinner_stop(pid_t pid) {
-    printf("\b\e[?25h");
+    fprintf(stderr, "\b\e[?25h");
     fflush(stdout);
 
     kill(pid, SIGKILL);
@@ -746,7 +746,7 @@ static void http_spinner_start(pid_t pid) {
     }
 
     // start spinner
-    printf("\e[?25l%s", spinner[spinner_index++]);
+    fprintf(stderr, "\e[?25l%s", spinner[spinner_index++]);
     fflush(stdout);
 
     for (;;) {
@@ -760,7 +760,7 @@ static void http_spinner_start(pid_t pid) {
             http_spinner_stop(pid);
         }
 
-        printf("\b%s", spinner[spinner_index]);
+        fprintf(stderr, "\b%s", spinner[spinner_index]);
         fflush(stdout);
 
         spinner_index = (spinner_index + 1) % SPINNER_COUNT;
