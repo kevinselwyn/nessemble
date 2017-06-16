@@ -8,7 +8,7 @@ unsigned int reference(unsigned int terms, ...) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
     unsigned int url_length = 0, endpoint_length = 0;
     char *arg = NULL, *url = NULL, *endpoint = NULL, *text = NULL;
-    http_t *request;
+    http_t request;
     va_list argptr;
 
     va_start(argptr, terms);
@@ -38,30 +38,25 @@ unsigned int reference(unsigned int terms, ...) {
         goto cleanup;
     }
 
-    if (!url) {
-        rc = RETURN_EPERM;
-        goto cleanup;
-    }
-
     url_length = (unsigned int)strlen(url);
 
     if (url[url_length - 1] == '/') {
         url[url_length - 1] = '\0';
     }
 
-    http_init(request);
+    http_init(&request);
 
-    if ((rc = http_header(request, "Accept", MIMETYPE_TEXT)) != RETURN_OK) {
+    if ((rc = http_header(&request, "Accept", MIMETYPE_TEXT)) != RETURN_OK) {
         goto cleanup;
     }
 
-    if ((rc = http_get(request, url)) != RETURN_OK) {
+    if ((rc = http_get(&request, url)) != RETURN_OK) {
         error_program_log(_("Could not reach the registry"));
         goto cleanup;
     }
 
-    if (request->status_code != 200) {
-        if (request->status_code != 500) {
+    if (request.status_code != 200) {
+        if (request.status_code != 500) {
             for (i = 0, l = endpoint_length; i < l; i++) {
                 if (endpoint[i] == '/') {
                     endpoint[i] = ' ';
@@ -80,14 +75,14 @@ unsigned int reference(unsigned int terms, ...) {
     }
 
     if (terms >= 2) {
-        if ((rc = pager_buffer(request->response_body)) != RETURN_OK) {
+        if ((rc = pager_buffer(request.response_body)) != RETURN_OK) {
             goto cleanup;
         }
     } else {
-        printf("%s", request->response_body);
+        printf("%s", request.response_body);
     }
 
-    http_release(request);
+    http_release(&request);
 
 cleanup:
     nessemble_free(endpoint);

@@ -162,10 +162,6 @@ int main(int argc, char *argv[]) {
                 ref_count = 2;
             }
 
-            if (!argv[optind+1] || !argv[optind+2]) {
-                goto cleanup;
-            }
-
             if ((rc = reference(ref_count, argv[optind+1], argv[optind+2])) != RETURN_OK) {
                 error_program_output(_("Could not get reference info"));
             }
