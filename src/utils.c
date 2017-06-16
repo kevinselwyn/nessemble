@@ -100,7 +100,7 @@ int nessemble_rmdir(const char *path) {
         struct dirent *p;
         rc = 0;
 
-        while (!rc && (p = readdir(d))) {
+        while (rc == 0 && (p = readdir(d)) != NULL) {
             int r2 = -1;
             char *buf;
             size_t len;
@@ -114,9 +114,9 @@ int nessemble_rmdir(const char *path) {
 
             if (buf) {
                 struct stat statbuf;
-                snprintf(buf, len, "%s/%s", path, p->d_name);
+                UNUSED(snprintf(buf, len, "%s/%s", path, p->d_name));
 
-                if (!stat(buf, &statbuf)) {
+                if (stat(buf, &statbuf) == 0) {
                     if (S_ISDIR(statbuf.st_mode)) {
                         r2 = nessemble_rmdir(buf);
                     } else {
@@ -130,10 +130,10 @@ int nessemble_rmdir(const char *path) {
             rc = r2;
         }
 
-        closedir(d);
+        UNUSED(closedir(d));
     }
 
-    if (!rc) {
+    if (rc == 0) {
         rc = rmdir(path);
     }
 
@@ -190,7 +190,7 @@ char *nessemble_realpath(const char *path, char *resolved_path) {
     return realpath(path, resolved_path);
 #endif /* IS_WINDOWS */
 }
-
+#define SEP "/" // TODO: remove
 unsigned int is_stdout(char *filename) {
     unsigned int rc = FALSE;
     FILE *file = NULL;
@@ -458,6 +458,11 @@ unsigned int get_libpath(char **path, char *string) {
     string[string_length-5] = '\0';
 
     if ((rc = get_home_path(&fullpath, 4, "." PROGRAM_NAME, "packages", string+1, "lib.asm")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!fullpath) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
