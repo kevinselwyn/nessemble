@@ -63,6 +63,11 @@ unsigned int pager_file(char *filename) {
         goto cleanup;
     }
 
+    if (!content) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     if ((rc = pager_buffer(content)) != RETURN_OK) {
         goto cleanup;
     }

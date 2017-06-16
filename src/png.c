@@ -50,9 +50,9 @@ unsigned int write_png(unsigned int *pixels, unsigned int width, unsigned int he
     data = (unsigned char *)nessemble_malloc(sizeof(unsigned char) * ((width * height) * 3));
 
     for (i = 0, l = (width * height); i < l; i++) {
-        data[index++] = colors_1bps[pixels[i]];
-        data[index++] = colors_1bps[pixels[i]];
-        data[index++] = colors_1bps[pixels[i]];
+        data[index++] = (unsigned char)colors_1bps[pixels[i]];
+        data[index++] = (unsigned char)colors_1bps[pixels[i]];
+        data[index++] = (unsigned char)colors_1bps[pixels[i]];
     }
 
     if (stbi_write_png(filename, width, height, 3, data, width * 3) == FALSE) {
@@ -66,7 +66,7 @@ int get_color(unsigned char *rgb, int color_mode) {
     int avg = 0, diff = 256, color = 0, i = 0, l = 0;
 
     for (i = 0, l = color_mode; i < l; i++) {
-        avg += rgb[i];
+        avg += (int)rgb[i];
     }
 
     avg /= color_mode;
@@ -86,9 +86,9 @@ int match_color(unsigned char *rgb) {
     int diff = 0xFFFFFF, next_diff = 0xFFFFFF, color = 0, i = 0, l = 0;
 
     for (i = 0, l = COLOR_COUNT_FULL; i < l; i++) {
-        r1 = rgb[0];
-        g1 = rgb[1];
-        b1 = rgb[2];
+        r1 = (int)rgb[0];
+        g1 = (int)rgb[1];
+        b1 = (int)rgb[2];
 
         r2 = (colors_full[i] >> 16) & 0xFF;
         g2 = (colors_full[i] >> 8) & 0xFF;

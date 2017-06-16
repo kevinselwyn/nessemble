@@ -84,7 +84,7 @@ unsigned int simulate(char *input, char *recipe) {
         }
     } else {
         set_register(REGISTER_PC, 0x8000);
-        memcpy(rom_data + get_register(REGISTER_PC), indata, insize);
+        memcpy(rom_data + get_register(REGISTER_PC), indata, (size_t)insize);
     }
 
     /* simulate */
