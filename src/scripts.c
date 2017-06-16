@@ -12,7 +12,12 @@ unsigned int install_scripts(char **install_path) {
         goto cleanup;
     }
 
-    if ((rc = untar_list(&tar_filenames, &tar_filenames_count, tar, tar_len)) != RETURN_OK) {
+    if (!tar) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if ((rc = untar_list(&tar_filenames, &tar_filenames_count, tar, (unsigned int)tar_len)) != RETURN_OK) {
         goto cleanup;
     }
 
@@ -21,6 +26,11 @@ unsigned int install_scripts(char **install_path) {
     }
 
     if ((rc = get_home_path(&script_path, 2, "." PROGRAM_NAME, "scripts")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!script_path) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -33,11 +43,26 @@ unsigned int install_scripts(char **install_path) {
             goto cleanup;
         }
 
-        if ((rc = untar(&tar_data, &tar_data_len, tar, tar_len, tar_filenames[i])) != RETURN_OK) {
+        if (!path) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        if ((rc = untar(&tar_data, &tar_data_len, tar, (unsigned int)tar_len, tar_filenames[i])) != RETURN_OK) {
+            goto cleanup;
+        }
+
+        if (!tar_data) {
+            rc = RETURN_EPERM;
             goto cleanup;
         }
 
         tar_file = fopen(path, "w");
+
+        if (!tar_file) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
 
         if (fwrite(tar_data, 1, tar_data_len, tar_file) != tar_data_len) {
             rc = RETURN_EPERM;

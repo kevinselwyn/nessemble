@@ -225,7 +225,7 @@ unsigned int get_ungzip(char **data, size_t *data_length, char *buffer, unsigned
     }
 
     data_output = (char *)nessemble_malloc(sizeof(char) * (i_out + 1));
-    memcpy(data_output, output, i_out);
+    memcpy(data_output, output, (size_t)i_out);
     data_output_length = (size_t)i_out;
 
 cleanup:
@@ -234,8 +234,8 @@ cleanup:
 
     i_in = 0;
     i_out = 0;
-    memset(input, '\0', ZIP_INSIZE);
-    memset(output, '\0', ZIP_OUTSIZE);
+    memset(input, 0, (size_t)ZIP_INSIZE);
+    memset(output, 0, (size_t)ZIP_OUTSIZE);
 
     return rc;
 }
@@ -273,7 +273,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
         break;
     }
 
-    if (!request.content_length) {
+    if (request.content_length == 0) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
@@ -287,6 +287,11 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
 
     hash(&shasum, request.response_body, request.content_length);
 
+    if (!shasum) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     if (http_header_cmp(request, "X-Integrity", shasum) != 0) {
         error_program_log(_("Invalid shasum (%s)"), shasum);
 
@@ -297,7 +302,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
     while (request.response_body[index] != '\0') {
         index++;
 
-        if (index >= request.content_length) {
+        if (index >= (unsigned int)request.content_length) {
             rc = RETURN_EPERM;
             goto cleanup;
         }
@@ -305,7 +310,7 @@ unsigned int get_unzipped(char **data, size_t *data_length, char *url) {
 
     index++;
 
-    if ((rc = get_ungzip(&*data, &*data_length, request.response_body+index, request.content_length - index)) != RETURN_OK) {
+    if ((rc = get_ungzip(&*data, &*data_length, request.response_body+index, (unsigned int)(request.content_length - index))) != RETURN_OK) {
         goto cleanup;
     }
 

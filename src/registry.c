@@ -16,6 +16,11 @@ unsigned int get_registry(char **registry) {
         goto cleanup;
     }
 
+    if (!result) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     length = strlen(result);
 
     if (result[length - 1] == '/') {
@@ -74,10 +79,19 @@ static unsigned int get_lib_file_path(char **lib_file_path, char *lib, char *fil
         goto cleanup;
     }
 
+    if (!lib_path) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     length = strlen(lib_path) + strlen(filename);
 
     output = (char *)nessemble_malloc(sizeof(char) * (length + 1));
-    sprintf(output, "%s%s", lib_path, filename);
+
+    if (snprintf(output, length+1, "%s%s", lib_path, filename) != (int)length) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
 
 cleanup:
     *lib_file_path = output;
@@ -92,6 +106,10 @@ static unsigned int lib_is_installed(char *lib) {
     char *lib_path = NULL;
 
     if (get_lib_file_path(&lib_path, lib, SEP "lib.asm") != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!lib_path) {
         goto cleanup;
     }
 
@@ -121,11 +139,26 @@ unsigned int lib_install(char *lib) {
         goto cleanup;
     }
 
+    if (!lib_url) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     if ((rc = get_json_url(&lib_zip_url, "resource", lib_url)) != RETURN_OK) {
         goto cleanup;
     }
 
+    if (!lib_zip_url) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     if ((rc = get_lib_path(&lib_path, lib)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!lib_path) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -145,13 +178,22 @@ unsigned int lib_install(char *lib) {
         goto cleanup;
     }
 
+    if (!lib_tar_data) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     for (i = 0, l = 3; i < l; i++) {
-        if ((rc = untar(&lib_data, &lib_length, lib_tar_data, lib_tar_length, lib_files[i])) != RETURN_OK) {
+        if ((rc = untar(&lib_data, &lib_length, lib_tar_data, (unsigned int)lib_tar_length, lib_files[i])) != RETURN_OK) {
             goto cleanup;
         }
 
-        memset(lib_path_file, '\0', max_lib_path_file_length + 2);
+        if (!lib_data) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
 
+        memset(lib_path_file, 0, max_lib_path_file_length + 2);
         sprintf(lib_path_file, "%s" SEP "%s", lib_path, lib_files[i]);
 
         lib_file = fopen(lib_path_file, "w+");
@@ -188,6 +230,11 @@ unsigned int lib_uninstall(char *lib) {
         goto cleanup;
     }
 
+    if (!lib_path) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     if (lib_is_installed(lib) == FALSE) {
         error_program_log(_("`%s` is not installed"), lib);
 
@@ -219,7 +266,17 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
+    if (!token) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     if ((rc = load_file(&data, &data_length, filename)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!data) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -229,7 +286,17 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
-    if ((rc = untar(&tar_json, &tar_json_length, tar_data, tar_data_length, "package.json")) != RETURN_OK) {
+    if (!tar_data) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
+    if ((rc = untar(&tar_json, &tar_json_length, tar_data, (unsigned int)tar_data_length, "package.json")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!tar_json) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -237,7 +304,17 @@ unsigned int lib_publish(char *filename, char **package) {
         goto cleanup;
     }
 
+    if (!package_title) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     if ((rc = api_lib(&url_head, package_title)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!url_head) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -260,6 +337,11 @@ unsigned int lib_publish(char *filename, char **package) {
     // send request
 
     if ((rc = api_lib(&url, "publish")) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!url) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
@@ -297,7 +379,9 @@ unsigned int lib_publish(char *filename, char **package) {
         if ((rc = get_json_buffer(&error, "error", request.response_body)) != RETURN_OK) {
             error_program_log(_("Could not read response"));
         } else {
-            error_program_log(error);
+            if (error) {
+                error_program_log(error);
+            }
         }
 
         rc = RETURN_EPERM;
@@ -332,7 +416,17 @@ unsigned int lib_info(char *lib) {
             goto cleanup;
         }
 
+        if (!lib_url) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
         if ((rc = get_json_url(&readme_url, "readme", lib_url)) != RETURN_OK) {
+            goto cleanup;
+        }
+
+        if (!readme_url) {
+            rc = RETURN_EPERM;
             goto cleanup;
         }
 
@@ -357,6 +451,11 @@ unsigned int lib_info(char *lib) {
             goto cleanup;
         }
 
+        if (!lib_url) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
         if ((rc = pager_file(lib_url)) != RETURN_OK) {
             goto cleanup;
         }
@@ -371,6 +470,7 @@ cleanup:
 
 unsigned int lib_list() {
     unsigned int rc = RETURN_OK;
+    size_t path_length = 0;
     char path[1024];
     char *lib_dir = NULL, *lib_path = NULL, *lib_desc = NULL;
     struct dirent *ep;
@@ -381,14 +481,24 @@ unsigned int lib_list() {
         goto cleanup;
     }
 
+    if (!lib_dir) {
+        rc = RETURN_EPERM;
+        goto cleanup;
+    }
+
     if ((dp = opendir(lib_dir)) == NULL) {
         rc = RETURN_EPERM;
         goto cleanup;
     }
 
     while ((ep = readdir(dp)) != NULL) {
-        memset(path, '\0', 1024);
-        sprintf(path, "%s/%s", lib_dir, ep->d_name);
+        memset(path, 0, 1024);
+        path_length = strlen(lib_dir) + strlen(ep->d_name) + 1;
+
+        if (snprintf(path, path_length+1, "%s/%s", lib_dir, ep->d_name) != (int)path_length) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
 
         if (strcmp(ep->d_name, ".") == 0 || strcmp(ep->d_name, "..") == 0) {
             continue;
@@ -411,9 +521,19 @@ unsigned int lib_list() {
             continue;
         }
 
+        if (!lib_path) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
         if ((rc = get_json_file(&lib_desc, "description", lib_path)) != RETURN_OK) {
             printf("\n");
             continue;
+        }
+
+        if (!lib_desc) {
+            rc = RETURN_EPERM;
+            goto cleanup;
         }
 
         printf(" - %s\n", lib_desc);
@@ -435,6 +555,11 @@ unsigned int lib_search(char *term) {
     char *lib_search_url = NULL;
 
     if ((rc = api_search(&lib_search_url, term)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!lib_search_url) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 

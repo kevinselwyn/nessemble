@@ -20,11 +20,19 @@ unsigned int get_home(char **home) {
 
     *home = path;
 #else /* IS_WINDOWS */
+    char *sudo_uid = NULL;
     uid_t uid = getuid();
     struct passwd *pw;
 
     if (uid == 0) {
-        uid = atoi(getenv("SUDO_UID"));
+        sudo_uid = getenv("SUDO_UID");
+
+        if (!sudo_uid) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        uid = (uid_t)atoi(sudo_uid);
     }
 
     pw = getpwuid(uid);
@@ -51,6 +59,11 @@ unsigned int get_home_path(char **path, unsigned int num, ...) {
     va_list argptr;
 
     if ((rc = get_home(&home)) != RETURN_OK) {
+        goto cleanup;
+    }
+
+    if (!home) {
+        rc = RETURN_EPERM;
         goto cleanup;
     }
 
