@@ -42,16 +42,16 @@ char *argu_macro(char *name) {
     size_t length = 0;
     char old_name[128], num[32];
 
-    memset(num, '\0', 32);
-    sprintf(num, "%d", arg_unique);
+    memset(num, 0, 32);
+    sprintf(num, "%u", arg_unique);
 
     strcpy(old_name, name);
 
     length = strlen(name) + strlen(num);
-    name = (char *)realloc(name, sizeof(char) * (length + 1));
-    memset(name, '\0', length);
+    name = (char *)nessemble_realloc(name, sizeof(char) * (length + 1));
+    memset(name, 0, length);
 
-    sprintf(name, "%s%d", old_name, arg_unique);
+    sprintf(name, "%s%u", old_name, arg_unique);
 
     return name;
 }
