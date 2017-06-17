@@ -109,7 +109,7 @@ cleanup:
 unsigned int api_search(char **url, char *term) {
     unsigned int rc = RETURN_OK, term_count = 0;
 
-    term_count = (unsigned int)(term != NULL && term[0] != '.' ? 2 : 0);
+    term_count = (unsigned int)(term != NULL && term[0] != '.' ? 2 : 1);
 
     if ((rc = api_endpoint(&*url, term_count, "search", term)) != RETURN_OK) {
         goto cleanup;

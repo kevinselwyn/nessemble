@@ -22,9 +22,10 @@ search_endpoint = Blueprint('search_endpoint', __name__)
 #----------------#
 # Endpoints
 
+@search_endpoint.route('/search', methods=['GET'])
 @search_endpoint.route('/search/<string:term>', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
-def search_packages(term):
+def search_packages(term=None):
     """Search packages endpoint"""
 
     accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
@@ -35,19 +36,17 @@ def search_packages(term):
         ('results', [])
     ])
 
-    term = '%%%s%%' % (term.lower())
+    if term:
+        term = '%%%s%%' % (term.lower())
 
     result = session.query(Lib) \
                     .group_by(Lib.title) \
-                    .order_by(Lib.title, Lib.id) \
-                    .filter(Lib.title.like(term)) \
-                    .all()
+                    .order_by(Lib.title, Lib.id)
 
-    result.extend(session.query(Lib) \
-                         .group_by(Lib.title) \
-                         .order_by(Lib.title, Lib.id) \
-                         .filter(Lib.tags.like(term)) \
-                         .all())
+    if term:
+        result = result.filter(Lib.title.like(term))
+
+    result = result.all()
 
     # get unique results
 

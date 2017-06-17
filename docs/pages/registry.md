@@ -72,9 +72,31 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
             "url": "http://xxxxx.xxx/foo"
         },
         ...
-    ]
+    ],
+    "pagination": {
+        "page": 1,
+        "per_page": 10,
+        "total": xx,
+        "prev": null,
+        "next": "http://xxxxx.xxx/?page=2&per_page=10"
+    }
 }
 ```
+
+Pagination request query options:
+
+* `?page=x` - Page of results to return.
+* `?per_page=x` - Results per page to return.
+* `?sort_by=xxx` - Key to sort by (`title` or `description`)
+* `?order=xxx` - Order of results (`asc` or `desc`)
+
+Pagination result information:
+
+* `page` - Number. Number of current page.
+* `per_page` - Number. Number of results per page.
+* `total` - Number. Total number of results (items)
+* `prev` - String or null. URL of previous page.
+* `next` - String or null. URL of next page.
 
 ### /search
 
