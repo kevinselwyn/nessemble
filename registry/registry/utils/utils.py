@@ -347,6 +347,22 @@ def get_package_zip(package='', version=None):
 
     return output
 
+def make_cache_key(*_args, **_kwargs):
+    """Make cache key"""
+
+    method = request.method
+    path = request.path
+    args = []
+
+    for arg in request.args.lists():
+        key, val = arg
+
+        args.append('%s=%s' % (key, ''.join(val)))
+
+    key = ("%s+%s?%s" % (method, path, '&'.join(args))).encode('utf-8')
+
+    return sha1(key)
+
 def missing_fields(data, fields, field_name='field'):
     """Check for missing fields"""
 

@@ -106,6 +106,28 @@ def main():
                     }
                 }
             }
+        },
+        'pagination': {
+            'type': 'dict',
+            'schema': {
+                'page': {
+                    'type': 'number'
+                },
+                'per_page': {
+                    'type': 'number'
+                },
+                'total': {
+                    'type': 'number'
+                },
+                'prev': {
+                    'type': 'string',
+                    'nullable': True
+                },
+                'next': {
+                    'type': 'string',
+                    'nullable': True
+                }
+            }
         }
     })
 

@@ -24,3 +24,20 @@ class Lib(Base):
 
     def __repr__(self):
         return "<Lib(id='%s', user_id='%s', title='%s', description='%s', version='%s', license='%s', tags='%s', date='%s', shasum='%s')>" % (self.id, self.user_id, self.title, self.description, self.version, self.license, self.tags, self.date, self.shasum)
+
+    def __getitem__(self, key):
+        switcher = {
+            'id': self.id,
+            'user_id': self.user_id,
+            'readme': self.readme,
+            'lib': self.lib,
+            'title': self.title,
+            'description': self.description,
+            'version': self.version,
+            'license': self.license,
+            'tags': self.tags,
+            'date': self.date,
+            'shasum': self.shasum
+        }
+
+        return switcher.get(key, lambda: None)
