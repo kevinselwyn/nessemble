@@ -3,7 +3,7 @@
 """Reference route"""
 
 from flask import abort, Blueprint, request
-from ..config.cache import cache
+from ..config.cache import cache, cache_headers
 from ..config.config import config as CONFIG
 from ..utils.utils import parse_accept, registry_response, Session
 
@@ -23,6 +23,7 @@ reference_endpoint = Blueprint('reference_endpoint', __name__)
 @reference_endpoint.route('/reference', methods=['GET'])
 @reference_endpoint.route('/reference/<path:path>', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
+@cache_headers(CACHE_TIME)
 def reference(path=''):
     """Reference endpoint"""
 

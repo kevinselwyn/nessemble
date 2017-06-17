@@ -8,7 +8,7 @@ import tempfile
 from hashlib import sha1
 from flask import abort, Blueprint, request
 import semver
-from ..config.cache import cache
+from ..config.cache import cache, cache_headers
 from ..config.config import config as CONFIG
 from ..models.libs import Lib
 from ..models.users import User
@@ -33,6 +33,7 @@ package_endpoint = Blueprint('package_endpoint', __name__)
 
 @package_endpoint.route('/package/<string:package>', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
+@cache_headers(CACHE_TIME)
 def get_package(package):
     """Get package endpoint"""
 
@@ -47,6 +48,7 @@ def get_package(package):
 
 @package_endpoint.route('/package/<string:package>/<string:version>', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
+@cache_headers(CACHE_TIME)
 def get_package_version(package, version):
     """Get package endpoint by version"""
 
@@ -61,6 +63,7 @@ def get_package_version(package, version):
 
 @package_endpoint.route('/package/<string:package>/README', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
+@cache_headers(CACHE_TIME)
 def get_readme(package):
     """Get package README endpoint"""
 
@@ -75,6 +78,7 @@ def get_readme(package):
 
 @package_endpoint.route('/package/<string:package>/<string:version>/README', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
+@cache_headers(CACHE_TIME)
 def get_readme_version(package, version):
     """Get package README endpoint by version"""
 
@@ -89,6 +93,7 @@ def get_readme_version(package, version):
 
 @package_endpoint.route('/package/<string:package>/data', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
+@cache_headers(CACHE_TIME)
 def get_gz(package):
     """Get package zip endpoint"""
 
@@ -110,6 +115,7 @@ def get_gz(package):
 
 @package_endpoint.route('/package/<string:package>/<string:version>/data', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
+@cache_headers(CACHE_TIME)
 def get_gz_version(package, version):
     """Get package zip endpoint by version"""
 
@@ -130,6 +136,7 @@ def get_gz_version(package, version):
     return registry_response(data, mimetype=accept, headers=headers)
 
 @package_endpoint.route('/package/publish', methods=['POST', 'PUT'])
+@cache_headers()
 def post_gz():
     """Post package zip endpoint"""
 

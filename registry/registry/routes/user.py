@@ -12,6 +12,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import qrcode
 from flask import abort, Blueprint, render_template, request
+from ..config.cache import cache_headers
 from ..config.config import config as CONFIG
 from ..models.users import User
 from ..utils.utils import bad_request_custom, conflict_custom, unauthorized_custom
@@ -32,6 +33,7 @@ user_endpoint = Blueprint('user_endpoint', __name__)
 # Endpoints
 
 @user_endpoint.route('/user/create', methods=['POST'])
+@cache_headers()
 def user_create():
     """Create new user"""
 
@@ -73,6 +75,7 @@ def user_create():
     return registry_response({}, status=201, mimetype=accept)
 
 @user_endpoint.route('/user/login', methods=['POST'])
+@cache_headers()
 def user_login():
     """User login"""
 
@@ -119,6 +122,7 @@ def user_login():
     }, mimetype=accept)
 
 @user_endpoint.route('/user/logout', methods=['GET', 'POST'])
+@cache_headers()
 def user_logout():
     """User logout"""
 
@@ -161,6 +165,7 @@ def user_logout():
     return registry_response({}, mimetype=accept)
 
 @user_endpoint.route('/user/forgotpassword', methods=['POST'])
+@cache_headers()
 def user_forgotpassword():
     """User forgot password"""
 
@@ -266,6 +271,7 @@ def user_forgotpassword():
     }, mimetype=accept)
 
 @user_endpoint.route('/user/2FA/<string:reset_id>', methods=['GET'])
+@cache_headers()
 def user_2fa(reset_id=None):
     """User 2FA"""
 
@@ -318,6 +324,7 @@ def user_2fa(reset_id=None):
     return registry_response(img.read(), mimetype=accept)
 
 @user_endpoint.route('/user/resetpassword', methods=['POST'])
+@cache_headers()
 def user_resetpassword():
     """User reset password"""
 
