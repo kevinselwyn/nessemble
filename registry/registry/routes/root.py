@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from flask import Blueprint, request
-from ..config.cache import cache
+from ..config.cache import cache, cache_headers
 from ..config.config import config as CONFIG
 from ..models.libs import Lib
 from ..utils.utils import make_cache_key, parse_accept, registry_response, Session
@@ -26,6 +26,7 @@ root_endpoint = Blueprint('root_endpoint', __name__)
 
 @root_endpoint.route('/', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME, key_prefix=make_cache_key)
+@cache_headers(CACHE_TIME)
 def list_packages():
     """List packages endpoint"""
 

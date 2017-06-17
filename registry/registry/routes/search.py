@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from flask import Blueprint, request
-from ..config.cache import cache
+from ..config.cache import cache, cache_headers
 from ..config.config import config as CONFIG
 from ..models.libs import Lib
 from ..utils.utils import parse_accept, registry_response, Session
@@ -25,6 +25,7 @@ search_endpoint = Blueprint('search_endpoint', __name__)
 @search_endpoint.route('/search', methods=['GET'])
 @search_endpoint.route('/search/<string:term>', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
+@cache_headers(CACHE_TIME)
 def search_packages(term=None):
     """Search packages endpoint"""
 
