@@ -14,7 +14,7 @@ def opcodes(infile):
         for line in f:
             lines.append(line.strip('\n').split(','))
 
-    output.append('#include "nessemble.h"\n\n')
+    output.append('#include "../nessemble.h"\n\n')
     output.append('struct opcode opcodes[OPCODE_COUNT] = {\n')
 
     for i in range(0, len(lines)):
