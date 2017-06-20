@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "nessemble.h"
-#include "init.h"
+#include "static/init.h"
 
 unsigned int init(int optc, char *optv[]) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;

@@ -43,7 +43,8 @@ FILES        += src/third-party/jsmn/jsmn.c src/third-party/udeflate/deflate.c
 FILES        += src/third-party/duktape/duktape.c
 
 SRCS         := src/$(YACC_OUT).c src/$(LEX_OUT).c $(FILES)
-HDRS         := src/$(NAME).h src/font.h src/init.h src/license.h
+HDRS         := src/$(NAME).h
+HDRS         := src/static/font.h src/static/init.h src/static/license.h
 HDRS         += src/third-party/tinyscheme-1.41/init.h
 OBJS         := ${SRCS:c=o}
 
@@ -138,20 +139,20 @@ src/i18n.c: src/strings.h
 
 src/strings.h: ${src/strings.json:json=h}
 
-src/init.c: src/init.h
+src/init.c: src/static/init.h
 
-src/init.h: ${src/init.txt:txt=h}
+src/static/init.h: ${src/static/init.txt:txt=h}
 
-src/pseudo/font.c: src/font.h
+src/pseudo/font.c: src/static/font.h
 
-src/font.h: ${src/font.chr:chr=h}
+src/static/font.h: ${src/static/font.chr:chr=h}
 
-src/font.chr: src/font.png
+src/static/font.chr: src/static/font.png
 	./utils/img2chr.py -i $<
 
-src/usage.c: src/license.h
+src/usage.c: src/static/license.h
 
-src/license.h: ${src/licence.txt:txt=h}
+src/static/license.h: ${src/static/licence.txt:txt=h}
 
 src/scripts.tar.gz:
 	tar -czf $@ $(shell ls src/scripts/*)
@@ -295,7 +296,7 @@ ifeq ($(UNAME), Linux)
 		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
 		-e "s/\$${LICENSE}/$(LICENSE)/g" \
 		$(PACKAGE)/copyright > $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
-	cat src/license.txt >> $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
+	cat src/static/license.txt >> $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
 	cd $(PAYLOAD) ; md5sum `find usr -type f` > DEBIAN/md5sums
 	cp $(PACKAGE)/scripts/linux/* $(PAYLOAD)/DEBIAN
 	dpkg-deb --build $(PAYLOAD) $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).deb
@@ -353,7 +354,10 @@ clean:
 	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).wasm
 	$(RM) $(OBJS)
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
-	$(RM) src/init.h src/license.h src/scripts.h src/strings.h
+	$(RM) src/static/font.h src/static/font.chr
+	$(RM) src/static/init.h
+	$(RM) src/static/license.h
+	$(RM) src/scripts.h src/strings.h
 	$(RM) src/opcodes.c src/scripts.tar.gz
 	$(RM) $(PAYLOAD)
 	make -C src/third-party/tinyscheme-1.41/ clean
