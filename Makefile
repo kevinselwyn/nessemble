@@ -33,10 +33,10 @@ UNAME        := $(shell uname -s)
 FILES        := src/main.c src/api.c src/assemble.c src/config.c src/coverage.c
 FILES        += src/disassemble.c src/error.c src/hash.c src/home.c src/http.c
 FILES        += src/i18n.c src/init.c src/instructions.c src/json.c src/list.c
-FILES        += src/macro.c src/math.c src/midi.c src/opcodes.c src/pager.c
-FILES        += src/png.c src/reference.c src/registry.c src/scripts.c
-FILES        += src/simulate.c src/usage.c src/user.c src/utils.c src/wav.c
-FILES        += src/zip.c
+FILES        += src/macro.c src/math.c src/midi.c src/static/opcodes.c
+FILES        += src/pager.c src/png.c src/reference.c src/registry.c
+FILES        += src/scripts.c src/simulate.c src/usage.c src/user.c src/utils.c
+FILES        += src/wav.c src/zip.c
 FILES        += $(shell ls src/pseudo/*.c) $(shell ls src/scripting/*.c)
 FILES        += $(shell ls src/simulate/*.c)
 FILES        += src/third-party/jsmn/jsmn.c src/third-party/udeflate/deflate.c
@@ -114,7 +114,7 @@ src/$(LEX_OUT).o: src/$(LEX_OUT).c
 src/$(YACC_OUT).c: src/$(NAME).y
 	$(YACC) $(YACC_FLAGS) $<
 
-src/opcodes.c: src/opcodes.csv
+src/static/opcodes.c: src/static/opcodes.csv
 	./utils/opcodes.py -i $< > $@
 
 %.o: %.c
@@ -135,10 +135,6 @@ src/opcodes.c: src/opcodes.csv
 %.h: %.tar.gz
 	./utils/xxd.py -b -i $< > $@
 
-src/i18n.c: src/strings.h
-
-src/strings.h: ${src/strings.json:json=h}
-
 src/init.c: src/static/init.h
 
 src/static/init.h: ${src/static/init.txt:txt=h}
@@ -154,12 +150,12 @@ src/usage.c: src/static/license.h
 
 src/static/license.h: ${src/static/licence.txt:txt=h}
 
-src/scripts.tar.gz:
-	tar -czf $@ $(shell ls src/scripts/*)
+src/static/scripts.tar.gz:
+	tar -czf $@ $(shell ls src/static/scripts/*)
 
-src/scripts.h: ${src/scripts.tar.gz:tar.gz=h}
+src/static/scripts.h: ${src/static/scripts.tar.gz:tar.gz=h}
 
-src/scripts.c: src/scripts.tar.gz src/scripts.h
+src/scripts.c: src/static/scripts.tar.gz src/static/scripts.h
 
 $(EXEC): $(OBJS) $(HDRS)
 	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS) \
@@ -357,8 +353,8 @@ clean:
 	$(RM) src/static/font.h src/static/font.chr
 	$(RM) src/static/init.h
 	$(RM) src/static/license.h
-	$(RM) src/scripts.h src/strings.h
-	$(RM) src/opcodes.c src/scripts.tar.gz
+	$(RM) src/static/opcodes.c
+	$(RM) src/static/scripts.h src/static/scripts.tar.gz
 	$(RM) $(PAYLOAD)
 	make -C src/third-party/tinyscheme-1.41/ clean
 	make -C src/third-party/lua-5.1.5/src/ clean

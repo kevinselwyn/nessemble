@@ -1,5 +1,5 @@
 #include "nessemble.h"
-#include "scripts.h"
+#include "static/scripts.h"
 
 unsigned int install_scripts(char **install_path) {
     unsigned int rc = RETURN_OK, i = 0, l = 0;
