@@ -1,5 +1,5 @@
 #include "../nessemble.h"
-#include "../font.h"
+#include "../static/font.h"
 
 /**
  * .font pseudo instruction

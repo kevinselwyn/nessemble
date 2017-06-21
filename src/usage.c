@@ -2,7 +2,7 @@
 #include <string.h>
 #include <getopt.h>
 #include "nessemble.h"
-#include "license.h"
+#include "static/license.h"
 
 struct option commandline_options[USAGE_FLAG_COUNT+1] = {
     { "output",       required_argument, 0, 'o' },
