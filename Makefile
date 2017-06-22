@@ -151,7 +151,7 @@ src/usage.c: src/static/license.h
 src/static/license.h: ${src/static/licence.txt:txt=h}
 
 src/static/scripts.tar.gz:
-	tar -czf $@ $(shell ls src/static/scripts/*)
+	cd src/static && tar -czf scripts.tar.gz $(shell cd src/static && ls scripts/*)
 
 src/static/scripts.h: ${src/static/scripts.tar.gz:tar.gz=h}
 
