@@ -675,11 +675,11 @@ unsigned int pager_file(char *filename);
 
 /* USER */
 unsigned int user_auth(http_t *request, char *token, char *method, char *route);
-unsigned int user_create();
-unsigned int user_login();
+unsigned int user_create(int optc, char *optv[]);
+unsigned int user_login(int optc, char *optv[]);
 unsigned int user_logout();
-unsigned int user_forgotpassword();
-unsigned int user_resetpassword();
+unsigned int user_forgotpassword(int optc, char *optv[]);
+unsigned int user_resetpassword(int optc, char *optv[]);
 
 /* I18N */
 void translate_init();
