@@ -33,11 +33,11 @@ Commands:
   info <package>                   get info about package
   ls                               list all installed packages
   search <term>                    search for package in registry
-  adduser                          create user account
-  login                            login to the registry
+  adduser [<arg> ...]              create user account
+  login [<arg> ...]                login to the registry
   logout                           logout of the registry
-  forgotpassword                   send password reset email
-  resetpassword                    reset password
+  forgotpassword [<arg> ...]       send password reset email
+  resetpassword [<arg> ...]        reset password
 ```
 
 ## Options
@@ -252,11 +252,11 @@ nessemble --help
 | [info &lt;package&gt;](#info-package)                                       | get info about package                  |
 | [ls](#ls)                                                                   | list all installed packages             |
 | [search &lt;term&gt;](#search-term)                                         | search for package in registry          |
-| [adduser](#adduser)                                                         | create user account                     |
-| [login](#login)                                                             | login to the registry                   |
+| [adduser \[&lt;arg&gt; ...\]](#adduser-arg)                                 | create user account                     |
+| [login \[&lt;arg&gt; ...\]](#login-arg)                                     | login to the registry                   |
 | [logout](#logout)                                                           | logout of the registry                  |
-| [forgotpassword](#forgotpassword)                                           | send password reset email               |
-| [resetpassword](#resetpassword)                                             | reset password                          |
+| [forgotpassword \[&lt;arg&gt; ...\]](#forgotpassword-arg)                   | send password reset email               |
+| [resetpassword \[&lt;arg&gt; ...\]](#resetpassword-arg)                     | reset password                          |
 
 ### init [&lt;arg&gt; ...]
 
@@ -268,6 +268,19 @@ Example:
 ```text
 nessemble init
 ```
+
+If some/no args are provided, a prompt will appear until they are all
+satisfied. The order is:
+
+```
+nessemble init [filename] [prg] [chr] [mapper] [mirroring]
+```
+
+* `filename` - String. Filename of file to create.
+* `prg` - Number. Number of PRG banks.
+* `chr` - Number. Number of CHR banks.
+* `mapper` - Number. Mapper number.
+* `mirroring` - Number. Type of mirroring.
 
 ### scripts
 
@@ -387,7 +400,7 @@ Example:
 nessemble search foo
 ```
 
-### adduser
+### adduser [&lt;arg&gt; ...]
 
 The `adduser` command will guide the user in the creation of a new user in the
 registry.
@@ -398,7 +411,21 @@ Example:
 nessemble adduser
 ```
 
-### login
+If some/no args are provided, a prompt will appear until they are all
+satisfied. The order is:
+
+```text
+nessemble adduser [name] [username] [email]
+```
+
+* `name` - String. Name of user.
+* `username` - String. Proposed username.
+* `email` - String. Email address of user.
+
+Note: For added security, a `password` will always be gathered from the user by
+prompt.
+
+### login [&lt;arg&gt; ...]
 
 The `login` command will guide the user in the registry login process.
 
@@ -407,6 +434,18 @@ Example:
 ```text
 nessemble login
 ```
+
+If some/no args are provided, a prompt will appear until they are all
+satisfied. The order is:
+
+```text
+nessemble login [username]
+```
+
+* `username` - String. User's username.
+
+Note: For added security, a `password` will always be gathered from the user by
+prompt.
 
 ### logout
 
@@ -418,7 +457,7 @@ Example:
 nessemble logout
 ```
 
-### forgotpassword
+### forgotpassword [&lt;arg&gt; ...]
 
 The `forgotpassword` command will send a password reset email to the user.
 
@@ -428,7 +467,16 @@ Example:
 nessemble forgotpassword
 ```
 
-### resetpassword
+If some/no args are provided, a prompt will appear until they are all
+satisfied. The order is:
+
+```text
+nessemble forgotpassword [username]
+```
+
+* `username` - String. User's username.
+
+### resetpassword [&lt;arg&gt; ...]
 
 The `resetpassword` command will prompt the user to reset their password.
 
@@ -437,3 +485,16 @@ Example:
 ```text
 nessemble resetpassword
 ```
+
+If some/no args are provided, a prompt will appear until they are all
+satisfied. The order is:
+
+```text
+nessemble resetpassword [username]
+```
+
+* `token` - String. Reset token.
+* `username` - String. User's username.
+
+Note: For added security, a `password` will always be gathered from the user by
+prompt.

@@ -53,11 +53,11 @@ static struct usage_flag usage_commands[USAGE_COMMAND_COUNT] = {
     { "info <package>", "get info about package" },
     { "ls", "list all installed packages" },
     { "search <term>", "search for package in registry" },
-    { "adduser", "create user account" },
-    { "login", "login to the registry" },
+    { "adduser [<arg> ...]", "create user account" },
+    { "login [<arg> ...]", "login to the registry" },
     { "logout", "logout of the registry" },
-    { "forgotpassword", "send password reset email" },
-    { "resetpassword", "reset password" }
+    { "forgotpassword [<arg> ...]", "send password reset email" },
+    { "resetpassword [<arg> ...]", "reset password" }
 };
 
 static struct usage_flag simulation_usage_flags[SIMULATION_USAGE_FLAG_COUNT] = {
