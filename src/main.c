@@ -303,7 +303,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (strcmp(argv[optind], "adduser") == 0) {
-            if ((rc = user_create()) != RETURN_OK) {
+            if ((rc = user_create(argc-(optind + 1), argv+(optind + 1))) != RETURN_OK) {
                 error_program_output(_("Could not add user"));
                 goto cleanup;
             }
@@ -314,7 +314,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (strcmp(argv[optind], "login") == 0) {
-            if ((rc = user_login()) != RETURN_OK) {
+            if ((rc = user_login(argc-(optind + 1), argv+(optind + 1))) != RETURN_OK) {
                 error_program_output(_("Could not login"));
                 goto cleanup;
             }
@@ -336,7 +336,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (strcmp(argv[optind], "forgotpassword") == 0) {
-            if ((rc = user_forgotpassword()) != RETURN_OK) {
+            if ((rc = user_forgotpassword(argc-(optind + 1), argv+(optind + 1))) != RETURN_OK) {
                 error_program_output(_("Could not send password reset email"));
                 goto cleanup;
             }
@@ -345,7 +345,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (strcmp(argv[optind], "resetpassword") == 0) {
-            if ((rc = user_resetpassword()) != RETURN_OK) {
+            if ((rc = user_resetpassword(argc-(optind + 1), argv+(optind + 1))) != RETURN_OK) {
                 error_program_output(_("Could not reset password"));
                 goto cleanup;
             }

@@ -79,7 +79,7 @@ cleanup:
     return rc;
 }
 
-unsigned int user_create() {
+unsigned int user_create(int optc, char *optv[]) {
     unsigned int rc = RETURN_OK;
     size_t length = 0, data_length = 0;
     char *url = NULL, *error = NULL, *buffer = NULL;
@@ -90,7 +90,11 @@ unsigned int user_create() {
     memset(data, 0, 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
 
-    while (get_line(&buffer, _("Name: ")) != NULL) {
+    if (optc >= 1) {
+        user_name = nessemble_strdup(optv[0]);
+    }
+
+    while (!user_name && get_line(&buffer, _("Name: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -107,7 +111,11 @@ unsigned int user_create() {
         goto cleanup;
     }
 
-    while (get_line(&buffer, _("Username: ")) != NULL) {
+    if (optc >= 2) {
+        user_username = nessemble_strdup(optv[1]);
+    }
+
+    while (!user_username && get_line(&buffer, _("Username: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -124,7 +132,11 @@ unsigned int user_create() {
         goto cleanup;
     }
 
-    while (get_line(&buffer, _("Email: ")) != NULL) {
+    if (optc >= 3) {
+        user_email = nessemble_strdup(optv[2]);
+    }
+
+    while (!user_email && get_line(&buffer, _("Email: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -162,8 +174,6 @@ unsigned int user_create() {
         rc = RETURN_EPERM;
         goto cleanup;
     }
-
-    fprintf(stderr, "%s\n", data);
 
     if ((rc = api_user(&url, "create")) != RETURN_OK) {
         goto cleanup;
@@ -228,7 +238,7 @@ cleanup:
     return rc;
 }
 
-unsigned int user_login() {
+unsigned int user_login(int optc, char *optv[]) {
     unsigned int rc = RETURN_OK;
     size_t length = 0, data_length = 0, auth_length = 0;
     char *url = NULL, *error = NULL, *buffer = NULL, *token = NULL;
@@ -241,7 +251,11 @@ unsigned int user_login() {
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
     auth = (char *)nessemble_malloc(sizeof(char) * 1024);
 
-    while (get_line(&buffer, _("Username: ")) != NULL) {
+    if (optc >= 1) {
+        user_username = nessemble_strdup(optv[0]);
+    }
+
+    while (!user_username && get_line(&buffer, _("Username: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -450,7 +464,7 @@ cleanup:
     return rc;
 }
 
-unsigned int user_forgotpassword() {
+unsigned int user_forgotpassword(int optc, char *optv[]) {
     unsigned int rc = RETURN_OK;
     size_t length = 0, data_length = 0;
     char *url = NULL, *error = NULL, *buffer = NULL;
@@ -462,7 +476,11 @@ unsigned int user_forgotpassword() {
     memset(data, 0, 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
 
-    while (get_line(&buffer, _("Username: ")) != NULL) {
+    if (optc >= 1) {
+        user_username = nessemble_strdup(optv[0]);
+    }
+
+    while (!user_username && get_line(&buffer, _("Username: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -568,7 +586,7 @@ cleanup:
     return rc;
 }
 
-unsigned int user_resetpassword() {
+unsigned int user_resetpassword(int optc, char *optv[]) {
     unsigned int rc = RETURN_OK;
     size_t length = 0, data_length = 0;
     char *url = NULL, *error = NULL, *buffer = NULL;
@@ -579,7 +597,11 @@ unsigned int user_resetpassword() {
     memset(data, 0, 1024);
     buffer = (char *)nessemble_malloc(sizeof(char) * BUF_GET_LINE);
 
-    while (get_line(&buffer, _("Token: ")) != NULL) {
+    if (optc >= 1) {
+        user_token = nessemble_strdup(optv[0]);
+    }
+
+    while (!user_token && get_line(&buffer, _("Token: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
@@ -596,7 +618,11 @@ unsigned int user_resetpassword() {
         goto cleanup;
     }
 
-    while (get_line(&buffer, _("Username: ")) != NULL) {
+    if (optc >= 2) {
+        user_username = nessemble_strdup(optv[1]);
+    }
+
+    while (!user_username && get_line(&buffer, _("Username: ")) != NULL) {
         length = strlen(buffer);
 
         if (length - 1 == 0) {
