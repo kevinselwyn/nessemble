@@ -5,12 +5,13 @@
 import base64
 import datetime
 import io
+import math
 import md5
 import random
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import qrcode
+import pyqrcode
 from flask import abort, Blueprint, render_template, request
 from ..config.cache import cache_headers
 from ..config.config import config as CONFIG
@@ -265,9 +266,20 @@ def user_forgotpassword():
            })
     session.commit()
 
+    uri = 'otpauth://totp/%s:%s?secret=%s&issuer=%s' % ('Nessemble', user.username, base64.b32encode(user.reset_token), 'Nessemble')
+    qr = pyqrcode.create(uri)
+    qr_text = qr.text(quiet_zone=1).replace('\n', '')
+    qr_data = [int(math.sqrt(len(qr_text)))]
+
+    for i in range(0, len(qr_text), 8):
+        qr_data.append(int(qr_text[i:i+8], 2))
+
+    data = ''.join(map(chr, qr_data))
+
     return registry_response({
         'email': email,
-        'url': '%suser/2FA/%s' % (request.url_root, reset_id)
+        'url': '%suser/2FA/%s' % (request.url_root, reset_id),
+        'data': base64.b64encode(data)
     }, mimetype=accept)
 
 @user_endpoint.route('/user/2FA/<string:reset_id>', methods=['GET'])
@@ -306,10 +318,10 @@ def user_2fa(reset_id=None):
     # generate qr code
 
     uri = 'otpauth://totp/%s:%s?secret=%s&issuer=%s' % ('Nessemble', user.username, base64.b32encode(user.reset_token), 'Nessemble')
-    qr = qrcode.make(uri)
+    qr = pyqrcode.create(uri)
 
     img = io.BytesIO()
-    qr.save(img, 'PNG')
+    qr.png(img, scale=8)
     img.seek(0)
 
     # clear reset_id
