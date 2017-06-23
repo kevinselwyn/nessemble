@@ -34,12 +34,10 @@ unsigned int install_scripts(char **install_path) {
         goto cleanup;
     }
 
-    if (nessemble_mkdir(script_path, 0777) != 0) {
-        goto cleanup;
-    }
+    UNUSED(nessemble_mkdir(script_path, 0777));
 
     for (i = 0, l = (unsigned int)tar_filenames_count; i < l; i++) {
-        if ((rc = get_home_path(&path, 2, "." PROGRAM_NAME, tar_filenames[i]+4)) != RETURN_OK) {
+        if ((rc = get_home_path(&path, 2, "." PROGRAM_NAME, tar_filenames[i])) != RETURN_OK) {
             goto cleanup;
         }
 
