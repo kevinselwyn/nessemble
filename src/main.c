@@ -145,10 +145,10 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[optind], "scripts") == 0) {
             if ((rc = install_scripts(&install_path)) != RETURN_OK) {
                 error_program_output(_("Could not install scripts"));
+            } else {
+                printf(_("Installed scripts to %s"), install_path);
+                printf("\n");
             }
-
-            printf(_("Installed scripts to %s"), install_path);
-            printf("\n");
 
             goto cleanup;
         }
