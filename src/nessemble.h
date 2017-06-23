@@ -597,6 +597,7 @@ int dec2int(char *dec);
 int defchr2int(char *defchr);
 unsigned int str2hash(char *string);
 unsigned int base64enc(char **encoded, char *str);
+unsigned int base64dec(char **decoded, size_t *decoded_len, char *str);
 unsigned int fgetu16_little(FILE *fp);
 unsigned int fgetu16_big(FILE *fp);
 unsigned int fgetu32_little(FILE *fp);
@@ -613,6 +614,7 @@ unsigned int tmp_save(FILE *file, char *filename);
 void tmp_delete(char *filename);
 char *get_line(char **buffer, char *prompt);
 unsigned int parse_extension(char **extension, char *filename);
+unsigned int qrcode(unsigned int size, char *data, size_t data_len);
 
 /* API */
 unsigned int api_user(char **url, char *endpoint);

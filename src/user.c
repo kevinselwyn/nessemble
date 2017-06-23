@@ -466,10 +466,11 @@ cleanup:
 
 unsigned int user_forgotpassword(int optc, char *optv[]) {
     unsigned int rc = RETURN_OK;
-    size_t length = 0, data_length = 0;
+    size_t length = 0, data_length = 0, json_data_len = 0;
     char *url = NULL, *error = NULL, *buffer = NULL;
     char *user_username = NULL;
     char *json_email = NULL, *json_url = NULL;
+    char *json_data_base64 = NULL, *json_data = NULL;
     char data[1024];
     http_t request;
 
@@ -570,6 +571,27 @@ unsigned int user_forgotpassword(int optc, char *optv[]) {
         }
 
         printf("%s\n\n%s:\n  %s\n", _("Could not send password reset email"), _("Authenticate with this QR code"), json_url);
+
+#if !defined(IS_WINDOWS) && !defined(IS_JAVASCRIPT)
+        if ((rc = get_json_buffer(&json_data_base64, "data", request.response_body)) != RETURN_OK) {
+            goto cleanup;
+        }
+
+        if (!json_data_base64) {
+            rc = RETURN_EPERM;
+            goto cleanup;
+        }
+
+        if ((rc = base64dec(&json_data, &json_data_len, json_data_base64)) != RETURN_OK) {
+            goto cleanup;
+        }
+
+        printf("\n");
+
+        if ((rc = qrcode((unsigned int)json_data[0], json_data+1, json_data_len-1)) != RETURN_OK) {
+            goto cleanup;
+        }
+#endif /* !IS_WINDOWS && !IS_JAVASCRIPT */
     } else {
         printf("%s\n", _("Password reset email sent"));
     }
@@ -582,6 +604,8 @@ cleanup:
     nessemble_free(user_username);
     nessemble_free(json_email);
     nessemble_free(json_url);
+    nessemble_free(json_data_base64);
+    nessemble_free(json_data);
 
     return rc;
 }

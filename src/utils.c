@@ -190,7 +190,7 @@ char *nessemble_realpath(const char *path, char *resolved_path) {
     return realpath(path, resolved_path);
 #endif /* IS_WINDOWS */
 }
-#define SEP "/" // TODO: remove
+
 unsigned int is_stdout(char *filename) {
     unsigned int rc = FALSE;
     FILE *file = NULL;
@@ -370,6 +370,11 @@ unsigned int str2hash(char *string) {
 }
 
 /**
+ * Base64 alpha chars
+ */
+static const char *base64_alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+/**
  * Base64 encode
  * @param {char **} encoded - Encoded string
  * @param {char *} str - Input string
@@ -381,7 +386,6 @@ unsigned int base64enc(char **encoded, char *str) {
     unsigned int mod_table[3] = { 0, 2, 1 };
     unsigned int input_length = 0, output_length = 0;
     char *output = NULL;
-    const char *alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     input_length = (unsigned int)strlen(str);
     output_length = 4 * ((input_length + 2) / 3);
@@ -395,19 +399,68 @@ unsigned int base64enc(char **encoded, char *str) {
 
         abc = (a << 0x10) + (b << 0x08) + c;
 
-        output[j++] = alpha[(abc >> 18) & 0x3F];
-        output[j++] = alpha[(abc >> 12) & 0x3F];
-        output[j++] = alpha[(abc >> 6) & 0x3F];
-        output[j++] = alpha[abc & 0x3F];
+        output[j++] = base64_alpha[(abc >> 18) & 0x3F];
+        output[j++] = base64_alpha[(abc >> 12) & 0x3F];
+        output[j++] = base64_alpha[(abc >> 6) & 0x3F];
+        output[j++] = base64_alpha[abc & 0x3F];
     }
 
-    for (i = 0; i < mod_table[input_length % 3]; i++) {
+    for (i = 0, j = mod_table[input_length % 3]; i < j; i++) {
         output[output_length - 1 - i] = '=';
     }
 
     *encoded = output;
 
 	return rc;
+}
+
+/**
+ * Base64 decode
+ * @param {char **} decoded - Decoded string
+ * @param {char *} str - Input string
+ */
+unsigned int base64dec(char **decoded, size_t *decoded_len, char *str) {
+    unsigned int rc = RETURN_OK;
+    unsigned int i = 0, j = 0, k = 0, l = 0, m = 0, n = 0;
+    unsigned int abcd[4];
+    unsigned int input_length = 0, output_length = 0;
+    char *output = NULL;
+
+    input_length = (unsigned int)strlen(str);
+    output_length = 4 * ((input_length + 2) / 3);
+
+    output = (char *)nessemble_malloc(sizeof(char) * (output_length + 1));
+
+    for (i = 0, j = 0; i < (unsigned int)input_length;) {
+        abcd[0] = i < input_length ? (unsigned int)str[i++] : 0;
+        abcd[1] = i < input_length ? (unsigned int)str[i++] : 0;
+        abcd[2] = i < input_length ? (unsigned int)str[i++] : 0;
+        abcd[3] = i < input_length ? (unsigned int)str[i++] : 0;
+
+        for (k = 0, l = 4; k < l; k++) {
+            for (m = 0, n = 64; m < n; m++) {
+                if ((char)abcd[k] == base64_alpha[m]) {
+                    abcd[k] = (unsigned int)m;
+                    break;
+                }
+            }
+        }
+
+        for (k = 0, l = 4; k < l; k++) {
+            if (abcd[k] == '=') {
+                abcd[k] = 0;
+            }
+        }
+
+        output[j++] = (char)((abcd[0] << 0x02) + ((abcd[1] & 0x30) >> 0x04));
+        output[j++] = (char)((abcd[1] & 0x0F) << 0x04) + ((abcd[2] & 0x3C) >> 0x02);
+        output[j++] = (char)(((abcd[2] & 0x03) << 0x06) + abcd[3]);
+    }
+
+    *decoded = output;
+    *decoded_len = (size_t)j;
+
+    return rc;
 }
 
 /**
@@ -589,6 +642,37 @@ unsigned int parse_extension(char **extension, char *filename) {
 
     *extension = nessemble_strdup(dot+1);
 
+    return rc;
+}
+
+unsigned int qrcode(unsigned int size, char *data, size_t data_len) {
+    int i = 0, j = 0, k = 0, l = 0;
+    int byte = 0, count = 0;
+    unsigned int rc = RETURN_OK;
+
+    for (i = 0, j = (unsigned int)data_len; i < j; i++) {
+        byte = ((int)data[i]) & 0xFF;
+
+        for (k = 7, l = 0; k >= l; k--) {
+            if (((byte >> k) & 0x01) == 1) {
+                printf("\033[40m  \033[0m");
+            } else {
+                printf("\033[47m  \033[0m");
+            }
+
+            count++;
+
+            if ((count % size) == 0) {
+                printf("\n");
+            }
+
+            if (count == (int)(size * size)) {
+                goto cleanup;
+            }
+        }
+    }
+
+cleanup:
     return rc;
 }
 
