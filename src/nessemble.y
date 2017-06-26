@@ -68,7 +68,6 @@
 %token PSEUDO_IFNDEF
 %token PSEUDO_INCBIN
 %token PSEUDO_INCLUDE
-%token PSEUDO_INCMID
 %token PSEUDO_INCPAL
 %token PSEUDO_INCPNG
 %token PSEUDO_INCRLE
@@ -264,7 +263,6 @@ pseudo
     | pseudo_ifndef    { pseudo_ifndef($1); }
     | pseudo_incbin    { /* NOTHING */ }
     | pseudo_include   { if (error_exists() == TRUE) { YYBAIL; } }
-    | pseudo_incmid    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incpal    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incpng    { if (error_exists() == TRUE) { YYBAIL; } }
     | pseudo_incrle    { /* NOTHING */ }
@@ -383,10 +381,6 @@ pseudo_incbin
 
 pseudo_include
     : PSEUDO_INCLUDE QUOT_STRING ENDL { pseudo_include($2); }
-    ;
-
-pseudo_incmid
-    : PSEUDO_INCMID QUOT_STRING { pseudo_incmid($2); }
     ;
 
 pseudo_incpal
