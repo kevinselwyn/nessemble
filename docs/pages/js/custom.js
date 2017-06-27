@@ -136,8 +136,10 @@ var hexdump = function (bytes) {
 
     [].forEach.call(examples, function (example) {
         var stdin = example.innerHTML,
+            hr = document.createElement('hr'),
+            paragraph = document.createElement('p'),
             input = document.createElement('textarea'),
-            assemble = document.createElement('input'),
+            assemble = document.createElement('button'),
             output_wrapper = document.createElement('pre'),
             output = document.createElement('code'),
             element = document.createElement('div');
@@ -196,12 +198,14 @@ var hexdump = function (bytes) {
         // clear out element
         example.innerHTML = '';
 
+        // add paragraph
+        paragraph.innerHTML = 'Try it:';
+
         // add stdin to textarea
         input.value = stdin;
 
         // setup button
-        assemble.type = 'button';
-        assemble.value = 'Assemble';
+        assemble.innerHTML = 'Assemble';
         assemble.className = 'btn btn-danger';
 
         // setup output
@@ -209,6 +213,8 @@ var hexdump = function (bytes) {
         output_wrapper.appendChild(output);
 
         // append all
+        example.appendChild(hr);
+        example.appendChild(paragraph);
         example.appendChild(input);
         example.appendChild(assemble);
         example.appendChild(output_wrapper);
