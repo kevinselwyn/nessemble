@@ -19,3 +19,6 @@ docs_dir: pages
 dev_addr: 0.0.0.0:9090
 extra_css:
     - css/custom.css
+extra_javascript:
+    - js/nessemble.js
+    - js/custom.js
