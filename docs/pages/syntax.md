@@ -375,6 +375,13 @@ The checksum is `b8 1f ee 86`.
 
 Note: Checksums may only be performed on preceding data.
 
+Try:
+
+<div class="nessemble-example">start:
+    LDA #$01
+    STA <$02
+    .checksum start</div>
+
 ### .chr
 
 Set CHR bank index.
