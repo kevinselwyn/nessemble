@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nessemble</title>
+</head>
+<body>
+    <script src="nessemble.js"></script>
+    <script type="text/javascript">
+        var Nessemble = function (input) {
+            var i = 0;
+
+            return Module({
+                noInitialRun: true,
+                stdin: function () {
+                    if (i < input.length) {
+                        var code = input.charCodeAt(i);
+
+                        i += 1;
+
+                        return code;
+                    } else {
+                        return null;
+                    }
+                },
+                stdout: function (code) {
+                    console.log(code);
+                }
+            });
+        };
+    </script>
+</body>
+</html>
