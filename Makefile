@@ -250,6 +250,7 @@ registry:
 
 .PHONY: docs
 docs:
+	cp nessemble.js docs/pages/js 2>/dev/null || :
 	cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
 
 # INSTALL/UNINSTALL
