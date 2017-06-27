@@ -38,10 +38,16 @@ code.text {
     word-wrap: normal;
     display: block;
 }
+.nessemble-example.bare textarea {
+    min-height: 240px;
+}
 .nessemble-example code {
     max-height: 300px;
     display: none;
     overflow: scroll;
+}
+.nessemble-example.bare code {
+    max-height: 600px;
 }
 .nessemble-example code.show {
     display: block;

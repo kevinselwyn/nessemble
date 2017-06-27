@@ -135,14 +135,31 @@ var hexdump = function (bytes) {
     }
 
     [].forEach.call(examples, function (example) {
-        var stdin = example.innerHTML,
+        var rc = 0,
+            stdin = example.innerHTML,
+            stdout = [],
+            stderr = [],
+            opts = {},
             hr = document.createElement('hr'),
             paragraph = document.createElement('p'),
             input = document.createElement('textarea'),
+            buttons = document.createElement('div'),
             assemble = document.createElement('button'),
+            download = document.createElement('button'),
             output_wrapper = document.createElement('pre'),
             output = document.createElement('code'),
             element = document.createElement('div');
+
+        // quit if already initialized
+        if (example.getAttribute('data-initialized') === 'true') {
+            return;
+        }
+
+        try {
+            opts = JSON.parse(example.getAttribute('data-opts')) || {};
+        } catch (e) {
+            opts = {};
+        }
 
         // decode html entities
         element.innerHTML = stdin;
@@ -151,12 +168,16 @@ var hexdump = function (bytes) {
         assemble.addEventListener('click', function () {
             var nessemble = new Nessemble({
                 stdin: input.value,
-                onStdout: function (rc, stdout) {
+                onStdout: function (_rc, _stdout) {
+                    rc = _rc;
+                    stdout = _stdout;
+
                     output.innerHTML = '';
                     output.className = output.className.replace(' error', '');
 
                     if (!stdout.length) {
                         output.className = output.className.replace(' show', '');
+                        download.disabled = true;
                         return;
                     }
 
@@ -165,16 +186,22 @@ var hexdump = function (bytes) {
                     if (output.className.search(' show') === -1) {
                         output.className += ' show';
                     }
+
+                    download.removeAttribute('disabled');
                 },
-                onStderr: function (rc, stderr) {
+                onStderr: function (rc, _stderr) {
                     var i = 0,
                         l = 0;
+
+                    rc = _rc;
+                    stderr = _stderr;
 
                     output.innerHTML = '';
                     output.className = output.className.replace(' error', '');
 
                     if (!stderr.length) {
                         output.className = output.className.replace(' show', '');
+                        download.disabled = true;
                         return;
                     }
 
@@ -195,6 +222,10 @@ var hexdump = function (bytes) {
             nessemble.callMain();
         });
 
+        download.addEventListener('click', function () {
+            console.log(stdout);
+        });
+
         // clear out element
         example.innerHTML = '';
 
@@ -204,22 +235,48 @@ var hexdump = function (bytes) {
         // add stdin to textarea
         input.value = stdin;
 
-        // setup button
+        // button group
+        buttons.className = 'btn-group';
+
+        // setup assemble button
         assemble.innerHTML = 'Assemble';
         assemble.className = 'btn btn-danger';
+
+        // setup download button
+        download.innerHTML = 'Download';
+        download.className = 'btn btn-info';
+        download.disabled = true;
+
+        // append buttons
+        buttons.appendChild(assemble);
+
+        if (opts.download) {
+            buttons.appendChild(download);
+        }
 
         // setup output
         output.className = 'text';
         output_wrapper.appendChild(output);
 
         // append all
-        example.appendChild(hr);
-        example.appendChild(paragraph);
+        if (!opts.bare) {
+            example.appendChild(hr);
+            example.appendChild(paragraph);
+        }
+
         example.appendChild(input);
-        example.appendChild(assemble);
+        example.appendChild(buttons);
         example.appendChild(output_wrapper);
 
         // show module
         example.className += ' show';
+
+        // denote bare display
+        if (opts.bare) {
+            example.className += ' bare';
+        }
+
+        // mark as initialized
+        example.setAttribute('data-initalized', 'true');
     });
 }());

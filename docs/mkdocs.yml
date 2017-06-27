@@ -6,6 +6,7 @@ pages:
     - Building: building.md
     - Usage: usage.md
     - Syntax: syntax.md
+    - Playground: playground.md
     - Disassembling: disassembling.md
     - Simulating: simulating.md
     - Packages: packages.md
