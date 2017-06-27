@@ -30,7 +30,7 @@ code.text {
 }
 .nessemble-example textarea {
     min-height: 120px;
-    margin-bottom: 16px;
+    margin-bottom: -1px;
     padding: 12px;
     font-size: 12px;
     font-family: Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace;
@@ -40,6 +40,9 @@ code.text {
 }
 .nessemble-example.bare textarea {
     min-height: 240px;
+}
+.nessemble-example pre {
+    margin-top: -3px;
 }
 .nessemble-example code {
     max-height: 300px;
