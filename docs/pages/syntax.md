@@ -76,6 +76,17 @@ Output:
 00000006
 ```
 
+<hr />
+
+Try it:
+
+<div class="nessemble-example">    LDX #$08
+loop:
+    DEX
+    BNE loop
+    BRK
+</div>
+
 ### Temporary
 
 Temporary/un-named labels may also be declared by placing only a colon.
@@ -114,6 +125,17 @@ Output:
 00000000  a2 08 ca d0 fd 00                                 |......|
 00000006
 ```
+
+<hr />
+
+Try it:
+
+<div class="nessemble-example">    LDX #$08
+:
+    DEX
+    BNE :-
+    BRK
+</div>
 
 ## Mnemonics
 
@@ -339,7 +361,9 @@ Output:
 00000023
 ```
 
-Try:
+<hr />
+
+Try it:
 
 <div class="nessemble-example">.ascii "When, in disgrace with fortune and men's eyes"</div>
 
@@ -375,7 +399,9 @@ The checksum is `b8 1f ee 86`.
 
 Note: Checksums may only be performed on preceding data.
 
-Try:
+<hr />
+
+Try it:
 
 <div class="nessemble-example">start:
     LDA #$01
@@ -434,6 +460,12 @@ Output:
 Read more about the NES color palette
 [here](https://en.wikipedia.org/wiki/List_of_video_game_console_palettes#NES).
 
+<hr />
+
+Try it:
+
+<div class="nessemble-example">.color $FF0000</div>
+
 ### .db
 
 Define 8-bit byte(s).
@@ -460,6 +492,12 @@ Output:
 00000000  12 34                                             |.4|
 00000002
 ```
+
+<hr />
+
+Try it:
+
+<div class="nessemble-example">    .db $12, $34</div>
 
 ### .defchr
 
@@ -507,6 +545,19 @@ Output:
 Read more about PPU pattern tables
 [here](https://wiki.nesdev.com/w/index.php/PPU_pattern_tables).
 
+<hr />
+
+Try it:
+
+<div class="nessemble-example">.defchr 333333333,
+        300000003,
+        300000003,
+        300000003,
+        300000003,
+        300000003,
+        300000003,
+        333333333</div>
+
 ### .dw
 
 Define 16-bit word(s).
@@ -514,7 +565,7 @@ Define 16-bit word(s).
 Usage:
 
 ```text
-    .dw NUMBER[, NUMBER, ...]
+.dw NUMBER[, NUMBER, ...]
 ```
 
 * `NUMBER` - Number, required. At least one number is required.
@@ -524,7 +575,7 @@ be used.
 Example:
 
 ```text
-    .dw $1234, $45678
+.dw $1234, $45678
 ```
 
 Output:
@@ -533,6 +584,12 @@ Output:
 00000000  34 12 78 56                                       |4.xV|
 00000004
 ```
+
+<hr />
+
+Try it:
+
+<div class="nessemble-example">.dw $1234, $45678</div>
 
 ### .else
 
@@ -668,6 +725,12 @@ Output:
 00000010
 ```
 
+<hr />
+
+Try it:
+
+<div class="nessemble-example">.fill 16</div>
+
 ### .font
 
 Generate font character tile.
@@ -705,6 +768,12 @@ Output:
 Read more about PPU pattern tables
 [here](https://wiki.nesdev.com/w/index.php/PPU_pattern_tables).
 
+<hr />
+
+Try it:
+
+<div class="nessemble-example">.font 'A', 'G'</div>
+
 ### .hibytes
 
 Output only the high byte of 16-bit word(s).
@@ -731,6 +800,12 @@ Output:
 00000000  12 56                                             |.V|
 00000002
 ```
+
+<hr />
+
+Try it:
+
+<div class="nessemble-example">.hibytes $1234, $5678</div>
 
 ### .if
 
@@ -1093,6 +1168,12 @@ Output:
 00000002
 ```
 
+<hr />
+
+Try it:
+
+<div class="nessemble-example">.lobytes $1234, $5678</div>
+
 ### .macro
 
 Call macro.
@@ -1271,6 +1352,18 @@ Output:
 00000003
 ```
 
+<hr />
+
+Try it:
+
+<div class="nessemble-example">.rsset $0000
+
+label_01 .rs 1
+label_02 .rs 2
+label_03 .rs 1
+
+.db label_01, label_02, label_03</div>
+
 ### .segment
 
 Set code segment.
@@ -1374,6 +1467,19 @@ Output:
 00000000  a9 00 8d 05 20 8d 05 20                           |.... .. |
 00000008
 ```
+
+<hr />
+
+Try it:
+
+<div class="nessemble-example">.macrodef TEST_MACRO
+    LDA #$00
+    STA $2005
+    STA $2005
+.endm
+
+.macro TEST_MACRO
+</div>
 
 ### Parameters
 

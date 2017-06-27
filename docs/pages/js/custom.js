@@ -150,10 +150,8 @@ var hexdump = function (bytes) {
             var nessemble = new Nessemble({
                 stdin: input.value,
                 onStdout: function (rc, stdout) {
-                    var i = 0,
-                        l = 0;
-
                     output.innerHTML = '';
+                    output.className = output.className.replace(' error', '');
 
                     if (!stdout.length) {
                         output.className = output.className.replace(' show', '');
@@ -161,6 +159,30 @@ var hexdump = function (bytes) {
                     }
 
                     output.innerHTML = hexdump(stdout);
+
+                    if (output.className.search(' show') === -1) {
+                        output.className += ' show';
+                    }
+                },
+                onStderr: function (rc, stderr) {
+                    var i = 0,
+                        l = 0;
+
+                    output.innerHTML = '';
+                    output.className = output.className.replace(' error', '');
+
+                    if (!stderr.length) {
+                        output.className = output.className.replace(' show', '');
+                        return;
+                    }
+
+                    for (i = 0, l = stderr.length; i < l; i += 1) {
+                        output.innerHTML += String.fromCharCode(stderr[i]);
+                    }
+
+                    if (output.className.search(' error') === -1) {
+                        output.className += ' error';
+                    }
 
                     if (output.className.search(' show') === -1) {
                         output.className += ' show';
