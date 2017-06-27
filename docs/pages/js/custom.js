@@ -38,17 +38,73 @@ var Nessemble = function (opts) {
     });
 };
 
-var hexdump = function (bytes) {
-    var dump = [],
-        dec2hex = function (dec, len) {
-            var hex = dec.toString(16).toLowerCase();
+var NessembleExamples = function () {
+    var $this = this,
+        examples = document.querySelectorAll('.nessemble-example');
 
-            while (hex.length < len) {
-                hex = '0' + hex;
-            }
+    if (!examples || !examples.length) {
+        return;
+    }
 
-            return hex;
-        },
+    [].forEach.call(examples, function (example) {
+        $this.setup(example);
+    });
+};
+
+NessembleExamples.prototype.addClass = function (el, className) {
+    var el_classname = el.className,
+        regex = new RegExp(['\\b', className, '\\b'].join(''));
+
+    if (el_classname.search(regex) === -1) {
+        el_classname += ' ' + className;
+        el_classname = el_classname.replace(/\s{2,}/, ' ');
+        el_classname = el_classname.replace(/^\s+/, '');
+        el_classname = el_classname.replace(/\s+$/, '');
+
+        el.className = el_classname;
+    }
+};
+
+NessembleExamples.prototype.removeClass = function (el, className) {
+    var el_classname = el.className,
+        regex = new RegExp(['\\b', className, '\\b'].join(''));
+
+    if (el_classname.search(regex) !== -1) {
+        el_classname = el_classname.replace(regex, '');
+        el_classname = el_classname.replace(/^\s+/, '');
+        el_classname = el_classname.replace(/\s+$/, '');
+
+        el.className = el_classname;
+    }
+};
+
+NessembleExamples.prototype.downloadFile = function (filename, bytes, mimetype) {
+    var arr = new Uint8Array(bytes),
+        el = document.createElement('a');
+
+    el.href = window.URL.createObjectURL(new Blob([arr], {
+        type: mimetype
+    }));
+    el.download = filename;
+
+    document.body.appendChild(el);
+    el.click();
+    document.body.removeChild(el);
+};
+
+NessembleExamples.prototype.dec2hex = function (dec, len) {
+    var hex = dec.toString(16).toLowerCase();
+
+    while (hex.length < len) {
+        hex = '0' + hex;
+    }
+
+    return hex;
+};
+
+NessembleExamples.prototype.hexdump = function (bytes) {
+    var $this = this,
+        dump = [],
         index = 0,
         lines = [],
         line = {},
@@ -60,7 +116,7 @@ var hexdump = function (bytes) {
 
     for (i = 0, j = bytes.length; i < j; i += 16) {
         line = {
-            index: dec2hex(i, 8),
+            index: $this.dec2hex(i, 8),
             bytes: [[], []],
             text: []
         };
@@ -71,7 +127,7 @@ var hexdump = function (bytes) {
             }
 
             index += 1;
-            line.bytes[0].push(dec2hex(bytes[k], 2));
+            line.bytes[0].push($this.dec2hex(bytes[k], 2));
 
             if (bytes[k] < 0x20 || bytes[k] > 0x7E) {
                 chr = '.';
@@ -88,7 +144,7 @@ var hexdump = function (bytes) {
             }
 
             index += 1;
-            line.bytes[1].push(dec2hex(bytes[k], 2));
+            line.bytes[1].push($this.dec2hex(bytes[k], 2));
 
             if (bytes[k] < 0x20 || bytes[k] > 0x7E) {
                 chr = '.';
@@ -103,10 +159,10 @@ var hexdump = function (bytes) {
     }
 
     lines.push({
-        index: dec2hex(index, 8),
+        index: $this.dec2hex(index, 8),
         bytes: [[], []],
         text: []
-    })
+    });
 
     lines.forEach(function (line) {
         var str = '';
@@ -127,156 +183,217 @@ var hexdump = function (bytes) {
     return dump.join('\n');
 };
 
-(function () {
-    var examples = document.querySelectorAll('.nessemble-example');
+NessembleExamples.prototype.setup = function (example) {
+    var $this = this,
+        opts = {},
+        rc = 0,
+        stdin = example.innerHTML,
+        stdout = [],
+        stderr = [],
+        hr = document.createElement('hr'),
+        paragraph = document.createElement('p'),
+        input = document.createElement('textarea'),
+        buttons = document.createElement('div'),
+        assemble = document.createElement('button'),
+        reset = document.createElement('button'),
+        clear = document.createElement('button'),
+        download = document.createElement('button'),
+        open = document.createElement('button'),
+        output_wrapper = document.createElement('pre'),
+        output = document.createElement('code'),
+        element = document.createElement('div');
 
-    if (!examples || !examples.length) {
+    // quit if already initialized
+    if (example.getAttribute('data-initialized') === 'true') {
         return;
     }
 
-    [].forEach.call(examples, function (example) {
-        var rc = 0,
-            stdin = example.innerHTML,
-            stdout = [],
-            stderr = [],
-            opts = {},
-            hr = document.createElement('hr'),
-            paragraph = document.createElement('p'),
-            input = document.createElement('textarea'),
-            buttons = document.createElement('div'),
-            assemble = document.createElement('button'),
-            download = document.createElement('button'),
-            output_wrapper = document.createElement('pre'),
-            output = document.createElement('code'),
-            element = document.createElement('div');
+    // get data-opts
+    try {
+        opts = JSON.parse(example.getAttribute('data-opts')) || {};
+    } catch (e) {
+        opts = {};
+    }
 
-        // quit if already initialized
-        if (example.getAttribute('data-initialized') === 'true') {
-            return;
+    // get from localStorage
+    if (opts.bare) {
+        if (window.localStorage) {
+            stdin = window.localStorage.getItem('asm') || stdin;
+            window.localStorage.removeItem('asm');
         }
+    }
 
-        try {
-            opts = JSON.parse(example.getAttribute('data-opts')) || {};
-        } catch (e) {
-            opts = {};
-        }
+    // decode html entities
+    element.innerHTML = stdin;
+    stdin = element.textContent;
 
-        // decode html entities
-        element.innerHTML = stdin;
-        stdin = element.textContent;
+    // assemble click listener
+    assemble.addEventListener('click', function () {
+        var nessemble = new Nessemble({
+            stdin: input.value,
+            onStdout: function (_rc, _stdout) {
+                rc = _rc;
+                stdout = _stdout;
 
-        assemble.addEventListener('click', function () {
-            var nessemble = new Nessemble({
-                stdin: input.value,
-                onStdout: function (_rc, _stdout) {
-                    rc = _rc;
-                    stdout = _stdout;
+                output.innerHTML = '';
+                $this.removeClass(output, 'error');
 
-                    output.innerHTML = '';
-                    output.className = output.className.replace(' error', '');
-
-                    if (!stdout.length) {
-                        output.className = output.className.replace(' show', '');
-                        download.disabled = true;
-                        return;
-                    }
-
-                    output.innerHTML = hexdump(stdout);
-
-                    if (output.className.search(' show') === -1) {
-                        output.className += ' show';
-                    }
-
-                    download.removeAttribute('disabled');
-                },
-                onStderr: function (rc, _stderr) {
-                    var i = 0,
-                        l = 0;
-
-                    rc = _rc;
-                    stderr = _stderr;
-
-                    output.innerHTML = '';
-                    output.className = output.className.replace(' error', '');
-
-                    if (!stderr.length) {
-                        output.className = output.className.replace(' show', '');
-                        download.disabled = true;
-                        return;
-                    }
-
-                    for (i = 0, l = stderr.length; i < l; i += 1) {
-                        output.innerHTML += String.fromCharCode(stderr[i]);
-                    }
-
-                    if (output.className.search(' error') === -1) {
-                        output.className += ' error';
-                    }
-
-                    if (output.className.search(' show') === -1) {
-                        output.className += ' show';
-                    }
+                if (!stdout.length) {
+                    $this.removeClass(output, 'show');
+                    download.disabled = true;
+                    return;
                 }
-            });
 
-            nessemble.callMain();
+                output.innerHTML = $this.hexdump(stdout);
+
+                $this.addClass(output, 'show');
+
+                download.removeAttribute('disabled');
+            },
+            onStderr: function (_rc, _stderr) {
+                rc = _rc;
+                stderr = _stderr;
+
+                output.innerHTML = '';
+                $this.removeClass(output, 'error');
+                download.disabled = true;
+
+                if (!stderr.length) {
+                    $this.removeClass(output, 'show');
+                    return;
+                }
+
+                stderr.forEach(function (byte) {
+                    output.innerHTML += String.fromCharCode(byte);
+                });
+
+                $this.addClass(output, 'error');
+                $this.addClass(output, 'show');
+            }
         });
 
-        download.addEventListener('click', function () {
-            console.log(stdout);
-        });
+        nessemble.callMain(opts.args || []);
+    });
 
-        // clear out element
-        example.innerHTML = '';
-
-        // add paragraph
-        paragraph.innerHTML = 'Try it:';
-
-        // add stdin to textarea
+    // reset click listener
+    reset.addEventListener('click', function () {
+        // reset input
         input.value = stdin;
 
-        // button group
-        buttons.className = 'btn-group';
-
-        // setup assemble button
-        assemble.innerHTML = 'Assemble';
-        assemble.className = 'btn btn-danger';
-
-        // setup download button
-        download.innerHTML = 'Download';
-        download.className = 'btn btn-info';
+        // clear output
+        output.innerHTML = '';
+        $this.removeClass(output, 'show');
+        $this.removeClass(output, 'error');
         download.disabled = true;
-
-        // append buttons
-        buttons.appendChild(assemble);
-
-        if (opts.download) {
-            buttons.appendChild(download);
-        }
-
-        // setup output
-        output.className = 'text';
-        output_wrapper.appendChild(output);
-
-        // append all
-        if (!opts.bare) {
-            example.appendChild(hr);
-            example.appendChild(paragraph);
-        }
-
-        example.appendChild(input);
-        example.appendChild(buttons);
-        example.appendChild(output_wrapper);
-
-        // show module
-        example.className += ' show';
-
-        // denote bare display
-        if (opts.bare) {
-            example.className += ' bare';
-        }
-
-        // mark as initialized
-        example.setAttribute('data-initalized', 'true');
     });
-}());
+
+    // clear click listener
+    clear.addEventListener('click', function () {
+        // clear input
+        input.value = '';
+
+        // clear output
+        output.innerHTML = '';
+        $this.removeClass(output, 'show');
+        $this.removeClass(output, 'error');
+        download.disabled = true;
+    });
+
+    // download click listener
+    download.addEventListener('click', function () {
+        $this.downloadFile('assemble.rom', stdout, 'application/octet-stream');
+    });
+
+    // open click listener
+    open.addEventListener('click', function () {
+        if (window.localStorage) {
+            window.localStorage.setItem('asm', input.value);
+        }
+
+        window.location.href = open.getAttribute('data-href');
+    });
+
+    // clear out element
+    example.innerHTML = '';
+
+    // add paragraph
+    paragraph.innerHTML = 'Try it:';
+
+    // add stdin to textarea
+    input.value = stdin;
+
+    // button group
+    $this.addClass(buttons, 'btn-group');
+
+    // setup assemble button
+    assemble.innerHTML = 'Assemble';
+    $this.addClass(assemble, 'btn');
+    $this.addClass(assemble, 'btn-danger');
+    assemble.setAttribute('title', 'Assemble');
+
+    // reset clear button
+    reset.innerHTML = 'Reset';
+    $this.addClass(reset, 'btn');
+    $this.addClass(reset, 'btn-neutral');
+    reset.setAttribute('title', 'Reset');
+
+    // setup clear button
+    clear.innerHTML = 'Clear';
+    $this.addClass(clear, 'btn');
+    $this.addClass(clear, 'btn-neutral');
+    clear.setAttribute('title', 'Clear');
+
+    // setup download button
+    download.innerHTML = 'Download';
+    $this.addClass(download, 'btn');
+    $this.addClass(download, 'btn-neutral');
+    download.disabled = true;
+    download.setAttribute('title', 'Download');
+
+    // setup open button
+    open.innerHTML = '<i class="fa fa-external-link"></i>';
+    $this.addClass(open, 'btn');
+    $this.addClass(open, 'btn-neutral');
+    open.setAttribute('data-href', '../playground');
+    open.setAttribute('title', 'Open in Playground');
+
+    // append buttons
+    buttons.appendChild(assemble);
+    buttons.appendChild(reset);
+    buttons.appendChild(clear);
+
+    if (opts.download) {
+        buttons.appendChild(download);
+    }
+
+    if (!opts.bare) {
+        buttons.appendChild(open);
+    }
+
+    // setup output
+    $this.addClass(output, 'text');
+    output_wrapper.appendChild(output);
+
+    // append all
+    if (!opts.bare) {
+        example.appendChild(hr);
+        example.appendChild(paragraph);
+    }
+
+    example.appendChild(input);
+    example.appendChild(buttons);
+    example.appendChild(output_wrapper);
+
+    // show module
+    $this.addClass(example, 'show');
+
+    // denote bare display
+    if (opts.bare) {
+        $this.addClass(example, 'bare');
+    }
+
+    // mark as initialized
+    example.setAttribute('data-initalized', 'true');
+};
+
+var nessembleExamples = new NessembleExamples();
