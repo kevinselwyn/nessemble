@@ -339,6 +339,10 @@ Output:
 00000023
 ```
 
+Try:
+
+<div class="nessemble-example">.ascii "When, in disgrace with fortune and men's eyes"</div>
+
 ### .checksum
 
 Calculate crc32 checksum.
