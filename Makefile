@@ -67,6 +67,7 @@ debug: CC_LIB_FLAGS += -ldl
 
 js: EXEC            := $(NAME).js
 js: CC              := emcc
+js: CC_FLAGS        += -s MODULARIZE=1
 js: CC_LIBLUA       := -Wno-empty-body
 js: AR              := emar
 js: RANLIB          := emranlib
