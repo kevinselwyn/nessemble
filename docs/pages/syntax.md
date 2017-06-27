@@ -76,10 +76,6 @@ Output:
 00000006
 ```
 
-<hr />
-
-Try it:
-
 <div class="nessemble-example">    LDX #$08
 loop:
     DEX
@@ -125,10 +121,6 @@ Output:
 00000000  a2 08 ca d0 fd 00                                 |......|
 00000006
 ```
-
-<hr />
-
-Try it:
 
 <div class="nessemble-example">    LDX #$08
 :
@@ -361,10 +353,6 @@ Output:
 00000023
 ```
 
-<hr />
-
-Try it:
-
 <div class="nessemble-example">.ascii "When, in disgrace with fortune and men's eyes"</div>
 
 ### .checksum
@@ -398,10 +386,6 @@ Output:
 The checksum is `b8 1f ee 86`.
 
 Note: Checksums may only be performed on preceding data.
-
-<hr />
-
-Try it:
 
 <div class="nessemble-example">start:
     LDA #$01
@@ -460,10 +444,6 @@ Output:
 Read more about the NES color palette
 [here](https://en.wikipedia.org/wiki/List_of_video_game_console_palettes#NES).
 
-<hr />
-
-Try it:
-
 <div class="nessemble-example">.color $FF0000</div>
 
 ### .db
@@ -492,10 +472,6 @@ Output:
 00000000  12 34                                             |.4|
 00000002
 ```
-
-<hr />
-
-Try it:
 
 <div class="nessemble-example">    .db $12, $34</div>
 
@@ -545,10 +521,6 @@ Output:
 Read more about PPU pattern tables
 [here](https://wiki.nesdev.com/w/index.php/PPU_pattern_tables).
 
-<hr />
-
-Try it:
-
 <div class="nessemble-example">.defchr 333333333,
         300000003,
         300000003,
@@ -584,10 +556,6 @@ Output:
 00000000  34 12 78 56                                       |4.xV|
 00000004
 ```
-
-<hr />
-
-Try it:
 
 <div class="nessemble-example">.dw $1234, $45678</div>
 
@@ -725,10 +693,6 @@ Output:
 00000010
 ```
 
-<hr />
-
-Try it:
-
 <div class="nessemble-example">.fill 16</div>
 
 ### .font
@@ -768,10 +732,6 @@ Output:
 Read more about PPU pattern tables
 [here](https://wiki.nesdev.com/w/index.php/PPU_pattern_tables).
 
-<hr />
-
-Try it:
-
 <div class="nessemble-example">.font 'A', 'G'</div>
 
 ### .hibytes
@@ -800,10 +760,6 @@ Output:
 00000000  12 56                                             |.V|
 00000002
 ```
-
-<hr />
-
-Try it:
 
 <div class="nessemble-example">.hibytes $1234, $5678</div>
 
@@ -1168,10 +1124,6 @@ Output:
 00000002
 ```
 
-<hr />
-
-Try it:
-
 <div class="nessemble-example">.lobytes $1234, $5678</div>
 
 ### .macro
@@ -1352,10 +1304,6 @@ Output:
 00000003
 ```
 
-<hr />
-
-Try it:
-
 <div class="nessemble-example">.rsset $0000
 
 label_01 .rs 1
@@ -1467,10 +1415,6 @@ Output:
 00000000  a9 00 8d 05 20 8d 05 20                           |.... .. |
 00000008
 ```
-
-<hr />
-
-Try it:
 
 <div class="nessemble-example">.macrodef TEST_MACRO
     LDA #$00
