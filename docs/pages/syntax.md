@@ -473,7 +473,7 @@ Output:
 00000002
 ```
 
-<div class="nessemble-example">    .db $12, $34</div>
+<div class="nessemble-example">.db $12, $34</div>
 
 ### .defchr
 
