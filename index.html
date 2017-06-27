@@ -7,10 +7,21 @@
     <script src="nessemble.js"></script>
     <script type="text/javascript">
         var Nessemble = function (input) {
-            var i = 0;
+            var stdout = [],
+                stderr = [],
+                i = 0;
 
             return Module({
                 noInitialRun: true,
+                onExit: function (rc) {
+                    if (stdout.length) {
+                        console.log(stdout);
+                    }
+
+                    if (stderr.length) {
+                        console.error(stderr.join(''))
+                    }
+                },
                 stdin: function () {
                     if (i < input.length) {
                         var code = input.charCodeAt(i);
@@ -23,7 +34,14 @@
                     }
                 },
                 stdout: function (code) {
-                    console.log(code);
+                    if (code < 0) {
+                        code += 256;
+                    }
+
+                    stdout.push(code);
+                },
+                stderr: function (code) {
+                    stderr.push(String.fromChardCode(code));
                 }
             });
         };
