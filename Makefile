@@ -172,6 +172,20 @@ $(EXEC): $(OBJS) $(HDRS)
 test: all
 	@python test.py
 
+test-js:
+	@printf "Building JS...\n"
+	@make js >/dev/null 2>/dev/null || :
+	@printf "Building tests...\n"
+	@python utils/jstest.py --input ./test/errors \
+		--output ./test/js/errors.js
+	@python utils/jstest.py --input ./test/examples \
+		--output ./test/js/examples.js \
+		--exclude custom,ease,incbin,include,incpal,incpng,incrle,incwav,macro,trainer
+	@python utils/jstest.py --input ./test/opcodes \
+		--output ./test/js/opcodes.js \
+		--exclude undocumented
+	@printf "Open: file://%s\n" $(shell pwd)/test/js/test.html
+
 splint:
 	splint -I/usr/include -I/usr/include/x86_64-linux-gnu \
 		   -warnposix $(FLAGS) $(FILES)
