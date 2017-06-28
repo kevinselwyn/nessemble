@@ -262,3 +262,366 @@ QUnit.test('BIT', function (assert) {
 
     nessemble.callMain();
 });
+
+/**
+ * BMI
+ */
+QUnit.test('BMI', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    BMI $00',
+            '',
+            'label:',
+            '    BMI label'
+        ],
+        output = [
+            0x30, 0xfe, 0x30, 0xfe
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * BNE
+ */
+QUnit.test('BNE', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    BNE $00',
+            '',
+            'label:',
+            '    BNE label'
+        ],
+        output = [
+            0xd0, 0xfe, 0xd0, 0xfe
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * BPL
+ */
+QUnit.test('BPL', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    BPL $00',
+            '',
+            'label:',
+            '    BPL label'
+        ],
+        output = [
+            0x10, 0xfe, 0x10, 0xfe
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * BRK
+ */
+QUnit.test('BRK', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    BRK'
+        ],
+        output = [
+            0x00
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * BVC
+ */
+QUnit.test('BVC', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    BVC $00',
+            '',
+            'label:',
+            '    BVC label'
+        ],
+        output = [
+            0x50, 0xfe, 0x50, 0xfe
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * BVS
+ */
+QUnit.test('BVS', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    BVS $00',
+            '',
+            'label:',
+            '    BVS label'
+        ],
+        output = [
+            0x70, 0xfe, 0x70, 0xfe
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * CLC
+ */
+QUnit.test('CLC', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    CLC'
+        ],
+        output = [
+            0x18
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * CLD
+ */
+QUnit.test('CLD', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    CLD'
+        ],
+        output = [
+            0xd8
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * CLI
+ */
+QUnit.test('CLI', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    CLI'
+        ],
+        output = [
+            0x58
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * CLV
+ */
+QUnit.test('CLV', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    CLV'
+        ],
+        output = [
+            0xb8
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * CMP
+ */
+QUnit.test('CMP', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    CMP #$44',
+            '    CMP <$44',
+            '    CMP <$44, X',
+            '    CMP $4400',
+            '    CMP $4400, X',
+            '    CMP $4400, Y',
+            '    CMP [$44, X]',
+            '    CMP [$44], Y',
+            '',
+            'label:',
+            '    CMP #label',
+            '    CMP <label',
+            '    CMP <label, X',
+            '    CMP label',
+            '    CMP label, X',
+            '    CMP label, Y',
+            '    CMP [label, X]',
+            '    CMP [label], Y',
+            '',
+            'CONSTANT_8 = $44',
+            'CONSTANT_16 = $4400',
+            '',
+            '    CMP #CONSTANT_8',
+            '    CMP <CONSTANT_8',
+            '    CMP <CONSTANT_8, X',
+            '    CMP CONSTANT_16',
+            '    CMP CONSTANT_16, X',
+            '    CMP CONSTANT_16, Y',
+            '    CMP [CONSTANT_8, X]',
+            '    CMP [CONSTANT_8], Y'
+        ],
+        output = [
+            0xc9, 0x44, 0xc5, 0x44, 0xd5, 0x44, 0xcd, 0x00, 0x44, 0xdd, 0x00, 0x44, 0xd9, 0x00, 0x44, 0xc1,
+            0x44, 0xd1, 0x44, 0xc9, 0x13, 0xc5, 0x13, 0xd5, 0x13, 0xcd, 0x13, 0x00, 0xdd, 0x13, 0x00, 0xd9,
+            0x13, 0x00, 0xc1, 0x13, 0xd1, 0x13, 0xc9, 0x44, 0xc5, 0x44, 0xd5, 0x44, 0xcd, 0x00, 0x44, 0xdd,
+            0x00, 0x44, 0xd9, 0x00, 0x44, 0xc1, 0x44, 0xd1, 0x44
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * CPX
+ */
+QUnit.test('CPX', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    CPX #$44',
+            '    CPX <$44',
+            '    CPX $4400',
+            '',
+            'label:',
+            '    CPX #label',
+            '    CPX <label',
+            '    CPX label',
+            '',
+            'CONSTANT_8 = $44',
+            'CONSTANT_16 = $4400',
+            '',
+            '    CPX #CONSTANT_8',
+            '    CPX <CONSTANT_8',
+            '    CPX CONSTANT_16'
+        ],
+        output = [
+            0xe0, 0x44, 0xe4, 0x44, 0xec, 0x00, 0x44, 0xe0, 0x07, 0xe4, 0x07, 0xec, 0x07, 0x00, 0xe0, 0x44,
+            0xe4, 0x44, 0xec, 0x00, 0x44
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
+
+/**
+ * CPY
+ */
+QUnit.test('CPY', function (assert) {
+    var done = assert.async(),
+        input = [
+            '    CPY #$44',
+            '    CPY <$44',
+            '    CPY $4400',
+            '',
+            'label:',
+            '    CPY #label',
+            '    CPY <label',
+            '    CPY label',
+            '',
+            'CONSTANT_8 = $44',
+            'CONSTANT_16 = $4400',
+            '',
+            '    CPY #CONSTANT_8',
+            '    CPY <CONSTANT_8',
+            '    CPY CONSTANT_16'
+        ],
+        output = [
+            0xc0, 0x44, 0xc4, 0x44, 0xcc, 0x00, 0x44, 0xc0, 0x07, 0xc4, 0x07, 0xcc, 0x07, 0x00, 0xc0, 0x44,
+            0xc4, 0x44, 0xcc, 0x00, 0x44
+        ],
+        nessemble = new Nessemble({
+            stdin: input.join('\n'),
+            onStdout: function (rc, stdout) {
+                assert.deepEqual(stdout, output);
+                done();
+            }
+        });
+
+    nessemble.callMain();
+});
