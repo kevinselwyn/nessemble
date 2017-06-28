@@ -11,6 +11,7 @@ pages:
     - Packages: packages.md
     - Registry: registry.md
     - Extending: extending.md
+    - Translating: translating.md
     - Licensing: licensing.md
     - Contributing: contributing.md
 theme: readthedocs
