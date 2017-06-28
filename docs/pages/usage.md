@@ -219,6 +219,8 @@ Example:
 nessemble --version
 ```
 
+<div class="nessemble-example" data-opts='{"args":["--version"]}'>--version</div>
+
 ### -L, --license
 
 The `-L`/`--license` flag prints the license for `nessemble`. See the section on
@@ -230,6 +232,8 @@ Example:
 nessemble --license
 ```
 
+<div class="nessemble-example" data-opts='{"args":["--license"]}'>--license</div>
+
 ### -h, --help
 
 The `-h`/`--help` flag prints the usage for `nessemble`.
@@ -239,6 +243,8 @@ Example:
 ```text
 nessemble --help
 ```
+
+<div class="nessemble-example" data-opts='{"args":["--help"]}'>--help</div>
 
 ## Commands
 

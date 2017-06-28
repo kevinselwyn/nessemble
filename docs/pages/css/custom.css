@@ -23,23 +23,41 @@ code.text {
     color: #FFFFFF;
 }
 .nessemble-example {
+    width: 100%;
     display: none;
 }
 .nessemble-example.show {
     display: block;
 }
 .nessemble-example textarea {
-    min-height: 120px;
     margin-bottom: -1px;
     padding: 12px;
+    color: #404040;
     font-size: 12px;
     font-family: Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace;
     white-space: pre;
     word-wrap: normal;
+}
+.nessemble-example textarea.exec {
+    width: 33%;
+    height: 40px;
+    float: left;
+    resize: none;
+}
+.nessemble-example textarea.input {
+    min-height: 120px;
     display: block;
 }
-.nessemble-example.bare textarea {
+.nessemble-example.bare textarea.input {
     min-height: 240px;
+}
+.nessemble-example.flags textarea.input {
+    width: 66%;
+    height: 40px;
+    min-height: 0;
+    margin-left: -2px;
+    float: left;
+    resize: none;
 }
 .nessemble-example pre {
     margin-top: -3px;
