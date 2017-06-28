@@ -3,3 +3,22 @@
 {% block htmltitle %}
 <title>Nessemble Docs | {{ page.title }}</title>
 {% endblock %}
+
+{% block footer %}
+<div class="modal fade" id="help-modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Nessemble Help</h4>
+            </div>
+            <div class="modal-body">
+                <p><code>nessemble</code> has been compiled to Javascript for use in the browser (with limited functionality).</p>
+                <p>Feel free to explore <code>nessemble</code> further in the <a href="../playground">Playground</a>.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-neutral" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
