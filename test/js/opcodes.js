@@ -164,8 +164,7 @@ QUnit.test('BCC', function (assert) {
             '    BCC $00',
             '',
             'label:',
-            '    BCC label',
-            ''
+            '    BCC label'
         ],
         output = [
             0x90, 0xfe, 0x90, 0xfe
@@ -190,8 +189,7 @@ QUnit.test('BCS', function (assert) {
             '    BCS $00',
             '',
             'label:',
-            '    BCS label',
-            ''
+            '    BCS label'
         ],
         output = [
             0xb0, 0xfe, 0xb0, 0xfe
@@ -216,8 +214,7 @@ QUnit.test('BEQ', function (assert) {
             '    BEQ $00',
             '',
             'label:',
-            '    BEQ label',
-            ''
+            '    BEQ label'
         ],
         output = [
             0xf0, 0xfe, 0xf0, 0xfe
@@ -250,8 +247,7 @@ QUnit.test('BIT', function (assert) {
             'CONSTANT_16 = $4400',
             '',
             '    BIT <CONSTANT_8',
-            '    BIT CONSTANT_16',
-            ''
+            '    BIT CONSTANT_16'
         ],
         output = [
             0x24, 0x44, 0x2c, 0x00, 0x44, 0x24, 0x05, 0x2c, 0x05, 0x00, 0x24, 0x44, 0x2c, 0x00, 0x44
