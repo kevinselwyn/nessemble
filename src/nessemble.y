@@ -154,6 +154,11 @@ program
 
 /* Atomic */
 
+endl
+    : ENDL { /* NOTHING */ }
+    | FEOF { /* NOTHING */ }
+    ;
+
 number
     : number_base                   { $$ = $1; }
     | label                         { $$ = $1; }
@@ -226,7 +231,7 @@ label
 
 comma
     : COMMA             { /* NOTHING */ }
-    | comma ENDL        { /* NOTHING */ }
+    | comma endl        { /* NOTHING */ }
     | comma INDENTATION { /* NOTHING */ }
     ;
 
@@ -382,7 +387,7 @@ pseudo_incbin
     ;
 
 pseudo_include
-    : PSEUDO_INCLUDE QUOT_STRING ENDL { pseudo_include($2); }
+    : PSEUDO_INCLUDE QUOT_STRING endl { pseudo_include($2); }
     ;
 
 pseudo_incmid
@@ -507,9 +512,9 @@ instruction
     | TEXT OPEN_BRACK number CLOSE_BRACK COMMA CHAR_REG { assemble_indirect_xy($1, $3, $6); }
     | TEXT LT number COMMA CHAR_REG                     { assemble_zeropage_xy($1, $3, $5); }
     | TEXT number COMMA CHAR_REG                        { assemble_absolute_xy($1, $2, $4); }
-    | TEXT LT number ENDL                               { assemble_zeropage($1, $3); }
-    | TEXT number ENDL                                  { assemble_absolute($1, $2); }
-    | TEXT ENDL                                         { assemble_implied($1); }
+    | TEXT LT number endl                               { assemble_zeropage($1, $3); }
+    | TEXT number endl                                  { assemble_absolute($1, $2); }
+    | TEXT endl                                         { assemble_implied($1); }
     ;
 
 %%
