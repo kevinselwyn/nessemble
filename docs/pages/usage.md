@@ -151,7 +151,10 @@ nessemble infile.asm --check
 The `-C`/`--coverage` flag causes the assembler to output ROM coverage
 information (amount that the ROM banks have data written to them).
 
-Note: This only works when the `-f/--format` is `NES`, not when it is `RAW`.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> This only works when the `-f/--format` is `NES`, not when it is `RAW`.
+> </div>
 
 Example:
 
@@ -324,7 +327,10 @@ The `registry` command will get/set the registry URL. Using `registry` with no
 additional arguments will list the current registry URL. Using `registry` with
 a URL will set the registry URL to that value.
 
-Note: This command is just an alias for `config registry`.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> This only works when the `-f/--format` is `NES`, not when it is `RAW`.
+> </div>
 
 Example:
 
@@ -422,8 +428,11 @@ nessemble adduser [name] [username] [email]
 * `username` - String. Proposed username.
 * `email` - String. Email address of user.
 
-Note: For added security, a `password` will always be gathered from the user by
-prompt.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> For added security, a `password` will always be gathered from the user by
+> prompt.
+> </div>
 
 ### login [&lt;arg&gt; ...]
 
@@ -444,8 +453,11 @@ nessemble login [username]
 
 * `username` - String. User's username.
 
-Note: For added security, a `password` will always be gathered from the user by
-prompt.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> For added security, a `password` will always be gathered from the user by
+> prompt.
+> </div>
 
 ### logout
 
@@ -496,5 +508,8 @@ nessemble resetpassword [username]
 * `token` - String. Reset token.
 * `username` - String. User's username.
 
-Note: For added security, a `password` will always be gathered from the user by
-prompt.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> For added security, a `password` will always be gathered from the user by
+> prompt.
+> </div>

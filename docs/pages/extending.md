@@ -86,7 +86,10 @@ function add_string(str)
 end
 ```
 
-Note: Keep in mind that strings will have quotes around them.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Keep in mind that strings will have quotes around them.
+> </div>
 
 Example with string arguments:
 
@@ -196,7 +199,10 @@ var add_string = function (str) {
 };
 ```
 
-Note: Keep in mind that strings will have quotes around them.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Keep in mind that strings will have quotes around them.
+> </div>
 
 Example with string arguments:
 
@@ -253,7 +259,10 @@ String arguments are sent to the script before integer arguments. The argument
 types will keep their precedence with other arguments of the same type, just
 with all the strings appearing first.
 
-Note: Keep in mind that strings will have quotes around them.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Keep in mind that strings will have quotes around them.
+> </div>
 
 #### Handling Errors
 
@@ -337,7 +346,10 @@ $ gcc -o quotient.so quotient.c -shared -fPIC
 String argument types will keep their precedence with other arguments of the
 same type.
 
-Note: Keep in mind that strings will have quotes around them.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Keep in mind that strings will have quotes around them.
+> </div>
 
 #### Handling Errors
 
