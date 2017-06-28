@@ -194,12 +194,14 @@ NessembleExamples.prototype.hexdump = function (bytes) {
 NessembleExamples.prototype.setup = function (example) {
     var $this = this,
         opts = {},
+        args = [],
         rc = 0,
         stdin = example.innerHTML,
         stdout = [],
         stderr = [],
         hr = document.createElement('hr'),
         paragraph = document.createElement('p'),
+        exec = document.createElement('textarea'),
         input = document.createElement('textarea'),
         buttons = document.createElement('div'),
         assemble = document.createElement('button'),
@@ -231,6 +233,9 @@ NessembleExamples.prototype.setup = function (example) {
         }
     }
 
+    // get args
+    args = opts.args || [];
+
     // decode html entities
     element.innerHTML = stdin;
     stdin = element.textContent;
@@ -238,7 +243,7 @@ NessembleExamples.prototype.setup = function (example) {
     // assemble click listener
     assemble.addEventListener('click', function () {
         var nessemble = new Nessemble({
-            stdin: input.value,
+            stdin: input.value || '',
             onStdout: function (_rc, _stdout) {
                 rc = _rc;
                 stdout = _stdout;
@@ -252,7 +257,13 @@ NessembleExamples.prototype.setup = function (example) {
                     return;
                 }
 
-                output.innerHTML = $this.hexdump(stdout);
+                if (!opts.args || !opts.args.length) {
+                    output.innerHTML = $this.hexdump(stdout);
+                } else {
+                    stdout.forEach(function (byte) {
+                        output.innerHTML += String.fromCharCode(byte);
+                    });
+                }
 
                 $this.addClass(output, 'show');
 
@@ -280,7 +291,11 @@ NessembleExamples.prototype.setup = function (example) {
             }
         });
 
-        nessemble.callMain(opts.args || []);
+        if (opts.args && opts.args.length) {
+            args = input.value.split(' ');
+        }
+
+        nessemble.callMain(args || []);
     });
 
     // reset click listener
@@ -329,12 +344,23 @@ NessembleExamples.prototype.setup = function (example) {
 
     // add stdin to textarea
     input.value = stdin;
+    $this.addClass(input, 'input');
+
+    // add exec
+    $this.addClass(exec, 'exec');
+    exec.innerHTML = 'nessemble';
+    exec.disabled = true;
 
     // button group
     $this.addClass(buttons, 'btn-group');
 
     // setup assemble button
-    assemble.innerHTML = 'Assemble';
+    if (!opts.args || !opts.args.length) {
+        assemble.innerHTML = 'Assemble';
+    } else {
+        assemble.innerHTML = 'Run';
+    }
+
     $this.addClass(assemble, 'btn');
     $this.addClass(assemble, 'btn-danger');
     assemble.setAttribute('title', 'Assemble');
@@ -367,15 +393,18 @@ NessembleExamples.prototype.setup = function (example) {
 
     // append buttons
     buttons.appendChild(assemble);
-    buttons.appendChild(reset);
-    buttons.appendChild(clear);
 
-    if (opts.download) {
-        buttons.appendChild(download);
-    }
+    if (!opts.args || !opts.args.length) {
+        buttons.appendChild(reset);
+        buttons.appendChild(clear);
 
-    if (!opts.bare) {
-        buttons.appendChild(open);
+        if (opts.download) {
+            buttons.appendChild(download);
+        }
+
+        if (!opts.bare) {
+            buttons.appendChild(open);
+        }
     }
 
     // setup output
@@ -388,6 +417,10 @@ NessembleExamples.prototype.setup = function (example) {
         example.appendChild(paragraph);
     }
 
+    if (opts.args && opts.args.length) {
+        example.appendChild(exec);
+    }
+
     example.appendChild(input);
     example.appendChild(buttons);
     example.appendChild(output_wrapper);
@@ -398,6 +431,11 @@ NessembleExamples.prototype.setup = function (example) {
     // denote bare display
     if (opts.bare) {
         $this.addClass(example, 'bare');
+    }
+
+    // denote flags display
+    if (opts.args && opts.args.length) {
+        $this.addClass(example, 'flags');
     }
 
     // mark as initialized
