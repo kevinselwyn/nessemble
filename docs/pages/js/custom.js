@@ -3,6 +3,10 @@ var Nessemble = function (opts) {
         stderr = [],
         i = 0;
 
+    if (!window.Module) {
+        return false;
+    }
+
     return Module({
         noInitialRun: true,
         onExit: function (rc) {
@@ -41,6 +45,10 @@ var Nessemble = function (opts) {
 var NessembleExamples = function () {
     var $this = this,
         examples = document.querySelectorAll('.nessemble-example');
+
+    if (!window.Module) {
+        return;
+    }
 
     if (!examples || !examples.length) {
         return;
