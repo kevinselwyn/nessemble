@@ -97,6 +97,10 @@ debug: $(EXEC)
 
 js: $(EXEC)
 
+min.js:
+	$(MAKE) js
+	uglifyjs $(EXEC).js --output $(EXEC).min.js
+
 wasm:
 	$(MAKE) js CC="emcc -s WASM=1"
 
@@ -250,7 +254,7 @@ registry:
 
 .PHONY: docs
 docs:
-	cp nessemble.js docs/pages/js 2>/dev/null || :
+	cp $(EXEC).min.js docs/pages/js 2>/dev/null || :
 	cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
 
 # INSTALL/UNINSTALL
@@ -349,7 +353,7 @@ win_package:
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).wasm
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).min.js $(EXEC).wasm
 	$(RM) $(OBJS)
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
 	$(RM) src/static/font.h src/static/font.chr
