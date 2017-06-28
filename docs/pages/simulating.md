@@ -36,7 +36,10 @@ Example:
 Prints the value of all flags. If values are provided, the flags will be set,
 and then the updated value of all flags will be printed.
 
-Note: `1` means set, `0` means unset/cleared.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> `1` means set, `0` means unset/cleared.
+> </div>
 
 Example:
 
