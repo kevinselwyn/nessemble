@@ -5,11 +5,11 @@ endpoints to be valid.
 
 The default registry URL is `http://localhost:8000`.
 
-Note: To change the registry URL, run:
-
-```text
-nessemble registry <URL>
-```
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> To change the registry URL, run:
+> `nessemble registry <URL>`
+> </div>
 
 ## Endpoints
 
@@ -148,8 +148,11 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 ### /package
 
-Note: The following endpoints also work with `/package/<string:version>`
-in which `version` is a valid, specific version of the package.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The following endpoints also work with `/package/<string:version>`
+> in which `version` is a valid, specific version of the package.
+> </div>
 
 #### GET /package/&lt;string:package&gt;
 
@@ -271,8 +274,11 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 Publish a new package.
 
-Note: This request must be authorized. See the section on
-[Authorization](#authorization) to learn more.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> This request must be authorized. See the section on
+> [Authorization](#authorization) to learn more.
+> </div>
 
 Request:
 
@@ -442,8 +448,11 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 Log out of the registry.
 
-Note: This request must be authorized. See the section on
-[Authorization](#authorization) to learn more.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> This request must be authorized. See the section on
+> [Authorization](#authorization) to learn more.
+> </div>
 
 Request:
 
@@ -526,10 +535,13 @@ conjunction with apps like Google Authenticator.
 
 Reset password.
 
-Note: Authorization in terms of generating the HMAC-SHA1 works just as described
-in the [Authorization](#authorization) section, but the `token` used must be the
-one emailed to the user after utilizing the
-[`/user/forgotpassword`](#post-userforgotpassword) endpoint.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Authorization in terms of generating the HMAC-SHA1 works just as described
+> in the [Authorization](#authorization) section, but the `token` used must be
+> the one emailed to the user after utilizing the
+> [`/user/forgotpassword`](#post-userforgotpassword) endpoint.
+> </div>
 
 Request:
 

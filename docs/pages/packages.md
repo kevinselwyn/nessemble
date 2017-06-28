@@ -34,9 +34,12 @@ To install a package:
 nessemble install controller
 ```
 
-Note: Packages are installed to `~/.nessemble/packages/<package-name>/` on
-Linux/Mac and `\Users\<username>\.nessemble\packages\<package-name>\` on
-Windows.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Packages are installed to `~/.nessemble/packages/<package-name>/` on
+> Linux/Mac and `\Users\<username>\.nessemble\packages\<package-name>\` on
+> Windows.
+> </div>
 
 ## Usage
 
@@ -46,9 +49,12 @@ To use a package in assembly:
 .include <controller.asm>
 ```
 
-Note: `.include` with angle braces (`<...>`) will include an installed package,
-and `.include` with quotes (`"..."`) includes another assembly file relative to
-the project directory.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> `.include` with angle braces (`<...>`) will include an installed package,
+> and `.include` with quotes (`"..."`) includes another assembly file relative
+> to the project directory.
+> </div>
 
 ## Listing
 
@@ -76,8 +82,11 @@ To publish a package:
 nessemble publish lib.tar.gz
 ```
 
-Note: The user must be logged in to publish a package (see the
-[login](/usage/#login) command)
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The user must be logged in to publish a package (see the
+> [login](/usage/#login) command)
+> </div>
 
 The following files must be in the following directory structure:
 

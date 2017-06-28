@@ -15,6 +15,7 @@ done:
     BRK
 </div>
 
-## Syntax
-
-Need help with the syntax? Read more [here](/syntax).
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Need help with the syntax? Read more [here](/syntax).
+> </div>

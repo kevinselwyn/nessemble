@@ -246,9 +246,12 @@ Read more about undocumented 6502 opcodes
 | Indirect, Y | STA [$42], Y |
 | Relative    | BEQ label    |
 
-Note: `nessemble` uses square brackets `[]` instead of parentheses `()` in its
-addressing modes because the latter are used to indicate precedence in
-mathematical operations.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> `nessemble` uses square brackets `[]` instead of parentheses `()` in its
+> addressing modes because the latter are used to indicate precedence in
+> mathematical operations.
+> </div>
 
 Read more about 6502 addressing modes
 [here](http://www.emulator101.com/6502-addressing-modes.html).
@@ -385,7 +388,10 @@ Output:
 
 The checksum is `b8 1f ee 86`.
 
-Note: Checksums may only be performed on preceding data.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Checksums may only be performed on preceding data.
+> </div>
 
 <div class="nessemble-example">start:
     LDA #$01
@@ -410,7 +416,10 @@ Example:
 .chr 0
 ```
 
-Note: CHR banks are 2K bytes (0x2000) in size.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> CHR banks are 2K bytes (0x2000) in size.
+> </div>
 
 ### .color
 
@@ -878,10 +887,13 @@ Example:
 .include "file.asm"
 ```
 
-Note: Included files share a global state with other included files and the main
-entry point file. That means if a variable is defined in one file, it is
-available to all other files, provided that they are included after the
-definition.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Included files share a global state with other included files and the main
+> entry point file. That means if a variable is defined in one file, it is
+> available to all other files, provided that they are included after the
+> definition.
+> </div>
 
 ### .incpal
 
@@ -901,9 +913,12 @@ Example:
 .incpal "palette.png"
 ```
 
-Note: The PNG will be scanned, row-by-row/pixel-by-pixel, from the top-left to
-the bottom-right until it encounters 4 different, but not necessarily unique,
-colors.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The PNG will be scanned, row-by-row/pixel-by-pixel, from the top-left to
+> the bottom-right until it encounters 4 different, but not necessarily unique,
+> colors.
+> </div>
 
 ### .incpng
 
@@ -918,7 +933,10 @@ Converts the PNG to CHR tiles. The image must include only 4 colors:
 | <i class="fa fa-stop color-lgrey"></i> | Light Grey | 170, 170, 170 | #AAAAAA |
 | <i class="fa fa-stop color-white"></i> | White      | 255, 255, 255 | #FFFFFF |
 
-Note: Other colors may be used, but accuracy is not guaranteed.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> Other colors may be used, but accuracy is not guaranteed.
+> </div>
 
 Usage:
 
@@ -1079,9 +1097,12 @@ Example:
 
 iNES trainer include.
 
-Note: The assembled trainer must be no larger than 512 (0x200) bytes. The
-appropriate flag is automatically set in the iNES header to indicate a trainer
-is present.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The assembled trainer must be no larger than 512 (0x200) bytes. The
+> appropriate flag is automatically set in the iNES header to indicate a trainer
+> is present.
+> </div>
 
 Usage:
 
@@ -1230,7 +1251,10 @@ Example:
 .prg 0
 ```
 
-Note: PRG banks are 4K bytes (0x4000) in size.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> PRG banks are 4K bytes (0x4000) in size.
+> </div>
 
 ### .random
 
@@ -1325,7 +1349,10 @@ Usage:
 * `SEGMENT` - Type of segment, required. `PRG` or `CHR`.
 * `[0-9]+` - Number, required. Segment index.
 
-Note: The whole segment must be within quotes.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The whole segment must be within quotes.
+> </div>
 
 Example:
 
@@ -1333,7 +1360,10 @@ Example:
 .segment "PRG1"
 ```
 
-Note: This is an alias for `.prg 1`.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> This is an alias for `.prg x`.
+> </div>
 
 ## Optional Scripts
 
