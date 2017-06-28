@@ -254,7 +254,7 @@ registry:
 
 .PHONY: docs
 docs:
-	cp $(EXEC).min.js docs/pages/js 2>/dev/null || :
+	cp $(EXEC).min.js docs/pages/js 2>/dev/null || cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
 	cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
 
 # INSTALL/UNINSTALL
