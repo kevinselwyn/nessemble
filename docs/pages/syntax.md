@@ -80,8 +80,7 @@ Output:
 loop:
     DEX
     BNE loop
-    BRK
-</div>
+    BRK</div>
 
 ### Temporary
 
@@ -126,8 +125,7 @@ Output:
 :
     DEX
     BNE :-
-    BRK
-</div>
+    BRK</div>
 
 ## Mnemonics
 
