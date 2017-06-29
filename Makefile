@@ -98,8 +98,10 @@ debug: $(EXEC)
 js: $(EXEC)
 
 min.js:
-	$(MAKE) js
-	uglifyjs $(EXEC).js --output $(EXEC).min.js
+	@printf "Building JS...\n"
+	@$(MAKE) js >/dev/null 2>/dev/null || :
+	@printf "Minifying JS...\n"
+	@uglifyjs $(EXEC).js --output $(EXEC).min.js
 
 wasm:
 	$(MAKE) js CC="emcc -s WASM=1"
@@ -174,7 +176,7 @@ test: all
 
 test-js:
 	@printf "Building JS...\n"
-	@make js >/dev/null 2>/dev/null || :
+	@$(MAKE) js >/dev/null 2>/dev/null || :
 	@printf "Building tests...\n"
 	@python utils/jstest.py --input ./test/errors \
 		--output ./test/js/errors.js
@@ -197,7 +199,7 @@ src/scripting/lua.c: liblua
 liblua: src/third-party/lua-5.1.5/src/liblua.a
 
 src/third-party/lua-5.1.5/src/liblua.a:
-	make -C src/third-party/lua-5.1.5/src/ all \
+	$(MAKE) -C src/third-party/lua-5.1.5/src/ all \
 		CC="$(CC)" AR="$(AR) rcu" RANLIB="$(RANLIB)" \
 		MYCFLAGS="$(CC_LIBLUA)"
 
@@ -208,7 +210,7 @@ src/scripting/scm.c: libtinyscheme
 libtinyscheme: src/third-party/tinyscheme-1.41/libtinyscheme.a
 
 src/third-party/tinyscheme-1.41/libtinyscheme.a:
-	make -C src/third-party/tinyscheme-1.41/ libtinyscheme.a \
+	$(MAKE) -C src/third-party/tinyscheme-1.41/ libtinyscheme.a \
 		CC="$(CC) -fpic -pedantic -Wno-switch" AR="$(AR) crs" \
 		PLATFORM_FEATURES="$(SCHEME_FLAGS)"
 
@@ -268,8 +270,10 @@ registry:
 
 .PHONY: docs
 docs:
-	cp $(EXEC).min.js docs/pages/js 2>/dev/null || cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
-	cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
+	@printf "Copying JS...\n"
+	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
+	@printf "Starting server...\n"
+	@cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
 
 # INSTALL/UNINSTALL
 
@@ -376,5 +380,5 @@ clean:
 	$(RM) src/static/opcodes.c
 	$(RM) src/static/scripts.h src/static/scripts.tar.gz
 	$(RM) $(PAYLOAD)
-	make -C src/third-party/tinyscheme-1.41/ clean
-	make -C src/third-party/lua-5.1.5/src/ clean
+	$(MAKE) -C src/third-party/tinyscheme-1.41/ clean
+	$(MAKE) -C src/third-party/lua-5.1.5/src/ clean
