@@ -81,7 +81,6 @@ int include_stack_ptr = 0;
 ".ifndef"                  { return PSEUDO_IFNDEF; }
 ".incbin"                  { return PSEUDO_INCBIN; }
 ".include"                 { BEGIN(include); return PSEUDO_INCLUDE; }
-".incmid"                  { return PSEUDO_INCMID; }
 ".incpal"                  { return PSEUDO_INCPAL; }
 ".incpng"                  { return PSEUDO_INCPNG; }
 ".incrle"                  { return PSEUDO_INCRLE; }
