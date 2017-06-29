@@ -15,10 +15,29 @@ To provide a recipe of instructions to be run by the simulator, use the
 nessemble infile.rom --simulate --recipe recipe.txt
 ```
 
-## Instructions
+## Options
 
 The following instructions can be used to execute functionality inside the
 simulator's REPL.
+
+| Option                                                                       | Description                                       |
+|------------------------------------------------------------------------------|---------------------------------------------------|
+| [.registers \[register=XXXX,...\]](#registers-registerxxxx)                  | Print registers (sets registers w/ options)       |
+| [.flags \[flag=X,...\]](#flags-flagx)                                        | Print flags (sets flags w/ options)               |
+| [.fill XXXX NN ...](#fill-xxxx-nn)                                           | Fill memory address with NN byte(s)               |
+| [.disassemble XXXX:XXXX](#disassemble-xxxxxxxx)                              | Disassemble instructions between addresses        |
+| [.instruction](#instruction)                                                 | Print next instruction                            |
+| [.memory XXXX\[:XXXX\]](#memory-xxxxxxxx)                                    | Print memory in address range                     |
+| [.cycles](#cycles)                                                           | Print count of CPU cycles                         |
+| [.goto XXXX](#goto-xxxx)                                                     | Set program counter to XXXX                       |
+| [.step \[X\]](#step-x)                                                       | Step program counter by 1 or X                    |
+| [.run](#run)                                                                 | Run program                                       |
+| [.record XXXX &lt;filename&gt;](#record-xxxx-filename)                       | Record writes to address XXXX                     |
+| [.breakpoints](#breakpoints)                                                 | List all breakpoints                              |
+| [.add_breakpoint XXXX \[&lt;name&gt;\]](#add_breakpoint-xxxx-name)           | Add breakpoint at address XXXX with optional name |
+| [.remove_breakpoint \[XXXX\|&lt;name&gt;\],...](#remove_breakpoint-xxxxname) | Remove breakpoint(s) at address XXXX or with name |
+| [.quit](#quit)                                                               | Quit                                              |
+| [.help](#help)                                                               | Print this message                                |
 
 ### .registers [register=XXXX,...]
 
@@ -36,7 +55,10 @@ Example:
 Prints the value of all flags. If values are provided, the flags will be set,
 and then the updated value of all flags will be printed.
 
-Note: `1` means set, `0` means unset/cleared.
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> `1` means set, `0` means unset/cleared.
+> </div>
 
 Example:
 
@@ -127,7 +149,7 @@ Example:
 ### .record XXXX &lt;filename&gt;
 
 Records all writes to address XXXX and writes the output to filename
-`&lt;filename&gt;`.
+`<filename>`.
 
 Example:
 
@@ -147,7 +169,7 @@ Example:
 
 ### .add_breakpoint XXXX [&lt;name&gt;]
 
-Adds breakpoint at address `XXXX` with optional name `&lt;name&gt;`.
+Adds breakpoint at address `XXXX` with optional name `<name>`.
 
 Example:
 
@@ -157,7 +179,7 @@ Example:
 
 ### .remove_breakpoint [XXXX|&lt;name&gt;,...]
 
-Removes breakpoint(s) at address XXX or with name `&lt;name&gt;`.
+Removes breakpoint(s) at address XXX or with name `<name>`.
 
 Example:
 

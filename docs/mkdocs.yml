@@ -6,6 +6,7 @@ pages:
     - Building: building.md
     - Usage: usage.md
     - Syntax: syntax.md
+    - Playground: playground.md
     - Disassembling: disassembling.md
     - Simulating: simulating.md
     - Packages: packages.md
@@ -20,3 +21,7 @@ docs_dir: pages
 dev_addr: 0.0.0.0:9090
 extra_css:
     - css/custom.css
+extra_javascript:
+    - js/bootstrap-modal.js
+    - js/nessemble.min.js
+    - js/custom.js

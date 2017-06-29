@@ -37,6 +37,12 @@ sudo apt-get -y install git make curl bison flex
 # debug tools
 sudo apt-get -y install bc gdb splint valgrind
 
+# node
+sudo apt-get -y install npm
+
+# node modules
+sudo npm install -g uglifyjs
+
 # python
 sudo apt-get -y install python-pip
 
