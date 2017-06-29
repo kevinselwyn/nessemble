@@ -400,12 +400,26 @@ int main(int argc, char *argv[]) {
         }
     }
 #else
+    int stdin_read = 0;
+    char stdin_data[1024];
+    FILE *stdin_file = NULL;
+
     EM_ASM(
         FS.mkdir('/working');
         FS.mount(MEMFS, {}, '/working');
     );
 
     strcpy(cwd, SEP "working" SEP PROGRAM_NAME "-stdin");
+
+    stdin_file = fopen(cwd, "w+");
+
+    memset(stdin_data, '\0', 1024);
+
+    while ((stdin_read = fread(stdin_data, 1, 1024, stdin))) {
+        fwrite(stdin_data, stdin_read, 1, stdin_file);
+    }
+
+    fseek(stdin_file, 0, SEEK_SET);
 #endif /* IS_JAVASCRIPT */
 
     /* simulate */
@@ -456,20 +470,6 @@ int main(int argc, char *argv[]) {
 
     yyin = file;
 #else /* IS_JAVASCRIPT */
-    int stdin_read = 0;
-    char stdin_data[1024];
-    FILE *stdin_file = NULL;
-
-    stdin_file = fopen(cwd, "w+");
-
-    memset(stdin_data, '\0', 1024);
-
-    while ((stdin_read = fread(stdin_data, 1, 1024, stdin))) {
-        fwrite(stdin_data, stdin_read, 1, stdin_file);
-    }
-
-    fseek(stdin_file, 0, SEEK_SET);
-
     yyin = stdin_file;
 #endif /* IS_JAVASCRIPT */
 
