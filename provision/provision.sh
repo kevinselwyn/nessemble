@@ -86,8 +86,11 @@ mv $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme.h $ROOT/src/th
 cat $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme-old.h | sed 's/# define STANDALONE 1/# define STANDALONE 0/' > $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme.h
 rm -rf $ROOT/src/third-party/tinyscheme*.tar.gz
 
-# expose custom scripts
-echo "PATH=\$PATH:$ROOT/provision/scripts" >> $HOME/.profile
+if [ -d "/vagrant" ]
+then
+    # expose custom scripts
+    echo "PATH=\"\$PATH:$ROOT/provision/scripts\"" >> $HOME/.profile
 
-# go to $ROOT at login
-echo "cd $ROOT" >> $HOME/.profile
+    # go to $ROOT at login
+    echo "cd $ROOT" >> $HOME/.profile
+fi
