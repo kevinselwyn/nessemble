@@ -24,4 +24,5 @@ extra_css:
 extra_javascript:
     - js/bootstrap-modal.js
     - js/nessemble.min.js
-    - js/custom.js
+    - js/nessemble-custom.js
+    - js/registry.js
