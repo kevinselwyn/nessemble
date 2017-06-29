@@ -6,6 +6,7 @@ license.h
 lex.yy.c
 nessemble
 nessemble.js
+nessemble.min.js
 nessemble.wasm
 opcodes.c
 package/payload
@@ -17,6 +18,7 @@ src/third-party/**/*.o
 src/third-party/lua*
 src/third-party/tinyscheme*
 strings.h
+test/js/*.js
 y.tab.*
 *.chr
 *.db
