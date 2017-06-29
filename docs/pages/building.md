@@ -130,3 +130,26 @@ make min.js
 ```text
 make test-js
 ```
+
+## Extra
+
+### Scripting
+
+`nessemble` has built-in support for Javascript, Lua, and Scheme scripting.
+(Read more in the section on [Extending](/extending)). These each require their
+own dependencies and may be selectively turned on/off.
+
+Pass a macro definition to `make` for each type of scripting:
+
+```text
+make SCRIPTING="-DSCRIPTING_JAVASCRIPT=0" # disable
+make SCRIPTING="-DSCRIPTING_JAVASCRIPT=1" # enable (default)
+
+make SCRIPTING="-DSCRIPTING_LUA=0" # disable
+make SCRIPTING="-DSCRIPTING_LUA=1" # enable (default)
+
+make SCRIPTING="-DSCRIPTING_SCHEME=0" # disable
+make SCRIPTING="-DSCRIPTING_SCHEME=1" # enable (default)
+
+make SCRIPTING="-DSCRIPTING_JAVASCRIPT=1 -DSCRIPTING_LUA=0 -DSCRIPTING_SCHEME=1" # combine several
+```

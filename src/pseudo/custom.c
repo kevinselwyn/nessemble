@@ -1,11 +1,29 @@
 #include <string.h>
 #include "../nessemble.h"
 
-#ifndef IS_JAVASCRIPT
-#define CUSTOM_SCRIPT_COUNT 4
-#else /* IS_JAVASCRIPT */
-#define CUSTOM_SCRIPT_COUNT 3
-#endif /* IS_JAVASCRIPT */
+#if defined(SCRIPTING_JAVASCRIPT) && SCRIPTING_JAVASCRIPT != 0
+#define CUSTOM_SCRIPT_JS 1
+#else
+#define CUSTOM_SCRIPT_JS 0
+#endif
+
+#if defined(SCRIPTING_SCHEME) && SCRIPTING_SCHEME != 0
+#define CUSTOM_SCRIPT_SCM 1
+#else
+#define CUSTOM_SCRIPT_SCM 0
+#endif
+
+#if defined(SCRIPTING_LUA) && SCRIPTING_LUA != 0
+#define CUSTOM_SCRIPT_LUA 1
+#else
+#define CUSTOM_SCRIPT_LUA 0
+#endif
+
+#ifdef IS_JAVSCRIPT
+#define CUSTOM_SCRIPT_COUNT 0
+#else
+#define CUSTOM_SCRIPT_COUNT (CUSTOM_SCRIPT_JS+CUSTOM_SCRIPT_SCM+CUSTOM_SCRIPT_LUA+1)
+#endif
 
 struct custom_script {
     char *ext;
@@ -13,9 +31,15 @@ struct custom_script {
 };
 
 struct custom_script custom_scripts[CUSTOM_SCRIPT_COUNT] = {
+#if CUSTOM_SCRIPT_JS == 1
     { "js",  &scripting_js  },
+#endif
+#if CUSTOM_SCRIPT_SCM == 1
     { "scm", &scripting_scm },
+#endif
+#if CUSTOM_SCRIPT_LUA == 1
     { "lua", &scripting_lua },
+#endif
 #ifndef IS_JAVASCRIPT
 #ifndef IS_WINDOWS
     { "so",  &scripting_so  }
@@ -65,6 +89,27 @@ void pseudo_custom(char *pseudo) {
     }
 
     if (found == FALSE) {
+#if CUSTOM_SCRIPT_JS == 0
+        if (strcmp(ext, "js") == 0) {
+            yyerror(_("Javascript scripting is disabled"));
+            goto cleanup;
+        }
+#endif
+
+#if CUSTOM_SCRIPT_SCM == 0
+        if (strcmp(ext, "scm") == 0) {
+            yyerror(_("Scheme scripting is disabled"));
+            goto cleanup;
+        }
+#endif
+
+#if CUSTOM_SCRIPT_LUA == 0
+        if (strcmp(ext, "lua") == 0) {
+            yyerror(_("Lua scripting is disabled"));
+            goto cleanup;
+        }
+#endif
+
         if (scripting_cmd(exec) != RETURN_OK) {
             yyerror(_("Command for custom pseudo-instruction `%s` failed"), pseudo);
             goto cleanup;
