@@ -209,6 +209,7 @@ NessembleExamples.prototype.setup = function (example) {
         clear = document.createElement('button'),
         download = document.createElement('button'),
         open = document.createElement('button'),
+        help = document.createElement('button'),
         output_wrapper = document.createElement('pre'),
         output = document.createElement('code'),
         element = document.createElement('div');
@@ -391,6 +392,14 @@ NessembleExamples.prototype.setup = function (example) {
     open.setAttribute('data-href', '../playground');
     open.setAttribute('title', 'Open in Playground');
 
+    // setup help button
+    help.innerHTML = '<i class="fa fa-question-circle"></i>';
+    $this.addClass(help, 'btn');
+    $this.addClass(help, 'btn-neutral');
+    help.setAttribute('title', 'Help');
+    help.setAttribute('data-toggle', 'modal');
+    help.setAttribute('data-target', '#help-modal');
+
     // append buttons
     buttons.appendChild(assemble);
 
@@ -405,6 +414,8 @@ NessembleExamples.prototype.setup = function (example) {
         if (!opts.bare) {
             buttons.appendChild(open);
         }
+
+        buttons.appendChild(help);
     }
 
     // setup output

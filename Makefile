@@ -97,6 +97,10 @@ debug: $(EXEC)
 
 js: $(EXEC)
 
+min.js:
+	$(MAKE) js
+	uglifyjs $(EXEC).js --output $(EXEC).min.js
+
 wasm:
 	$(MAKE) js CC="emcc -s WASM=1"
 
@@ -167,6 +171,20 @@ $(EXEC): $(OBJS) $(HDRS)
 
 test: all
 	@python test.py
+
+test-js:
+	@printf "Building JS...\n"
+	@make js >/dev/null 2>/dev/null || :
+	@printf "Building tests...\n"
+	@python utils/jstest.py --input ./test/errors \
+		--output ./test/js/errors.js
+	@python utils/jstest.py --input ./test/examples \
+		--output ./test/js/examples.js \
+		--exclude custom,ease,incbin,include,incpal,incpng,incrle,incwav,macro,trainer
+	@python utils/jstest.py --input ./test/opcodes \
+		--output ./test/js/opcodes.js \
+		--exclude undocumented
+	@printf "Open: file://%s\n" $(shell pwd)/test/js/test.html
 
 splint:
 	splint -I/usr/include -I/usr/include/x86_64-linux-gnu \
@@ -250,7 +268,7 @@ registry:
 
 .PHONY: docs
 docs:
-	cp nessemble.js docs/pages/js 2>/dev/null || :
+	cp $(EXEC).min.js docs/pages/js 2>/dev/null || cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
 	cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
 
 # INSTALL/UNINSTALL
@@ -349,7 +367,7 @@ win_package:
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).wasm
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).min.js $(EXEC).wasm
 	$(RM) $(OBJS)
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
 	$(RM) src/static/font.h src/static/font.chr
