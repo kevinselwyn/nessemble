@@ -98,6 +98,8 @@ Pagination result information:
 * `prev` - String or null. URL of previous page.
 * `next` - String or null. URL of next page.
 
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/","method":"GET"}'></div>
+
 ### /search
 
 #### GET /search/&lt;string:term&gt;
@@ -145,6 +147,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
     ]
 }
 ```
+
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/search/foo","method":"GET"}'></div>
 
 ### /package
 

@@ -4,6 +4,10 @@ li.toctree-l2:first-child {
 code.text {
     color: #404040
 }
+
+/**
+ * Colors
+ */
 .color-black {
     color: #000000;
 }
@@ -22,6 +26,10 @@ code.text {
 .color-white {
     color: #FFFFFF;
 }
+
+/**
+ * Nessemble Example
+ */
 .nessemble-example {
     width: 100%;
     display: none;
@@ -33,6 +41,7 @@ code.text {
     margin-bottom: -1px;
     padding: 12px;
     color: #404040;
+    border-color: #cccccc !important;
     font-size: 12px;
     font-family: Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace;
     white-space: pre;
@@ -74,8 +83,55 @@ code.text {
     display: block;
 }
 
-/* BOOTSTRAP MODAL */
+/**
+ * Registry Example
+ */
+.registry-example {
+    width: 100%;
+    display: none;
+}
+.registry-example.show {
+    display: block;
+}
+.registry-example textarea {
+    margin-bottom: -1px;
+    padding: 12px;
+    color: #404040;
+    border-color: #cccccc !important;
+    font-size: 12px;
+    font-family: Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace;
+    white-space: pre;
+    word-wrap: normal;
+}
+.registry-example textarea.registry {
+    width: 50%;
+    height: 40px;
+    float: left;
+    resize: none;
+}
+.registry-example textarea.endpoint {
+    width: 50%;
+    height: 40px;
+    min-height: 0;
+    margin-left: -2px;
+    float: left;
+    resize: none;
+}
+.registry-example pre {
+    margin-top: -3px;
+}
+.registry-example code {
+    max-height: 300px;
+    display: none;
+    overflow: scroll;
+}
+.registry-example code.show {
+    display: block;
+}
 
+/**
+ * Bootstrap Modal
+ */
 .modal-open {
   overflow: hidden;
 }

@@ -131,8 +131,189 @@ Registry.prototype.get = function (callback) {
     xhr.send(null);
 };
 
-var registry = new Registry('http://localhost:8000/registry', '/search/rle', 'GET');
+var RegistryExample = function () {
+    var $this = this,
+        examples = document.querySelectorAll('.registry-example');
 
-registry.run(function (response) {
-    console.log(response);
-});
+    if (!examples || !examples.length) {
+        return;
+    }
+
+    [].forEach.call(examples, function (example) {
+        $this.setup(example);
+    });
+};
+
+RegistryExample.prototype.addClass = function (el, className) {
+    var el_classname = el.className,
+        regex = new RegExp(['\\b', className, '\\b'].join(''));
+
+    if (el_classname.search(regex) === -1) {
+        el_classname += ' ' + className;
+        el_classname = el_classname.replace(/\s{2,}/, ' ');
+        el_classname = el_classname.replace(/^\s+/, '');
+        el_classname = el_classname.replace(/\s+$/, '');
+
+        el.className = el_classname;
+    }
+};
+
+RegistryExample.prototype.removeClass = function (el, className) {
+    var el_classname = el.className,
+        regex = new RegExp(['\\b', className, '\\b'].join(''));
+
+    if (el_classname.search(regex) !== -1) {
+        el_classname = el_classname.replace(regex, '');
+        el_classname = el_classname.replace(/^\s+/, '');
+        el_classname = el_classname.replace(/\s+$/, '');
+
+        el.className = el_classname;
+    }
+};
+
+RegistryExample.prototype.setup = function (example) {
+    var $this = this,
+        opts = {},
+        hr = document.createElement('hr'),
+        paragraph = document.createElement('p'),
+        registry = document.createElement('textarea'),
+        endpoint = document.createElement('textarea'),
+        buttons = document.createElement('div'),
+        send = document.createElement('button'),
+        reset = document.createElement('button'),
+        clear = document.createElement('button'),
+        help = document.createElement('button'),
+        output_wrapper = document.createElement('pre'),
+        output = document.createElement('code'),
+        modal_title = document.querySelector('.modal-header'),
+        modal_body = document.querySelector('.modal-body');
+
+    // quit if already initialized
+    if (example.getAttribute('data-initialized') === 'true') {
+        return;
+    }
+
+    // get data-opts
+    try {
+        opts = JSON.parse(example.getAttribute('data-opts')) || {};
+    } catch (e) {
+        opts = {};
+    }
+
+    // send click listener
+    send.addEventListener('click', function () {
+        var reg = new Registry(opts.registry, endpoint.value, opts.method);
+
+        reg.run(function (response) {
+            output.innerHTML = response;
+            $this.addClass(output, 'show');
+        });
+    });
+
+    // endpoint keydown listener
+    endpoint.addEventListener('keydown', function (e) {
+        var reg = null;
+
+        if (e.keyCode === 13) {
+            e.preventDefault();
+
+            reg = new Registry(opts.registry, endpoint.value, opts.method);
+
+            reg.run(function (response) {
+                output.innerHTML = response;
+                $this.addClass(output, 'show');
+            });
+        }
+    });
+
+    // reset click listener
+    reset.addEventListener('click', function () {
+        // reset endpoint
+        endpoint.value = opts.endpoint;
+
+        // clear output
+        output.innerHTML = '';
+        $this.removeClass(output, 'show');
+    });
+
+    // clear click listener
+    clear.addEventListener('click', function () {
+        // clear output
+        output.innerHTML = '';
+        $this.removeClass(output, 'show');
+    });
+
+    // clear out element
+    example.innerHTML = '';
+
+    // add paragraph
+    paragraph.innerHTML = 'Try it:';
+
+    // add registry field
+    $this.addClass(registry, 'registry');
+    registry.innerHTML = opts.registry;
+    registry.disabled = true;
+
+    // add endpoint field
+    $this.addClass(endpoint, 'endpoint');
+    endpoint.innerHTML = opts.endpoint;
+
+    // button group
+    $this.addClass(buttons, 'btn-group');
+
+    // setup send button
+    $this.addClass(send, 'btn');
+    $this.addClass(send, 'btn-danger');
+    send.setAttribute('title', 'Send');
+    send.innerHTML = 'Send';
+
+    // reset clear button
+    reset.innerHTML = 'Reset';
+    $this.addClass(reset, 'btn');
+    $this.addClass(reset, 'btn-neutral');
+    reset.setAttribute('title', 'Reset');
+
+    // setup clear button
+    clear.innerHTML = 'Clear';
+    $this.addClass(clear, 'btn');
+    $this.addClass(clear, 'btn-neutral');
+    clear.setAttribute('title', 'Clear');
+
+    // setup help button
+    help.innerHTML = '<i class="fa fa-question-circle"></i>';
+    $this.addClass(help, 'btn');
+    $this.addClass(help, 'btn-neutral');
+    help.setAttribute('title', 'Help');
+    help.setAttribute('data-toggle', 'modal');
+    help.setAttribute('data-target', '#help-modal');
+
+    // setup help modal
+    modal_title.innerHTML = 'Registry Help';
+    modal_body.innerHTML = '<p>Click the <code>Send</code> button to run a specific API call.</p>';
+
+    // setup output
+    $this.addClass(output, 'text');
+    output_wrapper.appendChild(output);
+
+    // append buttons
+    buttons.appendChild(send);
+    buttons.appendChild(reset);
+    buttons.appendChild(clear);
+    buttons.appendChild(help);
+
+    // append all
+    example.appendChild(hr);
+    example.appendChild(paragraph);
+    example.appendChild(registry);
+    example.appendChild(endpoint);
+    example.appendChild(buttons);
+    example.appendChild(output_wrapper);
+
+    // show module
+    $this.addClass(example, 'show');
+
+    // mark as initialized
+    example.setAttribute('data-initalized', 'true');
+};
+
+var registryExamples = new RegistryExample();
