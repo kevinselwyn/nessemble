@@ -277,29 +277,32 @@ translate-install: translate/$(LANG)/nessemble.mo
 # SERVER
 
 .PHONY: server
-server:
-	cd docs ; mkdocs build --clean
-	python server.py --debug --port 8000
+server: docs-js
+	@cd docs ; mkdocs build --clean
+	@python server.py --debug --port 8000
 
 # WEBSITE
 
 .PHONY: website
 website:
-	cd website ; python index.py --debug --port 9000
+	@cd website ; python index.py --debug --port 9000
 
 # REGISTRY
 
 .PHONY: registry
 registry:
-	cd registry ; python index.py --debug --port 8000 --import registry.sql
+	@cd registry ; python index.py --debug --port 8000 --import registry.sql
 
 # DOCUMENTATION
 
-.PHONY: docs
-docs:
+.PHONY: docs-js
+docs-js:
 	@printf "Copying JS...\n"
 	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
 		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
+
+.PHONY: docs
+docs: docs-js
 	@printf "Starting server...\n"
 	@cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
 
