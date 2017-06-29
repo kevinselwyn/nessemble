@@ -20,6 +20,10 @@ YACC_OUT     := y.tab
 YACC_FLAGS   := --output=src/$(YACC_OUT).c --defines --yacc
 SCHEME_FLAGS :=
 
+SCRIPTING     := -DSCRIPTING_JAVASCRIPT=1 -DSCRIPTING_LUA=1 -DSCRIPTING_SCHEME=1
+SCRIPTING_LUA := src/third-party/lua-5.1.5/src/liblua.a
+SCRIPTING_SCM := src/third-party/tinyscheme-1.41/libtinyscheme.a
+
 EMAIL        := kevinselwyn@gmail.com
 MAINTAINER   := Kevin Selwyn
 DESCRIPTION  := A 6502 assembler for the Nintendo Entertainment System
@@ -37,10 +41,31 @@ FILES        += src/macro.c src/math.c src/static/opcodes.c src/pager.c
 FILES        += src/png.c src/reference.c src/registry.c src/scripts.c
 FILES        += src/simulate.c src/usage.c src/user.c src/utils.c src/wav.c
 FILES        += src/zip.c
-FILES        += $(shell ls src/pseudo/*.c) $(shell ls src/scripting/*.c)
+FILES        += $(shell ls src/pseudo/*.c)
 FILES        += $(shell ls src/simulate/*.c)
 FILES        += src/third-party/jsmn/jsmn.c src/third-party/udeflate/deflate.c
+
+FILES        += src/scripting/cmd.c
+
+ifneq (,$(findstring SCRIPTING_JAVASCRIPT=1,$(SCRIPTING)))
+FILES        += src/scripting/js.c
 FILES        += src/third-party/duktape/duktape.c
+endif
+
+ifneq (,$(findstring SCRIPTING_LUA=1,$(SCRIPTING)))
+FILES        += src/scripting/lua.c
+else
+CC_LIB_FLAGS  :=
+SCRIPTING_LUA :=
+endif
+
+ifneq (,$(findstring SCRIPTING_SCHEME=1,$(SCRIPTING)))
+FILES        += src/scripting/scm.c
+else
+SCRIPTING_SCM :=
+endif
+
+FILES        += src/scripting/so.c
 
 SRCS         := src/$(YACC_OUT).c src/$(LEX_OUT).c $(FILES)
 HDRS         := src/$(NAME).h
@@ -51,10 +76,10 @@ OBJS         := ${SRCS:c=o}
 # PLATFORM-SPECIFIC
 
 ifeq ($(UNAME), Darwin)
-all: CC_FLAGS   += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments -lintl
+all:   CC_FLAGS += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments -lintl
 debug: CC_FLAGS += -I$(CC_INCLUDES) -L$(CC_LIBRARIES) -Qunused-arguments -lintl
 else
-all: CC_FLAGS   += -lfl -lrt
+all:   CC_FLAGS += -lfl -lrt
 debug: CC_FLAGS += -lfl -lrt
 endif
 
@@ -125,7 +150,7 @@ src/static/opcodes.c: src/static/opcodes.csv
 	./utils/opcodes.py -i $< > $@
 
 %.o: %.c
-	$(CC) -O -c $< $(CC_FLAGS) $(CC_LIB_FLAGS) -o $@
+	$(CC) -O -c $< $(CC_FLAGS) $(CC_LIB_FLAGS) $(SCRIPTING) -o $@
 
 %.h: %.txt
 	./utils/xxd.py -i $< > $@
@@ -158,7 +183,8 @@ src/usage.c: src/static/license.h
 src/static/license.h: ${src/static/licence.txt:txt=h}
 
 src/static/scripts.tar.gz:
-	cd src/static && tar -czf scripts.tar.gz $(shell cd src/static && ls scripts/*)
+	cd src/static && \
+		tar -czf scripts.tar.gz $(shell cd src/static && ls scripts/*)
 
 src/static/scripts.h: ${src/static/scripts.tar.gz:tar.gz=h}
 
@@ -166,8 +192,9 @@ src/scripts.c: src/static/scripts.tar.gz src/static/scripts.h
 
 $(EXEC): $(OBJS) $(HDRS)
 	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS) \
-		src/third-party/lua-5.1.5/src/liblua.a \
-		src/third-party/tinyscheme-1.41/libtinyscheme.a
+		$(SCRIPTING) \
+		$(SCRIPTING_LUA) \
+		$(SCRIPTING_SCM)
 
 # TESTING
 
@@ -271,7 +298,8 @@ registry:
 .PHONY: docs
 docs:
 	@printf "Copying JS...\n"
-	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
+	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
+		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
 	@printf "Starting server...\n"
 	@cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
 
@@ -300,7 +328,8 @@ ifeq ($(UNAME), Linux)
 	mkdir -p $(PAYLOAD)/usr/share/bash-completion/completions
 	strip $(EXEC)
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
-	cp $(NAME)-completion.bash $(PAYLOAD)/usr/share/bash-completion/completions/$(NAME)
+	cp $(NAME)-completion.bash \
+		$(PAYLOAD)/usr/share/bash-completion/completions/$(NAME)
 	mkdir -p $(PAYLOAD)/DEBIAN
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
@@ -319,7 +348,8 @@ ifeq ($(UNAME), Linux)
 	cat src/static/license.txt >> $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
 	cd $(PAYLOAD) ; md5sum `find usr -type f` > DEBIAN/md5sums
 	cp $(PACKAGE)/scripts/linux/* $(PAYLOAD)/DEBIAN
-	dpkg-deb --build $(PAYLOAD) $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).deb
+	dpkg-deb --build $(PAYLOAD) \
+		$(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).deb
 	$(RM) $(PAYLOAD)
 endif
 
