@@ -244,7 +244,27 @@ NessembleExamples.prototype.setup = function (example) {
     // assemble click listener
     assemble.addEventListener('click', function () {
         var nessemble = new Nessemble({
-            stdin: input.value || '',
+            stdin: (function () {
+                var str = input.value || '',
+                    new_str = [],
+                    bytes = [];
+
+                if (opts.disassemble) {
+                    bytes = str.split(',');
+
+                    bytes.forEach(function (byte, i) {
+                        byte = byte.replace('0x', '');
+                        byte = byte.replace(/^\s+/, '');
+                        byte = byte.replace(/\s+$/, '');
+
+                        new_str.push(String.fromCharCode(parseInt(byte, 16)));
+                    });
+
+                    str = new_str.join('');
+                }
+
+                return str;
+            }()),
             onStdout: function (_rc, _stdout) {
                 rc = _rc;
                 stdout = _stdout;
@@ -258,12 +278,12 @@ NessembleExamples.prototype.setup = function (example) {
                     return;
                 }
 
-                if (!opts.args || !opts.args.length) {
-                    output.innerHTML = $this.hexdump(stdout);
-                } else {
+                if (opts.flags || opts.disassemble) {
                     stdout.forEach(function (byte) {
                         output.innerHTML += String.fromCharCode(byte);
                     });
+                } else {
+                    output.innerHTML = $this.hexdump(stdout);
                 }
 
                 $this.addClass(output, 'show');
@@ -292,7 +312,7 @@ NessembleExamples.prototype.setup = function (example) {
             }
         });
 
-        if (opts.args && opts.args.length) {
+        if (opts.flags) {
             args = input.value.split(' ');
         }
 
@@ -356,10 +376,12 @@ NessembleExamples.prototype.setup = function (example) {
     $this.addClass(buttons, 'btn-group');
 
     // setup assemble button
-    if (!opts.args || !opts.args.length) {
-        assemble.innerHTML = 'Assemble';
-    } else {
+    if (opts.flags) {
         assemble.innerHTML = 'Run';
+    } else if (opts.disassemble) {
+        assemble.innerHTML = 'Disassemble';
+    } else {
+        assemble.innerHTML = 'Assemble';
     }
 
     $this.addClass(assemble, 'btn');
@@ -403,7 +425,7 @@ NessembleExamples.prototype.setup = function (example) {
     // append buttons
     buttons.appendChild(assemble);
 
-    if (!opts.args || !opts.args.length) {
+    if (!opts.flags) {
         buttons.appendChild(reset);
         buttons.appendChild(clear);
 
@@ -411,7 +433,7 @@ NessembleExamples.prototype.setup = function (example) {
             buttons.appendChild(download);
         }
 
-        if (!opts.bare) {
+        if (!opts.bare && !opts.disassemble) {
             buttons.appendChild(open);
         }
 
@@ -428,7 +450,7 @@ NessembleExamples.prototype.setup = function (example) {
         example.appendChild(paragraph);
     }
 
-    if (opts.args && opts.args.length) {
+    if (opts.flags) {
         example.appendChild(exec);
     }
 
@@ -445,7 +467,7 @@ NessembleExamples.prototype.setup = function (example) {
     }
 
     // denote flags display
-    if (opts.args && opts.args.length) {
+    if (opts.flags) {
         $this.addClass(example, 'flags');
     }
 

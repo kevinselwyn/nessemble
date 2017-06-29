@@ -219,7 +219,7 @@ Example:
 nessemble --version
 ```
 
-<div class="nessemble-example" data-opts='{"args":["--version"]}'>--version</div>
+<div class="nessemble-example" data-opts='{"flags":true,"args":["--version"]}'>--version</div>
 
 ### -L, --license
 
@@ -232,7 +232,7 @@ Example:
 nessemble --license
 ```
 
-<div class="nessemble-example" data-opts='{"args":["--license"]}'>--license</div>
+<div class="nessemble-example" data-opts='{"flags":true,"args":["--license"]}'>--license</div>
 
 ### -h, --help
 
@@ -244,7 +244,7 @@ Example:
 nessemble --help
 ```
 
-<div class="nessemble-example" data-opts='{"args":["--help"]}'>--help</div>
+<div class="nessemble-example" data-opts='{"flags":true,"args":["--help"]}'>--help</div>
 
 ## Commands
 

@@ -107,7 +107,7 @@ make package
 
 The `.pkg` will be in the `releases` directory.
 
-## Javascript (experimental)
+## Javascript
 
 ### Dependencies
 
@@ -117,4 +117,16 @@ Install [Emscripten](http://kripken.github.io/emscripten-site/).
 
 ```text
 make js
+```
+
+To minify:
+
+```text
+make min.js
+```
+
+### Test
+
+```text
+make test-js
 ```
