@@ -153,3 +153,54 @@ make SCRIPTING="-DSCRIPTING_SCHEME=1" # enable (default)
 
 make SCRIPTING="-DSCRIPTING_JAVASCRIPT=1 -DSCRIPTING_LUA=0 -DSCRIPTING_SCHEME=1" # combine several
 ```
+
+### Servers
+
+Several servers are included for the [Website](/), [Documentation](/), and
+[Registry](/registry).
+
+#### Website
+
+```text
+make website
+```
+
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The website server defaults to: `http://localhost:9000`
+> </div>
+
+#### Documentation
+
+```text
+make docs
+```
+
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The documentation server defaults to: `http://localhost:9090`
+> </div>
+
+#### Registry
+
+```text
+make registry
+```
+
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The registry server defaults to: `http://localhost:8000`
+> </div>
+
+#### All
+
+All 3 servers can be run as 1 server.
+
+```text
+make server
+```
+
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The server defaults to: `http://localhost:8000`
+> </div>
