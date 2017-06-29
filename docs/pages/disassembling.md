@@ -58,3 +58,5 @@ nessemble infile.rom --disassemble --reassemble
 
 This will produce output that can be fed directly back into `nessemble` to
 generate the exact same ROM that was used as input.
+
+<div class="nessemble-example" data-opts='{"disassemble":true,"args":["--disassemble","--reassemble"]}'>0x85, 0x44, 0x95, 0x44, 0x8D, 0x00, 0x44, 0x9D, 0x00, 0x44</div>
