@@ -3,7 +3,7 @@
 Registry servers have no preferred language but must contain the following
 endpoints to be valid.
 
-The default registry URL is `http://localhost:8000`.
+The default registry URL is <span class="registry-default">`http://localhost:8000/registry`</span>.
 
 > <div class="admonition note">
 > <p class="admonition-title">Note</p>
@@ -27,7 +27,7 @@ The default registry URL is `http://localhost:8000`.
 | [/user/forgotpassword](#post-userforgotpassword)                          | POST     | Send an email to reset password               | <i class="fa fa-times color-red"></i>   |
 | [/user/resetpassword](#post-userresetpassword)                            | POST     | Reset password                                | <i class="fa fa-check color-green"></i> |
 | [/reference](#get-reference)                                              | GET      | Display reference categories                  | <i class="fa fa-times color-red"></i>   |
-| [/reference/<path:path>](#get-reference_1)                                | GET      | Display reference information for term `path` | <i class="fa fa-times color-red"></i>   |
+| [/reference/&lt;path:path&gt;](#get-referencepathpath)                    | GET      | Display reference information for term `path` | <i class="fa fa-times color-red"></i>   |
 
 ### Root
 
@@ -58,7 +58,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 {
     "packages": [
         {
@@ -98,6 +102,8 @@ Pagination result information:
 * `prev` - String or null. URL of previous page.
 * `next` - String or null. URL of next page.
 
+<div class="registry-example" data-opts='{"endpoint":"/","method":"GET"}'></div>
+
 ### /search
 
 #### GET /search/&lt;string:term&gt;
@@ -127,7 +133,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 {
     "term": "foo",
     "results": [
@@ -145,6 +155,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
     ]
 }
 ```
+
+<div class="registry-example" data-opts='{"endpoint":"/search/controller","method":"GET"}'></div>
 
 ### /package
 
@@ -181,7 +193,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 {
     "title": "foo",
     "description": "Foo bar baz qux",
@@ -201,6 +217,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
     "shasum": "0123456789abcdef0123456789abcdef12345678"
 }
 ```
+
+<div class="registry-example" data-opts='{"endpoint":"/package/controller","method":"GET"}'></div>
 
 #### GET /package/&lt;string:package&gt;/README
 
@@ -229,13 +247,19 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 # foo
 
 Foo bar baz quz
 
 ...
 ```
+
+<div class="registry-example" data-opts='{"endpoint":"/package/controller/README","method":"GET"}'></div>
 
 #### GET /package/&lt;string:package&gt;/data
 
@@ -266,9 +290,15 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 <raw data>...
 ```
+
+<div class="registry-example" data-opts='{"endpoint":"/package/controller/data","method":"GET"}'></div>
 
 #### POST /package/publish
 
@@ -308,7 +338,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {
     "title": "foo",
     "description": "Foo bar baz qux",
@@ -343,6 +377,8 @@ Content-Length: xxx
 
 To learn more about the gzipped package content, see the section on
 [Packages](/packages/#publishing).
+
+<div class="registry-example" data-opts='{"endpoint":"/package/publish","method":"POST"}'></div>
 
 ### /user
 
@@ -382,7 +418,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {}
 ```
 
@@ -400,12 +440,18 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {
     "status": 409,
     "error": "User already exists"
 }
 ```
+
+<div class="registry-example" data-opts='{"endpoint":"/user/create","method":"POST"}'></div>
 
 #### POST /user/login
 
@@ -438,11 +484,17 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {
     "token": "<token>"
 }
 ```
+
+<div class="registry-example" data-opts='{"endpoint":"/user/login","method":"POST"}'></div>
 
 #### POST /user/logout
 
@@ -482,9 +534,15 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {}
 ```
+
+<div class="registry-example" data-opts='{"endpoint":"/user/logout","method":"POST"}'></div>
 
 #### POST /user/forgotpassword
 
@@ -518,7 +576,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {
     "email": false,
     "url": "http://xxxxx/user/2FA/<id>",
@@ -530,6 +592,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 * `url` - URL of QR code that can be used to provide a token when used in
 conjunction with apps like Google Authenticator.
 * `data` - Response-specific Base64-encoded data.
+
+<div class="registry-example" data-opts='{"endpoint":"/user/forgotpassword","method":"POST"}'></div>
 
 #### POST /user/resetpassword
 
@@ -573,9 +637,15 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {}
 ```
+
+<div class="registry-example" data-opts='{"endpoint":"/user/resetpassword","method":"POST"}'></div>
 
 ### /reference
 
@@ -606,13 +676,19 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
   foo
   bar
   baz
 ```
 
-#### GET /reference/<path:path>
+<div class="registry-example" data-opts='{"endpoint":"/reference","method":"GET"}'></div>
+
+#### GET /reference/&lt;path:path&gt;
 
 Display reference information for term `path`.
 
@@ -639,7 +715,9 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+```
 
+```text
   baz
   qux
 ```
@@ -658,12 +736,18 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 {
     "status": 404,
     "error": "Not Found"
 }
 ```
+
+<div class="registry-example" data-opts='{"endpoint":"/reference/registers","method":"GET"}'></div>
 
 ## Versioning
 

@@ -212,7 +212,9 @@ NessembleExamples.prototype.setup = function (example) {
         help = document.createElement('button'),
         output_wrapper = document.createElement('pre'),
         output = document.createElement('code'),
-        element = document.createElement('div');
+        element = document.createElement('div'),
+        modal_title = document.querySelector('.modal-header'),
+        modal_body = document.querySelector('.modal-body');
 
     // quit if already initialized
     if (example.getAttribute('data-initialized') === 'true') {
@@ -421,6 +423,10 @@ NessembleExamples.prototype.setup = function (example) {
     help.setAttribute('title', 'Help');
     help.setAttribute('data-toggle', 'modal');
     help.setAttribute('data-target', '#help-modal');
+
+    // setup help modal
+    modal_title.innerHTML = 'Nessemble Help';
+    modal_body.innerHTML = '<p><code>nessemble</code> has been compiled to Javascript for use in the browser (with limited functionality).</p><p>Feel free to explore <code>nessemble</code> further in the <a href="../playground">Playground</a>.</p>';
 
     // append buttons
     buttons.appendChild(assemble);
