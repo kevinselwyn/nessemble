@@ -41,7 +41,7 @@
     overflow: scroll;
 }
 .registry-example code + code {
-    margin-top: -20px;
+    margin-top: -1px;
 }
 .registry-example code.show {
     display: block;
