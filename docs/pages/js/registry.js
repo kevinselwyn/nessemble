@@ -8,7 +8,7 @@ Registry.prototype.run = function (callback) {
     var $this = this;
 
     if (this.method === 'GET') {
-        this.get(function () {
+        this.get(function (e) {
             var xhr = this,
                 headers = [
                     $this.responsePrettyStatus(xhr),
@@ -16,10 +16,14 @@ Registry.prototype.run = function (callback) {
                 ],
                 response = $this.responsePrettyText(xhr);
 
-            callback(headers.join('\n'), response, xhr);
+            if (e.type === 'error') {
+                callback('Could not reach the registry (' + $this.registry + ')', '', xhr);
+            } else {
+                callback(headers.join('\n'), response, xhr);
+            }
         });
     } else if (this.method === 'POST') {
-        this.post(function () {
+        this.post(function (e) {
             var xhr = this,
                 headers = [
                     $this.responsePrettyStatus(xhr),
@@ -27,7 +31,11 @@ Registry.prototype.run = function (callback) {
                 ],
                 response = $this.responsePrettyText(xhr);
 
-            callback(headers.join('\n'), response, xhr);
+            if (e.type === 'error') {
+                callback('Could not reach the registry (' + $this.registry + ')', '', xhr);
+            } else {
+                callback(headers.join('\n'), response, xhr);
+            }
         });
     }
 };
@@ -142,6 +150,7 @@ Registry.prototype.get = function (callback) {
         url = this.url();
 
     xhr.addEventListener('load', callback);
+    xhr.addEventListener('error', callback);
 
     xhr.open('GET', url, true);
     xhr.send(null);
@@ -152,6 +161,7 @@ Registry.prototype.post = function (callback) {
         url = this.url();
 
     xhr.addEventListener('load', callback);
+    xhr.addEventListener('error', callback);
 
     xhr.open('POST', url, true);
     xhr.send(null);
@@ -159,15 +169,34 @@ Registry.prototype.post = function (callback) {
 
 var RegistryExample = function () {
     var $this = this,
-        examples = document.querySelectorAll('.registry-example');
+        examples = document.querySelectorAll('.registry-example'),
+        registry_default = this.getText(document.querySelector('.registry-default'));
 
-    if (!examples || !examples.length) {
+    if (!examples || !examples.length || !registry_default.length) {
         return;
     }
+
+    this.registry = registry_default;
 
     [].forEach.call(examples, function (example) {
         $this.setup(example);
     });
+};
+
+RegistryExample.prototype.getText = function (el) {
+    var text = '';
+
+    try {
+        while (el.nodeType !== 3) {
+            el = el.childNodes[0];
+        }
+
+        text = el.nodeValue;
+    } catch (e) {
+        text = '';
+    }
+
+    return text;
 };
 
 RegistryExample.prototype.addClass = function (el, className) {
@@ -229,14 +258,18 @@ RegistryExample.prototype.setup = function (example) {
 
     // send click listener
     send.addEventListener('click', function () {
-        var reg = new Registry(opts.registry, endpoint.value, opts.method);
+        var reg = new Registry($this.registry, endpoint.value, opts.method);
 
         reg.run(function (hdrs, res, xhr) {
-            headers.innerHTML = hdrs;
-            $this.addClass(headers, 'show');
+            if (hdrs.length) {
+                headers.innerHTML = hdrs;
+                $this.addClass(headers, 'show');
+            }
 
-            output.innerHTML = res;
-            $this.addClass(output, 'show');
+            if (res.length) {
+                output.innerHTML = res;
+                $this.addClass(output, 'show');
+            }
         });
     });
 
@@ -247,14 +280,18 @@ RegistryExample.prototype.setup = function (example) {
         if (e.keyCode === 13) {
             e.preventDefault();
 
-            reg = new Registry(opts.registry, endpoint.value, opts.method);
+            reg = new Registry($this.registry, endpoint.value, opts.method);
 
             reg.run(function (hdrs, res) {
-                headers.innerHTML = hdrs;
-                $this.addClass(headers, 'show');
+                if (hdrs.length) {
+                    headers.innerHTML = hdrs;
+                    $this.addClass(headers, 'show');
+                }
 
-                output.innerHTML = response;
-                $this.addClass(output, 'show');
+                if (res.length) {
+                    output.innerHTML = res;
+                    $this.addClass(output, 'show');
+                }
             });
         }
     });
@@ -292,7 +329,7 @@ RegistryExample.prototype.setup = function (example) {
 
     // add registry field
     $this.addClass(registry, 'registry');
-    registry.innerHTML = opts.registry;
+    registry.innerHTML = this.registry;
     registry.disabled = true;
 
     // add endpoint field

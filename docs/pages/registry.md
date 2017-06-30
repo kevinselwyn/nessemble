@@ -3,7 +3,7 @@
 Registry servers have no preferred language but must contain the following
 endpoints to be valid.
 
-The default registry URL is `http://localhost:8000`.
+The default registry URL is <span class="registry-default">`http://localhost:8000/registry`</span>.
 
 > <div class="admonition note">
 > <p class="admonition-title">Note</p>
@@ -98,7 +98,7 @@ Pagination result information:
 * `prev` - String or null. URL of previous page.
 * `next` - String or null. URL of next page.
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/","method":"GET"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/","method":"GET"}'></div>
 
 ### /search
 
@@ -148,7 +148,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/search/controller","method":"GET"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/search/controller","method":"GET"}'></div>
 
 ### /package
 
@@ -206,7 +206,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/package/controller","method":"GET"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/package/controller","method":"GET"}'></div>
 
 #### GET /package/&lt;string:package&gt;/README
 
@@ -243,7 +243,7 @@ Foo bar baz quz
 ...
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/package/controller/README","method":"GET"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/package/controller/README","method":"GET"}'></div>
 
 #### GET /package/&lt;string:package&gt;/data
 
@@ -278,7 +278,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 <raw data>...
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/package/controller/data","method":"GET"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/package/controller/data","method":"GET"}'></div>
 
 #### POST /package/publish
 
@@ -354,7 +354,7 @@ Content-Length: xxx
 To learn more about the gzipped package content, see the section on
 [Packages](/packages/#publishing).
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/package/publish","method":"POST"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/package/publish","method":"POST"}'></div>
 
 ### /user
 
@@ -419,7 +419,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/create","method":"POST"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/user/create","method":"POST"}'></div>
 
 #### POST /user/login
 
@@ -458,7 +458,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/login","method":"POST"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/user/login","method":"POST"}'></div>
 
 #### POST /user/logout
 
@@ -502,7 +502,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 {}
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/logout","method":"POST"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/user/logout","method":"POST"}'></div>
 
 #### POST /user/forgotpassword
 
@@ -549,7 +549,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 conjunction with apps like Google Authenticator.
 * `data` - Response-specific Base64-encoded data.
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/forgotpassword","method":"POST"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/user/forgotpassword","method":"POST"}'></div>
 
 #### POST /user/resetpassword
 
@@ -597,7 +597,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 {}
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/resetpassword","method":"POST"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/user/resetpassword","method":"POST"}'></div>
 
 ### /reference
 
@@ -634,7 +634,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
   baz
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/reference","method":"GET"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/reference","method":"GET"}'></div>
 
 #### GET /reference/&lt;path:path&gt;
 
@@ -689,7 +689,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/reference/registers","method":"GET"}'></div>
+<div class="registry-example" data-opts='{"endpoint":"/reference/registers","method":"GET"}'></div>
 
 ## Versioning
 
