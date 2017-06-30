@@ -45,7 +45,7 @@ def custom_response(data, status=200, mimetype='text/html'):
 def index():
     """Index endpoint"""
 
-    return custom_response(render_template('index.html'))
+    return custom_response(render_template('index.html', documentation=CONFIG.get('website', 'documentation')))
 
 @app.route('/favicon.ico')
 def serve_favicon():

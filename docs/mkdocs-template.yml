@@ -24,3 +24,7 @@ extra_css:
 extra_javascript:
     - js/nessemble.min.js
     - js/docs.js
+extra:
+    documentation: ${DOCUMENTATION}
+    registry: ${REGISTRY}
+    website: ${WEBSITE}

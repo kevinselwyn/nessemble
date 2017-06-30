@@ -1,5 +1,6 @@
 .DS_Store
 .vagrant
+docs/mkdocs.yml
 docs/site
 docs/pages/css/docs.css
 docs/pages/js/docs.js
@@ -21,6 +22,7 @@ src/third-party/lua*
 src/third-party/tinyscheme*
 strings.h
 test/js/*.js
+website/settings.cfg
 y.tab.*
 *.chr
 *.db

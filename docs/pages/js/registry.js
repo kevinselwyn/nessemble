@@ -170,13 +170,18 @@ Registry.prototype.post = function (callback) {
 var RegistryExample = function () {
     var $this = this,
         examples = document.querySelectorAll('.registry-example'),
-        registry_default = this.getText(document.querySelector('.registry-default'));
+        registry_default = this.getText(document.querySelector('.registry-default')),
+        registry_vals = document.querySelectorAll('.registry-default-val');
 
     if (!examples || !examples.length || !registry_default.length) {
         return;
     }
 
     this.registry = registry_default;
+
+    [].forEach.call(registry_vals, function (registry_val) {
+        registry_val.innerHTML = registry_default;
+    });
 
     [].forEach.call(examples, function (example) {
         $this.setup(example);
