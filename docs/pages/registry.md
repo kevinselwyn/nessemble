@@ -27,7 +27,7 @@ The default registry URL is `http://localhost:8000`.
 | [/user/forgotpassword](#post-userforgotpassword)                          | POST     | Send an email to reset password               | <i class="fa fa-times color-red"></i>   |
 | [/user/resetpassword](#post-userresetpassword)                            | POST     | Reset password                                | <i class="fa fa-check color-green"></i> |
 | [/reference](#get-reference)                                              | GET      | Display reference categories                  | <i class="fa fa-times color-red"></i>   |
-| [/reference/<path:path>](#get-reference_1)                                | GET      | Display reference information for term `path` | <i class="fa fa-times color-red"></i>   |
+| [/reference/&lt;path:path&gt;](#get-referencepathpath)                    | GET      | Display reference information for term `path` | <i class="fa fa-times color-red"></i>   |
 
 ### Root
 
@@ -148,7 +148,7 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
-<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/search/foo","method":"GET"}'></div>
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/search/controller","method":"GET"}'></div>
 
 ### /package
 
@@ -206,6 +206,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/package/controller","method":"GET"}'></div>
+
 #### GET /package/&lt;string:package&gt;/README
 
 Display README for package `package`.
@@ -241,6 +243,8 @@ Foo bar baz quz
 ...
 ```
 
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/package/controller/README","method":"GET"}'></div>
+
 #### GET /package/&lt;string:package&gt;/data
 
 A tarball containing all data for `package`.
@@ -273,6 +277,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 <raw data>...
 ```
+
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/package/controller/data","method":"GET"}'></div>
 
 #### POST /package/publish
 
@@ -348,6 +354,8 @@ Content-Length: xxx
 To learn more about the gzipped package content, see the section on
 [Packages](/packages/#publishing).
 
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/package/publish","method":"POST"}'></div>
+
 ### /user
 
 #### POST /user/create
@@ -411,6 +419,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 }
 ```
 
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/create","method":"POST"}'></div>
+
 #### POST /user/login
 
 Log into the registry.
@@ -447,6 +457,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
     "token": "<token>"
 }
 ```
+
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/login","method":"POST"}'></div>
 
 #### POST /user/logout
 
@@ -489,6 +501,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 
 {}
 ```
+
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/logout","method":"POST"}'></div>
 
 #### POST /user/forgotpassword
 
@@ -534,6 +548,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 * `url` - URL of QR code that can be used to provide a token when used in
 conjunction with apps like Google Authenticator.
 * `data` - Response-specific Base64-encoded data.
+
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/forgotpassword","method":"POST"}'></div>
 
 #### POST /user/resetpassword
 
@@ -581,6 +597,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
 {}
 ```
 
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/user/resetpassword","method":"POST"}'></div>
+
 ### /reference
 
 #### GET /reference
@@ -616,7 +634,9 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
   baz
 ```
 
-#### GET /reference/<path:path>
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/reference","method":"GET"}'></div>
+
+#### GET /reference/&lt;path:path&gt;
 
 Display reference information for term `path`.
 
@@ -668,6 +688,8 @@ Date: Fri, 29 Aug 1997 22:14:00 GMT
     "error": "Not Found"
 }
 ```
+
+<div class="registry-example" data-opts='{"registry":"http://localhost:8000/registry","endpoint":"/reference/registers","method":"GET"}'></div>
 
 ## Versioning
 
