@@ -21,6 +21,9 @@ docs_dir: pages
 dev_addr: 0.0.0.0:9090
 extra_css:
     - css/custom.css
+    - css/nessemble.css
+    - css/registry.css
+    - css/bootstrap-modal.css
 extra_javascript:
     - js/bootstrap-modal.js
     - js/nessemble.min.js
