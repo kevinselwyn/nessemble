@@ -7,6 +7,9 @@ li.toctree-l2:first-child {
 code.text {
     color: #404040
 }
+pre + pre {
+    margin-top: -20px;
+}
 
 /**
  * Colors

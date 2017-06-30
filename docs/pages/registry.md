@@ -58,7 +58,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 {
     "packages": [
         {
@@ -129,7 +133,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 {
     "term": "foo",
     "results": [
@@ -185,7 +193,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 {
     "title": "foo",
     "description": "Foo bar baz qux",
@@ -235,7 +247,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 # foo
 
 Foo bar baz quz
@@ -274,7 +290,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 <raw data>...
 ```
 
@@ -318,7 +338,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {
     "title": "foo",
     "description": "Foo bar baz qux",
@@ -394,7 +418,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {}
 ```
 
@@ -412,7 +440,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {
     "status": 409,
     "error": "User already exists"
@@ -452,7 +484,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {
     "token": "<token>"
 }
@@ -498,7 +534,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {}
 ```
 
@@ -536,7 +576,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {
     "email": false,
     "url": "http://xxxxx/user/2FA/<id>",
@@ -593,7 +637,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0
+Expires: -1
+```
 
+```text
 {}
 ```
 
@@ -628,7 +676,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
   foo
   bar
   baz
@@ -663,7 +715,9 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+```
 
+```text
   baz
   qux
 ```
@@ -682,7 +736,11 @@ X-RateLimit-Remaining: xx
 X-RateLimit-Reset: xxxxxxxxxx
 Retry-After: xx
 Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
 
+```text
 {
     "status": 404,
     "error": "Not Found"
