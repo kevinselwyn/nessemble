@@ -41,7 +41,7 @@ sudo apt-get -y install bc gdb splint valgrind
 sudo apt-get -y install npm
 
 # node modules
-sudo npm install -g uglifyjs
+sudo npm install -g uglifyjs uglifycss
 
 # python
 sudo apt-get -y install python-pip

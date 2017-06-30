@@ -1,6 +1,8 @@
 .DS_Store
 .vagrant
 docs/site
+docs/pages/css/docs.css
+docs/pages/js/docs.js
 init.h
 license.h
 lex.yy.c

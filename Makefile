@@ -300,9 +300,23 @@ docs-js:
 	@printf "Copying JS...\n"
 	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
 		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
+	@printf "Minifying JS...\n"
+	@uglifyjs --output docs/pages/js/docs.js \
+		docs/pages/js/bootstrap-modal.js \
+		docs/pages/js/nessemble-custom.js \
+		docs/pages/js/registry.js
+
+.PHONY: docs-css
+docs-css:
+	@printf "Minifying CSS...\n"
+	@uglifycss --output docs/pages/css/docs.css \
+		docs/pages/css/custom.css \
+		docs/pages/css/nessemble.css \
+		docs/pages/css/registry.css \
+		docs/pages/css/bootstrap-modal.css
 
 .PHONY: docs
-docs: docs-js
+docs: docs-js docs-css
 	@printf "Starting server...\n"
 	@cd docs ; mkdocs build --clean ; python index.py --debug --port 9090
 
