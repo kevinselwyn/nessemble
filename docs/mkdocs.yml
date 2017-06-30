@@ -20,12 +20,7 @@ theme_dir: custom_theme
 docs_dir: pages
 dev_addr: 0.0.0.0:9090
 extra_css:
-    - css/custom.css
-    - css/nessemble.css
-    - css/registry.css
-    - css/bootstrap-modal.css
+    - css/docs.css
 extra_javascript:
-    - js/bootstrap-modal.js
     - js/nessemble.min.js
-    - js/nessemble-custom.js
-    - js/registry.js
+    - js/docs.js
