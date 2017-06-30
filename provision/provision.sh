@@ -3,6 +3,8 @@
 HOME="/home/ubuntu"
 ROOT="/vagrant"
 
+START=$(date +%s)
+
 # parse args
 TEMP=`getopt -o h:r: --long home:,root: -n 'provision.sh' -- "$@"`
 eval set -- "$TEMP"
@@ -41,7 +43,7 @@ sudo apt-get -y install bc gdb splint valgrind
 sudo apt-get -y install npm
 
 # node modules
-sudo npm install -g uglifyjs uglifycss
+sudo npm install -g uglify-js uglifycss
 
 # python
 sudo apt-get -y install python-pip
@@ -62,7 +64,7 @@ MSITOOLS_VERSION=0.96
 
 sudo apt-get -y install intltool libglib2.0-dev libgsf-1-dev uuid-dev libgcab-dev libmsi-dev
 rm -rf $HOME/msitools-$MSITOOLS_VERSION*
-_retry curl -o $HOME/msitools-$MSITOOLS_VERSION.tar.xz "http://ftp.gnome.org/pub/GNOME/sources/msitools/$MSITOOLS_VERSION/msitools-$MSITOOLS_VERSION.tar.xz"
+_retry curl -s -o $HOME/msitools-$MSITOOLS_VERSION.tar.xz "http://ftp.gnome.org/pub/GNOME/sources/msitools/$MSITOOLS_VERSION/msitools-$MSITOOLS_VERSION.tar.xz"
 cd $HOME/ && tar xf msitools-$MSITOOLS_VERSION.tar.xz
 cd $HOME/msitools-$MSITOOLS_VERSION && ./configure
 cd $HOME/msitools-$MSITOOLS_VERSION && make && sudo make install
@@ -72,7 +74,7 @@ rm -rf $HOME/msitools-$MSITOOLS_VERSION*
 LIBLUA_VERSION=5.1.5
 
 rm -rf $ROOT/src/third-party/lua-$LIBLUA_VERSION*
-_retry curl -o $ROOT/src/third-party/lua-$LIBLUA_VERSION.tar.gz "https://www.lua.org/ftp/lua-$LIBLUA_VERSION.tar.gz"
+_retry curl -s -o $ROOT/src/third-party/lua-$LIBLUA_VERSION.tar.gz "https://www.lua.org/ftp/lua-$LIBLUA_VERSION.tar.gz"
 cd $ROOT/src/third-party/ && tar xf lua-$LIBLUA_VERSION.tar.gz
 rm -rf $ROOT/src/third-party/lua*.tar.gz
 
@@ -80,7 +82,7 @@ rm -rf $ROOT/src/third-party/lua*.tar.gz
 LIBTINYSCHEME_VERSION=1.41
 
 rm -rf $ROOT/src/third-party/tinyscheme*
-_retry curl -o $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz "https://svwh.dl.sourceforge.net/project/tinyscheme/tinyscheme/tinyscheme-$LIBTINYSCHEME_VERSION/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz"
+_retry curl -s -o $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz "https://svwh.dl.sourceforge.net/project/tinyscheme/tinyscheme/tinyscheme-$LIBTINYSCHEME_VERSION/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz"
 cd $ROOT/src/third-party/ && tar xf tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz
 mv $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme.h $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme-old.h
 cat $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme-old.h | sed 's/# define STANDALONE 1/# define STANDALONE 0/' > $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme.h
@@ -94,3 +96,8 @@ then
     # go to $ROOT at login
     echo "cd $ROOT" >> $HOME/.profile
 fi
+
+END=$(date +%s)
+
+printf "Provisioning completed in %s seconds\n" $((END-START))
+printf "Run \"vagrant ssh\" to connect to VM\n"
