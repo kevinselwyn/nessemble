@@ -277,7 +277,7 @@ translate-install: translate/$(LANG)/nessemble.mo
 # SERVER
 
 .PHONY: server
-server: docs-js
+server: docs-js docs-css
 	@cd docs ; mkdocs build --clean
 	@python server.py --debug --port 8000
 
