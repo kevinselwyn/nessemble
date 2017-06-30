@@ -10,14 +10,24 @@ Registry.prototype.run = function (callback) {
     if (this.method === 'GET') {
         this.get(function () {
             var xhr = this,
-                response = [
+                headers = [
                     $this.responsePrettyStatus(xhr),
-                    $this.responsePrettyHeaders(xhr.getAllResponseHeaders()),
-                    '',
-                    $this.responsePrettyText(xhr)
-                ];
+                    $this.responsePrettyHeaders(xhr.getAllResponseHeaders())
+                ],
+                response = $this.responsePrettyText(xhr);
 
-            callback(response.join('\n'), xhr);
+            callback(headers.join('\n'), response, xhr);
+        });
+    } else if (this.method === 'POST') {
+        this.post(function () {
+            var xhr = this,
+                headers = [
+                    $this.responsePrettyStatus(xhr),
+                    $this.responsePrettyHeaders(xhr.getAllResponseHeaders())
+                ],
+                response = $this.responsePrettyText(xhr);
+
+            callback(headers.join('\n'), response, xhr);
         });
     }
 };
@@ -38,7 +48,7 @@ Registry.prototype.responsePrettyStatus = function (xhr) {
 };
 
 Registry.prototype.headers = function (text) {
-    var header_parts = text.split('\n')
+    var header_parts = text.split('\n'),
         headers = [];
 
     header_parts.forEach(function (part) {
@@ -62,12 +72,16 @@ Registry.prototype.sortHeaders = function (headers) {
             'Content-Type',
             'Access-Control-Allow-Origin',
             'Server',
+            'Content-Disposition',
             'X-Response-Time',
+            'X-Integrity',
             'X-RateLimit-Limit',
             'X-RateLimit-Remaining',
             'X-RateLimit-Reset',
             'Retry-After',
-            'Date'
+            'Date',
+            'Cache-Control',
+            'Expires'
         ],
         found = [];
 
@@ -108,6 +122,8 @@ Registry.prototype.responsePrettyText = function (xhr) {
     if (contentType === 'application/json') {
         data = JSON.parse(xhr.responseText);
         text = JSON.stringify(data, null, 4);
+    } else if (contentType === 'application/tar+gzip') {
+        text = '&lt;raw data&gt;...';
     } else {
         text = xhr.responseText;
     }
@@ -128,6 +144,16 @@ Registry.prototype.get = function (callback) {
     xhr.addEventListener('load', callback);
 
     xhr.open('GET', url, true);
+    xhr.send(null);
+};
+
+Registry.prototype.post = function (callback) {
+    var xhr = new XMLHttpRequest(),
+        url = this.url();
+
+    xhr.addEventListener('load', callback);
+
+    xhr.open('POST', url, true);
     xhr.send(null);
 };
 
@@ -184,6 +210,7 @@ RegistryExample.prototype.setup = function (example) {
         clear = document.createElement('button'),
         help = document.createElement('button'),
         output_wrapper = document.createElement('pre'),
+        headers = document.createElement('code'),
         output = document.createElement('code'),
         modal_title = document.querySelector('.modal-header'),
         modal_body = document.querySelector('.modal-body');
@@ -204,8 +231,11 @@ RegistryExample.prototype.setup = function (example) {
     send.addEventListener('click', function () {
         var reg = new Registry(opts.registry, endpoint.value, opts.method);
 
-        reg.run(function (response) {
-            output.innerHTML = response;
+        reg.run(function (hdrs, res, xhr) {
+            headers.innerHTML = hdrs;
+            $this.addClass(headers, 'show');
+
+            output.innerHTML = res;
             $this.addClass(output, 'show');
         });
     });
@@ -219,7 +249,10 @@ RegistryExample.prototype.setup = function (example) {
 
             reg = new Registry(opts.registry, endpoint.value, opts.method);
 
-            reg.run(function (response) {
+            reg.run(function (hdrs, res) {
+                headers.innerHTML = hdrs;
+                $this.addClass(headers, 'show');
+
                 output.innerHTML = response;
                 $this.addClass(output, 'show');
             });
@@ -231,6 +264,10 @@ RegistryExample.prototype.setup = function (example) {
         // reset endpoint
         endpoint.value = opts.endpoint;
 
+        // clear headers
+        headers.innerHTML = '';
+        $this.removeClass(headers, 'show');
+
         // clear output
         output.innerHTML = '';
         $this.removeClass(output, 'show');
@@ -238,6 +275,10 @@ RegistryExample.prototype.setup = function (example) {
 
     // clear click listener
     clear.addEventListener('click', function () {
+        // clear headers
+        headers.innerHTML = '';
+        $this.removeClass(headers, 'show');
+
         // clear output
         output.innerHTML = '';
         $this.removeClass(output, 'show');
@@ -290,6 +331,10 @@ RegistryExample.prototype.setup = function (example) {
     // setup help modal
     modal_title.innerHTML = 'Registry Help';
     modal_body.innerHTML = '<p>Click the <code>Send</code> button to run a specific API call.</p>';
+
+    // setup headers
+    $this.addClass(headers, 'text');
+    output_wrapper.appendChild(headers);
 
     // setup output
     $this.addClass(output, 'text');
