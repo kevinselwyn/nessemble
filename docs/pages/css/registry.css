@@ -1,6 +1,9 @@
 /**
  * Registry Example
  */
+.registry-default {
+    display: none;
+}
 .registry-example {
     width: 100%;
     display: none;
