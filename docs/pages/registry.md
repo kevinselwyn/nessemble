@@ -3,7 +3,7 @@
 Registry servers have no preferred language but must contain the following
 endpoints to be valid.
 
-The default registry URL is <span class="registry-default">`http://localhost:8000/registry`</span>.
+The default registry URL is <code class="registry-default-val"></code>.
 
 > <div class="admonition note">
 > <p class="admonition-title">Note</p>

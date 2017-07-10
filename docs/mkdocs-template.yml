@@ -1,5 +1,8 @@
 site_name: Nessemble
+site_description: 6502 assembler for the Nintendo Entertainment System
+site_author: Kevin Selwyn
 copyright: © 2017 Kevin Selwyn
+repo_url: https://github.com/kevinselwyn/nessemble
 pages:
     - Home: index.md
     - Installation: installation.md
@@ -24,3 +27,7 @@ extra_css:
 extra_javascript:
     - js/nessemble.min.js
     - js/docs.js
+extra:
+    documentation: ${DOCUMENTATION}
+    registry: ${REGISTRY}
+    website: ${WEBSITE}
