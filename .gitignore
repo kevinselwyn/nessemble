@@ -22,6 +22,7 @@ src/third-party/tinyscheme*
 strings.h
 test/js/*.js
 y.tab.*
+yarn*
 *.chr
 *.db
 *.deb
@@ -37,3 +38,4 @@ y.tab.*
 *.pyc
 *.so
 *.tar.gz
+.yarn*

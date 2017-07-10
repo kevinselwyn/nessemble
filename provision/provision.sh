@@ -39,11 +39,23 @@ sudo apt-get -y install git make curl bison flex
 # debug tools
 sudo apt-get -y install bc gdb splint valgrind
 
-# node
-sudo apt-get -y install npm
+# install nvm
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s $NVM_DIR/nvm.sh ] && . "$NVM_DIR/nvm.sh"
+
+# install node
+nvm install 8.0.0
+nvm use 8.0.0
+
+# npm fix
+sudo chown -R ubuntu:$(id -gn ubuntu) $HOME/.config
+
+# install yarn
+npm install -g yarn
 
 # node modules
-sudo npm install -g uglify-js uglifycss
+yarn global add uglify-js uglifycss
 
 # python
 sudo apt-get -y install python-pip
