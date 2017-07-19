@@ -1,9 +1,52 @@
 #!/bin/bash
 
+# paths
 HOME="/home/ubuntu"
 ROOT="/vagrant"
 
+# start time
 START=$(date +%s)
+
+# constants
+MSITOOLS_VERSION=0.96
+LIBLUA_VERSION=5.1.5
+LIBTINYSCHEME_VERSION=1.41
+
+# urls
+MSITOOLS_URL="http://ftp.gnome.org/pub/GNOME/sources/msitools/$MSITOOLS_VERSION/msitools-$MSITOOLS_VERSION.tar.xz"
+LIBLUA_URL="https://www.lua.org/ftp/lua-$LIBLUA_VERSION.tar.gz"
+LIBTINYSCHEME_URL="https://svwh.dl.sourceforge.net/project/tinyscheme/tinyscheme/tinyscheme-$LIBTINYSCHEME_VERSION/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz"
+EMSCRIPTEN_URL="https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-portable.tar.gz"
+
+# funcs
+_retry() {
+    for i in {1..10}; do
+        "$@" && return 0 || sleep 5;
+    done
+    return 1
+}
+
+_download() {
+    if [ ! -f $2 ]
+    then
+        _retry curl -s -o $2 "$1"
+    fi
+
+    if [ ! -f $2 ]
+    then
+        printf "Could not download %s" $1
+        exit 1
+    fi
+}
+
+# cache
+CACHE="0"
+
+if [ "$1" == "cache" ]
+then
+    CACHE="1"
+    shift
+fi
 
 # parse args
 TEMP=`getopt -o h:r: --long home:,root: -n 'provision.sh' -- "$@"`
@@ -18,17 +61,25 @@ do
         -r|--root)
             ROOT=$2 ; shift 2 ;;
         --) shift ; break ;;
-        *) echo "Internal error!" ; exit 1 ;;
+        *) printf "Internal error!\n" ; exit 1 ;;
     esac
 done
 
-# funcs
-_retry() {
-    for i in {1..10}; do
-        "$@" && return 0 || sleep 5;
-    done
-    return 1
-}
+# cache
+if [ "$CACHE" == "1" ]
+then
+    rm -rf $HOME/cache
+fi
+
+mkdir -p $HOME/cache
+
+if [ "$CACHE" == "1" ]
+then
+    _download $MSITOOLS_URL $HOME/cache/msitools-$MSITOOLS_VERSION.tar.xz
+    _download $LIBLUA_URL $HOME/cache/lua-$LIBLUA_VERSION.tar.gz
+    _download $LIBTINYSCHEME_URL $HOME/cache/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz
+    _download $EMSCRIPTEN_URL $HOME/cache/emsdk-portable.tar.gz
+fi
 
 # update
 sudo apt-get -y update
@@ -61,52 +112,62 @@ yarn global add uglify-js uglifycss
 sudo apt-get -y install python-pip
 
 # python modules
-sudo pip install --upgrade pip
+sudo -H pip install --upgrade pip
 
 for reqs in `find $ROOT -name requirements.txt`
 do
-    sudo pip install -r $reqs
+    sudo -H pip install -r $reqs
 done
 
 # mingw
 sudo apt-get -y install gcc-mingw-w64-i686 gcc-mingw-w64-x86-64
 
 # msitools
-MSITOOLS_VERSION=0.96
-
 sudo apt-get -y install intltool libglib2.0-dev libgsf-1-dev uuid-dev libgcab-dev libmsi-dev
 rm -rf $HOME/msitools-$MSITOOLS_VERSION*
-_retry curl -s -o $HOME/msitools-$MSITOOLS_VERSION.tar.xz "http://ftp.gnome.org/pub/GNOME/sources/msitools/$MSITOOLS_VERSION/msitools-$MSITOOLS_VERSION.tar.xz"
+_download $MSITOOLS_URL $HOME/cache/msitools-$MSITOOLS_VERSION.tar.xz
+cp $HOME/cache/msitools-$MSITOOLS_VERSION.tar.xz $HOME/msitools-$MSITOOLS_VERSION.tar.xz
 cd $HOME/ && tar xf msitools-$MSITOOLS_VERSION.tar.xz
 cd $HOME/msitools-$MSITOOLS_VERSION && ./configure
 cd $HOME/msitools-$MSITOOLS_VERSION && make && sudo make install
 rm -rf $HOME/msitools-$MSITOOLS_VERSION*
 
 # liblua
-LIBLUA_VERSION=5.1.5
-
 rm -rf $ROOT/src/third-party/lua-$LIBLUA_VERSION*
-_retry curl -s -o $ROOT/src/third-party/lua-$LIBLUA_VERSION.tar.gz "https://www.lua.org/ftp/lua-$LIBLUA_VERSION.tar.gz"
+_download $LIBLUA_URL $HOME/cache/lua-$LIBLUA_VERSION.tar.gz
+cp $HOME/cache/lua-$LIBLUA_VERSION.tar.gz $ROOT/src/third-party/lua-$LIBLUA_VERSION.tar.gz
 cd $ROOT/src/third-party/ && tar xf lua-$LIBLUA_VERSION.tar.gz
 rm -rf $ROOT/src/third-party/lua*.tar.gz
 
 # libtinyscheme
-LIBTINYSCHEME_VERSION=1.41
-
 rm -rf $ROOT/src/third-party/tinyscheme*
-_retry curl -s -o $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz "https://svwh.dl.sourceforge.net/project/tinyscheme/tinyscheme/tinyscheme-$LIBTINYSCHEME_VERSION/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz"
+_download $LIBTINYSCHEME_URL $HOME/cache/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz
+cp $HOME/cache/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz
 cd $ROOT/src/third-party/ && tar xf tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz
 mv $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme.h $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme-old.h
 cat $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme-old.h | sed 's/# define STANDALONE 1/# define STANDALONE 0/' > $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme.h
 rm -rf $ROOT/src/third-party/tinyscheme*.tar.gz
 
+# emscripten
+rm -rf $HOME/emsdk-portable*
+_download $EMSCRIPTEN_URL $HOME/cache/emsdk-portable.tar.gz
+cp $HOME/cache/emsdk-portable.tar.gz $HOME/emsdk-portable.tar.gz
+cd $HOME && tar xf emsdk-portable.tar.gz
+cd $HOME/emsdk-portable
+./emsdk update
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+printf "\n#emscripten\nsource %s/emsdk-portable/emsdk_env.sh\n" $HOME >> $HOME/.profile
+
+# scripts
 if [ -d "/vagrant" ]
 then
     # expose custom scripts
-    echo "PATH=\"\$PATH:$ROOT/provision/scripts\"" >> $HOME/.profile
+    printf "PATH=\"\$PATH:%s/provision/scripts\"\n" $ROOT >> $HOME/.profile
 
     # go to $ROOT at login
-    echo "cd $ROOT" >> $HOME/.profile
+    printf "\n#login directory\ncd %s\n" $ROOT >> $HOME/.profile
 fi
 
 END=$(date +%s)
