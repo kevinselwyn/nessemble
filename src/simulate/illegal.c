@@ -258,7 +258,22 @@ void do_rla(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_rra(unsigned int opcode_index, unsigned int value) {
-    /* TODO: Undocumented */
+    unsigned int tmp = 0, address = 0;
+
+    address = get_address(opcode_index, value);
+    tmp = get_byte(address);
+
+    tmp >>= 1;
+
+    set_register(REGISTER_A, (tmp + get_register(REGISTER_A)) & 0xFF);
+
+    set_flag(FLG_NEGATIVE, (tmp >> 7) & 1);
+    set_flag(FLG_CARRY, (tmp >> 7) & 1);
+    set_flag(FLG_ZERO, (unsigned int)(tmp == 0 ? TRUE : FALSE));
+    set_flag(FLG_OVERFLOW, (tmp >> 6) & 1);
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_slo(unsigned int opcode_index, unsigned int value) {
