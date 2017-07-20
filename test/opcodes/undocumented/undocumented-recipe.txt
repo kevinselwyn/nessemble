@@ -66,3 +66,15 @@
 .step
 .step
 .step
+.step
+.step
+.step
+.step
+.goto 8087
+.step
+.step
+.step
+.step
+.step
+.step
+.step
