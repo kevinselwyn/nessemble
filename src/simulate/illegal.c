@@ -341,13 +341,33 @@ void do_sya(unsigned int opcode_index, unsigned int value) {
 }
 
 void do_top(unsigned int opcode_index, unsigned int value) {
-    /* TODO: Undocumented */
+    UNUSED(opcode_index);
+    UNUSED(value);
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_xaa(unsigned int opcode_index, unsigned int value) {
-    /* TODO: Undocumented */
+    UNUSED(opcode_index);
+    UNUSED(value);
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
 
 void do_xas(unsigned int opcode_index, unsigned int value) {
-    /* TODO: Undocumented */
+    unsigned int tmp = 0, address = 0;
+
+    address = get_address(opcode_index, value);
+    tmp = get_byte(address);
+
+    set_register(REGISTER_SP, get_register(REGISTER_X) & get_register(REGISTER_A));
+
+    tmp = (get_register(REGISTER_SP) & ((tmp >> 4) + 1)) & 0xFF;
+
+    set_byte(address, tmp);
+
+    inc_register(REGISTER_PC, (int)opcodes[opcode_index].length);
+    inc_cycles(opcodes[opcode_index].timing);
 }
