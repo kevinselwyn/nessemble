@@ -428,12 +428,32 @@ win_package:
 	wixl $(TMP) --output $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).msi
 	$(RM) $(TMP) $(PAYLOAD)
 
+# DEPLOY
+.PHONY: deploy
+deploy: docs-js docs-css
+	@printf "Prepping docs...\n"
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/nessemble.herokuapp.com\/documentation/g" \
+		-e "s/\$${REGISTRY}/http:\/\/nessemble.herokuapp.com\/registry/g" \
+		-e "s/\$${WEBSITE}/http:\/\/nessemble.horokuapp.com/g" \
+	 	docs/mkdocs-template.yml > docs/mkdocs.yml
+	@cd docs ; mkdocs build --clean
+
+	@printf "Prepping website...\n"
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/nessemble.herokuapp.com\/documentation/g" \
+		website/settings-template.cfg > website/settings.cfg
+
+	@printf "Zipping files...\n"
+	@tar czf deploy.tar.gz --files-from files.txt
+
+	@python utils/deploy.py --tar deploy.tar.gz
+
 # CLEAN
 
 .PHONY: clean
 clean:
 	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).min.js $(EXEC).wasm
 	$(RM) $(OBJS)
+	$(RM) deploy.tar.gz
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
 	$(RM) src/static/font.h src/static/font.chr
 	$(RM) src/static/init.h

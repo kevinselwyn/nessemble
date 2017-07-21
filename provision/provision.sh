@@ -160,6 +160,9 @@ cd $HOME/emsdk-portable
 source ./emsdk_env.sh
 printf "\n#emscripten\nsource %s/emsdk-portable/emsdk_env.sh\n" $HOME >> $HOME/.profile
 
+# heroku
+wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+
 # scripts
 if [ -d "/vagrant" ]
 then

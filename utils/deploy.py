@@ -14,11 +14,16 @@ API_ROOT = 'https://%s/apps/' % (DOMAIN)
 def get_auth():
     """Get auth"""
 
-    get = netrc.netrc()
+    try:
+        get = netrc.netrc()
+    except IOError:
+        print 'You must login with Heroku first'
+        sys.exit(1)
+
     authenticators = get.authenticators(DOMAIN)
 
     if not authenticators:
-        print 'You must login with Heroku'
+        print 'You must login with Heroku first'
         sys.exit(1)
 
     return (authenticators[0], authenticators[2])
