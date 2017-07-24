@@ -281,9 +281,13 @@ server: docs-js docs-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:8000\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:8000/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 		website/settings-template.cfg > website/settings.cfg
 	@printf "Starting server...\n"
 	@python server.py --debug --port 8000
@@ -293,6 +297,8 @@ server: docs-js docs-css
 .PHONY: website
 website:
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9000\/documentation/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 		website/settings-template.cfg > website/settings.cfg
 	@cd website ; python index.py --debug --port 9000
 
@@ -329,6 +335,8 @@ docs: docs-js docs-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9090/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:9090\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:9090\/website/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 	@printf "Starting server...\n"
@@ -435,11 +443,15 @@ deploy: docs-js docs-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/nessemble.herokuapp.com\/documentation/g" \
 		-e "s/\$${REGISTRY}/http:\/\/nessemble.herokuapp.com\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/nessemble.horokuapp.com/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 
 	@printf "Prepping website...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/nessemble.herokuapp.com\/documentation/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 		website/settings-template.cfg > website/settings.cfg
 
 	@printf "Zipping files...\n"

@@ -319,6 +319,10 @@ NessembleExamples.prototype.setup = function (example) {
         }
 
         nessemble.callMain(args || []);
+
+        ga('send', 'event', 'Assembler', 'Assemble', 'Documentation', {
+            dimension3: input.value
+        });
     });
 
     // reset click listener
@@ -331,10 +335,18 @@ NessembleExamples.prototype.setup = function (example) {
         $this.removeClass(output, 'show');
         $this.removeClass(output, 'error');
         download.disabled = true;
+
+        ga('send', 'event', 'Assembler', 'Reset', 'Documentation', {
+            dimension3: input.value
+        });
     });
 
     // clear click listener
     clear.addEventListener('click', function () {
+        ga('send', 'event', 'Assembler', 'Clear', 'Documentation', {
+            dimension3: input.value
+        });
+
         // clear input
         input.value = '';
 
@@ -348,6 +360,8 @@ NessembleExamples.prototype.setup = function (example) {
     // download click listener
     download.addEventListener('click', function () {
         $this.downloadFile('assemble.rom', stdout, 'application/octet-stream');
+
+        ga('send', 'event', 'Assembler', 'Download', 'Documentation');
     });
 
     // open click listener
@@ -355,6 +369,10 @@ NessembleExamples.prototype.setup = function (example) {
         if (window.localStorage) {
             window.localStorage.setItem('asm', input.value);
         }
+
+        ga('send', 'event', 'Assembler', 'Open', 'Documentation', {
+            dimension3: input.value
+        });
 
         window.location.href = open.getAttribute('data-href');
     });

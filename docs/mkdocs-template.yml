@@ -31,3 +31,4 @@ extra:
     documentation: ${DOCUMENTATION}
     registry: ${REGISTRY}
     website: ${WEBSITE}
+google_analytics: ['${ANALYTICS_ID}', '${ANALYTICS_DOMAIN}']

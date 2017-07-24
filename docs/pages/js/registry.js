@@ -276,6 +276,11 @@ RegistryExample.prototype.setup = function (example) {
                 $this.addClass(output, 'show');
             }
         });
+
+        ga('send', 'event', 'Registry', 'Send', 'Documentation', {
+            dimension1: endpoint.value,
+            dimension2: opts.method
+        });
     });
 
     // endpoint keydown listener
@@ -298,6 +303,11 @@ RegistryExample.prototype.setup = function (example) {
                     $this.addClass(output, 'show');
                 }
             });
+
+            ga('send', 'event', 'Registry', 'Enter', 'Documentation', {
+                dimension1: endpoint.value,
+                dimension2: opts.method
+            });
         }
     });
 
@@ -313,6 +323,10 @@ RegistryExample.prototype.setup = function (example) {
         // clear output
         output.innerHTML = '';
         $this.removeClass(output, 'show');
+
+        ga('send', 'event', 'Registry', 'Reset', 'Documentation', {
+            dimension1: endpoint.value
+        });
     });
 
     // clear click listener
@@ -324,6 +338,8 @@ RegistryExample.prototype.setup = function (example) {
         // clear output
         output.innerHTML = '';
         $this.removeClass(output, 'show');
+
+        ga('send', 'event', 'Registry', 'Clear', 'Documentation');
     });
 
     // clear out element
