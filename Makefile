@@ -20,6 +20,8 @@ YACC_OUT     := y.tab
 YACC_FLAGS   := --output=src/$(YACC_OUT).c --defines --yacc
 SCHEME_FLAGS :=
 
+MAINTENANCE  := 0
+
 SCRIPTING     := -DSCRIPTING_JAVASCRIPT=1 -DSCRIPTING_LUA=1 -DSCRIPTING_SCHEME=1
 SCRIPTING_LUA := src/third-party/lua-5.1.5/src/liblua.a
 SCRIPTING_SCM := src/third-party/tinyscheme-1.41/libtinyscheme.a
@@ -457,7 +459,7 @@ deploy: docs-js docs-css
 	@printf "Zipping files...\n"
 	@tar czf deploy.tar.gz --files-from files.txt
 
-	@python utils/deploy.py --tar deploy.tar.gz
+	@python utils/deploy.py --tar deploy.tar.gz --maintenance $(MAINTENANCE)
 
 # CLEAN
 

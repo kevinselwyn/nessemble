@@ -80,6 +80,33 @@ def upload_tarball(source=None, tar=''):
 
     return
 
+def maintenance_mode(source=None, mode=False):
+    """Set maintenance mode"""
+
+    url = API_ROOT
+    headers = {
+        'Accept': 'application/vnd.heroku+json; version=3',
+        'Content-Type': 'application/json'
+    }
+    auth = get_auth()
+    data = {}
+
+    if not source:
+        print 'No source found'
+        sys.exit(1)
+
+    data = {
+        'maintenance': mode
+    }
+
+    r = requests.patch(url, data=json.dumps(data), headers=headers, auth=auth)
+
+    if not r.status_code == 200:
+        print 'Maintenance mode failed'
+        sys.exit(1)
+
+    return
+
 def do_build(source=None):
     """Do build"""
 
@@ -126,6 +153,7 @@ def main():
     parser = argparse.ArgumentParser(description='Deploys nessemble to Heroku')
     parser.add_argument('--app', '-a', dest='app', type=str, default='nessemble', required=False, help='App name')
     parser.add_argument('--tar', '-t', dest='tar', type=str, required=True, help='Tarball')
+    parser.add_argument('--maintenance', '-m', dest='maintenance', type=str, default='0', required=False, help='Maintenance mode')
     args = parser.parse_args()
 
     API_ROOT += args.app
@@ -135,6 +163,9 @@ def main():
 
     print 'Uploading tarball...'
     upload_tarball(source, args.tar)
+
+    print 'Setting maintenance mode...'
+    maintenance_mode(source, True if args.maintenance == '1' else False)
 
     print 'Building...'
     do_build(source)
