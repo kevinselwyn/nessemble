@@ -12,7 +12,7 @@ from flask_limiter.util import get_remote_address
 from ..config.cache import cache
 from ..config.config import config as CONFIG
 from ..models.libs import Lib
-from ..routes import root_endpoint, errors_endpoint, package_endpoint, reference_endpoint, search_endpoint, user_endpoint
+from ..routes import root_endpoint, status_endpoint, errors_endpoint, package_endpoint, reference_endpoint, search_endpoint, user_endpoint
 from ..utils.utils import get_package_zip
 from ..utils.utils import Session
 
@@ -37,6 +37,7 @@ cache.init_app(app, config={
 })
 
 app.register_blueprint(root_endpoint)
+app.register_blueprint(status_endpoint)
 app.register_blueprint(errors_endpoint)
 app.register_blueprint(package_endpoint)
 app.register_blueprint(reference_endpoint)

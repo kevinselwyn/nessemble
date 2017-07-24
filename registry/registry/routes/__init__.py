@@ -2,6 +2,7 @@
 """routes"""
 
 from .root import root_endpoint
+from .status import status_endpoint
 from .errors import errors_endpoint
 from .package import package_endpoint
 from .reference import reference_endpoint
