@@ -242,6 +242,7 @@ RegistryExample.prototype.setup = function (example) {
         send = document.createElement('button'),
         reset = document.createElement('button'),
         clear = document.createElement('button'),
+        open = document.createElement('button'),
         help = document.createElement('button'),
         output_wrapper = document.createElement('pre'),
         headers = document.createElement('code'),
@@ -342,6 +343,13 @@ RegistryExample.prototype.setup = function (example) {
         ga('send', 'event', 'Registry', 'Clear', 'Documentation');
     });
 
+    // open click listener
+    open.addEventListener('click', function () {
+        ga('send', 'event', 'Registry', 'Open', 'Documentation');
+
+        window.open([$this.registry, endpoint.value].join(''), '_blank');
+    });
+
     // clear out element
     example.innerHTML = '';
 
@@ -378,6 +386,16 @@ RegistryExample.prototype.setup = function (example) {
     $this.addClass(clear, 'btn-neutral');
     clear.setAttribute('title', 'Clear');
 
+    // setup open button
+    if (opts.method === 'GET') {
+        open.innerHTML = '<i class="fa fa-external-link"></i>';
+        $this.addClass(open, 'btn');
+        $this.addClass(open, 'btn-neutral');
+        open.setAttribute('title', 'Open in new tab');
+    } else {
+        open = null;
+    }
+
     // setup help button
     help.innerHTML = '<i class="fa fa-question-circle"></i>';
     $this.addClass(help, 'btn');
@@ -402,6 +420,11 @@ RegistryExample.prototype.setup = function (example) {
     buttons.appendChild(send);
     buttons.appendChild(reset);
     buttons.appendChild(clear);
+
+    if (open) {
+        buttons.appendChild(open);
+    }
+
     buttons.appendChild(help);
 
     // append all
