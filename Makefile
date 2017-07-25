@@ -94,7 +94,7 @@ debug: CC_LIB_FLAGS += -ldl
 
 js: EXEC            := $(NAME).js
 js: CC              := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emcc')
-js: CC_FILES        := --embed-file src/static@/static
+js: CC_FILES        := --embed-file src/static/scripts@/static/scripts
 js: CC_FLAGS        += -s MODULARIZE=1
 js: CC_LIBLUA       := -Wno-empty-body
 js: AR              := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emar')
@@ -332,9 +332,7 @@ docs-js:
 	@cd docs && tsc
 	@printf "Minifying JS...\n"
 	@uglifyjs --output docs/pages/js/docs.js \
-		docs/pages/js/bootstrap-modal.js \
-		docs/pages/js/assembler.js \
-		docs/pages/js/registry.js
+		docs/pages/js/bundle.js
 
 .PHONY: docs-css
 docs-css:

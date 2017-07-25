@@ -4,9 +4,8 @@ deploy.tar.gz
 docs/mkdocs.yml
 docs/site
 docs/pages/css/docs.css
-docs/pages/js/assembler.js
+docs/pages/js/bundle.js
 docs/pages/js/docs.js
-docs/pages/js/registry.js
 init.h
 license.h
 lex.yy.c
