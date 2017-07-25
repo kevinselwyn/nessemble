@@ -93,11 +93,11 @@ debug: CC_FLAGS     += -g
 debug: CC_LIB_FLAGS += -ldl
 
 js: EXEC            := $(NAME).js
-js: CC              := emcc
+js: CC              := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emcc')
 js: CC_FLAGS        += -s MODULARIZE=1
 js: CC_LIBLUA       := -Wno-empty-body
-js: AR              := emar
-js: RANLIB          := emranlib
+js: AR              := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emar')
+js: RANLIB          := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emranlib')
 js: SCHEME_FLAGS    := -DUSE_STRLWR=0
 
 win32: EXEC         := $(NAME).exe
@@ -121,6 +121,9 @@ win64: SCHEME_FLAGS := -DUSE_STRLWR=0
 all: $(EXEC)
 
 debug: $(EXEC)
+
+js-pre:
+	cd $$HOME/emsdk-portable && /bin/bash ./emsdk_env.sh
 
 js: $(EXEC)
 
@@ -312,15 +315,24 @@ registry:
 
 # DOCUMENTATION
 
+.PHONY: docs-clean
+docs-clean:
+	$(RM) docs/pages/js/$(EXEC)*.js
+	$(RM) docs/pages/js/assembler.js
+	$(RM) docs/pages/js/docs.js
+	$(RM) docs/pages/js/registry.js
+
 .PHONY: docs-js
 docs-js:
 	@printf "Copying JS...\n"
 	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
 		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
+	@printf "Transpiling JS...\n"
+	@cd docs && tsc
 	@printf "Minifying JS...\n"
 	@uglifyjs --output docs/pages/js/docs.js \
 		docs/pages/js/bootstrap-modal.js \
-		docs/pages/js/nessemble-custom.js \
+		docs/pages/js/assembler.js \
 		docs/pages/js/registry.js
 
 .PHONY: docs-css
@@ -477,3 +489,4 @@ clean:
 	$(RM) $(PAYLOAD)
 	$(MAKE) -C src/third-party/tinyscheme-1.41/ clean
 	$(MAKE) -C src/third-party/lua-5.1.5/src/ clean
+	$(MAKE) docs-clean

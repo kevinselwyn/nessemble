@@ -106,7 +106,8 @@ sudo chown -R ubuntu:$(id -gn ubuntu) $HOME/.config
 npm install -g yarn
 
 # node modules
-yarn global add uglify-js uglifycss
+yarn global add uglify-js uglifycss typescript
+cd $ROOT/docs && yarn install
 
 # python
 sudo apt-get -y install python-pip
@@ -158,7 +159,6 @@ cd $HOME/emsdk-portable
 ./emsdk install latest
 ./emsdk activate latest
 source ./emsdk_env.sh
-printf "\n#emscripten\nsource %s/emsdk-portable/emsdk_env.sh\n" $HOME >> $HOME/.profile
 
 # heroku
 wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh

@@ -4,7 +4,9 @@ deploy.tar.gz
 docs/mkdocs.yml
 docs/site
 docs/pages/css/docs.css
+docs/pages/js/assembler.js
 docs/pages/js/docs.js
+docs/pages/js/registry.js
 init.h
 license.h
 lex.yy.c
@@ -12,6 +14,7 @@ nessemble
 nessemble.js
 nessemble.min.js
 nessemble.wasm
+node_modules
 opcodes.c
 package/payload
 reference/**/*.h

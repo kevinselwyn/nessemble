@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@types/google.analytics": "^0.0.34"
+  }
+}
