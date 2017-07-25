@@ -1,4 +1,13 @@
 {
+  "name": "nessemble-docs",
+  "version": "1.0.1",
+  "description": "Nessemble documentation",
+  "main": "index.js",
+  "author": "Kevin Selwyn",
+  "license": "GPL-3.0",
+  "scripts": {
+    "build": "webpack"
+  },
   "dependencies": {
     "@types/google.analytics": "^0.0.34",
     "@types/react": "^15.0.39",
