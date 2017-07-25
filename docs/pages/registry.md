@@ -114,7 +114,7 @@ Request:
 ```text
 GET / HTTP/1.1
 Host: xxxxx
-Accept: text/plain
+Accept: text/html
 User-Agent: nessemble/1.0.1
 ```
 
@@ -123,7 +123,7 @@ Response:
 ```text
 HTTP/1.1 200 OK
 Content-Length: 0
-Content-Type: text/plain
+Content-Type: text/html
 Access-Control-Allow-Origin: *
 Server: Nessemble
 X-Response-Time: x.xxx

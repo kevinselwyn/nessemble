@@ -2,7 +2,7 @@
 # pylint: disable=C0103,C0326
 """Status route"""
 
-from flask import Blueprint, request
+from flask import Blueprint, render_template, request
 from ..config.cache import cache, cache_headers
 from ..config.config import config as CONFIG
 from ..utils.utils import make_cache_key, parse_accept, registry_response
@@ -26,6 +26,8 @@ status_endpoint = Blueprint('status_endpoint', __name__)
 def status():
     """Status endpoint"""
 
-    accept, _version = parse_accept(request.headers.get('Accept'), ['text/plain'])
+    data = render_template('status.html')
 
-    return registry_response('', status=200, mimetype=accept)
+    accept, _version = parse_accept(request.headers.get('Accept'), ['text/html'])
+
+    return registry_response(data, status=200, mimetype=accept)
