@@ -156,7 +156,7 @@ cp $HOME/cache/emsdk-portable.tar.gz $HOME/emsdk-portable.tar.gz
 cd $HOME && tar xf emsdk-portable.tar.gz
 cd $HOME/emsdk-portable
 ./emsdk update
-./emsdk install latest
+./emsdk install latest -j1
 ./emsdk activate latest
 source ./emsdk_env.sh
 
