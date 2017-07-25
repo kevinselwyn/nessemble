@@ -329,7 +329,7 @@ docs-js:
 	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
 		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
 	@printf "Transpiling JS...\n"
-	@cd docs && tsc
+	@cd docs && yarn run build
 	@printf "Minifying JS...\n"
 	@uglifyjs --output docs/pages/js/docs.js \
 		docs/pages/js/bundle.js

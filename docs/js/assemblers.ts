@@ -1,98 +1,6 @@
-declare type ModuleType = (obj: ModuleObj) => any;
-declare type ModuleObjExit = (rc: number) => void;
-declare type ModuleObjStdin = () => void;
-declare type ModuleObjStd = (code: number) => void;
+import Assembler from './models/assembler';
 
-interface ModuleInterface {
-    callMain?: any;
-    getCustom?: any;
-}
-
-interface ModuleObj {
-    noInitialRun: boolean;
-    onExit: ModuleObjExit;
-    stdin: ModuleObjStdin;
-    stdout: ModuleObjStd;
-    stderr: ModuleObjStd;
-}
-
-declare type NessembleStd = (rc: number, data: number[]) => void;
-
-interface NessembleOpts {
-    stdin: any;
-    onStdout: NessembleStd;
-    onStderr: NessembleStd;
-    custom?: any;
-}
-
-class Nessemble {
-    Module: ModuleType;
-
-    constructor(opts: NessembleOpts) {
-        var Module: ModuleType = null,
-            stdout: number[] = [],
-            stderr: number[] = [],
-            i: number = 0;
-
-        if (!(<any>window).Module) {
-            return;
-        }
-
-        Module = (<any>window).Module;
-
-        this.Module = <ModuleType>Module({
-            noInitialRun: true,
-            onExit: function (rc: number): void {
-                if (stdout.length && opts.onStdout) {
-                    opts.onStdout(rc, stdout);
-                }
-
-                if (stderr.length && opts.onStderr) {
-                    opts.onStderr(rc, stderr);
-                }
-            },
-            stdin: function (): number|null {
-                if (i < (opts.stdin || '').length) {
-                    var code = opts.stdin.charCodeAt(i);
-
-                    i += 1;
-
-                    return code;
-                } else {
-                    return null;
-                }
-            },
-            stdout: function (code: number): void {
-                if (code < 0) {
-                    code += 256;
-                }
-
-                stdout.push(code);
-            },
-            stderr: function (code: number): void {
-                stderr.push(code);
-            }
-        });
-
-        (<ModuleInterface>this.Module).getCustom = (custom) => {
-            if (!opts.hasOwnProperty('custom')) {
-                return '';
-            }
-
-            if (opts.custom.hasOwnProperty(custom)) {
-                return opts.custom[custom];
-            }
-
-            return '';
-        };
-    }
-
-    callMain(args: string[]): void {
-        (<ModuleInterface>this.Module).callMain(args);
-    }
-}
-
-interface NessembleExamplesOpts {
+interface AssemblersOpts {
     args?: string[];
     bare?: boolean;
     disassemble?: boolean;
@@ -101,13 +9,13 @@ interface NessembleExamplesOpts {
     pseudo?: object;
 }
 
-interface NessembleExamplesHexdumpLine {
+interface AssemblersHexdumpLine {
     index: string;
     bytes: string[][];
     text: string[];
 }
 
-class NessembleExamples {
+class Assemblers {
     constructor() {
         var examples: NodeListOf<Node> = document.querySelectorAll('.nessemble-example');
 
@@ -179,8 +87,8 @@ class NessembleExamples {
         var $this = this,
             dump: string[] = [],
             index: number = 0,
-            lines: NessembleExamplesHexdumpLine[] = [],
-            line: NessembleExamplesHexdumpLine,
+            lines: AssemblersHexdumpLine[] = [],
+            line: AssemblersHexdumpLine,
             chr: string = '',
             i: number = 0,
             j: number = 0,
@@ -237,7 +145,7 @@ class NessembleExamples {
             text: []
         });
 
-        lines.forEach(function (line: NessembleExamplesHexdumpLine): void {
+        lines.forEach(function (line: AssemblersHexdumpLine): void {
             var str: string = '';
 
             str = [line.index, line.bytes[0].join(' '), line.bytes[1].join(' ')].join('  ');
@@ -258,7 +166,7 @@ class NessembleExamples {
 
     setup(example: HTMLElement) {
         var $this = this,
-            opts: NessembleExamplesOpts = {},
+            opts: AssemblersOpts = {},
             args: string[] = [],
             rc: number = 0,
             stdin: string = example.innerHTML,
@@ -313,7 +221,7 @@ class NessembleExamples {
 
         // assemble click listener
         assemble.addEventListener('click', function (): void {
-            var nessemble: Nessemble = new Nessemble({
+            var assembler: Assembler = new Assembler({
                 stdin: (function (): string {
                     var str: string = input.value || '',
                         new_str: string[] = [],
@@ -402,7 +310,7 @@ class NessembleExamples {
                 args = input.value.split(' ');
             }
 
-            nessemble.callMain(args || []);
+            assembler.callMain(args || []);
 
             ga('send', 'event', 'Assembler', 'Assemble', 'Documentation', {
                 dimension3: input.value
@@ -638,4 +546,4 @@ class NessembleExamples {
     }
 }
 
-var nessembleExamples: NessembleExamples = new NessembleExamples();
+export default Assemblers;

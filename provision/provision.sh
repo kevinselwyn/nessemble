@@ -106,7 +106,7 @@ sudo chown -R ubuntu:$(id -gn ubuntu) $HOME/.config
 npm install -g yarn
 
 # node modules
-yarn global add uglify-js uglifycss typescript
+yarn global add uglify-js uglifycss
 cd $ROOT/docs && yarn install
 
 # python
