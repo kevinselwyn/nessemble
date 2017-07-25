@@ -17,11 +17,11 @@ interface RegistryXHR {
     statusText: string;
     responseText: string;
 
-    addEventListener(event: string, callback: RegistryCallback);
+    addEventListener(event: string, callback: RegistryCallback): void;
     getResponseHeader(header: string): string;
     getAllResponseHeaders(): string;
-    open(method: RegistryMethod, url: string, async?: boolean);
-    send(data: any);
+    open(method: RegistryMethod, url: string, async?: boolean): void;
+    send(data: any): void;
 }
 
 interface RegistriesOpts {
@@ -48,7 +48,7 @@ class Registries {
         });
 
         [].forEach.call(examples, (example: Node) => {
-            this.setup(example);
+            this.setup(<HTMLElement>example);
         });
     }
 
@@ -95,7 +95,7 @@ class Registries {
         }
     }
 
-    setup(example) {
+    setup(example: HTMLElement) {
         var $this = this,
             opts: RegistriesOpts = {},
             hr: HTMLHRElement = document.createElement('hr'),
