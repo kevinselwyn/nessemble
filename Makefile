@@ -94,6 +94,7 @@ debug: CC_LIB_FLAGS += -ldl
 
 js: EXEC            := $(NAME).js
 js: CC              := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emcc')
+js: CC_FILES        := --embed-file src/static@/static
 js: CC_FLAGS        += -s MODULARIZE=1
 js: CC_LIBLUA       := -Wno-empty-body
 js: AR              := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emar')

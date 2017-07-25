@@ -20,6 +20,7 @@ unsigned int scripting_lua(char *exec, char **output) {
 
     // set package path
 
+#ifndef IS_JAVASCRIPT
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "path");
     path = (char *)lua_tolstring(L, -1, &path_len);
@@ -37,6 +38,7 @@ unsigned int scripting_lua(char *exec, char **output) {
     lua_pushstring(L, new_path);
     lua_setfield(L, -2, "path");
     lua_pop(L, 1);
+#endif /* IS_JAVASCRIPT */
 
     // load file
 

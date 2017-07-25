@@ -39,6 +39,34 @@
     float: left;
     resize: none;
 }
+.nessemble-example form {
+    margin-bottom: -1px;
+    padding: 12px 12px 6px;
+    border: 1px solid #cccccc;
+    display: none;
+}
+.nessemble-example form.show {
+    display: block;
+}
+.nessemble-example form .pseudo-opt {
+    height: 14px;
+    padding: 0 0 6px;
+    box-sizing: content-box;
+    overflow: hidden;
+}
+.nessemble-example form .pseudo-opt input {
+    display: inline-block;
+    float: left;
+}
+.nessemble-example form .pseudo-opt label {
+    margin:0;
+    font-size: 12px;
+    line-height: 14px;
+    font-family: Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace;
+    color: #404040;
+    display: inline-block;
+    float: left;
+}
 .nessemble-example pre {
     margin-top: -3px;
 }

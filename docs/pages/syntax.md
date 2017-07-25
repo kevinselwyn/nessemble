@@ -1420,6 +1420,8 @@ Output:
 00000040
 ```
 
+<div class="nessemble-example" data-opts='{"pseudo":{"ease":true}}'>.ease "easeOutBounce", 0, $20, $40</div>
+
 ## Macros
 
 Macros may be utilized to maximize code-reuse and may also be treated as custom

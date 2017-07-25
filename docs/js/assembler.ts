@@ -5,6 +5,7 @@ declare type ModuleObjStd = (code: number) => void;
 
 interface ModuleInterface {
     callMain?: any;
+    getCustom?: any;
 }
 
 interface ModuleObj {
@@ -21,6 +22,7 @@ interface NessembleOpts {
     stdin: any;
     onStdout: NessembleStd;
     onStderr: NessembleStd;
+    custom?: any;
 }
 
 class Nessemble {
@@ -71,6 +73,18 @@ class Nessemble {
                 stderr.push(code);
             }
         });
+
+        (<ModuleInterface>this.Module).getCustom = (custom) => {
+            if (!opts.hasOwnProperty('custom')) {
+                return '';
+            }
+
+            if (opts.custom.hasOwnProperty(custom)) {
+                return opts.custom[custom];
+            }
+
+            return '';
+        };
     }
 
     callMain(args: string[]): void {
@@ -84,6 +98,7 @@ interface NessembleExamplesOpts {
     disassemble?: boolean;
     download?: boolean;
     flags?: string[];
+    pseudo?: object;
 }
 
 interface NessembleExamplesHexdumpLine {
@@ -249,14 +264,17 @@ class NessembleExamples {
             stdin: string = example.innerHTML,
             stdout: number[] = [],
             stderr: number[] = [],
+            custom_toggle: boolean = false,
             hr: HTMLHRElement = document.createElement('hr'),
             paragraph: HTMLParagraphElement = document.createElement('p'),
             exec: HTMLTextAreaElement = document.createElement('textarea'),
             input: HTMLTextAreaElement = document.createElement('textarea'),
+            pseudos: HTMLFormElement = document.createElement('form'),
             buttons: HTMLDivElement = document.createElement('div'),
             assemble: HTMLButtonElement = document.createElement('button'),
             reset: HTMLButtonElement = document.createElement('button'),
             clear: HTMLButtonElement = document.createElement('button'),
+            custom: HTMLButtonElement = document.createElement('button'),
             download: HTMLButtonElement = document.createElement('button'),
             open: HTMLButtonElement = document.createElement('button'),
             help: HTMLButtonElement = document.createElement('button'),
@@ -361,7 +379,23 @@ class NessembleExamples {
 
                     $this.addClass(output, 'error');
                     $this.addClass(output, 'show');
-                }
+                },
+                custom: (function (): object {
+                    var obj: object = {},
+                        inputs: NodeListOf<HTMLInputElement>;
+
+                    if (opts.pseudo) {
+                        inputs = pseudos.querySelectorAll('input');
+
+                        [].forEach.call(inputs, (el: HTMLInputElement): void => {
+                            if (el.checked) {
+                                obj[`.${el.value}`] = `/static/scripts/${el.value}.lua`;
+                            }
+                        });
+                    }
+
+                    return obj;
+                }())
             });
 
             if (opts.flags) {
@@ -414,6 +448,21 @@ class NessembleExamples {
             ga('send', 'event', 'Assembler', 'Download', 'Documentation');
         });
 
+        // custom click listener
+        custom.addEventListener('click', function (): void {
+            if (custom_toggle) {
+                $this.removeClass(pseudos, 'show');
+            } else {
+                $this.addClass(pseudos, 'show');
+            }
+
+            custom_toggle = !custom_toggle;
+
+            ga('send', 'event', 'Assembler', 'Toggle Pseudo', 'Documentation', {
+                dimension3: input.value
+            });
+        });
+
         // open click listener
         open.addEventListener('click', function (): void {
             if (window.localStorage) {
@@ -436,6 +485,30 @@ class NessembleExamples {
         // add stdin to textarea
         input.value = stdin;
         $this.addClass(input, 'input');
+
+        // add pseudo opts
+        if (opts.pseudo) {
+            Object.keys(opts.pseudo).forEach((pseudo: string): void => {
+                var pseudo_el: HTMLDivElement = document.createElement('div'),
+                    pseudo_checkbox: HTMLInputElement = document.createElement('input'),
+                    pseudo_label: HTMLLabelElement = document.createElement('label');
+
+                pseudo_el.className = 'pseudo-opt';
+
+                pseudo_checkbox.id = `pseudo-opt-${pseudo}`;
+                pseudo_checkbox.setAttribute('type', 'checkbox');
+                pseudo_checkbox.setAttribute('value', pseudo);
+                pseudo_checkbox.checked = opts.pseudo[pseudo];
+
+                pseudo_label.innerHTML = `.${pseudo}`;
+                pseudo_label.setAttribute('for', `pseudo-opt-${pseudo}`);
+
+                pseudo_el.appendChild(pseudo_checkbox);
+                pseudo_el.appendChild(pseudo_label);
+
+                pseudos.appendChild(pseudo_el);
+            });
+        }
 
         // add exec
         $this.addClass(exec, 'exec');
@@ -477,6 +550,12 @@ class NessembleExamples {
         download.disabled = true;
         download.setAttribute('title', 'Download');
 
+        // setup custom button
+        custom.innerHTML = '<i class="fa fa-code"></i>';
+        $this.addClass(custom, 'btn');
+        $this.addClass(custom, 'btn-neutral');
+        custom.setAttribute('title', 'Custom pseudo-instructions');
+
         // setup open button
         open.innerHTML = '<i class="fa fa-external-link"></i>';
         $this.addClass(open, 'btn');
@@ -507,6 +586,10 @@ class NessembleExamples {
                 buttons.appendChild(download);
             }
 
+            if (opts.pseudo) {
+                buttons.appendChild(custom);
+            }
+
             if (!opts.bare && !opts.disassemble) {
                 buttons.appendChild(open);
             }
@@ -529,6 +612,11 @@ class NessembleExamples {
         }
 
         example.appendChild(input);
+
+        if (opts.pseudo) {
+            example.appendChild(pseudos);
+        }
+
         example.appendChild(buttons);
         example.appendChild(output_wrapper);
 
