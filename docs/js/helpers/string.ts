@@ -94,6 +94,22 @@ class StringHelper {
 
         return dump.join('\n');
     }
+
+    static getText(el: Node): string {
+        var text: string = '';
+
+        try {
+            while (el.nodeType !== 3) {
+                el = el.childNodes[0];
+            }
+
+            text = el.nodeValue;
+        } catch (e) {
+            text = '';
+        }
+
+        return text;
+    }
 }
 
 export default StringHelper;

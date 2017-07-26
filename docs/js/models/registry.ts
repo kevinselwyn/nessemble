@@ -169,7 +169,7 @@ class Registry {
             data = JSON.parse(xhr.responseText);
             text = JSON.stringify(data, null, 4);
         } else if (contentType === 'application/tar+gzip') {
-            text = '&lt;raw data&gt;...';
+            text = '<raw data>...';
         } else {
             text = xhr.responseText;
         }
