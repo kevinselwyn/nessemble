@@ -3,7 +3,7 @@
         "jsx" : "react",
         "module": "commonjs",
         "moduleResolution": "node",
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "target": "es5"
     },
     "include": [
