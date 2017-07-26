@@ -6,7 +6,7 @@ var TrackingStore = Reflux.createStore({
     listenables: [TrackingActions],
 
     init() {
-        this.ga = window['ga'];
+        this.ga = (<any>window).ga;
         this.category = '';
         this.action = '';
         this.label = '';

@@ -57,14 +57,14 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
         modal_title.innerHTML = 'Nessemble Help';
         modal_body.innerHTML = '<p><code>nessemble</code> has been compiled to Javascript for use in the browser (with limited functionality).</p><p>Feel free to explore <code>nessemble</code> further in the <a href="../playground">Playground</a>.</p>';
 
-        this.listenToTracking = TrackingStore.listen(this._updateTracking);
+        this.listenToTracking = TrackingStore.listen(this._updateTracking, TrackingStore);
     }
 
     componentWillUnmount() {
         this.listenToTracking();
     }
 
-    _updateTracking(props) {}
+    _updateTracking(props: any) {}
 
     _onChangeInput(e: any) {
         this.setState({

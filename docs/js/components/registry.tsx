@@ -19,7 +19,7 @@ interface RegistryComponentProps {
 class RegistryComponent extends React.Component<RegistryComponentProps, any> {
     listenToTracking: any;
 
-    constructor(props) {
+    constructor(props: RegistryComponentProps) {
         super(props);
         autoBind(this);
 
@@ -39,14 +39,14 @@ class RegistryComponent extends React.Component<RegistryComponentProps, any> {
         modal_title.innerHTML = 'Registry Help';
         modal_body.innerHTML = '<p>Click the <code>Send</code> button to run a specific API call.</p>';
 
-        this.listenToTracking = TrackingStore.listen(this._updateTracking);
+        this.listenToTracking = TrackingStore.listen(this._updateTracking, TrackingStore);
     }
 
     componentWillUnmount() {
         this.listenToTracking();
     }
 
-    _updateTracking(props) {}
+    _updateTracking(props: any) {}
 
     _onChangeEndpoint(e: any) {
         this.setState({
@@ -79,7 +79,7 @@ class RegistryComponent extends React.Component<RegistryComponentProps, any> {
         });
     }
 
-    _onKeydownEndpoint(e) {
+    _onKeydownEndpoint(e: any) {
         if (e.keyCode !== 13) {
             return;
         }
