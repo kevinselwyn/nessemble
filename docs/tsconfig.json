@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
-        "module": "amd",
-        "outFile": "./pages/js/bundle.js",
-        "allowJs": true,
+        "jsx" : "react",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noImplicitAny": false,
         "target": "es5"
     },
     "include": [
