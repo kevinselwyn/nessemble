@@ -19,6 +19,7 @@
     "react": "^15.6.1",
     "react-autobind": "^1.0.6",
     "react-dom": "^15.6.1",
+    "reflux": "^6.4.1",
     "ts-loader": "^2.3.1",
     "typescript": "^2.4.2",
     "webpack": "^3.4.0"

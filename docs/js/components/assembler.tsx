@@ -3,6 +3,9 @@ import * as autoBind from 'react-autobind';
 import * as classNames from 'classnames';
 
 import Assembler from '../models/assembler';
+import StringHelper from '../helpers/string';
+import TrackingActions from '../actions/tracking';
+import TrackingStore from '../stores/tracking';
 
 interface AssemblerComponentProps {
     args?: string[];
@@ -14,15 +17,11 @@ interface AssemblerComponentProps {
     stdin?: string;
 }
 
-interface AssemblersHexdumpLine {
-    index: string;
-    bytes: string[][];
-    text: string[];
-}
-
 class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
     stdout: number[];
     stderr: number[];
+
+    listenToTracking: any;
 
     constructor(props: AssemblerComponentProps) {
         super(props);
@@ -57,7 +56,15 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
 
         modal_title.innerHTML = 'Nessemble Help';
         modal_body.innerHTML = '<p><code>nessemble</code> has been compiled to Javascript for use in the browser (with limited functionality).</p><p>Feel free to explore <code>nessemble</code> further in the <a href="../playground">Playground</a>.</p>';
+
+        this.listenToTracking = TrackingStore.listen(this._updateTracking);
     }
+
+    componentWillUnmount() {
+        this.listenToTracking();
+    }
+
+    _updateTracking(props) {}
 
     _onChangeInput(e: any) {
         this.setState({
@@ -130,7 +137,7 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
                             output += String.fromCharCode(byte);
                         });
                     } else {
-                        output = $this._hexdump($this.stdout);
+                        output = StringHelper.hexdump($this.stdout);
                     }
 
                     output_show = true;
@@ -205,7 +212,7 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
 
         assembler.callMain(args || []);
 
-        ga('send', 'event', 'Assembler', 'Assemble', 'Documentation', {
+        TrackingActions.trackEvent('Assembler', 'Assemble', 'Documentation', {
             dimension3: this.state.input
         });
     }
@@ -218,13 +225,13 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
             download: false
         });
 
-        ga('send', 'event', 'Assembler', 'Reset', 'Documentation', {
+        TrackingActions.trackEvent('Assembler', 'Reset', 'Documentation', {
             dimension3: this.props.stdin
         });
     }
 
     _onClear() {
-        ga('send', 'event', 'Assembler', 'Clear', 'Documentation', {
+        TrackingActions.trackEvent('Assembler', 'Clear', 'Documentation', {
             dimension3: this.state.input
         });
 
@@ -251,7 +258,7 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
         el.click();
         document.body.removeChild(el);
 
-        ga('send', 'event', 'Assembler', 'Download', 'Documentation');
+        TrackingActions.trackEvent('Assembler', 'Download', 'Documentation');
     }
 
     _onCustom() {
@@ -259,7 +266,7 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
             pseudos: !this.state.pseudos
         });
 
-        ga('send', 'event', 'Assembler', 'Toggle Pseudo', 'Documentation', {
+        TrackingActions.trackEvent('Assembler', 'Toggle Pseudo', 'Documentation', {
             dimension3: this.state.input
         });
     }
@@ -269,101 +276,11 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
             window.localStorage.setItem('asm', this.state.input);
         }
 
-        ga('send', 'event', 'Assembler', 'Open', 'Documentation', {
+        TrackingActions.trackEvent('Assembler', 'Open', 'Documentation', {
             dimension3: this.state.input
         });
 
         window.location.href = '../playground/';
-    }
-
-    _dec2hex(dec: number, len: number): string {
-        var hex: string = dec.toString(16).toLowerCase();
-
-        while (hex.length < len) {
-            hex = '0' + hex;
-        }
-
-        return hex;
-    }
-
-    _hexdump(bytes: number[]): string {
-        var dump: string[] = [],
-            index: number = 0,
-            lines: AssemblersHexdumpLine[] = [],
-            line: AssemblersHexdumpLine,
-            chr: string = '',
-            i: number = 0,
-            j: number = 0,
-            k: number = 0,
-            l: number = 0;
-
-        for (i = 0, j = bytes.length; i < j; i += 16) {
-            line = {
-                index: this._dec2hex(i, 8),
-                bytes: [[], []],
-                text: []
-            };
-
-            for (k = i, l = i + 8; k < l; k += 1) {
-                if (k >= j) {
-                    break;
-                }
-
-                index += 1;
-                line.bytes[0].push(this._dec2hex(bytes[k], 2));
-
-                if (bytes[k] < 0x20 || bytes[k] > 0x7E) {
-                    chr = '.';
-                } else {
-                    chr = String.fromCharCode(bytes[k]);
-                }
-
-                line.text.push(chr);
-            }
-
-            for (k = i + 8, l = i + 16; k < l; k += 1) {
-                if (k >= j) {
-                    break;
-                }
-
-                index += 1;
-                line.bytes[1].push(this._dec2hex(bytes[k], 2));
-
-                if (bytes[k] < 0x20 || bytes[k] > 0x7E) {
-                    chr = '.';
-                } else {
-                    chr = String.fromCharCode(bytes[k]);
-                }
-
-                line.text.push(chr);
-            }
-
-            lines.push(line);
-        }
-
-        lines.push({
-            index: this._dec2hex(index, 8),
-            bytes: [[], []],
-            text: []
-        });
-
-        lines.forEach(function (line: AssemblersHexdumpLine): void {
-            var str: string = '';
-
-            str = [line.index, line.bytes[0].join(' '), line.bytes[1].join(' ')].join('  ');
-
-            while (str.length < 60) {
-                str += ' ';
-            }
-
-            if (line.text.length) {
-                str += ['|', line.text.join(''), '|'].join('');
-            }
-
-            dump.push(str);
-        });
-
-        return dump.join('\n');
     }
 
     render() {
@@ -441,7 +358,7 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
                         title={assemble_text}
                         onClick={this._onAssemble}>{assemble_text}</button>
                     {
-                        this.props.flags ? (
+                        !this.props.flags ? (
                             <button
                                 className={classNames({
                                     btn: true,
@@ -487,7 +404,10 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
                                     title="Custom pseudo-instructions"
                                     onClick={this._onCustom}>
                                     <i
-                                        className="fa fa-code" />
+                                        className={classNames({
+                                            fa: true,
+                                            'fa-code': true
+                                        })} />
                                 </button>
                             ) : null
                         ) : null
@@ -503,7 +423,10 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
                                     title="Open in Playground"
                                     onClick={this._onOpen}>
                                     <i
-                                        className="fa fa-external-link" />
+                                        className={classNames({
+                                            fa: true,
+                                            'fa-external-link': true
+                                        })} />
                                 </button>
                             ) : null
                         ) : null
@@ -519,7 +442,10 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
                                 data-toggle="modal"
                                 data-target="#help-modal">
                                 <i
-                                    className="fa fa-question-circle" />
+                                    className={classNames({
+                                        fa: true,
+                                        'fa-question-circle': true
+                                    })} />
                             </button>
                         ) : null
                     }
