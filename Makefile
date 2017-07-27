@@ -283,7 +283,7 @@ translate-install: translate/$(LANG)/nessemble.mo
 # SERVER
 
 .PHONY: server
-server: docs-js docs-css
+server: docs-js docs-css website-js website-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:8000\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:8000/g" \
@@ -300,8 +300,34 @@ server: docs-js docs-css
 
 # WEBSITE
 
+.PHONY: website-clean
+website-clean:
+	$(RM) website/static/js/website.js
+
+.PHONY: website-css
+website-css:
+	@printf "Minifying CSS...\n"
+	@uglifycss --output website/static/css/website.css \
+		website/static/css/bootstrap.min.css \
+		website/static/css/font-awesome.min.css \
+		website/static/css/grayscale.css \
+		website/static/css/asciinema-player.css \
+		website/static/css/style.css
+
+.PHONY: website-js
+website-js:
+	@printf "Minifying JS...\n"
+	@uglifyjs --output website/static/js/website.js \
+		website/static/js/jquery.min.js \
+		website/static/js/jquery.easing.min.js \
+		website/static/js/bootstrap.min.js \
+		website/static/js/grayscale.js \
+		website/static/js/asciinema-player.js \
+		website/static/js/dynamicaudio-min.js \
+		website/static/js/jsnes.js
+
 .PHONY: website
-website:
+website: website-js website-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9000\/documentation/g" \
 		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
@@ -489,3 +515,4 @@ clean:
 	$(MAKE) -C src/third-party/tinyscheme-1.41/ clean
 	$(MAKE) -C src/third-party/lua-5.1.5/src/ clean
 	$(MAKE) docs-clean
+	$(MAKE) website-clean

@@ -26,6 +26,8 @@ src/third-party/tinyscheme*
 strings.h
 test/js/*.js
 website/settings.cfg
+website/static/css/website.css
+website/static/js/website.js
 y.tab.*
 yarn*
 *.chr
