@@ -30,8 +30,8 @@
     text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.75);
 }
 .intro .intro-body .brand-heading:before {
-    width: 80px;
-    height: 80px;
+    width: 38px;
+    height: 38px;
     right: 4px;
     top: 4px;
     content: "";
@@ -95,6 +95,12 @@
     .intro .intro-body .brand-heading {
         font-size: 100px;
     }
+    .intro .intro-body .brand-heading:before {
+        width: 80px;
+        height: 80px;
+        right: 4px;
+        top: 4px;
+    }
     .intro .intro-body .intro-text {
         font-size: 26px;
     }
@@ -105,5 +111,11 @@
 
     .download-section {
         padding: 100px 0;
+    }
+}
+
+@media (min-width: 767px) and (max-width: 992px) {
+    .intro .intro-body .brand-heading:before {
+        display: none;
     }
 }
