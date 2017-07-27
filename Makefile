@@ -93,12 +93,12 @@ debug: CC_FLAGS     += -g
 debug: CC_LIB_FLAGS += -ldl
 
 js: EXEC            := $(NAME).js
-js: CC              := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emcc')
+js: CC              := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emcc' 2>/dev/null)
 js: CC_FILES        := --embed-file src/static/scripts@/static/scripts
 js: CC_FLAGS        += -s MODULARIZE=1
 js: CC_LIBLUA       := -Wno-empty-body
-js: AR              := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emar')
-js: RANLIB          := $(shell find $$HOME/emsdk-portable/emscripten/ -name 'emranlib')
+js: AR              := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emar' 2>/dev/null)
+js: RANLIB          := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emranlib' 2>/dev/null)
 js: SCHEME_FLAGS    := -DUSE_STRLWR=0
 
 win32: EXEC         := $(NAME).exe
