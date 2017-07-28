@@ -1,11 +1,11 @@
 .nessemble-icon {
-    width:18px;
-    height:18px;
-    margin:0px 4px 0 0;
-    background:transparent url(../img/nessemble-icon.svg) no-repeat center;
-    background-size:cover;
-    display:block;
-    float:left;
+    width: 18px;
+    height: 18px;
+    margin: 0px 4px 0 0;
+    background: transparent url(../img/nessemble-icon.svg) no-repeat center;
+    background-size: cover;
+    display: block;
+    float: left;
 }
 .intro {
     display: table;
@@ -29,6 +29,17 @@
     font-size: 40px;
     text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.75);
 }
+.intro .intro-body .brand-heading:before {
+    width: 38px;
+    height: 38px;
+    right: 4px;
+    top: 4px;
+    content: "";
+    background: transparent url(../img/nessemble-icon.svg) no-repeat center;
+    background-size: cover;
+    display: inline-block;
+    position: relative;
+}
 .intro .intro-body .intro-text {
     font-size: 18px;
     text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.75);
@@ -42,7 +53,7 @@
     width: 100%;
     padding: 50px 0;
     color: white;
-    background: url(../img/intro-bg.jpg) no-repeat center top scroll;
+    background: url(../img/intro-bg.jpg) no-repeat center bottom scroll;
     background-color: black;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -84,6 +95,12 @@
     .intro .intro-body .brand-heading {
         font-size: 100px;
     }
+    .intro .intro-body .brand-heading:before {
+        width: 80px;
+        height: 80px;
+        right: 4px;
+        top: 4px;
+    }
     .intro .intro-body .intro-text {
         font-size: 26px;
     }
@@ -94,5 +111,11 @@
 
     .download-section {
         padding: 100px 0;
+    }
+}
+
+@media (min-width: 767px) and (max-width: 992px) {
+    .intro .intro-body .brand-heading:before {
+        display: none;
     }
 }

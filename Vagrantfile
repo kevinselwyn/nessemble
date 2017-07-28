@@ -13,4 +13,9 @@ Vagrant.configure("2") do |config|
     linux32.vm.box = "ubuntu/xenial32"
     linux32.vm.box_version = "20170424.0.0"
   end
+
+  config.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+    v.cpus = 1
+  end
 end

@@ -20,6 +20,8 @@ YACC_OUT     := y.tab
 YACC_FLAGS   := --output=src/$(YACC_OUT).c --defines --yacc
 SCHEME_FLAGS :=
 
+MAINTENANCE  := 0
+
 SCRIPTING     := -DSCRIPTING_JAVASCRIPT=1 -DSCRIPTING_LUA=1 -DSCRIPTING_SCHEME=1
 SCRIPTING_LUA := src/third-party/lua-5.1.5/src/liblua.a
 SCRIPTING_SCM := src/third-party/tinyscheme-1.41/libtinyscheme.a
@@ -91,11 +93,12 @@ debug: CC_FLAGS     += -g
 debug: CC_LIB_FLAGS += -ldl
 
 js: EXEC            := $(NAME).js
-js: CC              := emcc
+js: CC              := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emcc' 2>/dev/null)
+js: CC_FILES        := --embed-file src/static/scripts@/static/scripts
 js: CC_FLAGS        += -s MODULARIZE=1
 js: CC_LIBLUA       := -Wno-empty-body
-js: AR              := emar
-js: RANLIB          := emranlib
+js: AR              := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emar' 2>/dev/null)
+js: RANLIB          := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emranlib' 2>/dev/null)
 js: SCHEME_FLAGS    := -DUSE_STRLWR=0
 
 win32: EXEC         := $(NAME).exe
@@ -119,6 +122,9 @@ win64: SCHEME_FLAGS := -DUSE_STRLWR=0
 all: $(EXEC)
 
 debug: $(EXEC)
+
+js-pre:
+	cd $$HOME/emsdk-portable && /bin/bash ./emsdk_env.sh
 
 js: $(EXEC)
 
@@ -204,6 +210,7 @@ test: all
 test-js:
 	@printf "Building JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
+	@$(MAKE) docs-js
 	@printf "Building tests...\n"
 	@python utils/jstest.py --input ./test/errors \
 		--output ./test/js/errors.js
@@ -277,22 +284,54 @@ translate-install: translate/$(LANG)/nessemble.mo
 # SERVER
 
 .PHONY: server
-server: docs-js docs-css
+server: docs-js docs-css website-js website-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:8000\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:8000/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 		website/settings-template.cfg > website/settings.cfg
 	@printf "Starting server...\n"
 	@python server.py --debug --port 8000
 
 # WEBSITE
 
+.PHONY: website-clean
+website-clean:
+	$(RM) website/static/js/website.js
+
+.PHONY: website-css
+website-css:
+	@printf "Minifying CSS...\n"
+	@uglifycss --output website/static/css/website.css \
+		website/static/css/bootstrap.min.css \
+		website/static/css/font-awesome.min.css \
+		website/static/css/grayscale.css \
+		website/static/css/asciinema-player.css \
+		website/static/css/style.css
+
+.PHONY: website-js
+website-js:
+	@printf "Minifying JS...\n"
+	@uglifyjs --output website/static/js/website.js \
+		website/static/js/jquery.min.js \
+		website/static/js/jquery.easing.min.js \
+		website/static/js/bootstrap.min.js \
+		website/static/js/grayscale.js \
+		website/static/js/asciinema-player.js \
+		website/static/js/dynamicaudio-min.js \
+		website/static/js/jsnes.js
+
 .PHONY: website
-website:
+website: website-js website-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9000\/documentation/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 		website/settings-template.cfg > website/settings.cfg
 	@cd website ; python index.py --debug --port 9000
 
@@ -304,16 +343,25 @@ registry:
 
 # DOCUMENTATION
 
+.PHONY: docs-clean
+docs-clean:
+	$(RM) docs/js/models/assembler.js
+	$(RM) docs/pages/js/$(EXEC)*.js
+	$(RM) docs/pages/js/assembler.js
+	$(RM) docs/pages/js/docs.js
+	$(RM) docs/pages/js/registry.js
+
 .PHONY: docs-js
 docs-js:
 	@printf "Copying JS...\n"
 	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
-		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
+		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || \
+		touch docs/pages/js/$(EXEC).min.js 2>/dev/null || :
+	@printf "Transpiling JS...\n"
+	@cd docs && yarn run build
 	@printf "Minifying JS...\n"
 	@uglifyjs --output docs/pages/js/docs.js \
-		docs/pages/js/bootstrap-modal.js \
-		docs/pages/js/nessemble-custom.js \
-		docs/pages/js/registry.js
+		docs/pages/js/bundle.js
 
 .PHONY: docs-css
 docs-css:
@@ -329,6 +377,8 @@ docs: docs-js docs-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9090/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:9090\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:9090\/website/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 	@printf "Starting server...\n"
@@ -428,12 +478,36 @@ win_package:
 	wixl $(TMP) --output $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).msi
 	$(RM) $(TMP) $(PAYLOAD)
 
+# DEPLOY
+.PHONY: deploy
+deploy: docs-js docs-css
+	@printf "Prepping docs...\n"
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/nessemble.herokuapp.com\/documentation/g" \
+		-e "s/\$${REGISTRY}/http:\/\/nessemble.herokuapp.com\/registry/g" \
+		-e "s/\$${WEBSITE}/http:\/\/nessemble.horokuapp.com/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
+	 	docs/mkdocs-template.yml > docs/mkdocs.yml
+	@cd docs ; mkdocs build --clean
+
+	@printf "Prepping website...\n"
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/nessemble.herokuapp.com\/documentation/g" \
+		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
+		website/settings-template.cfg > website/settings.cfg
+
+	@printf "Zipping files...\n"
+	@tar czf deploy.tar.gz --files-from files.txt
+
+	@python utils/deploy.py --tar deploy.tar.gz --maintenance $(MAINTENANCE)
+
 # CLEAN
 
 .PHONY: clean
 clean:
 	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).min.js $(EXEC).wasm
 	$(RM) $(OBJS)
+	$(RM) deploy.tar.gz
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
 	$(RM) src/static/font.h src/static/font.chr
 	$(RM) src/static/init.h
@@ -443,3 +517,5 @@ clean:
 	$(RM) $(PAYLOAD)
 	$(MAKE) -C src/third-party/tinyscheme-1.41/ clean
 	$(MAKE) -C src/third-party/lua-5.1.5/src/ clean
+	$(MAKE) docs-clean
+	$(MAKE) website-clean

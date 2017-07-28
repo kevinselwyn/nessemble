@@ -107,6 +107,7 @@ npm install -g yarn
 
 # node modules
 yarn global add uglify-js uglifycss
+cd $ROOT/docs && yarn install
 
 # python
 sudo apt-get -y install python-pip
@@ -155,10 +156,12 @@ cp $HOME/cache/emsdk-portable.tar.gz $HOME/emsdk-portable.tar.gz
 cd $HOME && tar xf emsdk-portable.tar.gz
 cd $HOME/emsdk-portable
 ./emsdk update
-./emsdk install latest
+./emsdk install latest -j1
 ./emsdk activate latest
 source ./emsdk_env.sh
-printf "\n#emscripten\nsource %s/emsdk-portable/emsdk_env.sh\n" $HOME >> $HOME/.profile
+
+# heroku
+wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
 
 # scripts
 if [ -d "/vagrant" ]

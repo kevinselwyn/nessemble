@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include "nessemble.h"
 
+#ifdef IS_JAVASCRIPT
+#include <emscripten.h>
+#endif /* IS_JAVASCRIPT */
+
 /* ines */
 struct ines_header ines = { 1, 0, 0, 1, 0 };
 
@@ -252,6 +256,21 @@ unsigned int pseudo_parse(char **exec, char *pseudo) {
     size_t pseudo_length = 0;
     char buffer[1024], *val = NULL, *output = NULL, *scripts = NULL;
     FILE *pseudo_file = NULL;
+
+#ifdef IS_JAVASCRIPT
+    output = EM_ASM_INT({
+        var string = Pointer_stringify($0);
+        var exec = Module.getCustom(string);
+        var length = exec.length + 1;
+        var buffer = Module._malloc(length);
+
+        Module.stringToUTF8(exec, buffer, length);
+
+        return buffer;
+    }, pseudo);
+
+    goto cleanup;
+#endif /* IS_JAVASCRIPT */
 
     if (!pseudoname) {
         goto global_check;

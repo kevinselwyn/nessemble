@@ -26,8 +26,10 @@ extra_css:
     - css/docs.css
 extra_javascript:
     - js/nessemble.min.js
+    - js/bootstrap-modal.js
     - js/docs.js
 extra:
     documentation: ${DOCUMENTATION}
     registry: ${REGISTRY}
     website: ${WEBSITE}
+google_analytics: ['${ANALYTICS_ID}', '${ANALYTICS_DOMAIN}']

@@ -16,6 +16,7 @@ The default registry URL is <code class="registry-default-val"></code>.
 | Endpoint                                                                  | Method   | Description                                   | Needs Auth                              |
 |---------------------------------------------------------------------------|----------|-----------------------------------------------|-----------------------------------------|
 | [/](#get)                                                                 | GET      | List of all packages                          | <i class="fa fa-times color-red"></i>   |
+| [/status](#get-status)                                                    | GET      | API status page                               | <i class="fa fa-times color-red"></i>   |
 | [/search/&lt;string:term&gt;](#get-searchstringterm)                      | GET      | Search for packages by `term`                 | <i class="fa fa-times color-red"></i>   |
 | [/package/&lt;string:package&gt;](#get-packagestringpackage)              | GET      | Display information about package `package`   | <i class="fa fa-times color-red"></i>   |
 | [/package/&lt;string:package&gt;/README](#get-packagestringpackagereadme) | GET      | Display README for package `package`          | <i class="fa fa-times color-red"></i>   |
@@ -103,6 +104,39 @@ Pagination result information:
 * `next` - String or null. URL of next page.
 
 <div class="registry-example" data-opts='{"endpoint":"/","method":"GET"}'></div>
+
+#### GET /status
+
+API status page.
+
+Request:
+
+```text
+GET / HTTP/1.1
+Host: xxxxx
+Accept: text/html
+User-Agent: nessemble/1.0.1
+```
+
+Response:
+
+```text
+HTTP/1.1 200 OK
+Content-Length: 0
+Content-Type: text/html
+Access-Control-Allow-Origin: *
+Server: Nessemble
+X-Response-Time: x.xxx
+X-RateLimit-Limit: xx
+X-RateLimit-Remaining: xx
+X-RateLimit-Reset: xxxxxxxxxx
+Retry-After: xx
+Date: Fri, 29 Aug 1997 22:14:00 GMT
+Cache-Control: max-age=xxxx
+Expires: xxxxxxxxxx
+```
+
+<div class="registry-example" data-opts='{"endpoint":"/status","method":"GET"}'></div>
 
 ### /search
 

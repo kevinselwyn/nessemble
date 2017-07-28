@@ -9,8 +9,14 @@
     <div id="qunit"></div>
     <div id="qunit-fixture"></div>
     <script src="https://code.jquery.com/qunit/qunit-2.3.3.js"></script>
-    <script src="../../nessemble.js"></script>
-    <script src="../../docs/pages/js/nessemble-custom.js"></script>
+    <script type="text/javascript">
+        var exports = {};
+    </script>
+    <script src="../../docs/pages/js/nessemble.min.js"></script>
+    <script src="../../docs/js/models/assembler.js"></script>
+    <script type="text/javascript">
+        var Assembler = exports.default;
+    </script>
     <script src="examples.js"></script>
     <script src="opcodes.js"></script>
 </body>

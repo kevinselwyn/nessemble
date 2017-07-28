@@ -1,8 +1,11 @@
 .DS_Store
 .vagrant
+deploy.tar.gz
 docs/mkdocs.yml
 docs/site
+docs/js/models/assembler.js
 docs/pages/css/docs.css
+docs/pages/js/bundle.js
 docs/pages/js/docs.js
 init.h
 license.h
@@ -11,6 +14,7 @@ nessemble
 nessemble.js
 nessemble.min.js
 nessemble.wasm
+node_modules
 opcodes.c
 package/payload
 reference/**/*.h
@@ -23,6 +27,8 @@ src/third-party/tinyscheme*
 strings.h
 test/js/*.js
 website/settings.cfg
+website/static/css/website.css
+website/static/js/website.js
 y.tab.*
 yarn*
 *.chr

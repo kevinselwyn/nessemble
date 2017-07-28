@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "jsx" : "react",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noImplicitAny": false,
+        "target": "es5"
+    },
+    "include": [
+        "./js/*"
+    ],
+    "exclude": [
+        "./pages/js/bootstrap-modal.js",
+        "./pages/js/nessemble.js",
+        "./pages/js/nessemble.min.js"
+    ]
+}

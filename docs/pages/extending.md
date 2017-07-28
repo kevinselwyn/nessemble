@@ -23,7 +23,7 @@ Example `example.asm`:
 To assemble:
 
 ```text
-$ nessemble example.asm --pseudo pseudo.txt
+nessemble example.asm --pseudo pseudo.txt
 ```
 
 ## Scripting
@@ -338,7 +338,7 @@ int custom(char **return_str, size_t *return_len, unsigned int ints[], int lengt
 ##### Compiling
 
 ```text
-$ gcc -o quotient.so quotient.c -shared -fPIC
+gcc -o quotient.so quotient.c -shared -fPIC
 ```
 
 #### Handling Strings
