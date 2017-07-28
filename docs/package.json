@@ -6,7 +6,7 @@
   "author": "Kevin Selwyn",
   "license": "GPL-3.0",
   "scripts": {
-    "build": "webpack"
+    "build": "webpack && tsc ./js/models/assembler.ts"
   },
   "dependencies": {
     "@types/classnames": "^2.2.0",

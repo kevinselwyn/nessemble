@@ -210,6 +210,7 @@ test: all
 test-js:
 	@printf "Building JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
+	@$(MAKE) docs-js
 	@printf "Building tests...\n"
 	@python utils/jstest.py --input ./test/errors \
 		--output ./test/js/errors.js
@@ -344,6 +345,7 @@ registry:
 
 .PHONY: docs-clean
 docs-clean:
+	$(RM) docs/js/models/assembler.js
 	$(RM) docs/pages/js/$(EXEC)*.js
 	$(RM) docs/pages/js/assembler.js
 	$(RM) docs/pages/js/docs.js
@@ -353,7 +355,8 @@ docs-clean:
 docs-js:
 	@printf "Copying JS...\n"
 	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
-		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || :
+		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || \
+		touch docs/pages/js/$(EXEC).min.js 2>/dev/null || :
 	@printf "Transpiling JS...\n"
 	@cd docs && yarn run build
 	@printf "Minifying JS...\n"

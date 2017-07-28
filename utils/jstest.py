@@ -47,7 +47,7 @@ def gen_testfile(indir, excluded):
         output.append('    var done = assert.async(),')
         output.append('        input = \'%s\',' % (input_text))
         output.append('        output = [%s],' % (output_text))
-        output.append('        nessemble = new Nessemble({')
+        output.append('        nessemble = new Assembler({')
         output.append('            stdin: input,')
         output.append('            onStdout: function (rc, stdout) {')
         output.append('                assert.deepEqual(stdout, output);')

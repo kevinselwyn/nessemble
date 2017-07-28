@@ -3,6 +3,7 @@
 deploy.tar.gz
 docs/mkdocs.yml
 docs/site
+docs/js/models/assembler.js
 docs/pages/css/docs.css
 docs/pages/js/bundle.js
 docs/pages/js/docs.js
