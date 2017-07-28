@@ -54,8 +54,13 @@ class AssemblerComponent extends React.Component<AssemblerComponentProps, any> {
         var modal_title = document.querySelector('.modal-header'),
             modal_body = document.querySelector('.modal-body');
 
-        modal_title.innerHTML = 'Nessemble Help';
-        modal_body.innerHTML = '<p><code>nessemble</code> has been compiled to Javascript for use in the browser (with limited functionality).</p><p>Feel free to explore <code>nessemble</code> further in the <a href="../playground">Playground</a>.</p>';
+        if (modal_title) {
+            modal_title.innerHTML = 'Nessemble Help';
+        }
+
+        if (modal_body) {
+            modal_body.innerHTML = '<p><code>nessemble</code> has been compiled to Javascript for use in the browser (with limited functionality).</p><p>Feel free to explore <code>nessemble</code> further in the <a href="../playground">Playground</a>.</p>';
+        }
 
         this.listenToTracking = TrackingStore.listen(this._updateTracking, TrackingStore);
     }
