@@ -1,5 +1,6 @@
 .DS_Store
 .vagrant
+deploy-files.txt
 deploy.tar.gz
 docs/mkdocs.yml
 docs/site

@@ -20,6 +20,14 @@ YACC_OUT     := y.tab
 YACC_FLAGS   := --output=src/$(YACC_OUT).c --defines --yacc
 SCHEME_FLAGS :=
 
+DEPLOY_FILES := Procfile requirements.txt runtime.txt server.py settings.cfg
+DEPLOY_FILES += docs/custom_theme docs/docs docs/site docs/__init__.py
+DEPLOY_FILES += docs/index.py docs/mkdocs.yml docs/settings.cfg
+DEPLOY_FILES += registry/registry registry/templates registry/__init__.py
+DEPLOY_FILES += registry/index.py registry/registry.sql registry/settings.cfg
+DEPLOY_FILES += website/static website/templates website/website
+DEPLOY_FILES += website/__init__.py website/settings.cfg
+
 MAINTENANCE  := 0
 
 SCRIPTING     := -DSCRIPTING_JAVASCRIPT=1 -DSCRIPTING_LUA=1 -DSCRIPTING_SCHEME=1
@@ -480,24 +488,31 @@ win_package:
 
 # DEPLOY
 .PHONY: deploy
-deploy: docs-js docs-css
+deploy: docs-js docs-css website-js website-css
 	@printf "Prepping docs...\n"
-	@sed -e "s/\$${DOCUMENTATION}/http:\/\/nessemble.herokuapp.com\/documentation/g" \
-		-e "s/\$${REGISTRY}/http:\/\/nessemble.herokuapp.com\/registry/g" \
-		-e "s/\$${WEBSITE}/http:\/\/nessemble.horokuapp.com/g" \
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
+		-e "s/\$${REGISTRY}/http:\/\/registry.nessemble.com/g" \
+		-e "s/\$${WEBSITE}/http:\/\/nessemble.com/g" \
 		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 
 	@printf "Prepping website...\n"
-	@sed -e "s/\$${DOCUMENTATION}/http:\/\/nessemble.herokuapp.com\/documentation/g" \
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
 		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 		website/settings-template.cfg > website/settings.cfg
 
+	@printf "Gathering deploy files...\n"
+	@$(RM) deploy-files.txt
+	@touch deploy-files.txt
+	@for file in $(DEPLOY_FILES); do \
+		printf "./%s\n" $$file >> deploy-files.txt; \
+	done
+
 	@printf "Zipping files...\n"
-	@tar czf deploy.tar.gz --files-from files.txt
+	@tar czf deploy.tar.gz --files-from deploy-files.txt
 
 	@python utils/deploy.py --tar deploy.tar.gz --maintenance $(MAINTENANCE)
 
@@ -507,7 +522,7 @@ deploy: docs-js docs-css
 clean:
 	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).min.js $(EXEC).wasm
 	$(RM) $(OBJS)
-	$(RM) deploy.tar.gz
+	$(RM) deploy-files.txt deploy.tar.gz
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
 	$(RM) src/static/font.h src/static/font.chr
 	$(RM) src/static/init.h
