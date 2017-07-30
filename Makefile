@@ -368,7 +368,7 @@ docs-css:
 	@printf "Minifying CSS...\n"
 	@uglifycss --output docs/pages/css/docs.css \
 		docs/pages/css/custom.css \
-		docs/pages/css/nessemble.css \
+		docs/pages/css/assembler.css \
 		docs/pages/css/registry.css \
 		docs/pages/css/bootstrap-modal.css
 

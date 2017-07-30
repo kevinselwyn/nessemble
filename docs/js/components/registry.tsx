@@ -36,8 +36,13 @@ class RegistryComponent extends React.Component<RegistryComponentProps, any> {
         var modal_title = document.querySelector('.modal-header'),
             modal_body = document.querySelector('.modal-body');
 
-        modal_title.innerHTML = 'Registry Help';
-        modal_body.innerHTML = '<p>Click the <code>Send</code> button to run a specific API call.</p>';
+        if (modal_title) {
+            modal_title.innerHTML = 'Registry Help';
+        }
+
+        if (modal_body) {
+            modal_body.innerHTML = '<p>Click the <code>Send</code> button to run a specific API call.</p>';
+        }
 
         this.listenToTracking = TrackingStore.listen(this._updateTracking, TrackingStore);
     }
