@@ -38,7 +38,6 @@ EMAIL        := kevinselwyn@gmail.com
 MAINTAINER   := Kevin Selwyn
 DESCRIPTION  := A 6502 assembler for the Nintendo Entertainment System
 IDENTIFIER   := kevinselwyn
-LICENSE      := $(shell cat src/static/license.txt)
 PACKAGE      := ./package
 PAYLOAD      := $(PACKAGE)/payload
 RELEASE      := ./release
@@ -428,13 +427,12 @@ ifeq ($(UNAME), Linux)
 		-e "s/\$${EMAIL}/$(EMAIL)/g" \
 		-e "s/\$${SIZE}/$(shell wc -c < $(EXEC))/g" \
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
-	 	$(PACKAGE)/control > $(PAYLOAD)/DEBIAN/control
+	 	$(PACKAGE)/data/linux/control > $(PAYLOAD)/DEBIAN/control
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
 		-e "s/\$${YEAR}/$(YEAR)/g" \
 		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
-		-e "s/\$${LICENSE}/$(LICENSE)/g" \
-		$(PACKAGE)/copyright > $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
+		$(PACKAGE)/data/linux/copyright > $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
 	cat src/static/license.txt >> $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
 	cd $(PAYLOAD) ; md5sum `find usr -type f` > DEBIAN/md5sums
 	cp $(PACKAGE)/scripts/linux/* $(PAYLOAD)/DEBIAN
@@ -454,7 +452,7 @@ ifeq ($(UNAME), Darwin)
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
-	 	$(PACKAGE)/distribution.xml > $(TMP)
+	 	$(PACKAGE)/data/osx/distribution.xml > $(TMP)
 	pkgbuild --root $(PAYLOAD) \
 			 --identifier com.$(IDENTIFIER).$(NAME) \
 			 --scripts $(PACKAGE)/scripts/osx \
@@ -483,7 +481,7 @@ win_package:
 		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
 		-e "s/\$${GUID}/$(shell ./utils/guid.py --input $(NAME).exe)/g" \
-	 	$(PACKAGE)/msi.wxs > $(TMP)
+	 	$(PACKAGE)/data/win/msi.wxs > $(TMP)
 	wixl $(TMP) --output $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).msi
 	$(RM) $(TMP) $(PAYLOAD)
 
