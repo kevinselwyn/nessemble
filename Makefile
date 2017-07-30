@@ -38,6 +38,7 @@ EMAIL        := kevinselwyn@gmail.com
 MAINTAINER   := Kevin Selwyn
 DESCRIPTION  := A 6502 assembler for the Nintendo Entertainment System
 IDENTIFIER   := kevinselwyn
+LICENSE      := $(shell cat src/static/license.txt)
 PACKAGE      := ./package
 PAYLOAD      := $(PACKAGE)/payload
 RELEASE      := ./release
