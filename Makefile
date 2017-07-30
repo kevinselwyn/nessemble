@@ -485,6 +485,25 @@ win_package:
 	wixl $(TMP) --output $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).msi
 	$(RM) $(TMP) $(PAYLOAD)
 
+.PHONY: js_package
+js_package:
+	$(MAKE) js
+	$(RM) $(PAYLOAD)
+	$(RM) $(RELEASE)/$(NAME)-js
+	mkdir -p $(RELEASE)/$(NAME)-js
+	mkdir -p $(PAYLOAD)/lib
+	sed -e "s/\$${NAME}/$(NAME)/g" \
+		-e "s/\$${VERSION}/$(VERSION)/g" \
+		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
+		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
+		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
+		-e "s/\$${EMAIL}/$(EMAIL)/g" \
+	$(PACKAGE)/data/js/package.json > $(PAYLOAD)/package.json
+	cp $(PACKAGE)/data/js/index.js $(PAYLOAD)
+	cp COPYING $(PAYLOAD)/LICENSE.txt
+	cp $(NAME).js $(PAYLOAD)/lib
+	mv $(PAYLOAD)/* $(RELEASE)/$(NAME)-js
+
 # DEPLOY
 .PHONY: deploy
 deploy: docs-js docs-css website-js website-css
