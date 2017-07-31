@@ -54,6 +54,20 @@
                 category: 'Contribute',
                 action: 'GitHub Button',
                 label: 'Website'
+            },
+            {
+                selector: '#asciinema',
+                category: 'Asciinema',
+                action: 'Play',
+                label: 'Website',
+                event: 'play'
+            },
+            {
+                selector: '#asciinema',
+                category: 'Asciinema',
+                action: 'Pause',
+                label: 'Website',
+                event: 'pause'
             }
         ];
 
@@ -79,7 +93,7 @@
             }
 
             for (k = 0, l = els.length; k < l; k += 1) {
-                els[k].addEventListener('click', (function (el, data) {
+                els[k].addEventListener(events[i].event || 'click', (function (el, data) {
                     var action = data.action;
 
                     if (!action) {
