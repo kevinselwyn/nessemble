@@ -5,6 +5,7 @@ BIN_DIR      := /usr/local/bin
 RM           := rm -rf
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra -lm
+CC_OPTIM     :=
 CC_LIB_FLAGS := -Isrc/third-party/lua-5.1.5/src
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
@@ -104,6 +105,7 @@ js: EXEC            := $(NAME).js
 js: CC              := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emcc' 2>/dev/null)
 js: CC_FILES        := --embed-file src/static/scripts@/static/scripts
 js: CC_FLAGS        += -s MODULARIZE=1
+js: CC_OPTIM        := -O1
 js: CC_LIBLUA       := -Wno-empty-body
 js: AR              := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emar' 2>/dev/null)
 js: RANLIB          := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emranlib' 2>/dev/null)
@@ -205,7 +207,7 @@ src/static/scripts.h: ${src/static/scripts.tar.gz:tar.gz=h}
 src/scripts.c: src/static/scripts.tar.gz src/static/scripts.h
 
 $(EXEC): $(OBJS) $(HDRS)
-	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS) \
+	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_OPTIM) $(CC_LIB_FLAGS) \
 		$(SCRIPTING) \
 		$(SCRIPTING_LUA) \
 		$(SCRIPTING_SCM)
@@ -487,7 +489,7 @@ win_package:
 
 .PHONY: js_package
 js_package:
-	$(MAKE) js
+	$(MAKE) js CC_OPTIM="-O2"
 	$(RM) $(PAYLOAD)
 	$(RM) $(RELEASE)/$(NAME)-js
 	mkdir -p $(RELEASE)/$(NAME)-js
@@ -502,7 +504,9 @@ js_package:
 	cp $(PACKAGE)/data/js/index.js $(PAYLOAD)
 	cp COPYING $(PAYLOAD)/LICENSE.txt
 	cp $(NAME).js $(PAYLOAD)/lib
+	cp $(NAME).js.mem $(PAYLOAD)/lib
 	mv $(PAYLOAD)/* $(RELEASE)/$(NAME)-js
+	$(RM) $(PAYLOAD)
 
 # DEPLOY
 .PHONY: deploy
@@ -538,7 +542,7 @@ deploy: docs-js docs-css website-js website-css
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).min.js $(EXEC).wasm
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).js.mem $(EXEC).min.js $(EXEC).wasm
 	$(RM) $(OBJS)
 	$(RM) deploy-files.txt deploy.tar.gz
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c

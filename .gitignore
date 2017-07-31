@@ -13,6 +13,7 @@ license.h
 lex.yy.c
 nessemble
 nessemble.js
+nessemble.js.mem
 nessemble.min.js
 nessemble.wasm
 node_modules
