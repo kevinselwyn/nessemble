@@ -335,7 +335,8 @@ website-js:
 		website/static/js/grayscale.js \
 		website/static/js/asciinema-player.js \
 		website/static/js/dynamicaudio-min.js \
-		website/static/js/jsnes.js
+		website/static/js/jsnes.js \
+		website/static/js/analytics.js
 
 .PHONY: website
 website: website-js website-css
