@@ -29,7 +29,10 @@ DEPLOY_FILES += registry/index.py registry/registry.sql registry/settings.cfg
 DEPLOY_FILES += website/static website/templates website/website
 DEPLOY_FILES += website/__init__.py website/settings.cfg
 
-MAINTENANCE  := 0
+MAINTENANCE    := 0
+ANALYTICS      := UA-103019505
+ANALYTICS_PROD := $(ANALYTICS)-1
+ANALYTICS_DEV  := $(ANALYTICS)-2
 
 SCRIPTING     := -DSCRIPTING_JAVASCRIPT=1 -DSCRIPTING_LUA=1 -DSCRIPTING_SCHEME=1
 SCRIPTING_LUA := src/third-party/lua-5.1.5/src/liblua.a
@@ -139,9 +142,9 @@ js-pre:
 js: $(EXEC)
 
 min.js:
-	@printf "Building JS...\n"
+	@printf "Building min JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
-	@printf "Minifying JS...\n"
+	@printf "Minifying min JS...\n"
 	@uglifyjs $(EXEC).js --output $(EXEC).min.js
 
 wasm:
@@ -218,7 +221,7 @@ test: all
 	@python test.py
 
 test-js:
-	@printf "Building JS...\n"
+	@printf "Building test JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
 	@$(MAKE) docs-js
 	@printf "Building tests...\n"
@@ -298,12 +301,12 @@ server: docs-js docs-css website-js website-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:8000\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:8000/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 		website/settings-template.cfg > website/settings.cfg
 	@printf "Starting server...\n"
@@ -317,7 +320,7 @@ website-clean:
 
 .PHONY: website-css
 website-css:
-	@printf "Minifying CSS...\n"
+	@printf "Minifying website CSS...\n"
 	@uglifycss --output website/static/css/website.css \
 		website/static/css/bootstrap.min.css \
 		website/static/css/font-awesome.min.css \
@@ -327,7 +330,7 @@ website-css:
 
 .PHONY: website-js
 website-js:
-	@printf "Minifying JS...\n"
+	@printf "Minifying website JS...\n"
 	@uglifyjs --output website/static/js/website.js \
 		website/static/js/jquery.min.js \
 		website/static/js/jquery.easing.min.js \
@@ -341,7 +344,7 @@ website-js:
 .PHONY: website
 website: website-js website-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9000\/documentation/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 		website/settings-template.cfg > website/settings.cfg
 	@cd website ; python index.py --debug --port 9000
@@ -364,19 +367,19 @@ docs-clean:
 
 .PHONY: docs-js
 docs-js:
-	@printf "Copying JS...\n"
+	@printf "Copying docs JS...\n"
 	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
 		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || \
 		touch docs/pages/js/$(EXEC).min.js 2>/dev/null || :
-	@printf "Transpiling JS...\n"
+	@printf "Transpiling docs JS...\n"
 	@cd docs && yarn run build
-	@printf "Minifying JS...\n"
+	@printf "Minifying docs JS...\n"
 	@uglifyjs --output docs/pages/js/docs.js \
 		docs/pages/js/bundle.js
 
 .PHONY: docs-css
 docs-css:
-	@printf "Minifying CSS...\n"
+	@printf "Minifying docs CSS...\n"
 	@uglifycss --output docs/pages/css/docs.css \
 		docs/pages/css/custom.css \
 		docs/pages/css/assembler.css \
@@ -388,7 +391,7 @@ docs: docs-js docs-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9090/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:9090\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:9090\/website/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
@@ -516,14 +519,14 @@ deploy: docs-js docs-css website-js website-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
 		-e "s/\$${REGISTRY}/http:\/\/registry.nessemble.com/g" \
 		-e "s/\$${WEBSITE}/http:\/\/nessemble.com/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 
 	@printf "Prepping website...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 		website/settings-template.cfg > website/settings.cfg
 
