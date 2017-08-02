@@ -221,6 +221,10 @@ $(EXEC): $(OBJS) $(HDRS)
 test: all
 	@python test.py
 
+test-clean:
+	$(RM) test/js/*.js
+	$(MAKE) -C test/examples/custom clean
+
 test-js:
 	@printf "Building test JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
@@ -297,8 +301,9 @@ translate-install: translate/$(LANG)/nessemble.mo
 
 # SERVER
 
-.PHONY: server
-server: docs-js docs-css website-js website-css
+.PHONY: server-settings
+server-settings: docs/mkdocs-template.yml website/settings-template.cfg
+	@printf "Prepping docs settings...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:8000\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:8000/g" \
@@ -306,11 +311,15 @@ server: docs-js docs-css website-js website-css
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
-	@cd docs ; mkdocs build --clean
+	@printf "Prepping website settings...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 		website/settings-template.cfg > website/settings.cfg
+
+.PHONY: server
+server: docs-js docs-css website-js website-css server-settings
+	@cd docs ; mkdocs build --clean
 	@printf "Starting server...\n"
 	@python server.py --debug --port 8000
 
@@ -318,7 +327,17 @@ server: docs-js docs-css website-js website-css
 
 .PHONY: website-clean
 website-clean:
+	$(RM) website/settings.cfg
+	$(RM) website/static/css/website.css
 	$(RM) website/static/js/website.js
+
+.PHONY: website-settings
+website-settings: website/settings-template.cfg
+	@printf "Prepping website settings...\n"
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9000\/documentation/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
+		website/settings-template.cfg > website/settings.cfg
 
 .PHONY: website-css
 website-css:
@@ -344,11 +363,7 @@ website-js:
 		website/static/js/analytics.js
 
 .PHONY: website
-website: website-js website-css
-	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9000\/documentation/g" \
-		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
-		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
-		website/settings-template.cfg > website/settings.cfg
+website: website-settings website-js website-css
 	@cd website ; python index.py --debug --port 9000
 
 # REGISTRY
@@ -357,19 +372,25 @@ website: website-js website-css
 registry:
 	@cd registry ; python index.py --debug --port 8000 --import registry.sql
 
+.PHONY: registry-clean
+registry-clean:
+	$(RM) registry/registry.db
+
 # DOCUMENTATION
 
 .PHONY: docs-clean
 docs-clean:
 	@cd docs ; yarn run clean
-	$(RM) docs/pages/css/assembler.min.js
-	$(RM) docs/pages/css/docs.js
+	$(RM) docs/mkdocs.yml
+	$(RM) docs/pages/css/assembler.min.css
+	$(RM) docs/pages/css/docs.css
 	$(RM) docs/pages/js/$(EXEC)*.js
 	$(RM) docs/pages/js/assembler.js
 	$(RM) docs/pages/js/assemblers*.js
 	$(RM) docs/pages/js/docs.js
 	$(RM) docs/pages/js/registry.js
 	$(RM) docs/pages/js/registries*.js
+	$(RM) docs/site
 
 .PHONY: docs-js-webpack
 docs-js-webpack:
@@ -382,10 +403,10 @@ docs-js-assembler: docs/js/models/assembler.ts
 
 .PHONY: docs-js
 docs-js: docs-js-webpack docs-js-assembler
+	@$(MAKE) js
 	@printf "Copying docs JS...\n"
-	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
-		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || \
-		touch docs/pages/js/$(EXEC).min.js 2>/dev/null || :
+	@cp $(EXEC).js docs/pages/js 2>/dev/null || \
+		touch docs/pages/js/$(EXEC).js 2>/dev/null || :
 	@printf "Minifying docs JS...\n"
 	@uglifyjs --output docs/pages/js/assemblers.min.js \
 		docs/pages/js/assemblers.js
@@ -402,8 +423,9 @@ docs-css:
 	@uglifycss --output docs/pages/css/assembler.min.css \
 		docs/pages/css/assembler.css
 
-.PHONY: docs
-docs: docs-js docs-css
+.PHONY: docs-settings
+docs-settings: docs/mkdocs-template.yml
+	@printf "Prepping docs settings...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9090/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:9090\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:9090\/website/g" \
@@ -411,6 +433,9 @@ docs: docs-js docs-css
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
+
+.PHONY: docs
+docs: docs-js docs-css docs-settings
 	@cd docs ; mkdocs build --clean
 	@printf "Starting server...\n"
 	@cd docs ; python index.py --debug --port 9090
@@ -419,6 +444,7 @@ docs: docs-js docs-css
 
 .PHONY: cdn
 cdn: docs-js docs-css
+	@printf "Starting server...\n"
 	@cd cdn ; python index.py --debug --port 8080
 
 # INSTALL/UNINSTALL
@@ -536,8 +562,16 @@ js_package:
 	$(RM) $(PAYLOAD)
 
 # DEPLOY
+.PHONY: deploy-settings
+deploy-settings: website/settings-template.cfg
+	@printf "Prepping website settings...\n"
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
+		website/settings-template.cfg > website/settings.cfg
+
 .PHONY: deploy
-deploy: docs-js docs-css website-js website-css
+deploy: docs-js docs-css website-js website-css deploy-settings
 	@printf "Prepping docs...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
 		-e "s/\$${REGISTRY}/http:\/\/registry.nessemble.com/g" \
@@ -547,12 +581,6 @@ deploy: docs-js docs-css website-js website-css
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
-
-	@printf "Prepping website...\n"
-	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
-		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
-		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
-		website/settings-template.cfg > website/settings.cfg
 
 	@printf "Gathering deploy files...\n"
 	@$(RM) deploy-files.txt
@@ -580,7 +608,10 @@ clean:
 	$(RM) src/static/opcodes.c
 	$(RM) src/static/scripts.h src/static/scripts.tar.gz
 	$(RM) $(PAYLOAD)
+	find . -name '*.pyc' -exec $(RM) {} \;
 	$(MAKE) -C src/third-party/tinyscheme-1.41/ clean
 	$(MAKE) -C src/third-party/lua-5.1.5/src/ clean
+	$(MAKE) test-clean
 	$(MAKE) docs-clean
+	$(MAKE) registry-clean
 	$(MAKE) website-clean
