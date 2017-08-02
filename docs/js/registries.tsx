@@ -70,4 +70,4 @@ class Registries {
     }
 }
 
-export default Registries;
+var registries = new Registries();

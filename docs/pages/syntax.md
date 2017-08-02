@@ -76,7 +76,7 @@ Output:
 00000006
 ```
 
-<div class="nessemble-example">    LDX #$08
+<div class="nessemble-assembler">    LDX #$08
 loop:
     DEX
     BNE loop
@@ -121,7 +121,7 @@ Output:
 00000006
 ```
 
-<div class="nessemble-example">    LDX #$08
+<div class="nessemble-assembler">    LDX #$08
 :
     DEX
     BNE :-
@@ -354,7 +354,7 @@ Output:
 00000023
 ```
 
-<div class="nessemble-example">.ascii "When, in disgrace with fortune and men's eyes"</div>
+<div class="nessemble-assembler">.ascii "When, in disgrace with fortune and men's eyes"</div>
 
 ### .checksum
 
@@ -391,7 +391,7 @@ The checksum is `b8 1f ee 86`.
 > Checksums may only be performed on preceding data.
 > </div>
 
-<div class="nessemble-example">start:
+<div class="nessemble-assembler">start:
     LDA #$01
     STA <$02
     .checksum start</div>
@@ -451,7 +451,7 @@ Output:
 Read more about the NES color palette
 [here](https://en.wikipedia.org/wiki/List_of_video_game_console_palettes#NES).
 
-<div class="nessemble-example">.color $FF0000</div>
+<div class="nessemble-assembler">.color $FF0000</div>
 
 ### .db
 
@@ -480,7 +480,7 @@ Output:
 00000002
 ```
 
-<div class="nessemble-example">.db $12, $34</div>
+<div class="nessemble-assembler">.db $12, $34</div>
 
 ### .defchr
 
@@ -528,7 +528,7 @@ Output:
 Read more about PPU pattern tables
 [here](https://wiki.nesdev.com/w/index.php/PPU_pattern_tables).
 
-<div class="nessemble-example">.defchr 333333333,
+<div class="nessemble-assembler">.defchr 333333333,
         300000003,
         300000003,
         300000003,
@@ -564,7 +564,7 @@ Output:
 00000004
 ```
 
-<div class="nessemble-example">.dw $1234, $45678</div>
+<div class="nessemble-assembler">.dw $1234, $45678</div>
 
 ### .else
 
@@ -700,7 +700,7 @@ Output:
 00000010
 ```
 
-<div class="nessemble-example">.fill 16</div>
+<div class="nessemble-assembler">.fill 16</div>
 
 ### .font
 
@@ -739,7 +739,7 @@ Output:
 Read more about PPU pattern tables
 [here](https://wiki.nesdev.com/w/index.php/PPU_pattern_tables).
 
-<div class="nessemble-example">.font 'A', 'G'</div>
+<div class="nessemble-assembler">.font 'A', 'G'</div>
 
 ### .hibytes
 
@@ -768,7 +768,7 @@ Output:
 00000002
 ```
 
-<div class="nessemble-example">.hibytes $1234, $5678</div>
+<div class="nessemble-assembler">.hibytes $1234, $5678</div>
 
 ### .if
 
@@ -1143,7 +1143,7 @@ Output:
 00000002
 ```
 
-<div class="nessemble-example">.lobytes $1234, $5678</div>
+<div class="nessemble-assembler">.lobytes $1234, $5678</div>
 
 ### .macro
 
@@ -1326,7 +1326,7 @@ Output:
 00000003
 ```
 
-<div class="nessemble-example">.rsset $0000
+<div class="nessemble-assembler">.rsset $0000
 
 label_01 .rs 1
 label_02 .rs 2
@@ -1420,7 +1420,7 @@ Output:
 00000040
 ```
 
-<div class="nessemble-example" data-opts='{"pseudo":{"ease":true}}'>.ease "easeOutBounce", 0, $20, $40</div>
+<div class="nessemble-assembler" data-opts='{"pseudo":{"ease":true}}'>.ease "easeOutBounce", 0, $20, $40</div>
 
 ## Macros
 
@@ -1446,7 +1446,7 @@ Output:
 00000008
 ```
 
-<div class="nessemble-example">.macrodef TEST_MACRO
+<div class="nessemble-assembler">.macrodef TEST_MACRO
     LDA #$00
     STA $2005
     STA $2005

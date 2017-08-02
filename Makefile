@@ -145,7 +145,8 @@ min.js:
 	@printf "Building min JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
 	@printf "Minifying min JS...\n"
-	@uglifyjs $(EXEC).js --output $(EXEC).min.js
+	@uglifyjs --output $(EXEC).min.js \
+		$(EXEC).js
 
 wasm:
 	$(MAKE) js CC="emcc -s WASM=1"
@@ -301,6 +302,7 @@ server: docs-js docs-css website-js website-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:8000\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:8000/g" \
+		-e "s/\$${CDN}/http:\/\/localhost:8000\/cdn/g" \
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
@@ -360,10 +362,14 @@ registry:
 .PHONY: docs-clean
 docs-clean:
 	@cd docs ; yarn run clean
+	$(RM) docs/pages/css/assembler.min.js
+	$(RM) docs/pages/css/docs.js
 	$(RM) docs/pages/js/$(EXEC)*.js
 	$(RM) docs/pages/js/assembler.js
+	$(RM) docs/pages/js/assemblers*.js
 	$(RM) docs/pages/js/docs.js
 	$(RM) docs/pages/js/registry.js
+	$(RM) docs/pages/js/registries*.js
 
 .PHONY: docs-js-webpack
 docs-js-webpack:
@@ -381,29 +387,39 @@ docs-js: docs-js-webpack docs-js-assembler
 		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || \
 		touch docs/pages/js/$(EXEC).min.js 2>/dev/null || :
 	@printf "Minifying docs JS...\n"
-	@uglifyjs --output docs/pages/js/docs.js \
-		docs/pages/js/bundle.js
+	@uglifyjs --output docs/pages/js/assemblers.min.js \
+		docs/pages/js/assemblers.js
+	@uglifyjs --output docs/pages/js/registries.min.js \
+		docs/pages/js/registries.js
 
 .PHONY: docs-css
 docs-css:
 	@printf "Minifying docs CSS...\n"
 	@uglifycss --output docs/pages/css/docs.css \
 		docs/pages/css/custom.css \
-		docs/pages/css/assembler.css \
 		docs/pages/css/registry.css \
 		docs/pages/css/bootstrap-modal.css
+	@uglifycss --output docs/pages/css/assembler.min.css \
+		docs/pages/css/assembler.css
 
 .PHONY: docs
 docs: docs-js docs-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9090/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:9090\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:9090\/website/g" \
+		-e "s/\$${CDN}/http:\/\/localhost:9090\/js/g" \
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 	@printf "Starting server...\n"
 	@cd docs ; python index.py --debug --port 9090
+
+# CDN
+
+.PHONY: cdn
+cdn: docs-js docs-css
+	@cd cdn ; python index.py --debug --port 8080
 
 # INSTALL/UNINSTALL
 
@@ -526,6 +542,7 @@ deploy: docs-js docs-css website-js website-css
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
 		-e "s/\$${REGISTRY}/http:\/\/registry.nessemble.com/g" \
 		-e "s/\$${WEBSITE}/http:\/\/nessemble.com/g" \
+		-e "s/\$${CDN}/http:\/\/cdn.nessemble.com/g" \
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml

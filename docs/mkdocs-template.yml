@@ -24,10 +24,12 @@ docs_dir: pages
 dev_addr: 0.0.0.0:9090
 extra_css:
     - css/docs.css
+    - ${CDN}/assembler.min.css
 extra_javascript:
     - js/nessemble.min.js
     - js/bootstrap-modal.js
-    - js/docs.js
+    - js/registries.min.js
+    - ${CDN}/assemblers.min.js
 extra:
     documentation: ${DOCUMENTATION}
     registry: ${REGISTRY}

@@ -22,7 +22,7 @@ interface AssemblersHexdumpLine {
 
 class Assemblers {
     constructor() {
-        var examples: any = document.querySelectorAll('.nessemble-example');
+        var examples: any = document.querySelectorAll('.nessemble-assembler');
 
         if (!window.hasOwnProperty('Module')) {
             return;
@@ -58,4 +58,4 @@ class Assemblers {
     }
 }
 
-export default Assemblers;
+var assemblers = new Assemblers();

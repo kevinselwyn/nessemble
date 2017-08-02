@@ -11,10 +11,13 @@ try {
 } catch (e) {}
 
 module.exports = {
-    entry: './js/index.ts',
+    entry: {
+        assemblers: './js/assemblers.tsx',
+        registries: './js/registries.tsx'
+    },
     output: {
         path: rootDir,
-        filename: 'bundle.js'
+        filename: '[name].js'
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js', '.jsx']
