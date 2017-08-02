@@ -15,7 +15,7 @@ LIBTINYSCHEME_VERSION=1.41
 # urls
 MSITOOLS_URL="http://ftp.gnome.org/pub/GNOME/sources/msitools/$MSITOOLS_VERSION/msitools-$MSITOOLS_VERSION.tar.xz"
 LIBLUA_URL="https://www.lua.org/ftp/lua-$LIBLUA_VERSION.tar.gz"
-LIBTINYSCHEME_URL="https://svwh.dl.sourceforge.net/project/tinyscheme/tinyscheme/tinyscheme-$LIBTINYSCHEME_VERSION/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz"
+LIBTINYSCHEME_URL="https://github.com/dchest/tinyscheme"
 EMSCRIPTEN_URL="https://s3.amazonaws.com/mozilla-games/emscripten/releases/emsdk-portable.tar.gz"
 
 # funcs
@@ -77,7 +77,6 @@ if [ "$CACHE" == "1" ]
 then
     _download $MSITOOLS_URL $HOME/cache/msitools-$MSITOOLS_VERSION.tar.xz
     _download $LIBLUA_URL $HOME/cache/lua-$LIBLUA_VERSION.tar.gz
-    _download $LIBTINYSCHEME_URL $HOME/cache/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz
     _download $EMSCRIPTEN_URL $HOME/cache/emsdk-portable.tar.gz
 fi
 
@@ -142,9 +141,7 @@ rm -rf $ROOT/src/third-party/lua*.tar.gz
 
 # libtinyscheme
 rm -rf $ROOT/src/third-party/tinyscheme*
-_download $LIBTINYSCHEME_URL $HOME/cache/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz
-cp $HOME/cache/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz
-cd $ROOT/src/third-party/ && tar xf tinyscheme-$LIBTINYSCHEME_VERSION.tar.gz
+git clone $LIBTINYSCHEME_URL $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION
 mv $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme.h $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme-old.h
 cat $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme-old.h | sed 's/# define STANDALONE 1/# define STANDALONE 0/' > $ROOT/src/third-party/tinyscheme-$LIBTINYSCHEME_VERSION/scheme.h
 rm -rf $ROOT/src/third-party/tinyscheme*.tar.gz
