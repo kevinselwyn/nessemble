@@ -359,20 +359,27 @@ registry:
 
 .PHONY: docs-clean
 docs-clean:
-	$(RM) docs/js/models/assembler.js
+	@cd docs ; yarn run clean
 	$(RM) docs/pages/js/$(EXEC)*.js
 	$(RM) docs/pages/js/assembler.js
 	$(RM) docs/pages/js/docs.js
 	$(RM) docs/pages/js/registry.js
 
+.PHONY: docs-js-webpack
+docs-js-webpack:
+	@printf "Transpiling docs JS...\n"
+	@cd docs ; yarn run build
+
+.PHONY: docs-js-assembler
+docs-js-assembler: docs/js/models/assembler.ts
+	@cd docs ; yarn run assembler
+
 .PHONY: docs-js
-docs-js:
+docs-js: docs-js-webpack docs-js-assembler
 	@printf "Copying docs JS...\n"
 	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
 		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || \
 		touch docs/pages/js/$(EXEC).min.js 2>/dev/null || :
-	@printf "Transpiling docs JS...\n"
-	@cd docs && yarn run build
 	@printf "Minifying docs JS...\n"
 	@uglifyjs --output docs/pages/js/docs.js \
 		docs/pages/js/bundle.js
@@ -396,7 +403,7 @@ docs: docs-js docs-css
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 	@cd docs ; mkdocs build --clean
 	@printf "Starting server...\n"
-	@cd docs; python index.py --debug --port 9090
+	@cd docs ; python index.py --debug --port 9090
 
 # INSTALL/UNINSTALL
 

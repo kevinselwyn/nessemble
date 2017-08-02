@@ -3,6 +3,7 @@
 deploy-files.txt
 deploy.tar.gz
 docs/mkdocs.yml
+docs/cache
 docs/site
 docs/js/models/assembler.js
 docs/pages/css/docs.css
