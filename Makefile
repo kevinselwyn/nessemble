@@ -141,7 +141,7 @@ js-pre:
 
 js: $(EXEC)
 
-min.js:
+min.js: $(EXEC).min.js
 	@printf "Building min JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
 	@printf "Minifying min JS...\n"

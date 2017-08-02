@@ -3,7 +3,7 @@
 """Nessemble CDN server"""
 
 import os
-from flask import Flask, send_from_directory
+from flask import abort, Flask, send_from_directory
 
 #----------------#
 # Constants
@@ -14,6 +14,14 @@ BASE       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'
 # Variables
 
 app = Flask(__name__)
+files = [
+    ('../docs/pages/css', 'assembler.css',     'text/css'),
+    ('../docs/pages/css', 'assembler.min.css', 'text/css'),
+    ('../docs/pages/js',  'assemblers.js',     'application/javascript'),
+    ('../docs/pages/js',  'assemblers.min.js', 'application/javascript'),
+    ('../docs/pages/js',  'nessemble.js',      'application/javascript'),
+    ('../docs/pages/js',  'nessemble.min.js',  'application/javascript')
+]
 
 #----------------#
 # Errors
@@ -27,37 +35,17 @@ def not_found(_error):
 #----------------#
 # Endpoints
 
-@app.route('/assembler.css')
-def serve_assembler_css():
-    """Serve assembler.css"""
+@app.route('/<path:filename>')
+def serve(filename=''):
+    """Serve file"""
 
-    path = os.path.normpath(os.path.join(BASE, '..', 'docs', 'pages', 'css'))
+    for serve_file in files:
+        if serve_file[1] == filename:
+            path = os.path.normpath(os.path.join(*([BASE] + serve_file[0].split('/'))))
 
-    return send_from_directory(path, 'assembler.css')
+            return send_from_directory(path, serve_file[1], mimetype=serve_file[2])
 
-@app.route('/assembler.min.css')
-def serve_assembler_min_css():
-    """Serve assembler.min.css"""
-
-    path = os.path.normpath(os.path.join(BASE, '..', 'docs', 'pages', 'css'))
-
-    return send_from_directory(path, 'assembler.min.css')
-
-@app.route('/assemblers.js')
-def serve_assemblers_js():
-    """Serve assemblers.js"""
-
-    path = os.path.normpath(os.path.join(BASE, '..', 'docs', 'pages', 'js'))
-
-    return send_from_directory(path, 'assemblers.js')
-
-@app.route('/assemblers.min.js')
-def serve_assemblers_min_js():
-    """Serve assemblers.min.js"""
-
-    path = os.path.normpath(os.path.join(BASE, '..', 'docs', 'pages', 'js'))
-
-    return send_from_directory(path, 'assemblers.min.js')
+    abort(404)
 
 #--------------#
 # Variables

@@ -26,9 +26,9 @@ extra_css:
     - css/docs.css
     - ${CDN}/assembler.min.css
 extra_javascript:
-    - js/nessemble.min.js
     - js/bootstrap-modal.js
     - js/registries.min.js
+    - ${CDN}/nessemble.js
     - ${CDN}/assemblers.min.js
 extra:
     documentation: ${DOCUMENTATION}
