@@ -22,10 +22,11 @@ YACC_FLAGS   := --output=src/$(YACC_OUT).c --defines --yacc
 SCHEME_FLAGS :=
 
 DEPLOY_FILES := Procfile requirements.txt runtime.txt server.py settings.cfg
+DEPLOY_FILES += cdn/cdn cdn/__init__.py cdn/settings.cfg
 DEPLOY_FILES += docs/custom_theme docs/docs docs/site docs/__init__.py
-DEPLOY_FILES += docs/index.py docs/mkdocs.yml docs/settings.cfg
+DEPLOY_FILES += docs/mkdocs.yml docs/settings.cfg
 DEPLOY_FILES += registry/registry registry/templates registry/__init__.py
-DEPLOY_FILES += registry/index.py registry/registry.sql registry/settings.cfg
+DEPLOY_FILES += registry/registry.sql registry/settings.cfg
 DEPLOY_FILES += website/static website/templates website/website
 DEPLOY_FILES += website/__init__.py website/settings.cfg
 
