@@ -459,13 +459,18 @@ uninstall:
 
 # PACKAGE
 
+.PHONY: package
+package:
 ifeq ($(UNAME), Linux)
-ARCHITECTURE := $(shell dpkg --print-architecture)
-YEAR         := $(shell date +"%Y")
+	$(MAKE) linux_package \
+		ARCHITECTURE=$(shell dpkg --print-architecture) \
+		YEAR=$(shell date +"%Y")
+endif
+ifeq ($(UNAME), Darwin)
+	$(MAKE) mac_package
 endif
 
-package: all
-ifeq ($(UNAME), Linux)
+linux_package: all
 	$(RM) $(PAYLOAD)
 	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
@@ -495,9 +500,8 @@ ifeq ($(UNAME), Linux)
 	dpkg-deb --build $(PAYLOAD) \
 		$(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).deb
 	$(RM) $(PAYLOAD)
-endif
 
-ifeq ($(UNAME), Darwin)
+mac_package: all
 	$(RM) $(PAYLOAD)
 	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
@@ -508,7 +512,7 @@ ifeq ($(UNAME), Darwin)
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
-	 	$(PACKAGE)/data/osx/distribution.xml > $(TMP)
+		$(PACKAGE)/data/osx/distribution.xml > $(TMP)
 	pkgbuild --root $(PAYLOAD) \
 			 --identifier com.$(IDENTIFIER).$(NAME) \
 			 --scripts $(PACKAGE)/scripts/osx \
@@ -519,7 +523,6 @@ ifeq ($(UNAME), Darwin)
 				 --package-path $(NAME).pkg \
 				 $(RELEASE)/$(NAME)_$(VERSION).pkg
 	$(RM) $(TMP) $(PAYLOAD) $(NAME).pkg
-endif
 
 win32_package: ARCHITECTURE := win32
 win32_package: win32 win_package
@@ -561,6 +564,17 @@ js_package:
 	cp $(NAME).js.mem $(PAYLOAD)/lib
 	mv $(PAYLOAD)/* $(RELEASE)/$(NAME)-js
 	$(RM) $(PAYLOAD)
+
+.PHONY: release
+release:
+	@$(MAKE) clean
+	$(MAKE) package
+	@$(MAKE) clean
+	$(MAKE) win32_package
+	@$(MAKE) clean
+	$(MAKE) win64_package
+	@$(MAKE) clean
+	$(MAKE) js_package
 
 # DEPLOY
 .PHONY: deploy-settings
