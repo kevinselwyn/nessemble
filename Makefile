@@ -570,10 +570,7 @@ deploy-settings: website/settings-template.cfg
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 		website/settings-template.cfg > website/settings.cfg
-
-.PHONY: deploy
-deploy: docs-js docs-css website-js website-css deploy-settings
-	@printf "Prepping docs...\n"
+	@printf "Prepping docs settings...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
 		-e "s/\$${REGISTRY}/http:\/\/registry.nessemble.com/g" \
 		-e "s/\$${WEBSITE}/http:\/\/nessemble.com/g" \
@@ -581,6 +578,10 @@ deploy: docs-js docs-css website-js website-css deploy-settings
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
+
+.PHONY: deploy
+deploy: docs-js docs-css website-js website-css deploy-settings
+	@printf "Prepping docs...\n"
 	@cd docs ; mkdocs build --clean
 
 	@printf "Gathering deploy files...\n"
@@ -609,7 +610,6 @@ clean:
 	$(RM) src/static/opcodes.c
 	$(RM) src/static/scripts.h src/static/scripts.tar.gz
 	$(RM) $(PAYLOAD)
-	find . -name '*.pyc' -exec $(RM) {} \;
 	$(MAKE) -C src/third-party/tinyscheme-1.41/ clean
 	$(MAKE) -C src/third-party/lua-5.1.5/src/ clean
 	$(MAKE) test-clean

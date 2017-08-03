@@ -2,26 +2,21 @@
 # pylint: disable=C0103,C0301,C0326
 """Nessemble CDN server"""
 
+import json
 import os
 from flask import abort, Flask, send_from_directory
+from ..config.config import config as CONFIG
 
 #----------------#
 # Constants
 
 BASE       = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+FILES      = json.loads(CONFIG.get('cdn', 'files'))
 
 #----------------#
 # Variables
 
 app = Flask(__name__)
-files = [
-    ('../docs/pages/css', 'assembler.css',     'text/css'),
-    ('../docs/pages/css', 'assembler.min.css', 'text/css'),
-    ('../docs/pages/js',  'assemblers.js',     'application/javascript'),
-    ('../docs/pages/js',  'assemblers.min.js', 'application/javascript'),
-    ('../docs/pages/js',  'nessemble.js',      'application/javascript'),
-    ('../docs/pages/js',  'nessemble.min.js',  'application/javascript')
-]
 
 #----------------#
 # Errors
@@ -39,7 +34,7 @@ def not_found(_error):
 def serve(filename=''):
     """Serve file"""
 
-    for serve_file in files:
+    for serve_file in FILES:
         if serve_file[1] == filename:
             path = os.path.normpath(os.path.join(*([BASE] + serve_file[0].split('/'))))
 
