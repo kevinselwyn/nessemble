@@ -1,10 +1,23 @@
 const path = require('path');
+const fs = require('fs');
+
+const OnlyIfChangedWebpackPlugin = require('only-if-changed-webpack-plugin');
+
+const rootDir = path.resolve('pages/js');
+const cacheDir = path.resolve('cache');
+
+try {
+    fs.mkdirSync(cacheDir);
+} catch (e) {}
 
 module.exports = {
-    entry: './js/index.ts',
+    entry: {
+        assemblers: './js/assemblers.tsx',
+        registries: './js/registries.tsx'
+    },
     output: {
-        path: path.resolve('pages/js'),
-        filename: 'bundle.js'
+        path: rootDir,
+        filename: '[name].js'
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js', '.jsx']
@@ -23,5 +36,14 @@ module.exports = {
             }
         ]
     },
+    plugins: [
+        new OnlyIfChangedWebpackPlugin({
+            cacheDirectory: cacheDir,
+            cacheIdentifier: {
+                rootDir: rootDir,
+                devBuild: process.env.NODE_ENV !== 'production'
+            }
+        })
+    ],
     devtool: 'eval-cheap-module-source-map'
 };

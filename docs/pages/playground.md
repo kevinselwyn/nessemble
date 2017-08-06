@@ -2,7 +2,7 @@
 
 Experiment with `nessemble`
 
-<div class="nessemble-example" data-opts='{"bare":true,"download":true,"pseudo":{"ease":false}}'>    LDX #$08
+<div class="nessemble-assembler" data-opts='{"bare":true,"download":true,"pseudo":{"ease":false}}'>    LDX #$08
 decrement:
     DEX
     STX $0200

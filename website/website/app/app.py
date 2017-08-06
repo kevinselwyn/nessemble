@@ -1,5 +1,5 @@
 # coding=utf-8
-# pylint: disable=C0103,C0301,C0326
+# pylint: disable=C0103,C0301,C0330,C0326
 """Nessemble website server"""
 
 import os
@@ -45,7 +45,11 @@ def custom_response(data, status=200, mimetype='text/html'):
 def index():
     """Index endpoint"""
 
-    return custom_response(render_template('index.html', documentation=CONFIG.get('website', 'documentation')))
+    return custom_response(render_template('index.html',
+        documentation=CONFIG.get('website', 'documentation'),
+        analytics_id=CONFIG.get('website', 'analytics_id'),
+        analytics_domain=CONFIG.get('website', 'analytics_domain')
+    ))
 
 @app.route('/favicon.ico')
 def serve_favicon():

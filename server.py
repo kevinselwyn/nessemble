@@ -11,6 +11,7 @@ from werkzeug.wsgi import DispatcherMiddleware
 from website.website import app as website
 from registry.registry import app as registry
 from docs.docs import app as docs
+from cdn.cdn import app as cdn
 
 #--------------#
 # Constants
@@ -33,7 +34,8 @@ app = Flask(__name__)
 
 app.wsgi_app = DispatcherMiddleware(website.app, {
     '/registry': registry.app,
-    '/documentation': docs.app
+    '/documentation': docs.app,
+    '/cdn': cdn.app
 })
 
 #--------------#

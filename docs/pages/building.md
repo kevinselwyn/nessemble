@@ -125,6 +125,14 @@ To minify:
 make min.js
 ```
 
+### Package
+
+A `npm` module will be created in the `releases` directory.
+
+```text
+make js_package
+```
+
 ### Test
 
 ```text

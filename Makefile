@@ -5,6 +5,7 @@ BIN_DIR      := /usr/local/bin
 RM           := rm -rf
 CC           := gcc
 CC_FLAGS     := -Wall -Wextra -lm
+CC_OPTIM     :=
 CC_LIB_FLAGS := -Isrc/third-party/lua-5.1.5/src
 CC_INCLUDES  := /usr/local/include
 CC_LIBRARIES := /usr/local/lib
@@ -21,14 +22,18 @@ YACC_FLAGS   := --output=src/$(YACC_OUT).c --defines --yacc
 SCHEME_FLAGS :=
 
 DEPLOY_FILES := Procfile requirements.txt runtime.txt server.py settings.cfg
+DEPLOY_FILES += cdn/cdn cdn/__init__.py cdn/settings.cfg
 DEPLOY_FILES += docs/custom_theme docs/docs docs/site docs/__init__.py
-DEPLOY_FILES += docs/index.py docs/mkdocs.yml docs/settings.cfg
+DEPLOY_FILES += docs/mkdocs.yml docs/settings.cfg
 DEPLOY_FILES += registry/registry registry/templates registry/__init__.py
-DEPLOY_FILES += registry/index.py registry/registry.sql registry/settings.cfg
+DEPLOY_FILES += registry/registry.sql registry/settings.cfg
 DEPLOY_FILES += website/static website/templates website/website
 DEPLOY_FILES += website/__init__.py website/settings.cfg
 
-MAINTENANCE  := 0
+MAINTENANCE    := 0
+ANALYTICS      := UA-103019505
+ANALYTICS_PROD := $(ANALYTICS)-1
+ANALYTICS_DEV  := $(ANALYTICS)-2
 
 SCRIPTING     := -DSCRIPTING_JAVASCRIPT=1 -DSCRIPTING_LUA=1 -DSCRIPTING_SCHEME=1
 SCRIPTING_LUA := src/third-party/lua-5.1.5/src/liblua.a
@@ -38,7 +43,6 @@ EMAIL        := kevinselwyn@gmail.com
 MAINTAINER   := Kevin Selwyn
 DESCRIPTION  := A 6502 assembler for the Nintendo Entertainment System
 IDENTIFIER   := kevinselwyn
-LICENSE      := $(shell cat src/static/license.txt)
 PACKAGE      := ./package
 PAYLOAD      := $(PACKAGE)/payload
 RELEASE      := ./release
@@ -105,6 +109,7 @@ js: EXEC            := $(NAME).js
 js: CC              := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emcc' 2>/dev/null)
 js: CC_FILES        := --embed-file src/static/scripts@/static/scripts
 js: CC_FLAGS        += -s MODULARIZE=1
+js: CC_OPTIM        := -O1
 js: CC_LIBLUA       := -Wno-empty-body
 js: AR              := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emar' 2>/dev/null)
 js: RANLIB          := $(shell find $$HOME/emsdk-portable/emscripten/ -type f -name 'emranlib' 2>/dev/null)
@@ -137,11 +142,12 @@ js-pre:
 
 js: $(EXEC)
 
-min.js:
-	@printf "Building JS...\n"
+min.js: $(EXEC).min.js
+	@printf "Building min JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
-	@printf "Minifying JS...\n"
-	@uglifyjs $(EXEC).js --output $(EXEC).min.js
+	@printf "Minifying min JS...\n"
+	@uglifyjs --output $(EXEC).min.js \
+		$(EXEC).js
 
 wasm:
 	$(MAKE) js CC="emcc -s WASM=1"
@@ -206,7 +212,7 @@ src/static/scripts.h: ${src/static/scripts.tar.gz:tar.gz=h}
 src/scripts.c: src/static/scripts.tar.gz src/static/scripts.h
 
 $(EXEC): $(OBJS) $(HDRS)
-	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_LIB_FLAGS) \
+	$(CC) -o $(EXEC) $(OBJS) $(CC_FLAGS) $(CC_FILES) $(CC_OPTIM) $(CC_LIB_FLAGS) \
 		$(SCRIPTING) \
 		$(SCRIPTING_LUA) \
 		$(SCRIPTING_SCM)
@@ -216,8 +222,12 @@ $(EXEC): $(OBJS) $(HDRS)
 test: all
 	@python test.py
 
+test-clean:
+	$(RM) test/js/*.js
+	$(MAKE) -C test/examples/custom clean
+
 test-js:
-	@printf "Building JS...\n"
+	@printf "Building test JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
 	@$(MAKE) docs-js
 	@printf "Building tests...\n"
@@ -292,19 +302,25 @@ translate-install: translate/$(LANG)/nessemble.mo
 
 # SERVER
 
-.PHONY: server
-server: docs-js docs-css website-js website-css
+.PHONY: server-settings
+server-settings: docs/mkdocs-template.yml website/settings-template.cfg
+	@printf "Prepping docs settings...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:8000\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:8000/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${CDN}/http:\/\/localhost:8000\/cdn/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
-	@cd docs ; mkdocs build --clean
+	@printf "Prepping website settings...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:8000\/documentation/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 		website/settings-template.cfg > website/settings.cfg
+
+.PHONY: server
+server: docs-js docs-css website-js website-css server-settings
+	@cd docs ; mkdocs build --clean
 	@printf "Starting server...\n"
 	@python server.py --debug --port 8000
 
@@ -312,11 +328,21 @@ server: docs-js docs-css website-js website-css
 
 .PHONY: website-clean
 website-clean:
+	$(RM) website/settings.cfg
+	$(RM) website/static/css/website.css
 	$(RM) website/static/js/website.js
+
+.PHONY: website-settings
+website-settings: website/settings-template.cfg
+	@printf "Prepping website settings...\n"
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9000\/documentation/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
+		website/settings-template.cfg > website/settings.cfg
 
 .PHONY: website-css
 website-css:
-	@printf "Minifying CSS...\n"
+	@printf "Minifying website CSS...\n"
 	@uglifycss --output website/static/css/website.css \
 		website/static/css/bootstrap.min.css \
 		website/static/css/font-awesome.min.css \
@@ -326,7 +352,7 @@ website-css:
 
 .PHONY: website-js
 website-js:
-	@printf "Minifying JS...\n"
+	@printf "Minifying website JS...\n"
 	@uglifyjs --output website/static/js/website.js \
 		website/static/js/jquery.min.js \
 		website/static/js/jquery.easing.min.js \
@@ -334,14 +360,11 @@ website-js:
 		website/static/js/grayscale.js \
 		website/static/js/asciinema-player.js \
 		website/static/js/dynamicaudio-min.js \
-		website/static/js/jsnes.js
+		website/static/js/jsnes.js \
+		website/static/js/analytics.js
 
 .PHONY: website
-website: website-js website-css
-	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9000\/documentation/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
-		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
-		website/settings-template.cfg > website/settings.cfg
+website: website-settings website-js website-css
 	@cd website ; python index.py --debug --port 9000
 
 # REGISTRY
@@ -350,48 +373,80 @@ website: website-js website-css
 registry:
 	@cd registry ; python index.py --debug --port 8000 --import registry.sql
 
+.PHONY: registry-clean
+registry-clean:
+	$(RM) registry/registry.db
+
 # DOCUMENTATION
 
 .PHONY: docs-clean
 docs-clean:
-	$(RM) docs/js/models/assembler.js
+	@cd docs ; yarn run clean
+	$(RM) docs/mkdocs.yml
+	$(RM) docs/pages/css/assembler.min.css
+	$(RM) docs/pages/css/docs.css
 	$(RM) docs/pages/js/$(EXEC)*.js
 	$(RM) docs/pages/js/assembler.js
+	$(RM) docs/pages/js/assemblers*.js
 	$(RM) docs/pages/js/docs.js
 	$(RM) docs/pages/js/registry.js
+	$(RM) docs/pages/js/registries*.js
+	$(RM) docs/site
+
+.PHONY: docs-js-webpack
+docs-js-webpack:
+	@printf "Transpiling docs JS...\n"
+	@cd docs ; yarn run build
+
+.PHONY: docs-js-assembler
+docs-js-assembler: docs/js/models/assembler.ts
+	@cd docs ; yarn run assembler
 
 .PHONY: docs-js
-docs-js:
-	@printf "Copying JS...\n"
-	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
-		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || \
-		touch docs/pages/js/$(EXEC).min.js 2>/dev/null || :
-	@printf "Transpiling JS...\n"
-	@cd docs && yarn run build
-	@printf "Minifying JS...\n"
-	@uglifyjs --output docs/pages/js/docs.js \
-		docs/pages/js/bundle.js
+docs-js: docs-js-webpack docs-js-assembler
+	@$(MAKE) js
+	@printf "Copying docs JS...\n"
+	@cp $(EXEC).js docs/pages/js 2>/dev/null || \
+		touch docs/pages/js/$(EXEC).js 2>/dev/null || :
+	@printf "Minifying docs JS...\n"
+	@uglifyjs --output docs/pages/js/assemblers.min.js \
+		docs/pages/js/assemblers.js
+	@uglifyjs --output docs/pages/js/registries.min.js \
+		docs/pages/js/registries.js
 
 .PHONY: docs-css
 docs-css:
-	@printf "Minifying CSS...\n"
+	@printf "Minifying docs CSS...\n"
 	@uglifycss --output docs/pages/css/docs.css \
 		docs/pages/css/custom.css \
-		docs/pages/css/assembler.css \
 		docs/pages/css/registry.css \
 		docs/pages/css/bootstrap-modal.css
+	@uglifycss --output docs/pages/css/assembler.min.css \
+		docs/pages/css/assembler.css
 
-.PHONY: docs
-docs: docs-js docs-css
+.PHONY: docs-settings
+docs-settings: docs/mkdocs-template.yml
+	@printf "Prepping docs settings...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/localhost:9090/g" \
 		-e "s/\$${REGISTRY}/http:\/\/localhost:9090\/registry/g" \
 		-e "s/\$${WEBSITE}/http:\/\/localhost:9090\/website/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-2/g" \
+		-e "s/\$${CDN}/http:\/\/localhost:9090\/js/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_DEV)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
+
+.PHONY: docs
+docs: docs-js docs-css docs-settings
 	@cd docs ; mkdocs build --clean
 	@printf "Starting server...\n"
-	@cd docs; python index.py --debug --port 9090
+	@cd docs ; python index.py --debug --port 9090
+
+# CDN
+
+.PHONY: cdn
+cdn: docs-js docs-css
+	@printf "Starting server...\n"
+	@cd cdn ; python index.py --debug --port 8080
 
 # INSTALL/UNINSTALL
 
@@ -404,13 +459,18 @@ uninstall:
 
 # PACKAGE
 
+.PHONY: package
+package:
 ifeq ($(UNAME), Linux)
-ARCHITECTURE := $(shell dpkg --print-architecture)
-YEAR         := $(shell date +"%Y")
+	$(MAKE) linux_package \
+		ARCHITECTURE=$(shell dpkg --print-architecture) \
+		YEAR=$(shell date +"%Y")
+endif
+ifeq ($(UNAME), Darwin)
+	$(MAKE) mac_package
 endif
 
-package: all
-ifeq ($(UNAME), Linux)
+linux_package: all
 	$(RM) $(PAYLOAD)
 	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
@@ -428,22 +488,20 @@ ifeq ($(UNAME), Linux)
 		-e "s/\$${EMAIL}/$(EMAIL)/g" \
 		-e "s/\$${SIZE}/$(shell wc -c < $(EXEC))/g" \
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
-	 	$(PACKAGE)/control > $(PAYLOAD)/DEBIAN/control
+	 	$(PACKAGE)/data/linux/control > $(PAYLOAD)/DEBIAN/control
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
 		-e "s/\$${YEAR}/$(YEAR)/g" \
 		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
-		-e "s/\$${LICENSE}/$(LICENSE)/g" \
-		$(PACKAGE)/copyright > $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
+		$(PACKAGE)/data/linux/copyright > $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
 	cat src/static/license.txt >> $(PAYLOAD)/usr/share/doc/$(NAME)/copyright
 	cd $(PAYLOAD) ; md5sum `find usr -type f` > DEBIAN/md5sums
 	cp $(PACKAGE)/scripts/linux/* $(PAYLOAD)/DEBIAN
 	dpkg-deb --build $(PAYLOAD) \
 		$(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).deb
 	$(RM) $(PAYLOAD)
-endif
 
-ifeq ($(UNAME), Darwin)
+mac_package: all
 	$(RM) $(PAYLOAD)
 	mkdir -p $(RELEASE)
 	mkdir -p $(PAYLOAD)/usr/local/bin
@@ -454,7 +512,7 @@ ifeq ($(UNAME), Darwin)
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \
-	 	$(PACKAGE)/distribution.xml > $(TMP)
+		$(PACKAGE)/data/osx/distribution.xml > $(TMP)
 	pkgbuild --root $(PAYLOAD) \
 			 --identifier com.$(IDENTIFIER).$(NAME) \
 			 --scripts $(PACKAGE)/scripts/osx \
@@ -465,7 +523,6 @@ ifeq ($(UNAME), Darwin)
 				 --package-path $(NAME).pkg \
 				 $(RELEASE)/$(NAME)_$(VERSION).pkg
 	$(RM) $(TMP) $(PAYLOAD) $(NAME).pkg
-endif
 
 win32_package: ARCHITECTURE := win32
 win32_package: win32 win_package
@@ -483,27 +540,63 @@ win_package:
 		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
 		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
 		-e "s/\$${GUID}/$(shell ./utils/guid.py --input $(NAME).exe)/g" \
-	 	$(PACKAGE)/msi.wxs > $(TMP)
+	 	$(PACKAGE)/data/win/msi.wxs > $(TMP)
 	wixl $(TMP) --output $(RELEASE)/$(NAME)_$(VERSION)_$(ARCHITECTURE).msi
 	$(RM) $(TMP) $(PAYLOAD)
 
+.PHONY: js_package
+js_package:
+	$(MAKE) js CC_OPTIM="-O2"
+	$(RM) $(PAYLOAD)
+	$(RM) $(RELEASE)/$(NAME)-js
+	mkdir -p $(RELEASE)/$(NAME)-js
+	mkdir -p $(PAYLOAD)/lib
+	sed -e "s/\$${NAME}/$(NAME)/g" \
+		-e "s/\$${VERSION}/$(VERSION)/g" \
+		-e "s/\$${DESCRIPTION}/$(DESCRIPTION)/g" \
+		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
+		-e "s/\$${MAINTAINER}/$(MAINTAINER)/g" \
+		-e "s/\$${EMAIL}/$(EMAIL)/g" \
+	$(PACKAGE)/data/js/package.json > $(PAYLOAD)/package.json
+	cp $(PACKAGE)/data/js/index.js $(PAYLOAD)
+	cp COPYING $(PAYLOAD)/LICENSE.txt
+	cp $(NAME).js $(PAYLOAD)/lib
+	cp $(NAME).js.mem $(PAYLOAD)/lib
+	mv $(PAYLOAD)/* $(RELEASE)/$(NAME)-js
+	$(RM) $(PAYLOAD)
+
+.PHONY: release
+release:
+	@$(MAKE) clean
+	$(MAKE) package
+	@$(MAKE) clean
+	$(MAKE) win32_package
+	@$(MAKE) clean
+	$(MAKE) win64_package
+	@$(MAKE) clean
+	$(MAKE) js_package
+
 # DEPLOY
-.PHONY: deploy
-deploy: docs-js docs-css website-js website-css
-	@printf "Prepping docs...\n"
+.PHONY: deploy-settings
+deploy-settings: website/settings-template.cfg
+	@printf "Prepping website settings...\n"
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
+		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
+		website/settings-template.cfg > website/settings.cfg
+	@printf "Prepping docs settings...\n"
 	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
 		-e "s/\$${REGISTRY}/http:\/\/registry.nessemble.com/g" \
 		-e "s/\$${WEBSITE}/http:\/\/nessemble.com/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
+		-e "s/\$${CDN}/http:\/\/cdn.nessemble.com/g" \
+		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
-	@cd docs ; mkdocs build --clean
 
-	@printf "Prepping website...\n"
-	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
-		-e "s/\$${ANALYTICS_ID}/UA-103019505-1/g" \
-		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
-		website/settings-template.cfg > website/settings.cfg
+.PHONY: deploy
+deploy: docs-js docs-css website-js website-css deploy-settings
+	@printf "Prepping docs...\n"
+	@cd docs ; mkdocs build --clean
 
 	@printf "Gathering deploy files...\n"
 	@$(RM) deploy-files.txt
@@ -521,7 +614,7 @@ deploy: docs-js docs-css website-js website-css
 
 .PHONY: clean
 clean:
-	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).min.js $(EXEC).wasm
+	$(RM) $(EXEC) $(EXEC).exe $(EXEC).js $(EXEC).js.mem $(EXEC).min.js $(EXEC).wasm
 	$(RM) $(OBJS)
 	$(RM) deploy-files.txt deploy.tar.gz
 	$(RM) src/$(YACC_OUT).c src/$(YACC_OUT).h src/$(LEX_OUT).c
@@ -533,5 +626,7 @@ clean:
 	$(RM) $(PAYLOAD)
 	$(MAKE) -C src/third-party/tinyscheme-1.41/ clean
 	$(MAKE) -C src/third-party/lua-5.1.5/src/ clean
+	$(MAKE) test-clean
 	$(MAKE) docs-clean
+	$(MAKE) registry-clean
 	$(MAKE) website-clean

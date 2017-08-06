@@ -1,14 +1,14 @@
 /**
- * Nessemble Example
+ * Nessemble Assembler
  */
-.nessemble-example {
+.nessemble-assembler {
     width: 100%;
     display: none;
 }
-.nessemble-example.show {
+.nessemble-assembler.show {
     display: block;
 }
-.nessemble-example textarea {
+.nessemble-assembler textarea {
     margin-bottom: -1px;
     padding: 12px;
     color: #404040;
@@ -18,20 +18,20 @@
     white-space: pre;
     word-wrap: normal;
 }
-.nessemble-example textarea.exec {
+.nessemble-assembler textarea.exec {
     width: 33%;
     height: 40px;
     float: left;
     resize: none;
 }
-.nessemble-example textarea.input {
+.nessemble-assembler textarea.input {
     min-height: 120px;
     display: block;
 }
-.nessemble-example.bare textarea.input {
+.nessemble-assembler.bare textarea.input {
     min-height: 240px;
 }
-.nessemble-example.flags textarea.input {
+.nessemble-assembler.flags textarea.input {
     width: 66%;
     height: 40px;
     min-height: 0;
@@ -39,26 +39,26 @@
     float: left;
     resize: none;
 }
-.nessemble-example form {
+.nessemble-assembler form {
     margin-bottom: -1px;
     padding: 12px 12px 6px;
     border: 1px solid #cccccc;
     display: none;
 }
-.nessemble-example form.show {
+.nessemble-assembler form.show {
     display: block;
 }
-.nessemble-example form .pseudo-opt {
+.nessemble-assembler form .pseudo-opt {
     height: 14px;
     padding: 0 0 6px;
     box-sizing: content-box;
     overflow: hidden;
 }
-.nessemble-example form .pseudo-opt input {
+.nessemble-assembler form .pseudo-opt input {
     display: inline-block;
     float: left;
 }
-.nessemble-example form .pseudo-opt label {
+.nessemble-assembler form .pseudo-opt label {
     margin:0;
     font-size: 12px;
     line-height: 14px;
@@ -67,17 +67,17 @@
     display: inline-block;
     float: left;
 }
-.nessemble-example pre {
+.nessemble-assembler pre {
     margin-top: -3px;
 }
-.nessemble-example code {
+.nessemble-assembler code {
     max-height: 300px;
     display: none;
     overflow: scroll;
 }
-.nessemble-example.bare code {
+.nessemble-assembler.bare code {
     max-height: 600px;
 }
-.nessemble-example code.show {
+.nessemble-assembler code.show {
     display: block;
 }
