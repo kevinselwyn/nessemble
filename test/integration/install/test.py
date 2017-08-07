@@ -78,7 +78,7 @@ def main():
         if not heartbeat():
             exit(1)
 
-        arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep)]
+        arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%s%s%ssuppressions.supp' % (root, os.sep, 'test', os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep)]
         if flags:
             arguments.extend(flags)
 

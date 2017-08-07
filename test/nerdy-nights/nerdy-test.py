@@ -84,7 +84,7 @@ def main():
 
         # assemble (valgrind)
         if valgrind:
-            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '%s%s%s%s%s.asm' % (dirname, os.sep, nerdy, os.sep, nerdy), '--output', '-']
+            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%s%s%ssuppressions.supp' % (root, os.sep, 'test', os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '%s%s%s%s%s.asm' % (dirname, os.sep, nerdy, os.sep, nerdy), '--output', '-']
             if flags:
                 arguments.extend(flags)
 
@@ -128,7 +128,7 @@ def main():
 
         # disassemble (valgrind)
         if valgrind:
-            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '%s%s%s%s%s.rom' % (dirname, os.sep, nerdy, os.sep, nerdy), '--disassemble', '--output', '-']
+            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%s%s%ssuppressions.supp' % (root, os.sep, 'test', os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '%s%s%s%s%s.rom' % (dirname, os.sep, nerdy, os.sep, nerdy), '--disassemble', '--output', '-']
             if flags:
                 arguments.extend(flags)
 
@@ -172,7 +172,7 @@ def main():
 
         # simulate (valgrind)
         if valgrind:
-            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%ssuppressions.supp' % (root, os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '--simulate', '%s%s%s%s%s.rom' % (dirname, os.sep, nerdy, os.sep, nerdy), '--recipe', '%s%s%s%s%s-recipe.txt' % (dirname, os.sep, nerdy, os.sep, nerdy), '--output', '-']
+            arguments = [valgrind, '--leak-check=full', '--show-reachable=yes', '--show-leak-kinds=all', '--suppressions=%s%s%s%ssuppressions.supp' % (root, os.sep, 'test', os.sep), '--error-exitcode=2', '-q', '%s%snessemble' % (root, os.sep), '--simulate', '%s%s%s%s%s.rom' % (dirname, os.sep, nerdy, os.sep, nerdy), '--recipe', '%s%s%s%s%s-recipe.txt' % (dirname, os.sep, nerdy, os.sep, nerdy), '--output', '-']
             if flags:
                 arguments.extend(flags)
 
