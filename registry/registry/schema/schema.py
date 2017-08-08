@@ -3,7 +3,6 @@
 """Schema"""
 
 import graphene
-from graphene.types.generic import GenericScalar
 from ..views import root_view, status_view, package_view, reference_view, search_view
 
 # PACKAGES
@@ -16,11 +15,20 @@ class PackagesPackage(graphene.ObjectType):
     tags = graphene.List(graphene.String)
     url = graphene.String()
 
+class PackagesPagination(graphene.ObjectType):
+    """Packages pagination root"""
+
+    page = graphene.Int()
+    perPage = graphene.Int()
+    total = graphene.Int()
+    prev = graphene.String()
+    next = graphene.String()
+
 class Packages(graphene.ObjectType):
     """Packages root"""
 
     package = graphene.List(PackagesPackage)
-    pagination = GenericScalar()
+    pagination = graphene.Field(PackagesPagination)
 
 def packages_resolver(_root, args, _context, _info):
     """Packages resolver"""
@@ -37,6 +45,15 @@ def packages_resolver(_root, args, _context, _info):
     for i in range(0, len(data['packages'])):
         data['packages'][i] = PackagesPackage(**(data['packages'][i]))
 
+    pagination_opts = {
+        'page': data['pagination']['page'],
+        'perPage': data['pagination']['per_page'],
+        'prev': data['pagination']['prev'],
+        'next': data['pagination']['next']
+    }
+
+    data['pagination'] = PackagesPagination(**pagination_opts)
+
     return Packages(package=data['packages'], pagination=data['pagination'])
 
 # STATUS
@@ -51,13 +68,38 @@ def status_resolver(_root, _args, _context, _info):
 
 # PACKAGE
 
+def package_versions_resolver(_root, args, _context, _info):
+    """Package versions resolver"""
+
+    versions = list(_root.versions)
+
+    if versions:
+        if args['last']:
+            versions = versions[:1]
+        elif args['first']:
+            versions = versions[-1:]
+
+    return versions
+
 class Package(graphene.ObjectType):
     """Package root"""
 
     title = graphene.String()
     description = graphene.String()
     version = graphene.String()
-    versions = graphene.List(graphene.String)
+    versions = graphene.Field(graphene.List(graphene.String),
+                              last=graphene.Argument(
+                                  graphene.Boolean,
+                                  default_value=False,
+                                  required=False
+                              ),
+                              first=graphene.Argument(
+                                  graphene.Boolean,
+                                  default_value=False,
+                                  required=False
+                              ),
+                              resolver=package_versions_resolver
+                             )
     author = graphene.String()
     license = graphene.String()
     tags = graphene.List(graphene.String)
@@ -67,7 +109,7 @@ class Package(graphene.ObjectType):
     shasum = graphene.String()
 
 def package_resolver(_root, args, _context, _info):
-    """Package Resolver"""
+    """Package resolver"""
 
     output = None
     opts = {
@@ -85,8 +127,6 @@ def package_resolver(_root, args, _context, _info):
         output = {
             'resource': ''.join([('\\x%02X' % (ord(i))) for i in package_view.data(**opts)])
         }
-
-    print output
 
     return Package(**output)
 
@@ -106,16 +146,31 @@ def reference_resolver(_root, args, _context, _info):
 
 # SEARCH
 
+class SearchResult(graphene.ObjectType):
+    """Search result root"""
+
+    title = graphene.String()
+    description = graphene.String()
+    tags = graphene.List(graphene.String)
+    url = graphene.String()
+
 class Search(graphene.ObjectType):
     """Search root"""
 
     term = graphene.String()
-    results = GenericScalar()
+    results = graphene.List(SearchResult)
 
 def search_resolver(_root, args, _context, _info):
     """Search resolver"""
 
-    return Search(**dict(search_view(**args)))
+    data = dict(search_view(**args))
+
+    for i in range(0, len(data['results'])):
+        data['results'][i] = SearchResult(**(data['results'][i]))
+
+    return Search(term=data['term'], results=data['results'])
+
+# QUERY
 
 class Query(graphene.ObjectType):
     """Query root"""
