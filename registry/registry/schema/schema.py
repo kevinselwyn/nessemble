@@ -2,6 +2,7 @@
 # pylint: disable=C0103,R0201,R0903
 """Schema"""
 
+import base64
 import graphene
 from ..views import root_view, status_view, package_view, reference_view, search_view
 
@@ -125,7 +126,7 @@ def package_resolver(_root, args, _context, _info):
         }
     elif args['target'] == 'resource':
         output = {
-            'resource': ''.join([('\\x%02X' % (ord(i))) for i in package_view.data(**opts)])
+            'resource': base64.b64encode(package_view.data(**opts))
         }
 
     return Package(**output)
