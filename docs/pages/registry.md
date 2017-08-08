@@ -863,6 +863,6 @@ print 'Logout successful!'
 
 ## GraphQL
 
-`GraphQL` is also supported via the `/graphql` endpoint.
+`GraphQL` is also (partially) supported via the `/graphql` endpoint.
 
 Try it live: <a href="/graphql" class="registry-default-val">/graphql</a>
