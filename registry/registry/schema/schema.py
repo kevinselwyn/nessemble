@@ -6,8 +6,24 @@ import graphene
 from graphene.types.generic import GenericScalar
 from ..views import root_view, status_view, package_view, reference_view, search_view
 
+# PACKAGES
+
+class PackagesPackage(graphene.ObjectType):
+    """Packages package root"""
+
+    title = graphene.String()
+    description = graphene.String()
+    tags = graphene.List(graphene.String)
+    url = graphene.String()
+
+class Packages(graphene.ObjectType):
+    """Packages root"""
+
+    package = graphene.List(PackagesPackage)
+    pagination = GenericScalar()
+
 def packages_resolver(_root, args, _context, _info):
-    """packages resolver"""
+    """Packages resolver"""
 
     opts = {
         'page': args['page'],
@@ -16,15 +32,42 @@ def packages_resolver(_root, args, _context, _info):
         'order': args['order']
     }
 
-    return root_view(**opts)
+    data = dict(root_view(**opts))
+
+    for i in range(0, len(data['packages'])):
+        data['packages'][i] = PackagesPackage(**(data['packages'][i]))
+
+    return Packages(package=data['packages'], pagination=data['pagination'])
+
+# STATUS
+
+class Status(graphene.String):
+    """Status root"""
 
 def status_resolver(_root, _args, _context, _info):
-    """status resolver"""
+    """Status resolver"""
 
     return status_view()
 
+# PACKAGE
+
+class Package(graphene.ObjectType):
+    """Package root"""
+
+    title = graphene.String()
+    description = graphene.String()
+    version = graphene.String()
+    versions = graphene.List(graphene.String)
+    author = graphene.String()
+    license = graphene.String()
+    tags = graphene.List(graphene.String)
+    date = graphene.String()
+    readme = graphene.String()
+    resource = graphene.String()
+    shasum = graphene.String()
+
 def package_resolver(_root, args, _context, _info):
-    """package_resolver"""
+    """Package Resolver"""
 
     output = None
     opts = {
@@ -33,20 +76,27 @@ def package_resolver(_root, args, _context, _info):
     }
 
     if args['target'] == 'package':
-        output = package_view.package(**opts)
+        output = dict(package_view.package(**opts))
     elif args['target'] == 'readme':
         output = {
             'readme': package_view.readme(**opts)
         }
-    elif args['target'] == 'data':
+    elif args['target'] == 'resource':
         output = {
-            'data': ''.join([('\\x%02X' % (ord(i))) for i in package_view.data(**opts)])
+            'resource': ''.join([('\\x%02X' % (ord(i))) for i in package_view.data(**opts)])
         }
 
-    return output
+    print output
+
+    return Package(**output)
+
+# REFERENCE
+
+class Reference(graphene.String):
+    """Reference root"""
 
 def reference_resolver(_root, args, _context, _info):
-    """reference resolver"""
+    """Reference resolver"""
 
     opts = {
         'paths': args['terms']
@@ -54,75 +104,83 @@ def reference_resolver(_root, args, _context, _info):
 
     return reference_view(**opts)
 
-def search_resolver(_root, args, _context, _info):
-    """search resolver"""
+# SEARCH
 
-    return search_view(**args)
+class Search(graphene.ObjectType):
+    """Search root"""
+
+    term = graphene.String()
+    results = GenericScalar()
+
+def search_resolver(_root, args, _context, _info):
+    """Search resolver"""
+
+    return Search(**dict(search_view(**args)))
 
 class Query(graphene.ObjectType):
     """Query root"""
 
-    packages = GenericScalar(
-        page=graphene.Argument(
-            graphene.Int,
-            default_value=1,
-            required=False
-        ),
-        perPage=graphene.Argument(
-            graphene.Int,
-            default_value=10,
-            required=False
-        ),
-        sortBy=graphene.Argument(
-            graphene.String,
-            default_value='title',
-            required=False
-        ),
-        order=graphene.Argument(
-            graphene.String,
-            default_value='asc',
-            required=False
-        ),
-        resolver=packages_resolver
-    )
+    packages = graphene.Field(Packages,
+                              page=graphene.Argument(
+                                  graphene.Int,
+                                  default_value=1,
+                                  required=False
+                              ),
+                              perPage=graphene.Argument(
+                                  graphene.Int,
+                                  default_value=10,
+                                  required=False
+                              ),
+                              sortBy=graphene.Argument(
+                                  graphene.String,
+                                  default_value='title',
+                                  required=False
+                              ),
+                              order=graphene.Argument(
+                                  graphene.String,
+                                  default_value='asc',
+                                  required=False
+                              ),
+                              resolver=packages_resolver
+                             )
 
-    status = GenericScalar(
-        resolver=status_resolver
-    )
+    status = graphene.Field(Status,
+                            resolver=status_resolver
+                           )
 
-    package = GenericScalar(
-        title=graphene.Argument(
-            graphene.String,
-            required=True
-        ),
-        version=graphene.Argument(
-            graphene.String,
-            default_value='',
-            required=False
-        ),
-        target=graphene.Argument(
-            graphene.String,
-            default_value='package',
-            required=False
-        ),
-        resolver=package_resolver
-    )
+    package = graphene.Field(Package,
+                             title=graphene.Argument(
+                                 graphene.String,
+                                 required=True
+                             ),
+                             version=graphene.Argument(
+                                 graphene.String,
+                                 default_value='',
+                                 required=False
+                             ),
+                             target=graphene.Argument(
+                                 graphene.String,
+                                 default_value='package',
+                                 required=False
+                             ),
+                             resolver=package_resolver
+                            )
 
-    reference = GenericScalar(
-        terms=graphene.Argument(
-            graphene.List(graphene.String),
-            default_value=[],
-            required=False
-        ),
-        resolver=reference_resolver
-    )
+    reference = graphene.Field(Reference,
+                               terms=graphene.Argument(
+                                   graphene.List(graphene.String),
+                                   default_value=[],
+                                   required=False
+                               ),
+                               resolver=reference_resolver
+                              )
 
-    search = GenericScalar(
-        term=graphene.Argument(
-            graphene.String,
-            default_value=''
-        ),
-        resolver=search_resolver
-    )
+    search = graphene.Field(Search,
+                            term=graphene.Argument(
+                                graphene.String,
+                                default_value=''
+                            ),
+                            resolver=search_resolver
+                           )
 
 schema = graphene.Schema(query=Query)
