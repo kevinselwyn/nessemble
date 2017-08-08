@@ -17,6 +17,7 @@ from ..utils.utils import get_auth, get_package_json, get_package_readme
 from ..utils.utils import get_package_zip, parse_accept, registry_response
 from ..utils.utils import validate_package
 from ..utils.utils import Session
+from ..views import package_view
 
 #----------------#
 # Constants
@@ -39,10 +40,7 @@ def get_package(package):
 
     accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
 
-    output = get_package_json(package)
-
-    if not output:
-        abort(404)
+    output = package_view.package(package)
 
     return registry_response(output, mimetype=accept)
 
@@ -54,10 +52,7 @@ def get_package_version(package, version):
 
     accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
 
-    output = get_package_json(package, version)
-
-    if not output:
-        abort(404)
+    output = package_view.package(package, version)
 
     return registry_response(output, mimetype=accept)
 
@@ -69,12 +64,9 @@ def get_readme(package):
 
     accept, _version = parse_accept(request.headers.get('Accept'), ['text/plain'])
 
-    readme = get_package_readme(package)
+    output = package_view.readme(package)
 
-    if not readme:
-        abort(404)
-
-    return registry_response(readme, mimetype=accept)
+    return registry_response(output, mimetype=accept)
 
 @package_endpoint.route('/package/<string:package>/<string:version>/README', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
@@ -84,12 +76,9 @@ def get_readme_version(package, version):
 
     accept, _version = parse_accept(request.headers.get('Accept'), ['text/plain'])
 
-    readme = get_package_readme(package, version)
+    output = package_view.readme(package, version)
 
-    if not readme:
-        abort(404)
-
-    return registry_response(readme, mimetype=accept)
+    return registry_response(output, mimetype=accept)
 
 @package_endpoint.route('/package/<string:package>/data', methods=['GET'])
 @cache.cached(timeout=CACHE_TIME)
@@ -99,11 +88,7 @@ def get_gz(package):
 
     accept, _version = parse_accept(request.headers.get('Accept'), ['application/tar+gzip'])
 
-    data = get_package_zip(package)
-
-    if not data:
-        abort(404)
-
+    data = package_view.data(package)
     lib_data = get_package_json(package)
 
     headers = [
@@ -121,11 +106,7 @@ def get_gz_version(package, version):
 
     accept, _version = parse_accept(request.headers.get('Accept'), ['application/tar+gzip'])
 
-    data = get_package_zip(package, version)
-
-    if not data:
-        abort(404)
-
+    data = package_view.data(package, version)
     lib_data = get_package_json(package)
 
     headers = [

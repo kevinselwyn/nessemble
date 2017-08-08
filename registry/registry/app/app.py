@@ -7,12 +7,14 @@ import sqlite3
 import time
 from hashlib import sha1
 from flask import Flask, g
+from flask_graphql import GraphQLView
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from ..config.cache import cache
 from ..config.config import config as CONFIG
 from ..models.libs import Lib
 from ..routes import root_endpoint, status_endpoint, errors_endpoint, package_endpoint, reference_endpoint, search_endpoint, user_endpoint
+from ..schema.schema import schema
 from ..utils.utils import get_package_zip
 from ..utils.utils import Session
 
@@ -43,6 +45,8 @@ app.register_blueprint(package_endpoint)
 app.register_blueprint(reference_endpoint)
 app.register_blueprint(search_endpoint)
 app.register_blueprint(user_endpoint)
+
+app.add_url_rule('/graphql', view_func=GraphQLView.as_view('graphql', schema=schema, graphiql=True))
 
 limiter = Limiter(
     app,
