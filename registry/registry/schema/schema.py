@@ -118,16 +118,9 @@ def package_resolver(_root, args, _context, _info):
         'version': args['version'] if args['version'] != '' else None
     }
 
-    if args['target'] == 'package':
-        output = dict(package_view.package(**opts))
-    elif args['target'] == 'readme':
-        output = {
-            'readme': package_view.readme(**opts)
-        }
-    elif args['target'] == 'resource':
-        output = {
-            'resource': base64.b64encode(package_view.data(**opts))
-        }
+    output = dict(package_view.package(**opts))
+    output['readme'] = package_view.readme(**opts)
+    output['resource'] = base64.b64encode(package_view.data(**opts))
 
     return Package(**output)
 
@@ -212,11 +205,6 @@ class Query(graphene.ObjectType):
                              version=graphene.Argument(
                                  graphene.String,
                                  default_value='',
-                                 required=False
-                             ),
-                             target=graphene.Argument(
-                                 graphene.String,
-                                 default_value='package',
                                  required=False
                              ),
                              resolver=package_resolver
