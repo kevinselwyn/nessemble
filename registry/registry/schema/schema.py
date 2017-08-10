@@ -170,6 +170,7 @@ class Query(graphene.ObjectType):
     """Query root"""
 
     packages = graphene.Field(Packages,
+                              description='List packages',
                               page=graphene.Argument(
                                   graphene.Int,
                                   default_value=1,
@@ -194,10 +195,12 @@ class Query(graphene.ObjectType):
                              )
 
     status = graphene.Field(Status,
+                            description='Status of API',
                             resolver=status_resolver
                            )
 
     package = graphene.Field(Package,
+                             description='Nessemble package',
                              title=graphene.Argument(
                                  graphene.String,
                                  required=True
@@ -211,6 +214,7 @@ class Query(graphene.ObjectType):
                             )
 
     reference = graphene.Field(Reference,
+                               description='Reference information',
                                terms=graphene.Argument(
                                    graphene.List(graphene.String),
                                    default_value=[],
@@ -220,6 +224,7 @@ class Query(graphene.ObjectType):
                               )
 
     search = graphene.Field(Search,
+                            description='Search for packages',
                             term=graphene.Argument(
                                 graphene.String,
                                 default_value=''
