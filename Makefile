@@ -435,16 +435,19 @@ docs-settings: docs/mkdocs-template.yml
 		-e "s/\$${ANALYTICS_DOMAIN}/none/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
 
-.PHONY: docs
-docs: docs-js docs-css docs-settings
+.PHONY: docs-build
+docs-build:
 	@cd docs ; mkdocs build --clean
+
+.PHONY: docs
+docs: docs-js docs-css docs-settings docs-build
 	@printf "Starting server...\n"
 	@cd docs ; python index.py --debug --port 9090
 
 # CDN
 
 .PHONY: cdn
-cdn: docs-js docs-css
+cdn: docs-js docs-css docs-settings docs-build
 	@printf "Starting server...\n"
 	@cd cdn ; python index.py --debug --port 8080
 
