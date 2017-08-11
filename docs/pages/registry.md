@@ -860,3 +860,9 @@ if logout_request.status_code != 200:
 
 print 'Logout successful!'
 ```
+
+## GraphQL
+
+`GraphQL` is also (partially) supported via the `/graphql` endpoint.
+
+Try it live: <a href="/graphql" class="registry-default-val">/graphql</a>

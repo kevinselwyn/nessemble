@@ -2,12 +2,11 @@
 # pylint: disable=C0103
 """Search route"""
 
-from collections import OrderedDict
 from flask import Blueprint, request
 from ..config.cache import cache, cache_headers
 from ..config.config import config as CONFIG
-from ..models.libs import Lib
-from ..utils.utils import parse_accept, registry_response, Session
+from ..utils.utils import parse_accept, registry_response
+from ..views import search_view
 
 #----------------#
 # Constants
@@ -30,39 +29,10 @@ def search_packages(term=None):
     """Search packages endpoint"""
 
     accept, _version = parse_accept(request.headers.get('Accept'), ['application/json'])
+    args = {
+        'term': term
+    }
 
-    session = Session()
-    results = OrderedDict([
-        ('term', term),
-        ('results', [])
-    ])
-
-    if term:
-        term = '%%%s%%' % (term.lower())
-
-    result = session.query(Lib) \
-                    .group_by(Lib.title) \
-                    .order_by(Lib.title, Lib.id)
-
-    if term:
-        result = result.filter(Lib.title.like(term))
-
-    result = result.all()
-
-    # get unique results
-
-    result = list(OrderedDict.fromkeys(result))
-
-    # sort results
-
-    result = sorted(result, key=lambda res: res.title)
-
-    for lib in result:
-        results['results'].append(OrderedDict([
-            ('title', lib.title),
-            ('description', lib.description),
-            ('tags', lib.tags.split(',')),
-            ('url', '%spackage/%s' % (request.url_root, lib.title))
-        ]))
+    results = search_view(**args)
 
     return registry_response(results, mimetype=accept)

@@ -49,7 +49,11 @@ class Registries {
         registry = registry_default;
 
         [].forEach.call(registry_vals, (registry_val: HTMLElement) => {
-            registry_val.innerHTML = registry_default;
+            registry_val.innerHTML = registry_default + registry_val.innerHTML;
+
+            if (registry_val.getAttribute('href')) {
+                registry_val.setAttribute('href', registry_default + registry_val.getAttribute('href'));
+            }
         });
 
         [].forEach.call(examples, (example: HTMLElement) => {
