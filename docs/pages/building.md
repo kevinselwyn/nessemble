@@ -200,9 +200,20 @@ make registry
 > The registry server defaults to: `http://localhost:8000`
 > </div>
 
+#### CDN
+
+```text
+make cdn
+```
+
+> <div class="admonition note">
+> <p class="admonition-title">Note</p>
+> The CDN server defaults to: `http://localhost:8080`
+> </div>
+
 #### All
 
-All 3 servers can be run as 1 server.
+All 4 servers can be run as 1 server.
 
 ```text
 make server
