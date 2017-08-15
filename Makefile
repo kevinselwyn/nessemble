@@ -220,7 +220,7 @@ $(EXEC): $(OBJS) $(HDRS)
 # TESTING
 
 test: all
-	@python test.py
+	@python test/test.py
 
 test-clean:
 	$(RM) test/js/*.js
@@ -481,7 +481,7 @@ linux_package: all
 	mkdir -p $(PAYLOAD)/usr/share/bash-completion/completions
 	strip $(EXEC)
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
-	cp $(NAME)-completion.bash \
+	cp $(PACKAGE)/scripts/$(NAME)-completion.bash \
 		$(PAYLOAD)/usr/share/bash-completion/completions/$(NAME)
 	mkdir -p $(PAYLOAD)/DEBIAN
 	sed -e "s/\$${NAME}/$(NAME)/g" \
@@ -511,7 +511,8 @@ mac_package: all
 	mkdir -p $(PAYLOAD)/usr/local/etc/bash_completion.d
 	strip $(EXEC)
 	cp $(EXEC) $(PAYLOAD)/usr/local/bin
-	cp $(NAME)-completion.bash $(PAYLOAD)/usr/local/etc/bash_completion.d
+	cp $(PACKAGE)/scripts/$(NAME)-completion.bash \
+		$(PAYLOAD)/usr/local/etc/bash_completion.d
 	sed -e "s/\$${NAME}/$(NAME)/g" \
 		-e "s/\$${IDENTIFIER}/$(IDENTIFIER)/g" \
 		-e "s/\$${VERSION}/$(VERSION)/g" \

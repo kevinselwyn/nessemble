@@ -1,6 +1,7 @@
 # Nessemble
 
-`nessemble` is a 6502 assembler targeting the Nintendo Entertainment
+`nessemble` is a 6502 assembler/disassembler/simulator targeting the Nintendo
+Entertainment System
 
 ## Getting Started
 
@@ -16,7 +17,7 @@ Build the project:
 nessemble project.asm --output project.nes
 ```
 
-Run `project.nes` in any emulator to see the result.
+Run `project.nes` in any NES emulator to see the result.
 
 ## Documentation
 

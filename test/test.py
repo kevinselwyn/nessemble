@@ -18,6 +18,8 @@ def test_generator(filename):
     """Test generator"""
 
     def test(self):
+        """Test"""
+
         child = subprocess.Popen(['python', filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         data = child.communicate()[0]
         rc = child.returncode
@@ -29,7 +31,7 @@ def test_generator(filename):
 def main():
     """Main function"""
 
-    dirname = '%s%stest' % (os.path.dirname(os.path.realpath(__file__)), os.sep)
+    dirname = os.path.dirname(os.path.realpath(__file__))
 
     for root, dirnames, filenames in os.walk(dirname):
         for filename in filenames:
