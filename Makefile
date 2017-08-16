@@ -21,7 +21,8 @@ YACC_OUT     := y.tab
 YACC_FLAGS   := --output=src/$(YACC_OUT).c --defines --yacc
 SCHEME_FLAGS :=
 
-DEPLOY_FILES := Procfile requirements.txt runtime.txt server.py settings.cfg
+DEPLOY_FILES := Procfile config.py requirements.txt runtime.txt server.py
+DEPLOY_FILES := settings.cfg
 DEPLOY_FILES += cdn/cdn cdn/__init__.py cdn/settings.cfg
 DEPLOY_FILES += docs/custom_theme docs/docs docs/site docs/__init__.py
 DEPLOY_FILES += docs/mkdocs.yml docs/settings.cfg
