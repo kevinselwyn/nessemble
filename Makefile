@@ -142,11 +142,11 @@ js-pre:
 
 js: $(EXEC)
 
-min.js: $(EXEC).min.js
+min.js:
 	@printf "Building min JS...\n"
 	@$(MAKE) js >/dev/null 2>/dev/null || :
 	@printf "Minifying min JS...\n"
-	@uglifyjs --output $(EXEC).min.js \
+	@python ./utils/uglifyjs.py --output $(EXEC).min.js \
 		$(EXEC).js
 
 wasm:
@@ -343,7 +343,7 @@ website-settings: website/settings-template.cfg
 .PHONY: website-css
 website-css:
 	@printf "Minifying website CSS...\n"
-	@uglifycss --output website/static/css/website.css \
+	@python ./utils/uglifycss.py --output website/static/css/website.css \
 		website/static/css/bootstrap.min.css \
 		website/static/css/font-awesome.min.css \
 		website/static/css/grayscale.css \
@@ -353,7 +353,7 @@ website-css:
 .PHONY: website-js
 website-js:
 	@printf "Minifying website JS...\n"
-	@uglifyjs --output website/static/js/website.js \
+	@python ./utils/uglifyjs.py --output website/static/js/website.js \
 		website/static/js/jquery.min.js \
 		website/static/js/jquery.easing.min.js \
 		website/static/js/bootstrap.min.js \
@@ -404,24 +404,26 @@ docs-js-assembler: docs/js/models/assembler.ts
 
 .PHONY: docs-js
 docs-js: docs-js-webpack docs-js-assembler
-	@$(MAKE) js
+	@$(MAKE) min.js
 	@printf "Copying docs JS...\n"
-	@cp $(EXEC).js docs/pages/js 2>/dev/null || \
+	@cp $(EXEC).js docs/pages/js 2>/dev/null || :
+	@cp $(EXEC).min.js docs/pages/js 2>/dev/null || \
+		cp $(EXEC).js docs/pages/js/$(EXEC).min.js 2>/dev/null || \
 		touch docs/pages/js/$(EXEC).js 2>/dev/null || :
 	@printf "Minifying docs JS...\n"
-	@uglifyjs --output docs/pages/js/assemblers.min.js \
+	@python ./utils/uglifyjs.py --output docs/pages/js/assemblers.min.js \
 		docs/pages/js/assemblers.js
-	@uglifyjs --output docs/pages/js/registries.min.js \
+	@python ./utils/uglifyjs.py --output docs/pages/js/registries.min.js \
 		docs/pages/js/registries.js
 
 .PHONY: docs-css
 docs-css:
 	@printf "Minifying docs CSS...\n"
-	@uglifycss --output docs/pages/css/docs.css \
+	@python ./utils/uglifycss.py --output docs/pages/css/docs.css \
 		docs/pages/css/custom.css \
 		docs/pages/css/registry.css \
 		docs/pages/css/bootstrap-modal.css
-	@uglifycss --output docs/pages/css/assembler.min.css \
+	@python ./utils/uglifycss.py --output docs/pages/css/assembler.min.css \
 		docs/pages/css/assembler.css
 
 .PHONY: docs-settings
