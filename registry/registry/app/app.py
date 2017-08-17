@@ -55,6 +55,8 @@ limiter = Limiter(
     headers_enabled=True
 )
 
+db_imported = False
+
 #----------------#
 # Utilities
 
