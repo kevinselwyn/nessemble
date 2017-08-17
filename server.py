@@ -39,6 +39,14 @@ app.wsgi_app = DispatcherMiddleware(website.app, {
 })
 
 #--------------#
+# Functions
+
+def db_import():
+    """Import DB"""
+
+    registry.db_import(SQL_PATH)
+
+#--------------#
 # Main
 
 def main():
@@ -51,7 +59,7 @@ def main():
 
     args = parser.parse_args()
 
-    registry.db_import(SQL_PATH)
+    db_import()
 
     app.run(host=args.host, port=args.port, debug=args.debug, threaded=True)
 

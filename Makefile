@@ -323,7 +323,7 @@ server-settings: docs/mkdocs-template.yml website/settings-template.cfg
 server: docs-js docs-css website-js website-css server-settings
 	@cd docs ; mkdocs build --clean
 	@printf "Starting server...\n"
-	@python server.py --debug --port 8000
+	@PORT=8000 $(shell cat Procfile | cut -c6-)
 
 # WEBSITE
 
