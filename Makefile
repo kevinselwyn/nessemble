@@ -578,10 +578,10 @@ release:
 	$(MAKE) package
 	@$(MAKE) clean
 	$(MAKE) win32_package
-	@cp $(NAME).exe $(RELEASE)/$(NAME)_win32.exe
+	@cp $(NAME).exe $(RELEASE)/$(NAME)_$(VERSION)_win32.exe
 	@$(MAKE) clean
 	$(MAKE) win64_package
-	@cp $(NAME).exe $(RELEASE)/$(NAME)_win64.exe
+	@cp $(NAME).exe $(RELEASE)/$(NAME)_$(VERSION)_win64.exe
 	@$(MAKE) clean
 	$(MAKE) js_package
 
