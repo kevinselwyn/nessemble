@@ -587,15 +587,15 @@ release:
 .PHONY: deploy-settings
 deploy-settings: website/settings-template.cfg
 	@printf "Prepping website settings...\n"
-	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/www.nessemble.com\/documentation/g" \
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 		website/settings-template.cfg > website/settings.cfg
 	@printf "Prepping docs settings...\n"
-	@sed -e "s/\$${DOCUMENTATION}/http:\/\/docs.nessemble.com/g" \
-		-e "s/\$${REGISTRY}/http:\/\/registry.nessemble.com/g" \
-		-e "s/\$${WEBSITE}/http:\/\/nessemble.com/g" \
-		-e "s/\$${CDN}/http:\/\/cdn.nessemble.com/g" \
+	@sed -e "s/\$${DOCUMENTATION}/http:\/\/www.nessemble.com\/documentation/g" \
+		-e "s/\$${REGISTRY}/http:\/\/www.nessemble.com\/registry/g" \
+		-e "s/\$${WEBSITE}/http:\/\/www.nessemble.com/g" \
+		-e "s/\$${CDN}/http:\/\/www.nessemble.com\/cdn/g" \
 		-e "s/\$${ANALYTICS_ID}/$(ANALYTICS_PROD)/g" \
 		-e "s/\$${ANALYTICS_DOMAIN}/nessemble.com/g" \
 	 	docs/mkdocs-template.yml > docs/mkdocs.yml
