@@ -25,7 +25,7 @@ struct option commandline_options[USAGE_FLAG_COUNT+1] = {
 
 static struct usage_flag usage_flags[USAGE_FLAG_COUNT] = {
     { "-o, --output <outfile.rom>", "output file" },
-    { "-f, --format {NES,RAW}", "output format" },
+    { "-f, --format {NES,NES2.0,RAW}", "output format" },
     { "-e, --empty <hex>", "empty byte value" },
     { "-u, --undocumented", "use undocumented opcodes" },
     { "-l, --list <listfile.txt>", "generate list of labels and constants" },

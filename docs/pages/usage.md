@@ -5,21 +5,21 @@ Usage: nessemble [options] <infile.asm>
                  <command> [args]
 
 Options:
-  -o, --output <outfile.rom>   output file
-  -f, --format {NES,RAW}       output format
-  -e, --empty <hex>            empty byte value
-  -u, --undocumented           use undocumented opcodes
-  -l, --list <listfile.txt>    generate list of labels and constants
-  -p, --pseudo <pseudo.txt>    use custom pseudo-instruction functions
-  -c, --check                  check syntax only
-  -C, --coverage               log data coverage
-  -d, --disassemble            disassemble infile
-  -R, --reassemble             enable reassembly
-  -s, --simulate <infile.rom>  start the simulator
-  -r, --recipe <recipe.txt>    recipe file for the simulator
-  -v, --version                display program version
-  -L, --license                display program license
-  -h, --help                   print this message
+  -o, --output <outfile.rom>     output file
+  -f, --format {NES,NES2.0,RAW}  output format
+  -e, --empty <hex>              empty byte value
+  -u, --undocumented             use undocumented opcodes
+  -l, --list <listfile.txt>      generate list of labels and constants
+  -p, --pseudo <pseudo.txt>      use custom pseudo-instruction functions
+  -c, --check                    check syntax only
+  -C, --coverage                 log data coverage
+  -d, --disassemble              disassemble infile
+  -R, --reassemble               enable reassembly
+  -s, --simulate <infile.rom>    start the simulator
+  -r, --recipe <recipe.txt>      recipe file for the simulator
+  -v, --version                  display program version
+  -L, --license                  display program license
+  -h, --help                     print this message
 
 Commands:
   init [<arg> ...]                 initialize new project
@@ -42,23 +42,23 @@ Commands:
 
 ## Options
 
-| Option                                                | Description                             |
-|-------------------------------------------------------|-----------------------------------------|
-| [-o, --output <outfile.rom>](#-o-output-outfilerom)   | output file                             |
-| [-f, --format {NES,RAW}](#-f-format-nesraw)           | output format                           |
-| [-e, --empty <hex>](#-e-empty-hex)                    | empty byte value                        |
-| [-u, --undocumented](#-u-undocumented)                | use undocumented opcodes                |
-| [-l, --list <listfile.txt>](#-l-list-listfiletxt)     | generate list of labels and constants   |
-| [-p, --pseudo <pseudo.txt>](#-p-pseudo-pseudotxt)     | use custom pseudo-instruction functions |
-| [-c, --check](#-c-check)                              | check syntax only                       |
-| [-C, --coverage](#-c-coverage)                        | log data coverage                       |
-| [-d, --disassemble](#-d-disassemble)                  | disassemble infile                      |
-| [-R, --reassemble](#-r-reassemble)                    | enable reassembly                       |
-| [-s, --simulate <infile.rom>](#-s-simulate-infilerom) | start the simulator                     |
-| [-r, --recipe <recipe.txt>](#-r-recipe-recipetxt)     | recipe file for the simulator           |
-| [-v, --version](#-v-version)                          | display program version                 |
-| [-L, --license](#-l-license)                          | display program license                 |
-| [-h, --help](#-h-help)                                | print this message                      |
+| Option                                                  | Description                             |
+|---------------------------------------------------------|-----------------------------------------|
+| [-o, --output <outfile.rom>](#-o-output-outfilerom)     | output file                             |
+| [-f, --format {NES,NES2.0,RAW}](#-f-format-nesnes20raw) | output format                           |
+| [-e, --empty <hex>](#-e-empty-hex)                      | empty byte value                        |
+| [-u, --undocumented](#-u-undocumented)                  | use undocumented opcodes                |
+| [-l, --list <listfile.txt>](#-l-list-listfiletxt)       | generate list of labels and constants   |
+| [-p, --pseudo <pseudo.txt>](#-p-pseudo-pseudotxt)       | use custom pseudo-instruction functions |
+| [-c, --check](#-c-check)                                | check syntax only                       |
+| [-C, --coverage](#-c-coverage)                          | log data coverage                       |
+| [-d, --disassemble](#-d-disassemble)                    | disassemble infile                      |
+| [-R, --reassemble](#-r-reassemble)                      | enable reassembly                       |
+| [-s, --simulate <infile.rom>](#-s-simulate-infilerom)   | start the simulator                     |
+| [-r, --recipe <recipe.txt>](#-r-recipe-recipetxt)       | recipe file for the simulator           |
+| [-v, --version](#-v-version)                            | display program version                 |
+| [-L, --license](#-l-license)                            | display program license                 |
+| [-h, --help](#-h-help)                                  | print this message                      |
 
 ### -o, --output &lt;outfile.rom&gt;
 
@@ -73,11 +73,12 @@ nessemble infile.asm --output outfile.rom
 If a outfile of `-` is set (or the flag is omitted altogether) the
 output will be written to `stdout`.
 
-### -f, --format {NES,RAW}
+### -f, --format {NES,NES2.0,RAW}
 
 The `-f`/`--format` flag specifies the format of the output.
 
 * `NES` - will output an NES ROM, complete with an iNES header
+* `NES2.0` - will output an NES2.0 ROM, with an NES2.0 header
 * `RAW` - will output raw assembled 6502 code
 
 Example:

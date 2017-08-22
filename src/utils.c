@@ -693,6 +693,14 @@ unsigned int is_flag_nes() {
 }
 
 /**
+ * Test if nes2.0 flag is active
+ * @return {unsigned int} True if flag active, false if not
+ */
+unsigned int is_flag_nes2_0() {
+    return (unsigned int)((flags & FLAG_NES2_0) != 0 ? TRUE : FALSE);
+}
+
+/**
  * Test if disassemble flag is active
  * @return {unsigned int} True if flag active, false if not
  */

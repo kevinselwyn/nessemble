@@ -19,7 +19,7 @@
 int main(int argc, char *argv[]) {
     int option_index = 0, c = 0, empty_byte = 0xFF;
     unsigned int rc = RETURN_OK;
-    unsigned int i = 0, l = 0, byte = 0, piped = FALSE, ref_count = 0;
+    unsigned int i = 0, l = 0, piped = FALSE, ref_count = 0;
     char *exec = NULL, *filename = NULL, *outfilename = NULL;
     char *listname = NULL, *recipe = NULL, *package = NULL;
     char *registry = NULL, *config = NULL, *install_path = NULL;
@@ -67,6 +67,10 @@ int main(int argc, char *argv[]) {
 
             if (strcmp(optarg, "nes") == 0 || strcmp(optarg, "NES") == 0) {
                 flags |= FLAG_NES;
+            }
+
+            if (strcmp(optarg, "nes2.0") == 0 || strcmp(optarg, "NES2.0") == 0) {
+                flags |= FLAG_NES2_0;
             }
 
             break;
@@ -578,34 +582,8 @@ int main(int argc, char *argv[]) {
 
     /* write nes header */
     if (is_flag_nes() == TRUE) {
-        UNUSED(fwrite("NES", 3, 1, outfile)); /* 0-2 */
-
-        byte = 0x1A;
-        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 3 */
-
-        UNUSED(fwrite(&ines.prg, 1, 1, outfile)); /* 4 */
-        UNUSED(fwrite(&ines.chr, 1, 1, outfile)); /* 5 */
-
-        byte = 0;
-        byte |= ines.mir & 0x01;
-        byte |= (ines.trn & 0x01) << 0x02;
-        byte |= (ines.map & 0x0F) << 0x04;
-
-        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 6 */
-
-        byte = 0;
-        byte |= (ines.map & 0xF0);
-
-        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 7 */
-
-        byte = 0;
-
-        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 8 */
-        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 9 */
-        UNUSED(fwrite(&byte, 1, 1, outfile)); /* 10 */
-
-        for (i = 11, l = 16; i < l; i++) {
-            UNUSED(fwrite(&byte, 1, 1, outfile)); /* 11-15 */
+        if (nes_header(outfile) != 0) {
+            goto cleanup;
         }
     }
 

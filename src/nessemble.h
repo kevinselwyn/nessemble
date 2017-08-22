@@ -102,11 +102,12 @@
 /* CLI FLAGS */
 #define FLAG_UNDOCUMENTED 0x01
 #define FLAG_NES          0x02
-#define FLAG_DISASSEMBLE  0x04
-#define FLAG_REASSEMBLE   0x08
-#define FLAG_SIMULATE     0x10
-#define FLAG_CHECK        0x20
-#define FLAG_COVERAGE     0x40
+#define FLAG_NES2_0       0x04
+#define FLAG_DISASSEMBLE  0x08
+#define FLAG_REASSEMBLE   0x10
+#define FLAG_SIMULATE     0x20
+#define FLAG_CHECK        0x40
+#define FLAG_COVERAGE     0x80
 
 /* SEGMENTS */
 #define SEGMENT_CHR 1
@@ -365,6 +366,7 @@ void include_string_pop();
 /* FLAG TESTS */
 unsigned int is_flag_undocumented();
 unsigned int is_flag_nes();
+unsigned int is_flag_nes2_0();
 unsigned int is_flag_disassemble();
 unsigned int is_flag_reassemble();
 unsigned int is_flag_simulate();
@@ -698,5 +700,9 @@ unsigned int scripting_so(char *exec, char **output);
 /* HASH */
 void hash(char **hex, char *data, size_t data_len);
 void hmac(char **hex, char *key, size_t key_len, char *data, size_t data_len);
+
+/* NES */
+int nes_header(FILE *outfile);
+int nes2_0_header(FILE *outfile);
 
 #endif /* _NESSEMBLE_H */
