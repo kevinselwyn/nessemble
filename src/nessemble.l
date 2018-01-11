@@ -29,8 +29,10 @@ int include_stack_ptr = 0;
 [ ]+                       { /* WHITESPACE */ }
 ;.*                        { /* COMMENT */ }
 
-"+"                        { return PLUS; }
-"-"                        { return MINUS; }
+\+{2,}                     { yylval.ival = (int)strlen(yytext); return PLUSSES; }
+"+"                        { yylval.ival = 1; return PLUS; }
+\-{2,}                     { yylval.ival = (int)strlen(yytext) * -1; return MINUSES; }
+"-"                        { yylval.ival = -1; return MINUS; }
 "**"                       { return POW; }
 "*"                        { return MULT; }
 "/"                        { return DIV; }

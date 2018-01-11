@@ -17,8 +17,6 @@
 %token ENDL
 %token INDENTATION
 
-%token PLUS
-%token MINUS
 %token POW
 %token MULT
 %token DIV
@@ -89,6 +87,10 @@
 %token PSEUDO_SEGMENT
 %token PSEUDO_WORD
 
+%token <ival> PLUSSES
+%token <ival> PLUS
+%token <ival> MINUSES
+%token <ival> MINUS
 %token <ival> NUMBER_DEFCHR
 %token <ival> NUMBER_HEX
 %token <ival> NUMBER_BIN
@@ -218,8 +220,10 @@ label_text
     ;
 
 local_label_text
-    : COLON PLUS  { if (pass == 2) { $$ = symbols[get_symbol_local(1)].value; } else { $$ = 1; } }
-    | COLON MINUS { if (pass == 2) { $$ = symbols[get_symbol_local(-1)].value; } else { $$ = 1; } }
+    : COLON PLUSSES { if (pass == 2) { $$ = symbols[get_symbol_local($2)].value; } else { $$ = 1; } }
+    | COLON MINUSES { if (pass == 2) { $$ = symbols[get_symbol_local($2)].value; } else { $$ = 1; } }
+    | COLON PLUS    { if (pass == 2) { $$ = symbols[get_symbol_local($2)].value; } else { $$ = 1; } }
+    | COLON MINUS   { if (pass == 2) { $$ = symbols[get_symbol_local($2)].value; } else { $$ = 1; } }
     ;
 
 label
