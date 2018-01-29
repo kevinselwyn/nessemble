@@ -61,21 +61,23 @@ SpriteDMA:
 
 ;;;;;;;;
 
-unknown_C04A:
+MusicInit:
     LDA #$00
     STA $4015
     LDA #$00
     STA <$00
     LDA #$08
     STA <$01
-    JSR unknown_C109
-    JSR unknown_C16C
 
 ;;;;;;;;
 
-unknown_C05D:
+    JSR CopyData
+    JSR InitLib
+
+;;;;;;;;
+
     LDA $2002
-    JMP LoadPalettes
+    JMP Main
 
 ;;;;;;;;
 
@@ -119,7 +121,7 @@ NMI:
 
 ;;;;;;;;
 
-LoadPalettes:
+Main:
     LDA #$00
     STA $2000
     STA $2001
@@ -128,38 +130,38 @@ LoadPalettes:
     LDA #$00
     STA $2006
     STA $0325
-unknown_C0A7:
+MainLoop:
     LDA $0325
     CMP #$04
-    BCS unknown_C0BD
+    BCS LoadPalettes
     LDY $0325
     LDA palette, Y
     STA $2007
     INC $0325
-    JMP unknown_C0A7
+    JMP MainLoop
 
 ;;;;;;;;
 
-unknown_C0BD:
+LoadPalettes:
     LDA #$21
     STA $2006
     LDA #$CA
     STA $2006
     LDA #$00
     STA $0325
-unknown_C0CC:
+LoadPalettesLoop:
     LDA $0325
     CMP #$0D
-    BCS unknown_C0E2
+    BCS SetScroll
     LDY $0325
     LDA $C136, Y
     STA $2007
     INC $0325
-    JMP unknown_C0CC
+    JMP LoadPalettesLoop
 
 ;;;;;;;;
 
-unknown_C0E2:
+SetScroll:
     LDA #$00
     STA $2006
     STA $2006
@@ -177,18 +179,18 @@ Forever:
 
 ;;;;;;;;
 
-unknown_C0FD:
+InitLib2:
     LDY #$00
-    BEQ unknown_C108
+    BEQ InitLib2Done
     LDA #$47
     LDX #$C1
     JMP $0300
-unknown_C108:
+InitLib2Done:
     RTS
 
 ;;;;;;;;
 
-unknown_C109:
+CopyData:
     LDA #$47
     STA <$08
     LDA #$C1
@@ -201,20 +203,20 @@ unknown_C109:
     LDA #$FF
     STA <$10
     LDY #$00
-unknown_C121:
+CopyDataOuterLoop:
     INX
-    BEQ unknown_C131
-unknown_C124:
+    BEQ CopyDataDone
+CopyDataInnerLoop:
     LDA [$08], Y
     STA [$0A], Y
     INY
-    BNE unknown_C121
+    BNE CopyDataOuterLoop
     INC <$09
     INC <$0B
-    BNE unknown_C121
-unknown_C131:
+    BNE CopyDataOuterLoop
+CopyDataDone:
     INC <$10
-    BNE unknown_C124
+    BNE CopyDataInnerLoop
     RTS
 
 ;;;;;;;;
@@ -233,13 +235,13 @@ data:
     .db $1E, $03, $8C, $21, $03, $20, $FF, $FF
     .db $A0, $FF, $D0, $E8, $60
 
-unknown_C16C:
+InitLib:
     LDY #$00
-    BEQ unknown_C177
+    BEQ InitLibDone
     LDA #$92
     LDX #$C0
     JMP $0300
-unknown_C177:
+InitLibDone:
     RTS
 
 ;;;;;;;;
