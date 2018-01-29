@@ -48,16 +48,16 @@ vblankwait2:
 
 ;;;;;;;;
 
-    JSR unknown_C063
+    JSR ClearSprites
 
 ;;;;;;;;
 
-unknown_C03D:
+SpriteDMA:
     LDA #$00
     STA $2003
     LDA #$02
     STA $4014
-    JSR unknown_C074
+    JSR ClearScreen
 
 ;;;;;;;;
 
@@ -79,22 +79,23 @@ unknown_C05D:
 
 ;;;;;;;;
 
-unknown_C063:
+ClearSprites:
     LDY #$40
     LDX #$00
     LDA #$F8
+ClearSpritesLoop:
     STA $0200, X
     INX
     INX
     INX
     INX
     DEY
-    BNE unknown_C063
+    BNE ClearSpritesLoop
     RTS
 
 ;;;;;;;;
 
-unknown_C074:
+ClearScreen:
     LDA $2002
     LDA #$20
     STA $2006
@@ -103,12 +104,12 @@ unknown_C074:
     LDA #$00
     LDY #$10
     LDX #$00
-:
+ClearScreenLoop:
     STA $2007
     DEX
-    BNE :-
+    BNE ClearScreenLoop
     DEY
-    BNE :-
+    BNE ClearScreenLoop
     RTS
 
 ;;;;;;;;
@@ -127,7 +128,7 @@ LoadPalettes:
     LDA #$00
     STA $2006
     STA $0325
-:
+unknown_C0A7:
     LDA $0325
     CMP #$04
     BCS unknown_C0BD
@@ -135,7 +136,7 @@ LoadPalettes:
     LDA palette, Y
     STA $2007
     INC $0325
-    JMP :-
+    JMP unknown_C0A7
 
 ;;;;;;;;
 
@@ -146,7 +147,7 @@ unknown_C0BD:
     STA $2006
     LDA #$00
     STA $0325
-:
+unknown_C0CC:
     LDA $0325
     CMP #$0D
     BCS unknown_C0E2
@@ -154,7 +155,7 @@ unknown_C0BD:
     LDA $C136, Y
     STA $2007
     INC $0325
-    BCS :-
+    JMP unknown_C0CC
 
 ;;;;;;;;
 
@@ -177,12 +178,12 @@ Forever:
 ;;;;;;;;
 
 unknown_C0FD:
-    LDA #$00
-    BEQ :+
+    LDY #$00
+    BEQ unknown_C108
     LDA #$47
     LDX #$C1
     JMP $0300
-:
+unknown_C108:
     RTS
 
 ;;;;;;;;
@@ -200,20 +201,20 @@ unknown_C109:
     LDA #$FF
     STA <$10
     LDY #$00
-:
+unknown_C121:
     INX
-    BEQ :+
-:
+    BEQ unknown_C131
+unknown_C124:
     LDA [$08], Y
     STA [$0A], Y
     INY
-    BNE :--
+    BNE unknown_C121
     INC <$09
     INC <$0B
-    BNE :--
-:
+    BNE unknown_C121
+unknown_C131:
     INC <$10
-    BNE :--
+    BNE unknown_C124
     RTS
 
 ;;;;;;;;
@@ -230,14 +231,15 @@ data:
     .db $03, $8E, $16, $03, $88, $B9, $FF, $FF
     .db $8D, $1F, $03, $88, $B9, $FF, $FF, $8D
     .db $1E, $03, $8C, $21, $03, $20, $FF, $FF
+    .db $A0, $FF, $D0, $E8, $60
 
 unknown_C16C:
     LDY #$00
-    BEQ :+
+    BEQ unknown_C177
     LDA #$92
     LDX #$C0
     JMP $0300
-:
+unknown_C177:
     RTS
 
 ;;;;;;;;
