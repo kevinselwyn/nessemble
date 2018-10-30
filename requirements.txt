@@ -1,7 +1,7 @@
 Cerberus==1.1
 configparser==3.5.0
 cssmin==0.2.0
-Flask==0.12
+Flask==0.12.3
 Flask-Caching==1.2.0
 Flask-GraphQL==1.4.1
 Flask-Limiter==0.9.4
