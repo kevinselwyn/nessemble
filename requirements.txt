@@ -9,7 +9,7 @@ graphene==1.4.1
 gunicorn==19.7.1
 jsmin==2.2.2
 mkdocs==0.16.3
-Pillow==4.1.1
+Pillow==8.2.0
 pyotp==2.2.6
 PyQRCode==1.2.1
 pypng==0.0.18
