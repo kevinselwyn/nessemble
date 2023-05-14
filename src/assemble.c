@@ -193,19 +193,32 @@ int get_symbol(char *name) {
  */
 int get_symbol_local(int direction) {
     int symbol_id = -1;
-    unsigned int i = 0, l = 0;
+    int i = 0, l = 0;
     unsigned int offset = get_address_offset();
 
-    for (i = 0, l = symbol_index; i < l; i++) {
-        if (strcmp(symbols[i].name, ":") == 0) {
-            if (direction == -1) {
-                if (symbols[i].value < offset) {
-                    symbol_id = (int)i;
-                }
-            } else {
+    if (direction > 0) {
+        for (i = 0, l = symbol_index; i < l; i++) {
+            if (strcmp(symbols[i].name, ":") == 0) {
                 if (symbols[i].value > offset) {
-                    symbol_id = (int)i;
-                    break;
+                    if (direction == 1) {
+                        symbol_id = (int)i;
+                        break;
+                    } else {
+                        direction--;
+                    }
+                }
+            }
+        }
+    } else if (direction < 0) {
+        for (i = symbol_index - 1; i >= 0; i--) {
+            if (strcmp(symbols[i].name, ":") == 0) {
+                if (symbols[i].value < offset) {
+                    if (direction == -1) {
+                        symbol_id = (int)i;
+                        break;
+                    } else {
+                        direction++;
+                    }
                 }
             }
         }

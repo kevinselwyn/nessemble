@@ -90,7 +90,8 @@ Temporary/un-named labels may also be declared by placing only a colon.
 :
 ```
 
-To jump to a temporary label, the direction of the jump must be given.
+To jump to a temporary label, the direction and count of the jumps must be
+given.
 
 ```text
 JMP :[+-]
@@ -98,11 +99,11 @@ JMP :[+-]
 
 `[+-]` - Direction, required.
 
-A `+` direction means to jump to the temporary label that is further down in the
-code.
+N-number of `+`s means to jump to the temporary label that is N temporary labels
+further down in the code.
 
-A `-` direction means to jump to the temporary label that is further up in the
-code.
+N-number of `-`s means to jump to the temporary label that is N temporary labels
+further up in the code.
 
 Example:
 

@@ -128,6 +128,8 @@
 %type <ival> number_highlow
 %type <ival> label_text
 %type <ival> local_label_text
+%type <ival> local_label_text_plus
+%type <ival> local_label_text_minus
 %type <ival> label
 
 %type <uval> pseudo_checksum
@@ -218,8 +220,18 @@ label_text
     ;
 
 local_label_text
-    : COLON PLUS  { if (pass == 2) { $$ = symbols[get_symbol_local(1)].value; } else { $$ = 1; } }
-    | COLON MINUS { if (pass == 2) { $$ = symbols[get_symbol_local(-1)].value; } else { $$ = 1; } }
+    : COLON local_label_text_plus  { if (pass == 2) { $$ = symbols[get_symbol_local($2)].value; } else { $$ = 1; } }
+    | COLON local_label_text_minus { if (pass == 2) { $$ = symbols[get_symbol_local($2)].value; } else { $$ = 1; } }
+    ;
+
+local_label_text_plus
+    : PLUS                       { $$ = 1; }
+    | local_label_text_plus PLUS { $$ = $1 + 1; }
+    ;
+
+local_label_text_minus
+    : MINUS                        { $$ = -1; }
+    | local_label_text_minus MINUS { $$ = $1 - 1; }
     ;
 
 label
