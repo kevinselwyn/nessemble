@@ -1,0 +1,7 @@
+FROM i386/ubuntu:xenial
+
+WORKDIR /usr/nessemble
+
+COPY . /usr/nessemble/
+
+RUN /usr/nessemble/provision/provision.sh

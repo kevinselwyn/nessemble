@@ -2,7 +2,7 @@
 
 # paths
 HOME="/home/ubuntu"
-ROOT="/vagrant"
+ROOT="/usr/nessemble"
 
 # start time
 START=$(date +%s)
@@ -65,6 +65,15 @@ do
     esac
 done
 
+# update
+apt-get -y update
+
+# build tools
+apt-get -y install git make curl bison flex
+
+# debug tools
+apt-get -y install bc gdb splint valgrind
+
 # cache
 if [ "$CACHE" == "1" ]
 then
@@ -80,15 +89,6 @@ then
     _download $EMSCRIPTEN_URL $HOME/cache/emsdk-portable.tar.gz
 fi
 
-# update
-sudo apt-get -y update
-
-# build tools
-sudo apt-get -y install git make curl bison flex
-
-# debug tools
-sudo apt-get -y install bc gdb splint valgrind
-
 # install nvm
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
@@ -99,7 +99,7 @@ nvm install 8.0.0
 nvm use 8.0.0
 
 # npm fix
-sudo chown -R ubuntu:$(id -gn ubuntu) $HOME/.config
+chown -R ubuntu:$(id -gn ubuntu) $HOME/.config
 
 # install yarn
 npm install -g yarn
@@ -108,27 +108,27 @@ npm install -g yarn
 cd $ROOT/docs && yarn install
 
 # python
-sudo apt-get -y install python-pip
+apt-get -y install python-pip
 
 # python modules
-sudo -H pip install --upgrade pip
+-pip install --upgrade pip
 
 for reqs in `find $ROOT -name requirements.txt`
 do
-    sudo -H pip install -r $reqs
+    -pip install -r $reqs
 done
 
 # mingw
-sudo apt-get -y install gcc-mingw-w64-i686 gcc-mingw-w64-x86-64
+apt-get -y install gcc-mingw-w64-i686 gcc-mingw-w64-x86-64
 
 # msitools
-sudo apt-get -y install intltool libglib2.0-dev libgsf-1-dev uuid-dev libgcab-dev libmsi-dev
+apt-get -y install intltool libglib2.0-dev libgsf-1-dev uuid-dev libgcab-dev libmsi-dev
 rm -rf $HOME/msitools-$MSITOOLS_VERSION*
 _download $MSITOOLS_URL $HOME/cache/msitools-$MSITOOLS_VERSION.tar.xz
 cp $HOME/cache/msitools-$MSITOOLS_VERSION.tar.xz $HOME/msitools-$MSITOOLS_VERSION.tar.xz
 cd $HOME/ && tar xf msitools-$MSITOOLS_VERSION.tar.xz
 cd $HOME/msitools-$MSITOOLS_VERSION && ./configure
-cd $HOME/msitools-$MSITOOLS_VERSION && make && sudo make install
+cd $HOME/msitools-$MSITOOLS_VERSION && make && make install
 rm -rf $HOME/msitools-$MSITOOLS_VERSION*
 
 # liblua

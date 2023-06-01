@@ -1,14 +1,14 @@
 # Building
 
 For guaranteed results with minimal configuration, use
-[Vagrant](https://www.vagrantup.com/).
+[Vagrant](https://www.vagrantup.com/) or [Docker](https://www.docker.com/)
 
 ## Linux
 
 ### Dependencies
 
-When building outside of Vagrant, run the provision script with the appropriate
-flags:
+When building outside of Vagrant/Docker, run the provision script with the
+appropriate flags:
 
 ```text
 provision/provision.sh --home $HOME --root $ROOT
@@ -29,6 +29,14 @@ For 32-bit:
 
 ```text
 vagrant up linux32 && vagrant ssh
+```
+
+Or with Docker:
+
+```text
+docker build -t nessemble64 -f Dockerfile.linux64 .
+docker run --rm -d -it -w /usr/nessemble -v ${PWD}:/usr/nessemble nessemble64 /bin/bash
+docker exec -it <container_id> bash
 ```
 
 ### Build
