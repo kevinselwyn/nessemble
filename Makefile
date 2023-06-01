@@ -1,5 +1,5 @@
 NAME         := nessemble
-VERSION      := 1.1.0
+VERSION      := 1.1.1
 EXEC         := $(NAME)
 BIN_DIR      := /usr/local/bin
 RM           := rm -rf

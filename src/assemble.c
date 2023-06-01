@@ -198,7 +198,7 @@ int get_symbol_local(int direction) {
 
     if (direction > 0) {
         for (i = 0, l = symbol_index; i < l; i++) {
-            if (strcmp(symbols[i].name, ":") == 0) {
+            if (strcmp(symbols[i].name, ":") == 0 && symbols[i].bank == prg_index) {
                 if (symbols[i].value > offset) {
                     if (direction == 1) {
                         symbol_id = (int)i;
@@ -211,7 +211,7 @@ int get_symbol_local(int direction) {
         }
     } else if (direction < 0) {
         for (i = symbol_index - 1; i >= 0; i--) {
-            if (strcmp(symbols[i].name, ":") == 0) {
+            if (strcmp(symbols[i].name, ":") == 0 && symbols[i].bank == prg_index) {
                 if (symbols[i].value < offset) {
                     if (direction == -1) {
                         symbol_id = (int)i;

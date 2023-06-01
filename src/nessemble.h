@@ -48,7 +48,7 @@
 
 /* PROGRAM */
 #define PROGRAM_NAME         "nessemble"
-#define PROGRAM_VERSION      "1.1.0"
+#define PROGRAM_VERSION      "1.1.1"
 #define PROGRAM_COPYRIGHT    "2017"
 #define PROGRAM_AUTHOR       "Kevin Selwyn"
 #define PROGRAM_AUTHOR_EMAIL "kevinselwyn@gmail.com"
